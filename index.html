@@ -1,779 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>✨ Magic Math! ✨</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>✨ Magic Math — Built with Claude</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:linear-gradient(145deg,#fce4ec,#f3e5f5,#e8eaf6,#fce4ec);min-height:100vh;overflow-x:hidden}
 
-    :root {
-      --pink:    #f06292;
-      --dpink:   #e91e63;
-      --purple:  #ab47bc;
-      --dpurple: #7b1fa2;
-      --lavender:#ce93d8;
-      --gold:    #ffd54f;
-      --dgold:   #f9a825;
-      --rose:    #f48fb1;
-      --bg1:     #fce4ec;
-      --bg2:     #f3e5f5;
-      --bg3:     #fff9c4;
-    }
+    /* floating deco */
+    .deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .deco span{position:absolute;opacity:.12;font-size:1.6rem;animation:floatUp linear infinite}
+    @keyframes floatUp{0%{transform:translateY(105vh) rotate(0)}100%{transform:translateY(-10vh) rotate(360deg)}}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+    /* HERO */
+    .hero{position:relative;z-index:1;text-align:center;padding:56px 24px 40px}
+    .hero-badge{display:inline-block;background:rgba(255,255,255,.7);border:2px solid #f48fb1;border-radius:50px;padding:6px 22px;font-size:.9rem;font-weight:900;color:#9c27b0;margin-bottom:20px;letter-spacing:1px}
+    .hero-title{font-size:clamp(2.4rem,8vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:12px}
+    .hero-title .word{display:inline-block}
+    .w1{color:#e91e63}.w2{color:#9c27b0}.w3{color:#3f51b5}
+    .hero-sub{font-size:clamp(1rem,3vw,1.3rem);font-weight:700;color:#7b1fa2;max-width:560px;margin:0 auto 32px;line-height:1.5}
+    .hero-sub strong{color:#e91e63}
+    .play-latest{display:inline-block;background:linear-gradient(160deg,#f06292,#7b1fa2);color:#fff;text-decoration:none;border-radius:50px;padding:16px 40px;font-family:inherit;font-size:1.2rem;font-weight:900;box-shadow:0 6px 0 #4a148c,0 10px 24px rgba(123,31,162,.3);transition:transform .1s}
+    .play-latest:active,.play-latest:hover{transform:translateY(3px);box-shadow:0 3px 0 #4a148c}
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(145deg, #fce4ec 0%, #f3e5f5 40%, #e8eaf6 70%, #fce4ec 100%);
-      min-height: 100vh; overflow-x: hidden;
-    }
+    /* WHAT IS THIS */
+    .what-section{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 24px 48px;text-align:center}
+    .section-title{font-size:clamp(1.4rem,4vw,2rem);font-weight:900;color:#7b1fa2;margin-bottom:12px}
+    .what-text{font-size:1.05rem;color:#555;line-height:1.7;font-weight:700}
+    .pill-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+    .pill{background:rgba(255,255,255,.8);border:2px solid #f48fb1;border-radius:50px;padding:7px 18px;font-size:.9rem;font-weight:900;color:#9c27b0}
 
-    /* ── floating bg decorations ── */
-    .bg-deco {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .bg-deco span {
-      position: absolute; font-size: 1.6rem; opacity: .18;
-      animation: floatDeco linear infinite;
-    }
-    @keyframes floatDeco {
-      0%   { transform: translateY(110vh) rotate(0deg); }
-      100% { transform: translateY(-10vh) rotate(360deg); }
-    }
+    /* TIMELINE */
+    .timeline{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:0 16px 64px}
+    .timeline-title{text-align:center;font-size:clamp(1.4rem,4vw,2rem);font-weight:900;color:#7b1fa2;margin-bottom:36px}
 
-    /* ── HOME ── */
-    .home {
-      position: relative; z-index: 1;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 100vh; gap: 24px; padding: 24px;
-    }
+    .version-card{background:rgba(255,255,255,.85);border-radius:28px;padding:28px 24px;margin-bottom:24px;box-shadow:0 6px 0 rgba(0,0,0,.08),0 12px 32px rgba(0,0,0,.1);border:2.5px solid #f8bbd0;position:relative;overflow:hidden}
+    .version-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px}
+    .vc1::before{background:linear-gradient(90deg,#42a5f5,#66bb6a)}
+    .vc2::before{background:linear-gradient(90deg,#1565c0,#e91e63)}
+    .vc3::before{background:linear-gradient(90deg,#e91e63,#9c27b0,#f9a825)}
+    .vc4::before{background:linear-gradient(90deg,#9c27b0,#e91e63,#ffd54f,#4caf50)}
 
-    .home-rainbow {
-      font-size: clamp(1rem, 3vw, 1.5rem);
-      letter-spacing: 4px; animation: bounce 1.4s ease-in-out infinite alternate;
-    }
-    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+    .vc-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+    .vc-badge{background:linear-gradient(135deg,#f06292,#9c27b0);color:#fff;border-radius:50px;padding:5px 16px;font-size:.85rem;font-weight:900;white-space:nowrap}
+    .vc-title{font-size:1.3rem;font-weight:900;color:#4a148c}
+    .vc-stars{font-size:1.1rem;margin-left:auto}
 
-    .home-title {
-      font-size: clamp(2rem, 8vw, 3.6rem); font-weight: 900; text-align: center;
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 2px;
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,.18));
-    }
-    .home-title span { display: inline-block; animation: bounce 1.2s infinite alternate; }
-    @keyframes rainbowShift { to { background-position: 200% center; } }
+    .prompt-box{background:linear-gradient(135deg,#f3e5f5,#fce4ec);border:2px solid #ce93d8;border-radius:16px;padding:14px 18px;margin-bottom:16px;position:relative}
+    .prompt-label{font-size:.72rem;font-weight:900;color:#9c27b0;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+    .prompt-text{font-size:.95rem;color:#4a148c;font-weight:700;line-height:1.5;font-style:italic}
+    .prompt-quote{font-size:2.5rem;color:#ce93d8;line-height:.5;vertical-align:-.3em}
 
-    .home-sub {
-      font-size: clamp(.9rem, 3vw, 1.2rem); font-weight: 900;
-      color: var(--purple); letter-spacing: 1px;
-      background: rgba(255,255,255,.55); border-radius: 50px;
-      padding: 6px 20px; box-shadow: 0 2px 8px rgba(171,71,188,.2);
-    }
+    .features-title{font-size:.8rem;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+    .features-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+    .feat{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #f8bbd0;border-radius:12px;padding:6px 12px;font-size:.88rem;font-weight:900;color:#7b1fa2}
+    .feat.new{border-color:#f06292;background:linear-gradient(135deg,#fce4ec,#f3e5f5)}
 
-    .mode-section { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 680px; }
-    .mode-section-label {
-      font-size: 1rem; font-weight: 900; color: var(--dpurple); text-transform: uppercase;
-      letter-spacing: 2px; background: rgba(255,255,255,.6); border-radius: 50px;
-      padding: 5px 18px;
-    }
-    .mode-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; width: 100%; }
+    .play-btn{display:inline-block;background:linear-gradient(160deg,#f48fb1,#e91e63);color:#fff;text-decoration:none;border-radius:50px;padding:13px 32px;font-family:inherit;font-size:1.05rem;font-weight:900;box-shadow:0 5px 0 #ad1457;transition:transform .1s}
+    .play-btn:hover,.play-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #ad1457}
+    .play-btn.v1{background:linear-gradient(160deg,#64b5f6,#1565c0);box-shadow:0 5px 0 #0d47a1}
+    .play-btn.v1:hover{box-shadow:0 2px 0 #0d47a1}
+    .play-btn.v2{background:linear-gradient(160deg,#1e88e5,#311b92);box-shadow:0 5px 0 #1a237e}
+    .play-btn.v2:hover{box-shadow:0 2px 0 #1a237e}
+    .play-btn.v3{background:linear-gradient(160deg,#f06292,#9c27b0);box-shadow:0 5px 0 #4a148c}
+    .play-btn.v3:hover{box-shadow:0 2px 0 #4a148c}
 
-    .mode-card {
-      flex: 1; min-width: 140px; max-width: 200px; border-radius: 28px;
-      padding: 22px 14px 18px; cursor: pointer; border: none; outline: none;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .mode-card:active { transform: translateY(5px) scale(.96); }
-    .mode-card-icon  { font-size: 52px; line-height: 1; filter: drop-shadow(0 3px 5px rgba(0,0,0,.2)); }
-    .mode-card-label { font-size: 1rem; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.3); text-align: center; }
-    .mode-card-stars { font-size: 1.1rem; }
+    .arrow-connector{text-align:center;font-size:2rem;color:#ce93d8;margin:-10px 0 14px;animation:arrowBob .8s ease-in-out infinite alternate}
+    @keyframes arrowBob{from{transform:translateY(0)}to{transform:translateY(6px)}}
 
-    .mc-pink   { background: linear-gradient(160deg,#f48fb1,#e91e63); box-shadow: 0 7px 0 #ad1457, 0 12px 24px rgba(233,30,99,.3); }
-    .mc-purple { background: linear-gradient(160deg,#ce93d8,#7b1fa2); box-shadow: 0 7px 0 #4a148c, 0 12px 24px rgba(123,31,162,.3); }
-    .mc-rose   { background: linear-gradient(160deg,#f06292,#c2185b); box-shadow: 0 7px 0 #880e4f, 0 12px 24px rgba(194,24,91,.3); }
-    .mc-magic  { background: linear-gradient(160deg,#ba68c8,#4a148c); box-shadow: 0 7px 0 #311b92, 0 12px 24px rgba(74,20,140,.3); }
-
-    /* ── SHARED SCREEN ── */
-    .screen {
-      position: relative; z-index: 1;
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; padding: 14px 12px 24px; gap: 14px;
-    }
-
-    /* screen backgrounds */
-    .blocks-screen   { background: linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec); }
-    .choose-screen   { background: linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5); }
-    .line-screen     { background: linear-gradient(160deg,#e8eaf6,#f3e5f5,#fce4ec); }
-    .addsub-screen   { background: linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5); }
-
-    .back-btn {
-      align-self: flex-start; background: linear-gradient(135deg,#fff,#fce4ec);
-      border: 2.5px solid var(--rose); border-radius: 50px;
-      padding: 9px 20px; font-family: inherit; font-size: 1rem; font-weight: 900;
-      color: var(--dpink); cursor: pointer;
-      box-shadow: 0 4px 0 var(--rose), 0 6px 12px rgba(240,98,146,.2);
-      transition: transform .1s;
-    }
-    .back-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rose); }
-
-    /* ── NUMBER DISPLAY ── */
-    .number-display {
-      display: flex; gap: 8px; align-items: flex-end; justify-content: center;
-      background: linear-gradient(135deg,#fff,#fce4ec);
-      border: 2.5px solid var(--rose); border-radius: 24px; padding: 12px 22px;
-      box-shadow: 0 4px 0 var(--rose), 0 8px 20px rgba(240,98,146,.2);
-    }
-    .digit-box { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .digit-value {
-      font-size: clamp(2.2rem, 9vw, 4rem); font-weight: 900; line-height: 1;
-      min-width: 46px; text-align: center;
-    }
-    .digit-value.pop   { animation: pop .3s ease; }
-    .digit-value.shake { animation: shake .35s ease; }
-    .digit-label { font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-    .digit-hundreds { color: #9c27b0; }
-    .digit-tens     { color: #e91e63; }
-    .digit-ones     { color: #ff6f00; }
-
-    @keyframes pop   { 0%,100% { transform: scale(1); } 50% { transform: scale(1.4); } }
-    @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
-
-    /* ── BLOCKS (guided) ── */
-    .blocks-area {
-      flex: 1; width: 100%; max-width: 700px;
-      display: flex; flex-wrap: wrap; align-content: flex-start;
-      gap: 10px; justify-content: center; padding: 8px;
-    }
-    .block-hundred {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg,#ce93d8,#8e24aa);
-      border-radius: 12px; border: 3px solid #6a1b9a;
-      display: grid; grid-template-columns: repeat(10,1fr); grid-template-rows: repeat(10,1fr);
-      gap: 1.5px; padding: 4px; cursor: pointer;
-      box-shadow: 0 4px 0 #4a148c, 0 6px 14px rgba(142,36,170,.3);
-      transition: transform .12s, box-shadow .12s, opacity .2s;
-      animation: blockIn .3s ease;
-    }
-    .block-hundred:active { transform: scale(.93) translateY(4px); box-shadow: 0 1px 0 #4a148c; }
-    .block-hundred .inner-cell { background: rgba(255,255,255,.4); border-radius: 1px; }
-
-    .block-ten {
-      width: 28px; height: 72px;
-      background: linear-gradient(180deg,#f48fb1,#e91e63);
-      border-radius: 8px; border: 3px solid #c2185b;
-      display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(10,1fr);
-      gap: 1.5px; padding: 4px; cursor: pointer;
-      box-shadow: 0 4px 0 #880e4f, 0 6px 14px rgba(233,30,99,.3);
-      transition: transform .12s, box-shadow .12s, opacity .2s;
-      animation: blockIn .3s ease;
-    }
-    .block-ten:active { transform: scale(.93) translateY(4px); box-shadow: 0 1px 0 #880e4f; }
-    .block-ten .inner-cell { background: rgba(255,255,255,.4); border-radius: 2px; }
-
-    .block-one {
-      width: 28px; height: 28px;
-      background: linear-gradient(135deg,#ffd54f,#f9a825);
-      border-radius: 8px; border: 3px solid #e65100;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #bf360c, 0 6px 14px rgba(249,168,37,.35);
-      transition: transform .12s, box-shadow .12s, opacity .2s;
-      animation: blockIn .3s ease;
-    }
-    .block-one:active { transform: scale(.88) translateY(4px); box-shadow: 0 1px 0 #bf360c; }
-
-    @keyframes blockIn { from { transform: scale(0) rotate(-15deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
-
-    /* ── CHOOSE BLOCKS ── */
-    .block-bank { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 12px; padding: 4px 8px; }
-    .block-bank-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
-    .block-bank-label { font-size: .85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; width: 100%; text-align: center; padding: 2px 0; }
-    .bank-h-label { color: #7b1fa2; }
-    .bank-t-label { color: #c2185b; }
-    .bank-o-label { color: #e65100; }
-
-    .sel-hundred {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg,#ce93d8,#8e24aa);
-      border-radius: 10px; border: 3px solid #6a1b9a;
-      display: grid; grid-template-columns: repeat(10,1fr); grid-template-rows: repeat(10,1fr);
-      gap: 1px; padding: 4px; cursor: pointer;
-      transition: transform .1s, box-shadow .1s, opacity .15s;
-      box-shadow: 0 4px 0 #4a148c;
-    }
-    .sel-hundred.off { opacity: .22; transform: scale(.93); }
-    .sel-hundred.on  { box-shadow: 0 0 0 3px #fff, 0 0 0 6px #f06292, 0 5px 0 #4a148c; }
-    .sel-hundred .inner-cell { background: rgba(255,255,255,.38); border-radius: 1px; }
-
-    .sel-ten {
-      width: 26px; height: 64px;
-      background: linear-gradient(180deg,#f48fb1,#e91e63);
-      border-radius: 8px; border: 3px solid #c2185b;
-      display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(10,1fr);
-      gap: 1px; padding: 3px; cursor: pointer;
-      transition: transform .1s, box-shadow .1s, opacity .15s;
-      box-shadow: 0 4px 0 #880e4f;
-    }
-    .sel-ten.off { opacity: .22; transform: scale(.93); }
-    .sel-ten.on  { box-shadow: 0 0 0 3px #fff, 0 0 0 6px #f06292, 0 5px 0 #880e4f; }
-    .sel-ten .inner-cell { background: rgba(255,255,255,.38); border-radius: 2px; }
-
-    .sel-one {
-      width: 30px; height: 30px;
-      background: linear-gradient(135deg,#ffd54f,#f9a825);
-      border-radius: 7px; border: 3px solid #e65100;
-      cursor: pointer;
-      transition: transform .1s, box-shadow .1s, opacity .15s;
-      box-shadow: 0 4px 0 #bf360c;
-    }
-    .sel-one.off { opacity: .22; transform: scale(.93); }
-    .sel-one.on  { box-shadow: 0 0 0 3px #fff, 0 0 0 6px #f06292, 0 5px 0 #bf360c; }
-
-    /* ── BUTTONS ── */
-    .check-btn {
-      background: linear-gradient(160deg,#ba68c8,#6a1b9a);
-      color: #fff; border: none; border-radius: 50px; padding: 16px 36px;
-      font-family: inherit; font-size: 1.25rem; font-weight: 900;
-      cursor: pointer; box-shadow: 0 6px 0 #4a148c, 0 8px 18px rgba(106,27,154,.35);
-      transition: transform .1s; letter-spacing: .5px;
-    }
-    .check-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #4a148c; }
-
-    .new-number-btn {
-      background: linear-gradient(160deg,#f48fb1,#c2185b);
-      color: #fff; border: none; border-radius: 50px; padding: 14px 30px;
-      font-family: inherit; font-size: 1.2rem; font-weight: 900;
-      cursor: pointer; box-shadow: 0 6px 0 #880e4f, 0 8px 18px rgba(194,24,91,.3);
-      transition: transform .1s;
-    }
-    .new-number-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #880e4f; }
-
-    .next-btn {
-      background: linear-gradient(160deg,#f06292,#ad1457);
-      color: #fff; border: none; border-radius: 50px; padding: 14px 32px;
-      font-family: inherit; font-size: 1.2rem; font-weight: 900;
-      cursor: pointer; box-shadow: 0 6px 0 #880e4f, 0 8px 18px rgba(173,20,87,.3);
-      transition: transform .1s;
-    }
-    .next-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #880e4f; }
-
-    .block-label {
-      font-size: .85rem; font-weight: 900; color: var(--dpurple);
-      background: rgba(255,255,255,.65); border-radius: 12px; padding: 5px 14px;
-      border: 1.5px solid var(--lavender);
-    }
-
-    /* ── NUMBER LINE ── */
-    .prompt-bubble {
-      background: linear-gradient(135deg,#fff,#fce4ec);
-      border: 2.5px solid var(--rose); border-radius: 24px; padding: 14px 22px;
-      box-shadow: 0 4px 0 var(--rose), 0 8px 18px rgba(240,98,146,.2);
-      font-size: clamp(1.2rem, 4.5vw, 1.8rem); font-weight: 900;
-      color: #333; text-align: center;
-    }
-    .target-num { display: inline-block; color: var(--dpink); font-size: 1.3em; animation: pulse 1s infinite alternate; }
-    .start-num  { display: inline-block; color: var(--dpurple); font-size: 1.15em; }
-    .op-add     { display: inline-block; color: #2e7d32; font-size: 1.15em; }
-    .op-sub     { display: inline-block; color: #c62828; font-size: 1.15em; }
-    .eq-mark    { color: #999; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
-
-    .character {
-      font-size: 52px; filter: drop-shadow(0 4px 8px rgba(0,0,0,.2));
-      animation: float 2s ease-in-out infinite alternate;
-      transition: left .45s cubic-bezier(.34,1.56,.64,1);
-      position: absolute; top: 0;
-    }
-    @keyframes float { from { transform: translateY(0); } to { transform: translateY(-9px); } }
-
-    .char-wrap { width: 100%; max-width: 740px; position: relative; height: 70px; overflow: hidden; }
-
-    .number-line-wrapper { width: 100%; max-width: 740px; overflow-x: auto; padding: 6px 0 14px; -webkit-overflow-scrolling: touch; }
-    .number-line { display: flex; align-items: center; min-width: max-content; padding: 8px 16px; position: relative; }
-    .nl-track {
-      position: absolute; top: 50%; left: 0; right: 0; height: 12px;
-      background: linear-gradient(90deg,#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0,#e91e63);
-      border-radius: 6px; transform: translateY(-50%);
-      box-shadow: 0 3px 10px rgba(0,0,0,.2); z-index: 0;
-    }
-
-    .nl-number {
-      width: 52px; height: 52px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; font-weight: 900; cursor: pointer; border: none;
-      position: relative; z-index: 1; color: #fff;
-      box-shadow: 0 4px 0 rgba(0,0,0,.2), 0 6px 12px rgba(0,0,0,.15);
-      transition: transform .1s, box-shadow .1s; flex-shrink: 0;
-    }
-    .nl-number:active { transform: scale(.9) translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.2); }
-    .nl-number.current     { outline: 5px solid #fff; outline-offset: 3px; }
-    .nl-number.start-marker{ outline: 5px solid var(--dpurple); outline-offset: 3px; }
-    .nl-number.hop-path    { outline: 3px solid rgba(255,255,255,.75); outline-offset: 2px; }
-    .nl-number.correct     { animation: correctPop .5s ease; }
-    .nl-number.wrong       { animation: wrongShake .35s ease; }
-
-    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.55) rotate(-8deg)} 70%{transform:scale(1.3) rotate(8deg)} 100%{transform:scale(1)} }
-    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%,75%{transform:translateX(-8px)} 50%{transform:translateX(8px)} }
-
-    /* hop arrows */
-    .hop-strip { width: 100%; max-width: 740px; overflow-x: auto; padding: 0 16px; -webkit-overflow-scrolling: touch; display: flex; min-width: 0; }
-    .hop-arrows { display: flex; align-items: center; min-width: max-content; gap: 0; padding: 0 16px; height: 28px; }
-    .hop-cell   { width: 52px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .hop-arrow-add { color: #2e7d32; font-size: 1.4rem; font-weight: 900; }
-    .hop-arrow-sub { color: #c62828; font-size: 1.4rem; font-weight: 900; }
-    .hop-dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; }
-
-    /* score / stars */
-    .score-badge {
-      background: linear-gradient(135deg,#fff,#fce4ec); border: 2px solid var(--rose);
-      border-radius: 50px; padding: 7px 18px; font-size: 1.05rem; font-weight: 900;
-      color: var(--dpink); box-shadow: 0 3px 8px rgba(240,98,146,.2);
-    }
-    .score-badge span { color: var(--dpurple); }
-    .stars { display: flex; gap: 5px; }
-    .star  { font-size: 1.8rem; }
-    .star.lit { animation: starPop .4s cubic-bezier(.34,1.56,.64,1); }
-    @keyframes starPop { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
-
-    /* celebrate / feedback */
-    .celebrate-text {
-      font-size: clamp(1.4rem, 5.5vw, 2.3rem); font-weight: 900; text-align: center;
-      color: #e91e63; text-shadow: 0 3px 0 #9c27b0, 0 6px 16px rgba(233,30,99,.3);
-      animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
-    }
-    .wrong-text {
-      font-size: clamp(1.2rem, 4.5vw, 1.9rem); font-weight: 900; text-align: center;
-      color: var(--dpink); animation: popIn .35s ease;
-    }
-    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-    /* confetti */
-    .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
-    .confetti-piece { position: absolute; animation: confettiFall linear forwards; }
-    @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(105vh) rotate(720deg);opacity:0} }
+    /* FOOTER */
+    .footer{position:relative;z-index:1;text-align:center;padding:32px 24px 48px;border-top:2px solid #f8bbd0}
+    .footer-quote{font-size:clamp(1.1rem,3vw,1.4rem);font-weight:900;color:#7b1fa2;max-width:500px;margin:0 auto 16px;line-height:1.5}
+    .footer-sub{font-size:.9rem;color:#aaa;font-weight:700}
+    .claude-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #f48fb1;border-radius:50px;padding:8px 20px;font-size:.9rem;font-weight:900;color:#e91e63;margin-top:16px;text-decoration:none}
   </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useCallback, useMemo } = React;
 
-/* ──── helpers ──── */
-const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+<!-- floating background -->
+<div class="deco">
+  <span style="left:5%;animation-duration:18s;animation-delay:0s">🌸</span>
+  <span style="left:15%;animation-duration:22s;animation-delay:3s">🌺</span>
+  <span style="left:28%;animation-duration:16s;animation-delay:7s">✨</span>
+  <span style="left:40%;animation-duration:24s;animation-delay:1s">🦄</span>
+  <span style="left:55%;animation-duration:19s;animation-delay:5s">🌈</span>
+  <span style="left:68%;animation-duration:21s;animation-delay:9s">💜</span>
+  <span style="left:80%;animation-duration:17s;animation-delay:2s">🌷</span>
+  <span style="left:92%;animation-duration:23s;animation-delay:6s">⭐</span>
+  <span style="left:10%;animation-duration:20s;animation-delay:11s">💫</span>
+  <span style="left:75%;animation-duration:15s;animation-delay:4s">🌼</span>
+</div>
 
-const CONFETTI = ['#e91e63','#f06292','#9c27b0','#ce93d8','#ffd54f','#fff176',
-                  '#f48fb1','#ba68c8','#ff8f00','#ffffff','#f8bbd0','#e1bee7'];
-const CHARACTERS = ['🦄','👸','🌸','🦋','🌈'];
-const NL_COLORS = [
-  ['#e91e63','#880e4f'],['#9c27b0','#4a148c'],['#673ab7','#311b92'],
-  ['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],
-  ['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#f44336','#b71c1c'],
-  ['#e91e63','#880e4f'],
-];
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🌟 Built with Claude AI — No coding required</div>
+  <h1 class="hero-title">
+    <span class="word w1">✨ Magic</span>&nbsp;<span class="word w2">Math!</span>&nbsp;<span class="word w3">✨</span>
+  </h1>
+  <p class="hero-sub">A kids' math app built through <strong>4 conversations</strong> with Claude.<br>From idea to fully working app — by someone who doesn't code.</p>
+  <a href="v4.html" class="play-latest">▶ Play the Latest Version</a>
+</div>
 
-/* floating background decorations */
-const BG_DECO_ITEMS = ['🌸','🌺','🌷','🌼','✨','⭐','💫','🦄','🌈','💜','🌸','🌺','✨','💫','🌷'];
+<!-- WHAT IS THIS -->
+<div class="what-section">
+  <div class="section-title">What is this? 🤔</div>
+  <p class="what-text">
+    This is a real, playable math learning app for kids — built entirely by describing what I wanted to Claude, one conversation at a time. No coding experience needed. Just clear ideas and iterating.
+  </p>
+  <div class="pill-row">
+    <div class="pill">🧱 Place value blocks</div>
+    <div class="pill">🌈 Number line</div>
+    <div class="pill">➕➖ Add &amp; subtract</div>
+    <div class="pill">🦄 Unicorn theme</div>
+    <div class="pill">🔊 Sound effects</div>
+    <div class="pill">⚙️ Difficulty range</div>
+  </div>
+</div>
 
-function BgDeco() {
-  const items = useMemo(() => BG_DECO_ITEMS.map((icon, i) => ({
-    icon, id: i,
-    left: rand(0, 98),
-    dur:  rand(12, 26),
-    delay: rand(0, 18),
-    size: rand(14, 28),
-  })), []);
-  return (
-    <div className="bg-deco">
-      {items.map(it => (
-        <span key={it.id} style={{
-          left: `${it.left}%`, fontSize: it.size,
-          animationDuration: `${it.dur}s`,
-          animationDelay: `${it.delay}s`,
-        }}>{it.icon}</span>
-      ))}
+<!-- TIMELINE -->
+<div class="timeline">
+  <div class="timeline-title">🪄 The Iteration Journey</div>
+
+  <!-- V1 -->
+  <div class="version-card vc1">
+    <div class="vc-header">
+      <span class="vc-badge">Version 1</span>
+      <span class="vc-title">The First App</span>
+      <span class="vc-stars">⭐</span>
     </div>
-  );
-}
-
-/* confetti */
-function Confetti({ active }) {
-  const pieces = useMemo(() => Array.from({length:90},(_,i)=>({
-    id:i, left:rand(0,100), delay:rand(0,900), dur:rand(1200,2400),
-    color:CONFETTI[i%CONFETTI.length], size:rand(7,15),
-    shape: i%4===0?'50%':i%4===1?'2px':i%4===2?'0':'30%',
-    isFlower: i%7===0,
-  })), []);
-  if (!active) return null;
-  return (
-    <div className="confetti-container">
-      {pieces.map(p => (
-        <div key={p.id} className="confetti-piece" style={{
-          left:`${p.left}%`,
-          width: p.isFlower ? 'auto' : p.size,
-          height: p.isFlower ? 'auto' : p.size,
-          fontSize: p.isFlower ? p.size + 4 : undefined,
-          borderRadius: p.isFlower ? undefined : p.shape,
-          background: p.isFlower ? 'none' : p.color,
-          animationDuration:`${p.dur}ms`, animationDelay:`${p.delay}ms`,
-        }}>{p.isFlower ? ['🌸','🌺','🌷','⭐','💜'][p.id%5] : null}</div>
-      ))}
+    <div class="prompt-box">
+      <div class="prompt-label">💬 The prompt</div>
+      <div class="prompt-text"><span class="prompt-quote">"</span>Create a React math learning app for a 7-year-old. Two modes — Counting Blocks and Number Line. Numberblocks visual style, chunky, colorful, friendly. Big tap targets.<span class="prompt-quote">"</span></div>
     </div>
-  );
-}
-
-/* number display */
-function NumberDisplay({ built, target, shake }) {
-  const tH=Math.floor(target/100), tT=Math.floor((target%100)/10);
-  const h=Math.floor(built/100), t=Math.floor((built%100)/10), o=built%10;
-  return (
-    <div className="number-display">
-      {tH>0&&<div className="digit-box">
-        <div className={`digit-value digit-hundreds ${shake?'shake':''}`}>{h}</div>
-        <div className="digit-label digit-hundreds">hundreds</div>
-      </div>}
-      {(tH>0||tT>0)&&<div className="digit-box">
-        <div className={`digit-value digit-tens ${shake?'shake':''}`}>{t}</div>
-        <div className="digit-label digit-tens">tens</div>
-      </div>}
-      <div className="digit-box">
-        <div className={`digit-value digit-ones ${shake?'shake':''}`}>{o}</div>
-        <div className="digit-label digit-ones">ones</div>
-      </div>
-      <div style={{fontSize:'1.8rem',color:'#ccc',padding:'0 6px',paddingBottom:4}}>/</div>
-      <div className="digit-box">
-        <div className="digit-value" style={{color:'#7b1fa2'}}>{target}</div>
-        <div className="digit-label" style={{color:'#ce93d8'}}>goal</div>
-      </div>
+    <div class="features-title">What was built</div>
+    <div class="features-grid">
+      <div class="feat new">🧱 Counting Blocks (tap to build)</div>
+      <div class="feat new">🐸 Number Line (hop to a number)</div>
+      <div class="feat new">🎉 Confetti celebration</div>
+      <div class="feat new">🌈 Colorful chunky design</div>
     </div>
-  );
-}
+    <a href="v1.html" class="play-btn v1">▶ Play Version 1</a>
+  </div>
 
-/* ══════ MODE 1-A  Build It (guided) ══════ */
-function BlocksGuided({ onBack }) {
-  const [target, setTarget] = useState(() => rand(1,999));
-  const [built,  setBuilt]  = useState(0);
-  const tH=Math.floor(target/100), tT=Math.floor((target%100)/10), tO=target%10;
-  const h=Math.floor(built/100),   t=Math.floor((built%100)/10),   o=built%10;
-  const tap = v => setBuilt(p=>Math.min(target,p+v));
-  const newNum = () => { setTarget(rand(1,999)); setBuilt(0); };
-  return (
-    <div className="screen blocks-screen">
-      <BgDeco />
-      <button className="back-btn" onClick={onBack}>🌸 Home</button>
-      <NumberDisplay built={built} target={target} shake={false}/>
-      <div style={{display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
-        <div className="block-label">💜 Tap hundreds</div>
-        <div className="block-label">🩷 Tap tens</div>
-        <div className="block-label">⭐ Tap ones</div>
-      </div>
-      <div className="blocks-area">
-        {Array.from({length:tH},(_,i)=>(
-          <div key={`h${i}`} className="block-hundred"
-            style={{opacity:i>=h?.3:1,cursor:i===h?'pointer':'default'}}
-            onClick={()=>i===h&&tap(100)}>
-            {Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}
-          </div>
-        ))}
-        {Array.from({length:tT},(_,i)=>(
-          <div key={`t${i}`} className="block-ten"
-            style={{opacity:i>=t?.3:1,cursor:i===t?'pointer':'default'}}
-            onClick={()=>i===t&&tap(10)}>
-            {Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}
-          </div>
-        ))}
-        {Array.from({length:tO},(_,i)=>(
-          <div key={`o${i}`} className="block-one"
-            style={{opacity:i>=o?.3:1,cursor:i===o?'pointer':'default'}}
-            onClick={()=>i===o&&tap(1)}/>
-        ))}
-      </div>
-      {built===target&&<div className="celebrate-text">🦄 You built {target}! 🌈</div>}
-      <button className="new-number-btn" onClick={newNum}>New Number 🌸</button>
+  <div class="arrow-connector">⬇️</div>
+
+  <!-- V2 -->
+  <div class="version-card vc2">
+    <div class="vc-header">
+      <span class="vc-badge">Version 2</span>
+      <span class="vc-title">More Levels!</span>
+      <span class="vc-stars">⭐⭐</span>
     </div>
-  );
-}
-
-/* ══════ MODE 1-B  Choose the Right Blocks ══════ */
-function BlocksChoose({ onBack }) {
-  const [target, setTarget] = useState(()=>rand(1,999));
-  const [sel, setSel]       = useState({h:0,t:0,o:0});
-  const [shake, setShake]   = useState(false);
-  const [won, setWon]       = useState(false);
-  const [confetti,setConf]  = useState(false);
-  const built = sel.h*100 + sel.t*10 + sel.o;
-
-  const toggle = (type,i) => {
-    if(won) return;
-    setSel(p=>({...p,[type]: i<p[type] ? i : i+1}));
-  };
-  const check = () => {
-    if(built===target){ setWon(true); setConf(true); setTimeout(()=>setConf(false),2600); }
-    else { setShake(true); setTimeout(()=>setShake(false),400); }
-  };
-  const newNum = () => { setTarget(rand(1,999)); setSel({h:0,t:0,o:0}); setWon(false); setShake(false); };
-
-  return (
-    <div className="screen choose-screen">
-      <Confetti active={confetti}/>
-      <BgDeco/>
-      <button className="back-btn" onClick={onBack}>🌸 Home</button>
-      <NumberDisplay built={built} target={target} shake={shake}/>
-      <div className="block-bank">
-        <div className="block-bank-label bank-h-label">💜 Hundreds — tap to pick!</div>
-        <div className="block-bank-row">
-          {Array.from({length:10},(_,i)=>(
-            <div key={i} className={`sel-hundred ${i<sel.h?'on':'off'}`} onClick={()=>toggle('h',i)}>
-              {Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}
-            </div>
-          ))}
-        </div>
-        <div className="block-bank-label bank-t-label">🩷 Tens — tap to pick!</div>
-        <div className="block-bank-row">
-          {Array.from({length:10},(_,i)=>(
-            <div key={i} className={`sel-ten ${i<sel.t?'on':'off'}`} onClick={()=>toggle('t',i)}>
-              {Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}
-            </div>
-          ))}
-        </div>
-        <div className="block-bank-label bank-o-label">⭐ Ones — tap to pick!</div>
-        <div className="block-bank-row">
-          {Array.from({length:10},(_,i)=>(
-            <div key={i} className={`sel-one ${i<sel.o?'on':'off'}`} onClick={()=>toggle('o',i)}/>
-          ))}
-        </div>
-      </div>
-      {won
-        ? <><div className="celebrate-text">🦄✨ Perfect! {target} is right! 🌈🌸</div>
-            <button className="new-number-btn" onClick={newNum}>New Number 🌸</button></>
-        : <>{shake&&<div className="wrong-text">🙈 Try again!</div>}
-            <button className="check-btn" onClick={check}>Check ✓ 💜</button>
-            <button className="new-number-btn" onClick={newNum}>New Number 🌸</button></>
-      }
+    <div class="prompt-box">
+      <div class="prompt-label">💬 The prompt</div>
+      <div class="prompt-text"><span class="prompt-quote">"</span>Let's add more. Counting blocks should show up to 10×100, 10×10, 10×1 so children have to choose — not just click all. Number line should work for add and subtract too.<span class="prompt-quote">"</span></div>
     </div>
-  );
-}
-
-/* ══════ MODE 2-A  Hop to a Number ══════ */
-function NumberLineHop({ onBack }) {
-  const [char]  = useState(()=>CHARACTERS[rand(0,CHARACTERS.length-1)]);
-  const [pos,   setPos]   = useState(1);
-  const [target,setTarget]= useState(()=>rand(2,30));
-  const [celebrating,setCel]=useState(false);
-  const [confetti,setConf] =useState(false);
-  const [score, setScore] = useState(0);
-  const [stars, setStars] = useState(0);
-  const [correctId,setCorrId]=useState(null);
-
-  const next = useCallback(()=>{
-    const p=rand(1,28); setPos(p); setTarget(rand(p+1,30));
-    setCel(false); setCorrId(null);
-  },[]);
-
-  const tap = useCallback((n)=>{
-    if(celebrating) return;
-    if(n===target){ setPos(n); setCorrId(n); setCel(true); setConf(true); setScore(s=>s+1); setStars(s=>Math.min(s+1,5)); setTimeout(()=>setConf(false),2500); }
-    else setPos(n);
-  },[target,celebrating]);
-
-  const nlColor = n=>{ const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length]; return{background:bg,boxShadow:`0 4px 0 ${sh}`}; };
-
-  return (
-    <div className="screen line-screen">
-      <Confetti active={confetti}/>
-      <BgDeco/>
-      <button className="back-btn" onClick={onBack}>🌸 Home</button>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
-        <div className="score-badge">🌟 <span>{score}</span></div>
-        <div className="stars">{Array.from({length:5},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'🌸':'🤍'}</span>)}</div>
-      </div>
-      {celebrating
-        ? <div className="celebrate-text">🎉✨ You hopped to {target}! 🦄🌈</div>
-        : <div className="prompt-bubble">Hop to <span className="target-num">{target}</span>! 🎯</div>
-      }
-      <div className="char-wrap">
-        <div className="character" style={{left:`calc(${((pos-1)/29)*100}% - 26px)`}}>{char}</div>
-      </div>
-      <div className="number-line-wrapper">
-        <div className="number-line">
-          <div className="nl-track"/>
-          {Array.from({length:30},(_,i)=>{
-            const n=i+1;
-            return <button key={n}
-              className={`nl-number ${n===pos?'current':''} ${n===correctId?'correct':''}`}
-              style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;
-          })}
-        </div>
-      </div>
-      {celebrating&&<button className="next-btn" onClick={next}>Next 🌸</button>}
+    <div class="features-title">What was added</div>
+    <div class="features-grid">
+      <div class="feat">🧱 Build It (guided)</div>
+      <div class="feat new">💡 Choose Right Blocks (pick from 30 blocks!)</div>
+      <div class="feat">🐸 Hop to a Number</div>
+      <div class="feat new">➕➖ Add &amp; Subtract on number line</div>
+      <div class="feat new">⭐⭐ Two difficulty levels per mode</div>
     </div>
-  );
-}
+    <a href="v2.html" class="play-btn v2">▶ Play Version 2</a>
+  </div>
 
-/* ══════ MODE 2-B  Add & Subtract ══════ */
-function makeProb() {
-  const op=Math.random()<.5?'+':'-';
-  if(op==='+'){const s=rand(1,25),a=rand(1,Math.min(5,30-s));return{start:s,op:'+',amount:a,answer:s+a};}
-  else       {const s=rand(6,30),a=rand(1,Math.min(5,s-1));return{start:s,op:'-',amount:a,answer:s-a};}
-}
+  <div class="arrow-connector">⬇️</div>
 
-function NumberLineAddSub({ onBack }) {
-  const [char]  = useState(()=>CHARACTERS[rand(0,CHARACTERS.length-1)]);
-  const [prob,  setProb]  = useState(makeProb);
-  const [celebrating,setCel]=useState(false);
-  const [wrongId,setWrong] =useState(null);
-  const [confetti,setConf] =useState(false);
-  const [score, setScore]  = useState(0);
-  const [stars, setStars]  = useState(0);
-
-  const next = useCallback(()=>{
-    const p=makeProb(); setProb(p); setCel(false); setWrong(null);
-  },[]);
-
-  const tap = useCallback((n)=>{
-    if(celebrating) return;
-    if(n===prob.answer){ setCel(true); setConf(true); setScore(s=>s+1); setStars(s=>Math.min(s+1,5)); setTimeout(()=>setConf(false),2500); }
-    else{ setWrong(n); setTimeout(()=>setWrong(null),400); }
-  },[prob,celebrating]);
-
-  const nlColor = n=>{ const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length]; return{background:bg,boxShadow:`0 4px 0 ${sh}`}; };
-  const pathSet=new Set();
-  if(prob.op==='+'){for(let i=prob.start+1;i<=prob.answer;i++)pathSet.add(i);}
-  else             {for(let i=prob.answer;i<prob.start;i++)pathSet.add(i);}
-
-  const charPos = celebrating ? prob.answer : prob.start;
-
-  return (
-    <div className="screen addsub-screen">
-      <Confetti active={confetti}/>
-      <BgDeco/>
-      <button className="back-btn" onClick={onBack}>🌸 Home</button>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
-        <div className="score-badge">🌟 <span>{score}</span></div>
-        <div className="stars">{Array.from({length:5},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'🌸':'🤍'}</span>)}</div>
-      </div>
-      {celebrating
-        ? <div className="celebrate-text">🦄✨ {prob.start} {prob.op} {prob.amount} = {prob.answer}! 🌈🌸</div>
-        : <div className="prompt-bubble">
-            <span className="start-num">{prob.start}</span>{' '}
-            {prob.op==='+'
-              ? <span className="op-add">+ {prob.amount} →</span>
-              : <span className="op-sub">− {prob.amount} ←</span>
-            }{' '}
-            <span className="eq-mark">=</span>{' '}
-            <span className="target-num">?</span>
-          </div>
-      }
-      <div className="char-wrap">
-        <div className="character" style={{left:`calc(${((charPos-1)/29)*100}% - 26px)`}}>{char}</div>
-      </div>
-      <div className="hop-strip">
-        <div className="hop-arrows">
-          {Array.from({length:30},(_,i)=>{
-            const n=i+1,arrow=pathSet.has(n)?(prob.op==='+'?'→':'←'):null;
-            return <div key={i} className="hop-cell">
-              {arrow
-                ? <span className={prob.op==='+'?'hop-arrow-add':'hop-arrow-sub'}>{arrow}</span>
-                : <span className="hop-dot"/>}
-            </div>;
-          })}
-        </div>
-      </div>
-      <div className="number-line-wrapper">
-        <div className="number-line">
-          <div className="nl-track"/>
-          {Array.from({length:30},(_,i)=>{
-            const n=i+1;
-            return <button key={n}
-              className={`nl-number
-                ${n===prob.start&&!celebrating?'start-marker':''}
-                ${n===prob.answer&&celebrating?'correct':''}
-                ${pathSet.has(n)&&!celebrating?'hop-path':''}
-                ${n===wrongId?'wrong':''}
-              `}
-              style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;
-          })}
-        </div>
-      </div>
-      {celebrating&&<button className="next-btn" onClick={next}>Next 🌸</button>}
+  <!-- V3 -->
+  <div class="version-card vc3">
+    <div class="vc-header">
+      <span class="vc-badge">Version 3</span>
+      <span class="vc-title">Magic Makeover ✨</span>
+      <span class="vc-stars">⭐⭐⭐</span>
     </div>
-  );
-}
-
-/* ══════ HOME ══════ */
-const TITLE_COLORS = ['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3',
-                      '#00bcd4','#4caf50','#ffeb3b','#ff9800','#e91e63','#9c27b0',
-                      '#f06292','#ffd54f','#ab47bc','#e91e63'];
-
-function Home({ onSelect }) {
-  const title = '✨ Magic Math! ✨'.split('');
-  return (
-    <div className="home">
-      <BgDeco/>
-      <div className="home-rainbow">🌈🌸🦄🌸🌈</div>
-      <div className="home-title">
-        {title.map((c,i)=>(
-          <span key={i} style={{
-            color: TITLE_COLORS[i % TITLE_COLORS.length],
-            animationDelay:`${i*.07}s`,
-            textShadow: `0 3px 0 ${TITLE_COLORS[(i+4)%TITLE_COLORS.length]}55`,
-          }}>{c === ' ' ? ' ' : c}</span>
-        ))}
-      </div>
-      <div className="home-sub">🌟 Choose your adventure! 🌟</div>
-
-      <div className="mode-section">
-        <div className="mode-section-label">🧱 Counting Blocks</div>
-        <div className="mode-row">
-          <button className="mode-card mc-pink" onClick={()=>onSelect('blocks1')}>
-            <div className="mode-card-icon">🧱</div>
-            <div className="mode-card-label">Build It!</div>
-            <div className="mode-card-stars">⭐</div>
-          </button>
-          <button className="mode-card mc-purple" onClick={()=>onSelect('blocks2')}>
-            <div className="mode-card-icon">💜</div>
-            <div className="mode-card-label">Choose the Right Blocks</div>
-            <div className="mode-card-stars">⭐⭐</div>
-          </button>
-        </div>
-      </div>
-
-      <div className="mode-section">
-        <div className="mode-section-label">🌈 Number Line</div>
-        <div className="mode-row">
-          <button className="mode-card mc-rose" onClick={()=>onSelect('line1')}>
-            <div className="mode-card-icon">🦄</div>
-            <div className="mode-card-label">Hop to a Number</div>
-            <div className="mode-card-stars">⭐</div>
-          </button>
-          <button className="mode-card mc-magic" onClick={()=>onSelect('line2')}>
-            <div className="mode-card-icon">👸</div>
-            <div className="mode-card-label">Add &amp; Subtract</div>
-            <div className="mode-card-stars">⭐⭐</div>
-          </button>
-        </div>
-      </div>
-
-      <div style={{fontSize:'1.6rem',letterSpacing:'8px',animation:'bounce 2s ease-in-out infinite alternate'}}>
-        🌸🌺🌷🌼🌸
-      </div>
+    <div class="prompt-box">
+      <div class="prompt-label">💬 The prompt</div>
+      <div class="prompt-text"><span class="prompt-quote">"</span>I want pink/purple unicorn and princess and some rainbows and flowers theme.<span class="prompt-quote">"</span></div>
     </div>
-  );
-}
+    <div class="features-title">What changed</div>
+    <div class="features-grid">
+      <div class="feat new">🦄 Unicorn &amp; 👸 Princess characters</div>
+      <div class="feat new">🌈 Rainbow number line track</div>
+      <div class="feat new">🌸 Floating flowers background</div>
+      <div class="feat new">💜 Pink &amp; purple everything</div>
+      <div class="feat new">✨ Flower confetti</div>
+    </div>
+    <a href="v3.html" class="play-btn v3">▶ Play Version 3</a>
+  </div>
 
-/* ══════ APP ══════ */
-function App() {
-  const [mode,setMode]=useState(null);
-  if(mode==='blocks1') return <BlocksGuided     onBack={()=>setMode(null)}/>;
-  if(mode==='blocks2') return <BlocksChoose     onBack={()=>setMode(null)}/>;
-  if(mode==='line1')   return <NumberLineHop    onBack={()=>setMode(null)}/>;
-  if(mode==='line2')   return <NumberLineAddSub onBack={()=>setMode(null)}/>;
-  return <Home onSelect={setMode}/>;
-}
+  <div class="arrow-connector">⬇️</div>
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-</script>
+  <!-- V4 -->
+  <div class="version-card vc4">
+    <div class="vc-header">
+      <span class="vc-badge" style="background:linear-gradient(135deg,#ffd54f,#f06292,#9c27b0)">Version 4 ✨ Latest</span>
+      <span class="vc-title">Full Features</span>
+      <span class="vc-stars">⭐⭐⭐⭐</span>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-label">💬 The prompt</div>
+      <div class="prompt-text"><span class="prompt-quote">"</span>I want ability to select the range of numbers — so it can be played from preschool age too. Also show how many times we hop on the number line. Can we also add a bit of sound? Twinkling, magical, correct ding?<span class="prompt-quote">"</span></div>
+    </div>
+    <div class="features-title">What was added</div>
+    <div class="features-grid">
+      <div class="feat new">⚙️ Range selector (Tiny 1–5 → Full 1–999)</div>
+      <div class="feat new">🌸 Preschool mode (numbers 1–5 only)</div>
+      <div class="feat new">🔢 Numbered hop badges (1→ 2→ 3→)</div>
+      <div class="feat new">🔊 Twinkling sparkle sounds</div>
+      <div class="feat new">🔔 Correct answer ding</div>
+      <div class="feat new">🎺 Victory fanfare</div>
+    </div>
+    <a href="v4.html" class="play-btn">▶ Play Version 4 (Latest)</a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-quote">"I had no coding experience. I just described what I wanted — one conversation at a time."</div>
+  <div class="footer-sub">4 conversations · 1 working app · 0 lines of code written by hand</div>
+  <br>
+  <a href="https://claude.ai" class="claude-badge">⚡ Built with Claude AI</a>
+</div>
+
 </body>
 </html>
