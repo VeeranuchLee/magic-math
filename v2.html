@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Math Fun! v2</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+    body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#fff9c4,#fce4ec,#e8f5e9);min-height:100vh}
+    .home{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:28px;padding:24px}
+    .home-title{font-size:clamp(2rem,7vw,3.5rem);font-weight:900;color:#fff;text-shadow:0 4px 0 #e91e63,0 6px 12px rgba(0,0,0,.25);text-align:center}
+    .home-title span{display:inline-block;animation:bounce 1s infinite alternate}
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+    .mode-section{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:680px}
+    .mode-section-label{font-size:1rem;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:2px}
+    .mode-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;width:100%}
+    .mode-card{flex:1;min-width:140px;max-width:200px;border-radius:24px;padding:22px 14px 18px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:10px;transition:transform .15s,box-shadow .15s;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+    .mode-card:active{transform:translateY(4px) scale(.97)}
+    .mode-card-icon{font-size:52px;line-height:1}
+    .mode-card-label{font-size:1.05rem;font-weight:900;color:#fff;text-align:center}
+    .mode-card-stars{font-size:1.1rem}
+    .lv1-blocks{background:linear-gradient(160deg,#64b5f6,#1565c0)}
+    .lv2-blocks{background:linear-gradient(160deg,#1e88e5,#0d47a1)}
+    .lv1-line  {background:linear-gradient(160deg,#81c784,#2e7d32)}
+    .lv2-line  {background:linear-gradient(160deg,#e91e63,#880e4f)}
+
+    .screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 12px 24px;gap:14px}
+    .blocks-screen{background:linear-gradient(160deg,#e3f2fd,#bbdefb)}
+    .choose-screen{background:linear-gradient(160deg,#e8eaf6,#c5cae9)}
+    .line-screen  {background:linear-gradient(160deg,#f3e5f5,#e8f5e9)}
+    .addsub-screen{background:linear-gradient(160deg,#fff3e0,#fce4ec)}
+    .back-btn{align-self:flex-start;background:#fff;border:none;border-radius:50px;padding:10px 20px;font-family:inherit;font-size:1.05rem;font-weight:900;color:#555;cursor:pointer;box-shadow:0 4px 0 #ccc;transition:transform .1s}
+    .back-btn:active{transform:translateY(3px)}
+
+    .number-display{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:#fff;border-radius:22px;padding:12px 24px;box-shadow:0 4px 0 #b0bec5}
+    .digit-box{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .digit-value{font-size:clamp(2.2rem,9vw,4rem);font-weight:900;line-height:1;min-width:48px;text-align:center}
+    .digit-value.shake{animation:shake .35s ease}
+    .digit-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+    .digit-hundreds{color:#1565c0}.digit-tens{color:#e65100}.digit-ones{color:#2e7d32}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+    .blocks-area{flex:1;width:100%;max-width:700px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;justify-content:center;padding:8px}
+    .block-hundred{width:72px;height:72px;background:linear-gradient(135deg,#64b5f6,#1e88e5);border-radius:10px;border:3px solid #1565c0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #0d47a1;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-hundred:active{transform:scale(.93) translateY(4px)}
+    .block-hundred .inner-cell{background:rgba(255,255,255,.45);border-radius:1px}
+    .block-ten{width:28px;height:72px;background:linear-gradient(180deg,#ffb74d,#f57c00);border-radius:8px;border:3px solid #e65100;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #bf360c;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-ten:active{transform:scale(.93) translateY(4px)}
+    .block-ten .inner-cell{background:rgba(255,255,255,.45);border-radius:2px}
+    .block-one{width:28px;height:28px;background:linear-gradient(135deg,#81c784,#388e3c);border-radius:7px;border:3px solid #2e7d32;cursor:pointer;box-shadow:0 4px 0 #1b5e20;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-one:active{transform:scale(.88) translateY(4px)}
+    @keyframes blockIn{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+    .block-bank{width:100%;max-width:700px;display:flex;flex-direction:column;gap:12px;padding:4px 8px}
+    .block-bank-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+    .block-bank-label{font-size:.85rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;width:100%;text-align:center}
+    .bank-h-label{color:#1565c0}.bank-t-label{color:#e65100}.bank-o-label{color:#2e7d32}
+    .sel-hundred{width:64px;height:64px;background:linear-gradient(135deg,#64b5f6,#1e88e5);border-radius:10px;border:3px solid #1565c0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:4px;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #0d47a1}
+    .sel-hundred.off{opacity:.28;transform:scale(.94)}.sel-hundred.on{box-shadow:0 0 0 4px #fff,0 0 0 7px #1565c0,0 4px 0 #0d47a1}
+    .sel-hundred .inner-cell{background:rgba(255,255,255,.42);border-radius:1px}
+    .sel-ten{width:26px;height:64px;background:linear-gradient(180deg,#ffb74d,#f57c00);border-radius:8px;border:3px solid #e65100;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1px;padding:3px;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #bf360c}
+    .sel-ten.off{opacity:.28;transform:scale(.94)}.sel-ten.on{box-shadow:0 0 0 4px #fff,0 0 0 7px #e65100,0 4px 0 #bf360c}
+    .sel-ten .inner-cell{background:rgba(255,255,255,.42);border-radius:2px}
+    .sel-one{width:30px;height:30px;background:linear-gradient(135deg,#81c784,#388e3c);border-radius:7px;border:3px solid #2e7d32;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #1b5e20}
+    .sel-one.off{opacity:.28;transform:scale(.94)}.sel-one.on{box-shadow:0 0 0 4px #fff,0 0 0 7px #2e7d32,0 4px 0 #1b5e20}
+
+    .check-btn{background:linear-gradient(160deg,#7c4dff,#4527a0);color:#fff;border:none;border-radius:50px;padding:16px 36px;font-family:inherit;font-size:1.25rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #311b92;transition:transform .1s}
+    .check-btn:active{transform:translateY(4px)}
+    .new-number-btn{background:linear-gradient(160deg,#ab47bc,#6a1b9a);color:#fff;border:none;border-radius:50px;padding:14px 32px;font-family:inherit;font-size:1.2rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #4a148c;transition:transform .1s}
+    .new-number-btn:active{transform:translateY(4px)}
+    .next-btn{background:linear-gradient(160deg,#e91e63,#ad1457);color:#fff;border:none;border-radius:50px;padding:14px 34px;font-family:inherit;font-size:1.2rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #880e4f;transition:transform .1s}
+    .next-btn:active{transform:translateY(4px)}
+    .block-label{font-size:.85rem;font-weight:900;color:#555;background:rgba(255,255,255,.6);border-radius:12px;padding:4px 12px}
+
+    .prompt-bubble{background:#fff;border-radius:22px;padding:14px 24px;box-shadow:0 4px 0 #b0bec5;font-size:clamp(1.2rem,4.5vw,1.8rem);font-weight:900;color:#333;text-align:center}
+    .target-num{display:inline-block;color:#e91e63;font-size:1.25em;animation:pulse 1s infinite alternate}
+    .start-num{display:inline-block;color:#1565c0;font-size:1.15em}
+    .op-add{display:inline-block;color:#2e7d32;font-size:1.15em}
+    .op-sub{display:inline-block;color:#c62828;font-size:1.15em}
+    .eq-mark{color:#888}
+    @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.2)}}
+    .character{font-size:50px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));animation:float 2s ease-in-out infinite alternate;transition:left .45s cubic-bezier(.34,1.56,.64,1);position:absolute;top:0}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+    .char-wrap{width:100%;max-width:740px;position:relative;height:68px;overflow:hidden}
+    .number-line-wrapper{width:100%;max-width:740px;overflow-x:auto;padding:6px 0 14px;-webkit-overflow-scrolling:touch}
+    .number-line{display:flex;align-items:center;min-width:max-content;padding:8px 16px;position:relative}
+    .nl-track{position:absolute;top:50%;left:0;right:0;height:10px;background:linear-gradient(90deg,#ff8f00,#f9a825);border-radius:5px;transform:translateY(-50%);box-shadow:0 3px 6px rgba(0,0,0,.2);z-index:0}
+    .nl-number{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;cursor:pointer;border:none;position:relative;z-index:1;box-shadow:0 4px 0 rgba(0,0,0,.18);transition:transform .1s;flex-shrink:0;color:#fff}
+    .nl-number:active{transform:scale(.9) translateY(3px)}
+    .nl-number.current{outline:5px solid #e91e63;outline-offset:3px}
+    .nl-number.start-marker{outline:5px solid #1565c0;outline-offset:3px}
+    .nl-number.hop-path{outline:3px solid rgba(255,255,255,.7);outline-offset:2px;opacity:.85}
+    .nl-number.correct{animation:correctPop .5s ease}
+    .nl-number.wrong{animation:wrongShake .35s ease}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-8deg)}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1)}}
+    @keyframes wrongShake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+    .hop-strip{width:100%;max-width:740px;overflow-x:auto;padding:0 16px;-webkit-overflow-scrolling:touch;display:flex;min-width:0}
+    .hop-arrows{display:flex;align-items:center;min-width:max-content;gap:0;padding:0 16px;height:28px}
+    .hop-cell{width:50px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .hop-arrow-add{color:#2e7d32;font-size:1.4rem;font-weight:900}
+    .hop-arrow-sub{color:#c62828;font-size:1.4rem;font-weight:900}
+    .hop-dot{width:8px;height:8px;border-radius:50%;background:#bbb}
+    .score-badge{background:#fff;border-radius:50px;padding:7px 20px;font-size:1.05rem;font-weight:900;color:#555;box-shadow:0 3px 0 #ccc}
+    .score-badge span{color:#e91e63}
+    .stars{display:flex;gap:6px}
+    .star{font-size:1.8rem}.star.lit{animation:starPop .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes starPop{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+    .celebrate-text{font-size:clamp(1.4rem,5.5vw,2.3rem);font-weight:900;text-align:center;color:#e91e63;text-shadow:0 3px 0 #ff8f00;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+    .wrong-text{font-size:clamp(1.2rem,4.5vw,1.9rem);font-weight:900;text-align:center;color:#c62828;animation:popIn .35s ease}
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+    .confetti-piece{position:absolute;animation:confettiFall linear forwards}
+    @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const {useState,useCallback,useMemo}=React;
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const CONFETTI=['#f44336','#e91e63','#9c27b0','#2196f3','#00bcd4','#4caf50','#ffeb3b','#ff9800'];
+const CHARS=['🚀','🐸','🦊','🐥','🦄'];
+const NL_COLORS=[['#f44336','#b71c1c'],['#e91e63','#880e4f'],['#9c27b0','#4a148c'],['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#ff5722','#bf360c'],['#795548','#3e2723']];
+
+function Confetti({active}){
+  const p=useMemo(()=>Array.from({length:80},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,800),dur:rand(1200,2200),color:CONFETTI[i%CONFETTI.length],size:rand(8,16),shape:i%3===0?'50%':'0'})),[]);
+  if(!active)return null;
+  return<div className="confetti-container">{p.map(x=><div key={x.id} className="confetti-piece" style={{left:`${x.left}%`,width:x.size,height:x.size,borderRadius:x.shape,background:x.color,animationDuration:`${x.dur}ms`,animationDelay:`${x.delay}ms`}}/>)}</div>;
+}
+
+function NumberDisplay({built,target,shake}){
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10);
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  return(
+    <div className="number-display">
+      {tH>0&&<div className="digit-box"><div className={`digit-value digit-hundreds ${shake?'shake':''}`}>{h}</div><div className="digit-label digit-hundreds">hundreds</div></div>}
+      {(tH>0||tT>0)&&<div className="digit-box"><div className={`digit-value digit-tens ${shake?'shake':''}`}>{t}</div><div className="digit-label digit-tens">tens</div></div>}
+      <div className="digit-box"><div className={`digit-value digit-ones ${shake?'shake':''}`}>{o}</div><div className="digit-label digit-ones">ones</div></div>
+      <div style={{fontSize:'1.8rem',color:'#bbb',padding:'0 6px',paddingBottom:4}}>/</div>
+      <div className="digit-box"><div className="digit-value" style={{color:'#333'}}>{target}</div><div className="digit-label" style={{color:'#999'}}>goal</div></div>
+    </div>
+  );
+}
+
+// MODE 1-A
+function BlocksGuided({onBack}){
+  const [target,setTarget]=useState(()=>rand(1,999));
+  const [built,setBuilt]=useState(0);
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10),tO=target%10;
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  const tap=v=>setBuilt(p=>Math.min(target,p+v));
+  const newNum=()=>{setTarget(rand(1,999));setBuilt(0);};
+  return(
+    <div className="screen blocks-screen">
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <NumberDisplay built={built} target={target} shake={false}/>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
+        {tH>0&&<div className="block-label">🟦 Tap hundreds</div>}
+        {tT>0&&<div className="block-label">🟧 Tap tens</div>}
+        {tO>0&&<div className="block-label">🟩 Tap ones</div>}
+      </div>
+      <div className="blocks-area">
+        {Array.from({length:tH},(_,i)=><div key={i} className="block-hundred" style={{opacity:i>=h?.3:1,cursor:i===h?'pointer':'default'}} onClick={()=>i===h&&tap(100)}>{Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}
+        {Array.from({length:tT},(_,i)=><div key={i} className="block-ten" style={{opacity:i>=t?.3:1,cursor:i===t?'pointer':'default'}} onClick={()=>i===t&&tap(10)}>{Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}
+        {Array.from({length:tO},(_,i)=><div key={i} className="block-one" style={{opacity:i>=o?.3:1,cursor:i===o?'pointer':'default'}} onClick={()=>i===o&&tap(1)}/>)}
+      </div>
+      {built===target&&<div className="celebrate-text">🎉 You built {target}! 🎉</div>}
+      <button className="new-number-btn" onClick={newNum}>New Number ✨</button>
+    </div>
+  );
+}
+
+// MODE 1-B
+function BlocksChoose({onBack}){
+  const [target,setTarget]=useState(()=>rand(1,999));
+  const [sel,setSel]=useState({h:0,t:0,o:0});
+  const [shake,setShake]=useState(false);
+  const [won,setWon]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const built=sel.h*100+sel.t*10+sel.o;
+  const toggle=(type,i)=>{if(won)return;setSel(p=>({...p,[type]:i<p[type]?i:i+1}));};
+  const check=()=>{
+    if(built===target){setWon(true);setConf(true);setTimeout(()=>setConf(false),2600);}
+    else{setShake(true);setTimeout(()=>setShake(false),400);}
+  };
+  const newNum=()=>{setTarget(rand(1,999));setSel({h:0,t:0,o:0});setWon(false);setShake(false);};
+  return(
+    <div className="screen choose-screen">
+      <Confetti active={confetti}/>
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <NumberDisplay built={built} target={target} shake={shake}/>
+      <div className="block-bank">
+        <div className="block-bank-label bank-h-label">Hundreds — tap to pick!</div>
+        <div className="block-bank-row">{Array.from({length:10},(_,i)=><div key={i} className={`sel-hundred ${i<sel.h?'on':'off'}`} onClick={()=>toggle('h',i)}>{Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}</div>
+        <div className="block-bank-label bank-t-label">Tens — tap to pick!</div>
+        <div className="block-bank-row">{Array.from({length:10},(_,i)=><div key={i} className={`sel-ten ${i<sel.t?'on':'off'}`} onClick={()=>toggle('t',i)}>{Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}</div>
+        <div className="block-bank-label bank-o-label">Ones — tap to pick!</div>
+        <div className="block-bank-row">{Array.from({length:10},(_,i)=><div key={i} className={`sel-one ${i<sel.o?'on':'off'}`} onClick={()=>toggle('o',i)}/>)}</div>
+      </div>
+      {won?<><div className="celebrate-text">🎉 Perfect! {target} is right!</div><button className="new-number-btn" onClick={newNum}>New Number ✨</button></>
+         :<>{shake&&<div className="wrong-text">🙈 Try again!</div>}<button className="check-btn" onClick={check}>Check ✓</button><button className="new-number-btn" onClick={newNum}>New Number ✨</button></>}
+    </div>
+  );
+}
+
+// MODE 2-A
+function NumberLineHop({onBack}){
+  const [char]=useState(()=>CHARS[rand(0,CHARS.length-1)]);
+  const [pos,setPos]=useState(1);
+  const [target,setTarget]=useState(()=>rand(2,30));
+  const [celebrating,setCel]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const [score,setScore]=useState(0);
+  const [stars,setStars]=useState(0);
+  const [correctId,setCorrId]=useState(null);
+  const next=useCallback(()=>{const p=rand(1,28);setPos(p);setTarget(rand(p+1,30));setCel(false);setCorrId(null);},[]);
+  const tap=useCallback((n)=>{
+    if(celebrating)return;
+    if(n===target){setPos(n);setCorrId(n);setCel(true);setConf(true);setScore(s=>s+1);setStars(s=>Math.min(s+1,5));setTimeout(()=>setConf(false),2500);}
+    else setPos(n);
+  },[target,celebrating]);
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+  return(
+    <div className="screen line-screen">
+      <Confetti active={confetti}/>
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
+        <div className="score-badge">⭐ <span>{score}</span></div>
+        <div className="stars">{Array.from({length:5},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'⭐':'☆'}</span>)}</div>
+      </div>
+      {celebrating?<div className="celebrate-text">🎉 You hopped to {target}! 🎉</div>:<div className="prompt-bubble">Hop to <span className="target-num">{target}</span>! 🎯</div>}
+      <div className="char-wrap"><div className="character" style={{left:`calc(${((pos-1)/29)*100}% - 25px)`}}>{char}</div></div>
+      <div className="number-line-wrapper"><div className="number-line"><div className="nl-track"/>{Array.from({length:30},(_,i)=>{const n=i+1;return<button key={n} className={`nl-number ${n===pos?'current':''} ${n===correctId?'correct':''}`} style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;})}</div></div>
+      {celebrating&&<button className="next-btn" onClick={next}>Next ➡️</button>}
+    </div>
+  );
+}
+
+// MODE 2-B
+function makeProb(){
+  const op=Math.random()<.5?'+':'-';
+  if(op==='+'){const s=rand(1,25),a=rand(1,Math.min(5,30-s));return{start:s,op:'+',amount:a,answer:s+a};}
+  else{const s=rand(6,30),a=rand(1,Math.min(5,s-1));return{start:s,op:'-',amount:a,answer:s-a};}
+}
+function NumberLineAddSub({onBack}){
+  const [char]=useState(()=>CHARS[rand(0,CHARS.length-1)]);
+  const [prob,setProb]=useState(makeProb);
+  const [celebrating,setCel]=useState(false);
+  const [wrongId,setWrong]=useState(null);
+  const [confetti,setConf]=useState(false);
+  const [score,setScore]=useState(0);
+  const [stars,setStars]=useState(0);
+  const next=useCallback(()=>{setProb(makeProb());setCel(false);setWrong(null);},[]);
+  const tap=useCallback((n)=>{
+    if(celebrating)return;
+    if(n===prob.answer){setCel(true);setConf(true);setScore(s=>s+1);setStars(s=>Math.min(s+1,5));setTimeout(()=>setConf(false),2500);}
+    else{setWrong(n);setTimeout(()=>setWrong(null),400);}
+  },[prob,celebrating]);
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+  const pathSet=new Set();
+  if(prob.op==='+'){for(let i=prob.start+1;i<=prob.answer;i++)pathSet.add(i);}
+  else{for(let i=prob.answer;i<prob.start;i++)pathSet.add(i);}
+  const charPos=celebrating?prob.answer:prob.start;
+  return(
+    <div className="screen addsub-screen">
+      <Confetti active={confetti}/>
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
+        <div className="score-badge">⭐ <span>{score}</span></div>
+        <div className="stars">{Array.from({length:5},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'⭐':'☆'}</span>)}</div>
+      </div>
+      {celebrating?<div className="celebrate-text">🎉 {prob.start} {prob.op} {prob.amount} = {prob.answer}!</div>
+        :<div className="prompt-bubble"><span className="start-num">{prob.start}</span>{' '}{prob.op==='+'?<span className="op-add">+ {prob.amount} →</span>:<span className="op-sub">− {prob.amount} ←</span>}{' '}<span className="eq-mark">=</span>{' '}<span className="target-num">?</span></div>}
+      <div className="char-wrap"><div className="character" style={{left:`calc(${((charPos-1)/29)*100}% - 25px)`}}>{char}</div></div>
+      <div className="hop-strip"><div className="hop-arrows">{Array.from({length:30},(_,i)=>{const n=i+1,arrow=pathSet.has(n)?(prob.op==='+'?'→':'←'):null;return<div key={i} className="hop-cell">{arrow?<span className={prob.op==='+'?'hop-arrow-add':'hop-arrow-sub'}>{arrow}</span>:<span className="hop-dot"/>}</div>;})}</div></div>
+      <div className="number-line-wrapper"><div className="number-line"><div className="nl-track"/>{Array.from({length:30},(_,i)=>{const n=i+1;return<button key={n} className={`nl-number ${n===prob.start&&!celebrating?'start-marker':''} ${n===prob.answer&&celebrating?'correct':''} ${pathSet.has(n)&&!celebrating?'hop-path':''} ${n===wrongId?'wrong':''}`} style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;})}</div></div>
+      {celebrating&&<button className="next-btn" onClick={next}>Next ➡️</button>}
+    </div>
+  );
+}
+
+function Home({onSelect}){
+  const title='🔢 Math Fun! v2'.split('');
+  return(
+    <div className="home">
+      <div style={{fontSize:'clamp(2rem,7vw,3.5rem)',fontWeight:900,color:'#fff',textShadow:'0 4px 0 #e91e63',textAlign:'center'}}>
+        {title.map((c,i)=><span key={i} style={{display:'inline-block',animationDelay:`${i*.07}s`,animation:`bounce 1.1s ${i*.07}s infinite alternate`}}>{c}</span>)}
+      </div>
+      <div className="mode-section">
+        <div className="mode-section-label">🧱 Counting Blocks</div>
+        <div className="mode-row">
+          <button className="mode-card lv1-blocks" onClick={()=>onSelect('b1')}><div className="mode-card-icon">🧱</div><div className="mode-card-label">Build It!</div><div className="mode-card-stars">⭐</div></button>
+          <button className="mode-card lv2-blocks" onClick={()=>onSelect('b2')}><div className="mode-card-icon">🔢</div><div className="mode-card-label">Choose the Right Blocks</div><div className="mode-card-stars">⭐⭐</div></button>
+        </div>
+      </div>
+      <div className="mode-section">
+        <div className="mode-section-label">🐸 Number Line</div>
+        <div className="mode-row">
+          <button className="mode-card lv1-line" onClick={()=>onSelect('l1')}><div className="mode-card-icon">🐸</div><div className="mode-card-label">Hop to a Number</div><div className="mode-card-stars">⭐</div></button>
+          <button className="mode-card lv2-line" onClick={()=>onSelect('l2')}><div className="mode-card-icon">➕➖</div><div className="mode-card-label">Add &amp; Subtract</div><div className="mode-card-stars">⭐⭐</div></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [mode,setMode]=useState(null);
+  if(mode==='b1')return<BlocksGuided onBack={()=>setMode(null)}/>;
+  if(mode==='b2')return<BlocksChoose onBack={()=>setMode(null)}/>;
+  if(mode==='l1')return<NumberLineHop onBack={()=>setMode(null)}/>;
+  if(mode==='l2')return<NumberLineAddSub onBack={()=>setMode(null)}/>;
+  return<Home onSelect={setMode}/>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

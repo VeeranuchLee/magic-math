@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Math Fun! v1</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+    body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#fff9c4,#fce4ec,#e8f5e9);min-height:100vh}
+
+    /* HOME */
+    .home{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:32px;padding:24px}
+    .home-title{font-size:clamp(2.4rem,8vw,4rem);font-weight:900;color:#fff;text-shadow:0 4px 0 #e91e63,0 6px 12px rgba(0,0,0,.25);letter-spacing:2px;text-align:center}
+    .home-title span{display:inline-block;animation:bounce 1s infinite alternate}
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+    .mode-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;width:100%;max-width:700px}
+    .mode-card{flex:1;min-width:220px;max-width:300px;border-radius:28px;padding:32px 20px 28px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:16px;transition:transform .15s,box-shadow .15s;box-shadow:0 8px 0 rgba(0,0,0,.15),0 12px 24px rgba(0,0,0,.12)}
+    .mode-card:active{transform:translateY(4px) scale(.97);box-shadow:0 4px 0 rgba(0,0,0,.15)}
+    .mode-card.blocks{background:linear-gradient(160deg,#42a5f5,#1565c0)}
+    .mode-card.line  {background:linear-gradient(160deg,#66bb6a,#2e7d32)}
+    .mode-card-icon{font-size:64px;line-height:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.2))}
+    .mode-card-label{font-size:1.6rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
+
+    /* SCREEN */
+    .screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 12px 24px;gap:16px}
+    .blocks-screen{background:linear-gradient(160deg,#e3f2fd,#bbdefb)}
+    .line-screen  {background:linear-gradient(160deg,#f3e5f5,#e8f5e9)}
+    .back-btn{align-self:flex-start;background:#fff;border:none;border-radius:50px;padding:10px 20px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#555;cursor:pointer;box-shadow:0 4px 0 #ccc;transition:transform .1s}
+    .back-btn:active{transform:translateY(3px)}
+
+    /* NUMBER DISPLAY */
+    .number-display{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:#fff;border-radius:24px;padding:14px 28px;box-shadow:0 4px 0 #b0bec5}
+    .digit-box{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .digit-value{font-size:clamp(2.5rem,10vw,4.5rem);font-weight:900;line-height:1;min-width:52px;text-align:center}
+    .digit-value.pop{animation:pop .3s ease}
+    .digit-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+    .digit-hundreds{color:#1565c0}.digit-tens{color:#e65100}.digit-ones{color:#2e7d32}
+    @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+
+    /* BLOCKS */
+    .blocks-area{flex:1;width:100%;max-width:700px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;justify-content:center;padding:8px}
+    .block-hundred{width:72px;height:72px;background:linear-gradient(135deg,#64b5f6,#1e88e5);border-radius:10px;border:3px solid #1565c0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #0d47a1;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-hundred:active{transform:scale(.93) translateY(4px)}
+    .block-hundred .inner-cell{background:rgba(255,255,255,.45);border-radius:1px}
+    .block-ten{width:28px;height:72px;background:linear-gradient(180deg,#ffb74d,#f57c00);border-radius:8px;border:3px solid #e65100;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #bf360c;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-ten:active{transform:scale(.93) translateY(4px)}
+    .block-ten .inner-cell{background:rgba(255,255,255,.45);border-radius:2px}
+    .block-one{width:28px;height:28px;background:linear-gradient(135deg,#81c784,#388e3c);border-radius:7px;border:3px solid #2e7d32;cursor:pointer;box-shadow:0 4px 0 #1b5e20;transition:transform .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-one:active{transform:scale(.88) translateY(4px)}
+    @keyframes blockIn{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+    .block-label{font-size:.9rem;font-weight:900;color:#555;background:rgba(255,255,255,.6);border-radius:12px;padding:4px 14px}
+    .new-number-btn{background:linear-gradient(160deg,#ab47bc,#6a1b9a);color:#fff;border:none;border-radius:50px;padding:16px 36px;font-family:inherit;font-size:1.3rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #4a148c;transition:transform .1s}
+    .new-number-btn:active{transform:translateY(4px)}
+
+    /* NUMBER LINE */
+    .prompt-bubble{background:#fff;border-radius:24px;padding:16px 28px;box-shadow:0 4px 0 #b0bec5;font-size:clamp(1.3rem,5vw,2rem);font-weight:900;color:#333;text-align:center}
+    .target-num{display:inline-block;color:#e91e63;font-size:1.3em;animation:pulse 1s infinite alternate}
+    @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.2)}}
+    .character{font-size:52px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));animation:float 2s ease-in-out infinite alternate;transition:left .4s cubic-bezier(.34,1.56,.64,1);position:absolute;top:0}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+    .char-wrap{width:100%;max-width:740px;position:relative;height:70px;overflow:hidden}
+    .number-line-wrapper{width:100%;max-width:740px;overflow-x:auto;padding:8px 0 16px;-webkit-overflow-scrolling:touch}
+    .number-line{display:flex;align-items:center;min-width:max-content;padding:8px 16px;position:relative}
+    .nl-track{position:absolute;top:50%;left:0;right:0;height:10px;background:linear-gradient(90deg,#ff8f00,#f9a825);border-radius:5px;transform:translateY(-50%);box-shadow:0 3px 6px rgba(0,0,0,.2);z-index:0}
+    .nl-number{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:900;cursor:pointer;border:none;position:relative;z-index:1;box-shadow:0 4px 0 rgba(0,0,0,.18);transition:transform .1s;flex-shrink:0;color:#fff}
+    .nl-number:active{transform:scale(.9) translateY(3px)}
+    .nl-number.current{outline:5px solid #e91e63;outline-offset:3px}
+    .nl-number.correct{animation:correctPop .5s ease}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-8deg)}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1)}}
+    .score-badge{background:#fff;border-radius:50px;padding:7px 20px;font-size:1.05rem;font-weight:900;color:#555;box-shadow:0 3px 0 #ccc}
+    .score-badge span{color:#e91e63}
+    .stars{display:flex;gap:6px}
+    .star{font-size:1.8rem}.star.lit{animation:starPop .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes starPop{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+    .celebrate-text{font-size:clamp(1.4rem,5.5vw,2.3rem);font-weight:900;text-align:center;color:#e91e63;text-shadow:0 3px 0 #ff8f00;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    .next-btn{background:linear-gradient(160deg,#e91e63,#ad1457);color:#fff;border:none;border-radius:50px;padding:14px 34px;font-family:inherit;font-size:1.2rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #880e4f;transition:transform .1s}
+    .next-btn:active{transform:translateY(4px)}
+    .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+    .confetti-piece{position:absolute;animation:confettiFall linear forwards}
+    @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useMemo } = React;
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const CONFETTI=['#f44336','#e91e63','#9c27b0','#2196f3','#00bcd4','#4caf50','#ffeb3b','#ff9800'];
+const CHARS=['🚀','🐸','🦊','🐥','🦄'];
+const NL_COLORS=[['#f44336','#b71c1c'],['#e91e63','#880e4f'],['#9c27b0','#4a148c'],['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#ff5722','#bf360c'],['#795548','#3e2723']];
+
+function Confetti({active}){
+  const p=useMemo(()=>Array.from({length:80},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,800),dur:rand(1200,2200),color:CONFETTI[i%CONFETTI.length],size:rand(8,16),shape:i%3===0?'50%':i%3===1?'2px':'0'})),[]);
+  if(!active)return null;
+  return <div className="confetti-container">{p.map(x=><div key={x.id} className="confetti-piece" style={{left:`${x.left}%`,width:x.size,height:x.size,borderRadius:x.shape,background:x.color,animationDuration:`${x.dur}ms`,animationDelay:`${x.delay}ms`}}/>)}</div>;
+}
+
+function NumberDisplay({built,target}){
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10);
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  return(
+    <div className="number-display">
+      {tH>0&&<div className="digit-box"><div className="digit-value digit-hundreds">{h}</div><div className="digit-label digit-hundreds">hundreds</div></div>}
+      {(tH>0||tT>0)&&<div className="digit-box"><div className="digit-value digit-tens">{t}</div><div className="digit-label digit-tens">tens</div></div>}
+      <div className="digit-box"><div className="digit-value digit-ones">{o}</div><div className="digit-label digit-ones">ones</div></div>
+      <div style={{fontSize:'2rem',color:'#bbb',padding:'0 8px',paddingBottom:4}}>/</div>
+      <div className="digit-box"><div className="digit-value" style={{color:'#333'}}>{target}</div><div className="digit-label" style={{color:'#999'}}>goal</div></div>
+    </div>
+  );
+}
+
+function BlocksScreen({onBack}){
+  const [target,setTarget]=useState(()=>rand(1,999));
+  const [built,setBuilt]=useState(0);
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10),tO=target%10;
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  const tap=v=>setBuilt(p=>Math.min(target,p+v));
+  const newNum=()=>{setTarget(rand(1,999));setBuilt(0);};
+  return(
+    <div className="screen blocks-screen">
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <NumberDisplay built={built} target={target}/>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
+        {tH>0&&<div className="block-label">🟦 Tap hundreds</div>}
+        {tT>0&&<div className="block-label">🟧 Tap tens</div>}
+        {tO>0&&<div className="block-label">🟩 Tap ones</div>}
+      </div>
+      <div className="blocks-area">
+        {Array.from({length:tH},(_,i)=><div key={i} className="block-hundred" style={{opacity:i>=h?.3:1,cursor:i===h?'pointer':'default'}} onClick={()=>i===h&&tap(100)}>{Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}
+        {Array.from({length:tT},(_,i)=><div key={i} className="block-ten" style={{opacity:i>=t?.3:1,cursor:i===t?'pointer':'default'}} onClick={()=>i===t&&tap(10)}>{Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}</div>)}
+        {Array.from({length:tO},(_,i)=><div key={i} className="block-one" style={{opacity:i>=o?.3:1,cursor:i===o?'pointer':'default'}} onClick={()=>i===o&&tap(1)}/>)}
+      </div>
+      {built===target&&<div className="celebrate-text">🎉 You built {target}! 🎉</div>}
+      <button className="new-number-btn" onClick={newNum}>New Number ✨</button>
+    </div>
+  );
+}
+
+function NumberLineScreen({onBack}){
+  const [char]=useState(()=>CHARS[rand(0,CHARS.length-1)]);
+  const [pos,setPos]=useState(1);
+  const [target,setTarget]=useState(()=>rand(2,30));
+  const [celebrating,setCel]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const [score,setScore]=useState(0);
+  const [stars,setStars]=useState(0);
+  const [correctId,setCorrId]=useState(null);
+  const next=useCallback(()=>{const p=rand(1,28);setPos(p);setTarget(rand(p+1,30));setCel(false);setCorrId(null);},[]);
+  const tap=useCallback((n)=>{
+    if(celebrating)return;
+    if(n===target){setPos(n);setCorrId(n);setCel(true);setConf(true);setScore(s=>s+1);setStars(s=>Math.min(s+1,5));setTimeout(()=>setConf(false),2500);}
+    else setPos(n);
+  },[target,celebrating]);
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+  return(
+    <div className="screen line-screen">
+      <Confetti active={confetti}/>
+      <button className="back-btn" onClick={onBack}>← Home</button>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
+        <div className="score-badge">⭐ <span>{score}</span></div>
+        <div className="stars">{Array.from({length:5},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'⭐':'☆'}</span>)}</div>
+      </div>
+      {celebrating?<div className="celebrate-text">🎉 Amazing! You hopped to {target}! 🎉</div>:<div className="prompt-bubble">Hop to <span className="target-num">{target}</span>! 🎯</div>}
+      <div className="char-wrap"><div className="character" style={{left:`calc(${((pos-1)/29)*100}% - 26px)`}}>{char}</div></div>
+      <div className="number-line-wrapper">
+        <div className="number-line">
+          <div className="nl-track"/>
+          {Array.from({length:30},(_,i)=>{const n=i+1;return<button key={n} className={`nl-number ${n===pos?'current':''} ${n===correctId?'correct':''}`} style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;})}
+        </div>
+      </div>
+      {celebrating&&<button className="next-btn" onClick={next}>Next ➡️</button>}
+    </div>
+  );
+}
+
+function Home({onSelect}){
+  const letters='🔢 Math Fun!'.split('');
+  return(
+    <div className="home">
+      <div className="home-title">{letters.map((c,i)=><span key={i} style={{animationDelay:`${i*.08}s`}}>{c}</span>)}</div>
+      <div className="mode-cards">
+        <button className="mode-card blocks" onClick={()=>onSelect('blocks')}><div className="mode-card-icon">🧱</div><div className="mode-card-label">Counting Blocks</div></button>
+        <button className="mode-card line"   onClick={()=>onSelect('line')}  ><div className="mode-card-icon">🐸</div><div className="mode-card-label">Number Line</div></button>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [mode,setMode]=useState(null);
+  if(mode==='blocks')return <BlocksScreen onBack={()=>setMode(null)}/>;
+  if(mode==='line')  return <NumberLineScreen onBack={()=>setMode(null)}/>;
+  return <Home onSelect={setMode}/>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>

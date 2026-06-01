@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>✨ Magic Math! ✨</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+    body{font-family:'Nunito',sans-serif;background:linear-gradient(145deg,#fce4ec 0%,#f3e5f5 40%,#e8eaf6 70%,#fce4ec 100%);min-height:100vh;overflow-x:hidden}
+
+    /* bg deco */
+    .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bg-deco span{position:absolute;opacity:.15;animation:floatDeco linear infinite}
+    @keyframes floatDeco{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-10vh) rotate(360deg)}}
+
+    /* HOME */
+    .home{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:22px;padding:24px}
+    .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
+    .home-title{font-size:clamp(1.9rem,7.5vw,3.4rem);font-weight:900;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+    .home-title span{display:inline-block;animation:bounce 1.2s infinite alternate}
+    .home-sub{font-size:clamp(.85rem,2.8vw,1.15rem);font-weight:900;color:#7b1fa2;background:rgba(255,255,255,.55);border-radius:50px;padding:6px 20px;box-shadow:0 2px 8px rgba(171,71,188,.2)}
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+
+    .mode-section{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:680px}
+    .mode-section-label{font-size:1rem;font-weight:900;color:#7b1fa2;text-transform:uppercase;letter-spacing:2px;background:rgba(255,255,255,.6);border-radius:50px;padding:5px 18px}
+    .mode-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;width:100%}
+    .mode-card{flex:1;min-width:140px;max-width:200px;border-radius:28px;padding:20px 14px 16px;cursor:pointer;border:none;outline:none;display:flex;flex-direction:column;align-items:center;gap:9px;transition:transform .15s,box-shadow .15s}
+    .mode-card:active{transform:translateY(5px) scale(.96)}
+    .mode-card-icon{font-size:50px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.2))}
+    .mode-card-label{font-size:.95rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
+    .mode-card-stars{font-size:1.05rem}
+    .mc-pink  {background:linear-gradient(160deg,#f48fb1,#e91e63);box-shadow:0 7px 0 #ad1457,0 12px 24px rgba(233,30,99,.3)}
+    .mc-purple{background:linear-gradient(160deg,#ce93d8,#7b1fa2);box-shadow:0 7px 0 #4a148c,0 12px 24px rgba(123,31,162,.3)}
+    .mc-rose  {background:linear-gradient(160deg,#f06292,#c2185b);box-shadow:0 7px 0 #880e4f,0 12px 24px rgba(194,24,91,.3)}
+    .mc-magic {background:linear-gradient(160deg,#ba68c8,#4a148c);box-shadow:0 7px 0 #311b92,0 12px 24px rgba(74,20,140,.3)}
+
+    /* SCREEN */
+    .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px;gap:12px}
+    .blocks-screen {background:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
+    .choose-screen {background:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
+    .line-screen   {background:linear-gradient(160deg,#e8eaf6,#f3e5f5,#fce4ec)}
+    .addsub-screen {background:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
+
+    /* TOP BAR */
+    .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px}
+    .back-btn{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:9px 18px;font-family:inherit;font-size:.95rem;font-weight:900;color:#e91e63;cursor:pointer;box-shadow:0 4px 0 #f48fb1,0 6px 12px rgba(240,98,146,.2);transition:transform .1s;white-space:nowrap}
+    .back-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
+    .settings-btn{background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:9px 14px;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1}
+    .settings-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #ce93d8}
+    .sound-btn{background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:9px 14px;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1}
+    .sound-btn:active{transform:translateY(3px)}
+
+    /* SETTINGS MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+    .modal-box{background:#fff;border-radius:28px;padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:3px solid #f48fb1}
+    .modal-title{font-size:1.3rem;font-weight:900;color:#7b1fa2;text-align:center;margin-bottom:16px}
+    .preset-btn{width:100%;padding:13px 18px;border-radius:16px;border:3px solid;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:12px;transition:transform .1s}
+    .preset-btn:active{transform:scale(.97)}
+    .preset-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff}
+    .preset-btn.inactive{background:#fff;border-color:#f8bbd0;color:#7b1fa2}
+    .preset-tag{font-size:1.1rem}
+    .preset-info{text-align:left;flex:1}
+    .preset-name{font-size:1rem;font-weight:900}
+    .preset-range{font-size:.78rem;opacity:.7;font-weight:700}
+    .modal-close{margin-top:14px;width:100%;padding:12px;border-radius:50px;border:none;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #ad1457}
+    .modal-close:active{transform:translateY(3px)}
+
+    /* NUMBER DISPLAY */
+    .number-display{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:22px;padding:11px 20px;box-shadow:0 4px 0 #f48fb1,0 8px 20px rgba(240,98,146,.2)}
+    .digit-box{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .digit-value{font-size:clamp(2rem,9vw,3.8rem);font-weight:900;line-height:1;min-width:44px;text-align:center}
+    .digit-value.pop  {animation:pop .3s ease}
+    .digit-value.shake{animation:shake .35s ease}
+    .digit-label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+    .digit-hundreds{color:#9c27b0}.digit-tens{color:#e91e63}.digit-ones{color:#ff6f00}
+    @keyframes pop  {0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+    /* BLOCKS */
+    .blocks-area{flex:1;width:100%;max-width:700px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;justify-content:center;padding:6px}
+    .block-hundred{width:70px;height:70px;background:linear-gradient(135deg,#ce93d8,#8e24aa);border-radius:12px;border:3px solid #6a1b9a;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #4a148c,0 6px 14px rgba(142,36,170,.3);transition:transform .12s,box-shadow .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-hundred:active{transform:scale(.92) translateY(4px);box-shadow:0 1px 0 #4a148c}
+    .block-hundred .inner-cell{background:rgba(255,255,255,.38);border-radius:1px}
+    .block-ten{width:27px;height:70px;background:linear-gradient(180deg,#f48fb1,#e91e63);border-radius:8px;border:3px solid #c2185b;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1.5px;padding:4px;cursor:pointer;box-shadow:0 4px 0 #880e4f,0 6px 14px rgba(233,30,99,.3);transition:transform .12s,box-shadow .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-ten:active{transform:scale(.92) translateY(4px);box-shadow:0 1px 0 #880e4f}
+    .block-ten .inner-cell{background:rgba(255,255,255,.38);border-radius:2px}
+    .block-one{width:27px;height:27px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:7px;border:3px solid #e65100;cursor:pointer;box-shadow:0 4px 0 #bf360c,0 6px 14px rgba(249,168,37,.35);transition:transform .12s,box-shadow .12s,opacity .2s;animation:blockIn .3s ease}
+    .block-one:active{transform:scale(.87) translateY(4px);box-shadow:0 1px 0 #bf360c}
+    @keyframes blockIn{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+    /* CHOOSE BLOCKS */
+    .block-bank{width:100%;max-width:700px;display:flex;flex-direction:column;gap:10px;padding:2px 8px}
+    .block-bank-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+    .block-bank-label{font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;width:100%;text-align:center;padding:1px 0}
+    .bank-h-label{color:#7b1fa2}.bank-t-label{color:#c2185b}.bank-o-label{color:#e65100}
+    .sel-hundred{width:62px;height:62px;background:linear-gradient(135deg,#ce93d8,#8e24aa);border-radius:10px;border:3px solid #6a1b9a;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:4px;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #4a148c}
+    .sel-hundred.off{opacity:.22;transform:scale(.93)}.sel-hundred.on{box-shadow:0 0 0 3px #fff,0 0 0 6px #f06292,0 5px 0 #4a148c}
+    .sel-hundred .inner-cell{background:rgba(255,255,255,.36);border-radius:1px}
+    .sel-ten{width:25px;height:62px;background:linear-gradient(180deg,#f48fb1,#e91e63);border-radius:8px;border:3px solid #c2185b;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1px;padding:3px;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #880e4f}
+    .sel-ten.off{opacity:.22;transform:scale(.93)}.sel-ten.on{box-shadow:0 0 0 3px #fff,0 0 0 6px #f06292,0 5px 0 #880e4f}
+    .sel-ten .inner-cell{background:rgba(255,255,255,.36);border-radius:2px}
+    .sel-one{width:29px;height:29px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:7px;border:3px solid #e65100;cursor:pointer;transition:transform .1s,box-shadow .1s,opacity .15s;box-shadow:0 4px 0 #bf360c}
+    .sel-one.off{opacity:.22;transform:scale(.93)}.sel-one.on{box-shadow:0 0 0 3px #fff,0 0 0 6px #f06292,0 5px 0 #bf360c}
+
+    /* BUTTONS */
+    .check-btn{background:linear-gradient(160deg,#ba68c8,#6a1b9a);color:#fff;border:none;border-radius:50px;padding:15px 34px;font-family:inherit;font-size:1.2rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #4a148c,0 8px 18px rgba(106,27,154,.35);transition:transform .1s}
+    .check-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #4a148c}
+    .new-number-btn{background:linear-gradient(160deg,#f48fb1,#c2185b);color:#fff;border:none;border-radius:50px;padding:13px 28px;font-family:inherit;font-size:1.15rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #880e4f,0 8px 18px rgba(194,24,91,.3);transition:transform .1s}
+    .new-number-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #880e4f}
+    .next-btn{background:linear-gradient(160deg,#f06292,#ad1457);color:#fff;border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-size:1.15rem;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #880e4f,0 8px 18px rgba(173,20,87,.3);transition:transform .1s}
+    .next-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #880e4f}
+    .block-label{font-size:.82rem;font-weight:900;color:#7b1fa2;background:rgba(255,255,255,.65);border-radius:12px;padding:4px 12px;border:1.5px solid #ce93d8}
+
+    /* NUMBER LINE */
+    .prompt-bubble{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:22px;padding:13px 20px;box-shadow:0 4px 0 #f48fb1,0 8px 18px rgba(240,98,146,.2);font-size:clamp(1.1rem,4.2vw,1.7rem);font-weight:900;color:#333;text-align:center}
+    .target-num{display:inline-block;color:#e91e63;font-size:1.3em;animation:pulse 1s infinite alternate}
+    .start-num {display:inline-block;color:#7b1fa2;font-size:1.15em}
+    .op-add    {display:inline-block;color:#2e7d32;font-size:1.15em}
+    .op-sub    {display:inline-block;color:#c62828;font-size:1.15em}
+    .eq-mark   {color:#999}
+    @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.22)}}
+    .hop-counter{background:linear-gradient(135deg,#fff,#e8f5e9);border:2.5px solid #a5d6a7;border-radius:50px;padding:6px 18px;font-size:.95rem;font-weight:900;color:#2e7d32;box-shadow:0 3px 8px rgba(46,125,50,.15)}
+
+    .character{font-size:50px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));animation:float 2s ease-in-out infinite alternate;transition:left .45s cubic-bezier(.34,1.56,.64,1);position:absolute;top:0}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+    .char-wrap{width:100%;max-width:740px;position:relative;height:68px;overflow:hidden}
+
+    .number-line-wrapper{width:100%;max-width:740px;overflow-x:auto;padding:4px 0 12px;-webkit-overflow-scrolling:touch}
+    .number-line{display:flex;align-items:center;min-width:max-content;padding:8px 16px;position:relative}
+    .nl-track{position:absolute;top:50%;left:0;right:0;height:12px;background:linear-gradient(90deg,#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0,#e91e63);border-radius:6px;transform:translateY(-50%);box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:0}
+    .nl-number{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;cursor:pointer;border:none;position:relative;z-index:1;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 12px rgba(0,0,0,.15);transition:transform .1s,box-shadow .1s;flex-shrink:0}
+    .nl-number:active{transform:scale(.9) translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+    .nl-number.current     {outline:5px solid #fff;outline-offset:3px}
+    .nl-number.start-marker{outline:5px solid #7b1fa2;outline-offset:3px}
+    .nl-number.hop-path    {outline:3px solid rgba(255,255,255,.75);outline-offset:2px}
+    .nl-number.correct     {animation:correctPop .5s ease}
+    .nl-number.wrong       {animation:wrongShake .35s ease}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-8deg)}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1)}}
+    @keyframes wrongShake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+
+    /* HOP STRIP */
+    .hop-strip{width:100%;max-width:740px;overflow-x:auto;padding:0 16px;-webkit-overflow-scrolling:touch;display:flex;min-width:0}
+    .hop-arrows{display:flex;align-items:flex-end;min-width:max-content;gap:0;padding:0 16px}
+    .hop-cell{width:50px;display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0}
+    .hop-num-badge{font-size:.72rem;font-weight:900;line-height:1;padding:1px 3px;border-radius:4px;min-width:14px;text-align:center}
+    .hop-num-add{color:#1b5e20;background:#c8e6c9}
+    .hop-num-sub{color:#b71c1c;background:#ffcdd2}
+    .hop-arrow-add{color:#2e7d32;font-size:1.35rem;font-weight:900;line-height:1}
+    .hop-arrow-sub{color:#c62828;font-size:1.35rem;font-weight:900;line-height:1}
+    .hop-dot{width:7px;height:7px;border-radius:50%;background:#e0e0e0;margin-bottom:4px}
+
+    /* score / stars */
+    .score-badge{background:linear-gradient(135deg,#fff,#fce4ec);border:2px solid #f48fb1;border-radius:50px;padding:6px 16px;font-size:1rem;font-weight:900;color:#e91e63;box-shadow:0 3px 8px rgba(240,98,146,.2)}
+    .score-badge span{color:#7b1fa2}
+    .stars{display:flex;gap:4px}
+    .star{font-size:1.7rem}
+    .star.lit{animation:starPop .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes starPop{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+
+    /* celebrate */
+    .celebrate-text{font-size:clamp(1.3rem,5vw,2.1rem);font-weight:900;text-align:center;color:#e91e63;text-shadow:0 3px 0 #9c27b0,0 6px 16px rgba(233,30,99,.3);animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+    .wrong-text{font-size:clamp(1.1rem,4vw,1.8rem);font-weight:900;text-align:center;color:#e91e63;animation:popIn .35s ease}
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+    /* confetti */
+    .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+    .confetti-piece{position:absolute;animation:confettiFall linear forwards}
+    @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useMemo, useRef } = React;
+
+/* ═══════════════════════════════
+   SOUND ENGINE (Web Audio API)
+═══════════════════════════════ */
+const Sound = (() => {
+  let _ctx = null;
+  let _muted = false;
+
+  const ctx = () => {
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  };
+
+  const tone = (c, freq, type, t, dur, vol, freqEnd) => {
+    try {
+      const osc = c.createOscillator(), gain = c.createGain();
+      osc.connect(gain); gain.connect(c.destination);
+      osc.type = type; osc.frequency.setValueAtTime(freq, t);
+      if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t + dur);
+      gain.gain.setValueAtTime(vol, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.start(t); osc.stop(t + dur);
+    } catch(e) {}
+  };
+
+  return {
+    setMuted(v) { _muted = v; },
+    // Short sparkle tap
+    tap() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      tone(c, 880, 'sine', now, 0.08, 0.12);
+      tone(c, 1320, 'sine', now + 0.04, 0.06, 0.08);
+    },
+    // Twinkle — magical ascending sparkle
+    twinkle() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      [523, 659, 784, 1047, 1319].forEach((f, i) => tone(c, f, 'sine', now + i * 0.07, 0.18, 0.14));
+    },
+    // Correct ding — warm bell chord
+    ding() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      [[523,0],[659,.06],[784,.12],[1047,.22],[1319,.32]].forEach(([f,t]) => tone(c,f,'sine',now+t,.55,.18));
+    },
+    // Wrong — descending buzz
+    wrong() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      tone(c, 220, 'sawtooth', now, 0.28, 0.1, 100);
+    },
+    // Celebration fanfare
+    celebrate() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      const m = [[523,0],[659,.1],[784,.2],[1047,.32],[784,.46],[1047,.58],[1319,.68],[1047,.82]];
+      m.forEach(([f,t]) => tone(c,f,'sine',now+t,.2,.2));
+      // add shimmer layer
+      [1047,1319,1568,2093].forEach((f,i) => tone(c,f,'sine',now+.9+i*.08,.15,.1));
+    },
+    // Hop sound — short boing
+    hop() {
+      if (_muted) return;
+      const c = ctx(), now = c.currentTime;
+      tone(c, 400, 'sine', now, 0.12, 0.12, 600);
+    },
+  };
+})();
+
+/* ═══════════════════════════════
+   CONSTANTS / PRESETS
+═══════════════════════════════ */
+const rand = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+
+const CONFETTI_COLORS = ['#e91e63','#f06292','#9c27b0','#ce93d8','#ffd54f','#fff176','#f48fb1','#ba68c8','#ff8f00','#fff','#f8bbd0','#e1bee7'];
+const CHARACTERS = ['🦄','👸','🌸','🦋','🌈'];
+const NL_COLORS = [
+  ['#e91e63','#880e4f'],['#9c27b0','#4a148c'],['#673ab7','#311b92'],
+  ['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],
+  ['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#f44336','#b71c1c'],['#e91e63','#880e4f'],
+];
+const TITLE_COLORS = ['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3','#00bcd4','#4caf50','#ffeb3b','#ff9800','#e91e63','#9c27b0','#f06292','#ffd54f','#ab47bc','#e91e63'];
+
+const BLOCKS_PRESETS = [
+  { id:'p9',   emoji:'🌸', tag:'Tiny',   desc:'1 – 9',   max:9   },
+  { id:'p99',  emoji:'🌷', tag:'Easy',   desc:'1 – 99',  max:99  },
+  { id:'p999', emoji:'🌺', tag:'Full',   desc:'1 – 999', max:999 },
+];
+const LINE_PRESETS = [
+  { id:'p5',  emoji:'🌸', tag:'Tiny',   desc:'1 – 5',  max:5  },
+  { id:'p10', emoji:'🌷', tag:'Easy',   desc:'1 – 10', max:10 },
+  { id:'p20', emoji:'💜', tag:'Medium', desc:'1 – 20', max:20 },
+  { id:'p30', emoji:'🌺', tag:'Full',   desc:'1 – 30', max:30 },
+];
+
+const BG_ICONS = ['🌸','🌺','🌷','🌼','✨','⭐','💫','🦄','🌈','💜','🌸','🌺','✨','💫','🌷'];
+
+/* ═══════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════ */
+function BgDeco() {
+  const items = useMemo(()=>BG_ICONS.map((icon,i)=>({icon,id:i,left:rand(0,98),dur:rand(12,28),delay:rand(0,20),size:rand(14,26)})),[]);
+  return (
+    <div className="bg-deco">
+      {items.map(it=><span key={it.id} style={{left:`${it.left}%`,fontSize:it.size,animationDuration:`${it.dur}s`,animationDelay:`${it.delay}s`}}>{it.icon}</span>)}
+    </div>
+  );
+}
+
+function Confetti({ active }) {
+  const pieces = useMemo(()=>Array.from({length:90},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,900),dur:rand(1200,2400),color:CONFETTI_COLORS[i%CONFETTI_COLORS.length],size:rand(7,15),shape:i%4===0?'50%':i%4===1?'2px':i%4===2?'0':'30%',isFlower:i%7===0})),[]);
+  if(!active) return null;
+  return (
+    <div className="confetti-container">
+      {pieces.map(p=>(
+        <div key={p.id} className="confetti-piece" style={{left:`${p.left}%`,width:p.isFlower?'auto':p.size,height:p.isFlower?'auto':p.size,fontSize:p.isFlower?p.size+4:undefined,borderRadius:p.isFlower?undefined:p.shape,background:p.isFlower?'none':p.color,animationDuration:`${p.dur}ms`,animationDelay:`${p.delay}ms`}}>{p.isFlower?['🌸','🌺','🌷','⭐','💜'][p.id%5]:null}</div>
+      ))}
+    </div>
+  );
+}
+
+function NumberDisplay({ built, target, shake }) {
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10);
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  return (
+    <div className="number-display">
+      {tH>0&&<div className="digit-box"><div className={`digit-value digit-hundreds ${shake?'shake':''}`}>{h}</div><div className="digit-label digit-hundreds">hundreds</div></div>}
+      {(tH>0||tT>0)&&<div className="digit-box"><div className={`digit-value digit-tens ${shake?'shake':''}`}>{t}</div><div className="digit-label digit-tens">tens</div></div>}
+      <div className="digit-box"><div className={`digit-value digit-ones ${shake?'shake':''}`}>{o}</div><div className="digit-label digit-ones">ones</div></div>
+      <div style={{fontSize:'1.7rem',color:'#ccc',padding:'0 4px',paddingBottom:2}}>/</div>
+      <div className="digit-box"><div className="digit-value" style={{color:'#7b1fa2'}}>{target}</div><div className="digit-label" style={{color:'#ce93d8'}}>goal</div></div>
+    </div>
+  );
+}
+
+function SettingsModal({ title, presets, current, onChange, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">⚙️ {title}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {presets.map(p=>(
+            <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);onClose();}}>
+              <span className="preset-tag">{p.emoji}</span>
+              <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
+              {current.id===p.id&&<span>✓</span>}
+            </button>
+          ))}
+        </div>
+        <button className="modal-close" onClick={onClose}>Done 🌸</button>
+      </div>
+    </div>
+  );
+}
+
+function TopBar({ onBack, onSettings, muted, onToggleMute, label }) {
+  return (
+    <div className="top-bar">
+      <button className="back-btn" onClick={()=>{Sound.tap();onBack();}}>🌸 Home</button>
+      {label&&<div style={{fontSize:'.82rem',fontWeight:900,color:'#9c27b0',background:'rgba(255,255,255,.6)',borderRadius:50,padding:'5px 12px'}}>{label}</div>}
+      <div style={{display:'flex',gap:6}}>
+        <button className="sound-btn" onClick={()=>{onToggleMute();Sound.tap();}} title="Sound">{muted?'🔇':'🔊'}</button>
+        {onSettings&&<button className="settings-btn" onClick={()=>{Sound.tap();onSettings();}}>⚙️</button>}
+      </div>
+    </div>
+  );
+}
+
+function ScoreRow({ score, stars, maxStars=5 }) {
+  return (
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',width:'100%',maxWidth:740}}>
+      <div className="score-badge">🌟 <span>{score}</span></div>
+      <div className="stars">{Array.from({length:maxStars},(_,i)=><span key={i} className={`star ${i<stars?'lit':''}`}>{i<stars?'🌸':'🤍'}</span>)}</div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   MODE 1-A  Build It! (guided)
+═══════════════════════════════ */
+function BlocksGuided({ onBack }) {
+  const [preset, setPreset] = useState(BLOCKS_PRESETS[2]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [target, setTarget] = useState(()=>rand(1,999));
+  const [built, setBuilt] = useState(0);
+
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10),tO=target%10;
+  const h=Math.floor(built/100),t=Math.floor((built%100)/10),o=built%10;
+  const won = built===target;
+
+  const tap = useCallback(v=>{
+    Sound.setMuted(muted);
+    Sound.tap();
+    setBuilt(p=>{
+      const next=Math.min(target,p+v);
+      if(next===target) setTimeout(()=>{Sound.celebrate();},50);
+      else Sound.twinkle();
+      return next;
+    });
+  },[target,muted]);
+
+  const newNum = useCallback(()=>{
+    Sound.setMuted(muted); Sound.tap();
+    setTarget(rand(1,preset.max)); setBuilt(0);
+  },[preset,muted]);
+
+  const applyPreset = p=>{ setPreset(p); setTarget(rand(1,p.max)); setBuilt(0); };
+
+  return (
+    <div className="screen blocks-screen">
+      {showSettings&&<SettingsModal title="Number Range" presets={BLOCKS_PRESETS} current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>{setMuted(m=>{Sound.setMuted(!m);return !m;})}} label={preset.desc}/>
+      <NumberDisplay built={built} target={target} shake={false}/>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+        {tH>0&&<div className="block-label">💜 Tap hundreds</div>}
+        {tT>0&&<div className="block-label">🩷 Tap tens</div>}
+        {tO>0&&<div className="block-label">⭐ Tap ones</div>}
+      </div>
+      <div className="blocks-area">
+        {Array.from({length:tH},(_,i)=>(
+          <div key={`h${i}`} className="block-hundred" style={{opacity:i>=h?.28:1,cursor:i===h?'pointer':'default'}} onClick={()=>i===h&&tap(100)}>
+            {Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}
+          </div>
+        ))}
+        {Array.from({length:tT},(_,i)=>(
+          <div key={`t${i}`} className="block-ten" style={{opacity:i>=t?.28:1,cursor:i===t?'pointer':'default'}} onClick={()=>i===t&&tap(10)}>
+            {Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}
+          </div>
+        ))}
+        {Array.from({length:tO},(_,i)=>(
+          <div key={`o${i}`} className="block-one" style={{opacity:i>=o?.28:1,cursor:i===o?'pointer':'default'}} onClick={()=>i===o&&tap(1)}/>
+        ))}
+      </div>
+      {won&&<div className="celebrate-text">🦄 You built {target}! 🌈</div>}
+      <Confetti active={won}/>
+      <button className="new-number-btn" onClick={newNum}>New Number 🌸</button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   MODE 1-B  Choose the Right Blocks
+═══════════════════════════════ */
+function BlocksChoose({ onBack }) {
+  const [preset, setPreset] = useState(BLOCKS_PRESETS[2]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [target, setTarget] = useState(()=>rand(1,999));
+  const [sel, setSel] = useState({h:0,t:0,o:0});
+  const [shake, setShake] = useState(false);
+  const [won, setWon] = useState(false);
+  const [confetti,setConf] = useState(false);
+
+  const built = sel.h*100+sel.t*10+sel.o;
+  const tH=Math.floor(target/100),tT=Math.floor((target%100)/10);
+
+  const toggle = (type,i)=>{
+    if(won) return;
+    Sound.setMuted(muted); Sound.tap();
+    setSel(p=>({...p,[type]:i<p[type]?i:i+1}));
+  };
+
+  const check = ()=>{
+    Sound.setMuted(muted);
+    if(built===target){ setWon(true); setConf(true); Sound.celebrate(); setTimeout(()=>setConf(false),2600); }
+    else { setShake(true); Sound.wrong(); setTimeout(()=>setShake(false),400); }
+  };
+
+  const newNum = ()=>{
+    Sound.setMuted(muted); Sound.tap();
+    setTarget(rand(1,preset.max)); setSel({h:0,t:0,o:0}); setWon(false); setShake(false);
+  };
+
+  const applyPreset = p=>{ setPreset(p); setTarget(rand(1,p.max)); setSel({h:0,t:0,o:0}); setWon(false); setShake(false); };
+
+  // how many of each type to show (always 10 but suppress rows not needed for range)
+  const showH = preset.max >= 100;
+  const showT = preset.max >= 10;
+
+  return (
+    <div className="screen choose-screen">
+      {showSettings&&<SettingsModal title="Number Range" presets={BLOCKS_PRESETS} current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>{setMuted(m=>{Sound.setMuted(!m);return !m;})}} label={preset.desc}/>
+      <NumberDisplay built={built} target={target} shake={shake}/>
+      <div className="block-bank">
+        {showH&&<>
+          <div className="block-bank-label bank-h-label">💜 Hundreds — tap to pick!</div>
+          <div className="block-bank-row">
+            {Array.from({length:10},(_,i)=>(
+              <div key={i} className={`sel-hundred ${i<sel.h?'on':'off'}`} onClick={()=>toggle('h',i)}>
+                {Array.from({length:100},(_,j)=><div key={j} className="inner-cell"/>)}
+              </div>
+            ))}
+          </div>
+        </>}
+        {showT&&<>
+          <div className="block-bank-label bank-t-label">🩷 Tens — tap to pick!</div>
+          <div className="block-bank-row">
+            {Array.from({length:10},(_,i)=>(
+              <div key={i} className={`sel-ten ${i<sel.t?'on':'off'}`} onClick={()=>toggle('t',i)}>
+                {Array.from({length:10},(_,j)=><div key={j} className="inner-cell"/>)}
+              </div>
+            ))}
+          </div>
+        </>}
+        <div className="block-bank-label bank-o-label">⭐ Ones — tap to pick!</div>
+        <div className="block-bank-row">
+          {Array.from({length:10},(_,i)=>(
+            <div key={i} className={`sel-one ${i<sel.o?'on':'off'}`} onClick={()=>toggle('o',i)}/>
+          ))}
+        </div>
+      </div>
+      {won
+        ? <><div className="celebrate-text">🦄✨ Perfect! {target} is right! 🌈🌸</div><button className="new-number-btn" onClick={newNum}>New Number 🌸</button></>
+        : <>{shake&&<div className="wrong-text">🙈 Try again!</div>}<button className="check-btn" onClick={check}>Check ✓ 💜</button><button className="new-number-btn" onClick={newNum}>New Number 🌸</button></>
+      }
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   MODE 2-A  Hop to a Number
+═══════════════════════════════ */
+function NumberLineHop({ onBack }) {
+  const [char]  = useState(()=>CHARACTERS[rand(0,CHARACTERS.length-1)]);
+  const [preset, setPreset] = useState(LINE_PRESETS[3]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [pos, setPos]    = useState(1);
+  const [target,setTarget]= useState(()=>rand(2,30));
+  const [celebrating,setCel]=useState(false);
+  const [confetti,setConf] =useState(false);
+  const [score,setScore]  =useState(0);
+  const [stars,setStars]  =useState(0);
+  const [correctId,setCorrId]=useState(null);
+  const [hopsFromStart,setHops]=useState(0);
+  const startRef = useRef(1);
+
+  const next = useCallback(()=>{
+    const max=preset.max, p=rand(1,max-1);
+    startRef.current=p; setPos(p); setTarget(rand(p+1,max));
+    setCel(false); setCorrId(null); setHops(0);
+  },[preset]);
+
+  const applyPreset = p=>{ setPreset(p); const st=rand(1,p.max-1); startRef.current=st; setPos(st); setTarget(rand(st+1,p.max)); setCel(false); setCorrId(null); setHops(0); };
+
+  const tap = useCallback((n)=>{
+    Sound.setMuted(muted);
+    if(celebrating) return;
+    if(n===target){
+      setPos(n); setCorrId(n); setCel(true); setConf(true);
+      setScore(s=>s+1); setStars(s=>Math.min(s+1,5));
+      Sound.ding(); setTimeout(()=>{Sound.celebrate();},200);
+      setHops(Math.abs(n-startRef.current));
+      setTimeout(()=>setConf(false),2500);
+    } else {
+      Sound.hop(); setPos(n); setHops(Math.abs(n-startRef.current));
+    }
+  },[target,celebrating,muted]);
+
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+  const MAX=preset.max;
+
+  return (
+    <div className="screen line-screen">
+      {showSettings&&<SettingsModal title="Number Range" presets={LINE_PRESETS} current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>{setMuted(m=>{Sound.setMuted(!m);return !m;})}} label={preset.desc}/>
+      <ScoreRow score={score} stars={stars}/>
+      {celebrating
+        ? <div className="celebrate-text">🎉✨ You hopped to {target}! {hopsFromStart} hops! 🦄🌈</div>
+        : <div className="prompt-bubble">Hop to <span className="target-num">{target}</span>! 🎯</div>
+      }
+      {hopsFromStart>0&&!celebrating&&(
+        <div className="hop-counter">
+          {pos>startRef.current?'→':'←'} {hopsFromStart} hop{hopsFromStart!==1?'s':''} from {startRef.current}
+        </div>
+      )}
+      <div className="char-wrap">
+        <div className="character" style={{left:`calc(${((pos-1)/(MAX-1))*100*(MAX/(MAX+1))}% - 25px)`}}>{char}</div>
+      </div>
+      <div className="number-line-wrapper">
+        <div className="number-line">
+          <div className="nl-track"/>
+          {Array.from({length:MAX},(_,i)=>{
+            const n=i+1;
+            return <button key={n} className={`nl-number ${n===pos&&!celebrating?'current':''} ${n===correctId?'correct':''}`} style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;
+          })}
+        </div>
+      </div>
+      {celebrating&&<button className="next-btn" onClick={next}>Next 🌸</button>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   MODE 2-B  Add & Subtract
+═══════════════════════════════ */
+function makeProb(max) {
+  const op=Math.random()<.5?'+':'-';
+  const maxHop=Math.min(5,Math.floor(max/2));
+  if(op==='+'){const s=rand(1,max-1),a=rand(1,Math.min(maxHop,max-s));return{start:s,op:'+',amount:a,answer:s+a};}
+  else{const s=rand(2,max),a=rand(1,Math.min(maxHop,s-1));return{start:s,op:'-',amount:a,answer:s-a};}
+}
+
+function NumberLineAddSub({ onBack }) {
+  const [char]  = useState(()=>CHARACTERS[rand(0,CHARACTERS.length-1)]);
+  const [preset, setPreset] = useState(LINE_PRESETS[3]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [prob, setProb]   = useState(()=>makeProb(30));
+  const [celebrating,setCel]=useState(false);
+  const [wrongId,setWrong] =useState(null);
+  const [confetti,setConf] =useState(false);
+  const [score,setScore]  =useState(0);
+  const [stars,setStars]  =useState(0);
+
+  const next = useCallback(()=>{ setProb(makeProb(preset.max)); setCel(false); setWrong(null); },[preset]);
+  const applyPreset = p=>{ setPreset(p); setProb(makeProb(p.max)); setCel(false); setWrong(null); };
+
+  const tap = useCallback((n)=>{
+    Sound.setMuted(muted);
+    if(celebrating) return;
+    if(n===prob.answer){
+      setCel(true); setConf(true); setScore(s=>s+1); setStars(s=>Math.min(s+1,5));
+      Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      setTimeout(()=>setConf(false),2500);
+    } else { setWrong(n); Sound.wrong(); setTimeout(()=>setWrong(null),400); }
+  },[prob,celebrating,muted]);
+
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-1)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+
+  const pathSet=new Set();
+  if(prob.op==='+'){for(let i=prob.start+1;i<=prob.answer;i++)pathSet.add(i);}
+  else             {for(let i=prob.answer;i<prob.start;i++)pathSet.add(i);}
+
+  // build ordered list of path cells for hop numbering
+  const orderedPath = prob.op==='+'
+    ? Array.from({length:prob.amount},(_,i)=>prob.start+1+i)
+    : Array.from({length:prob.amount},(_,i)=>prob.start-1-i);
+
+  const hopIndexOf = n => orderedPath.indexOf(n); // 0-based, -1 if not in path
+
+  const charPos = celebrating ? prob.answer : prob.start;
+  const MAX = preset.max;
+
+  return (
+    <div className="screen addsub-screen">
+      {showSettings&&<SettingsModal title="Number Range" presets={LINE_PRESETS} current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>{setMuted(m=>{Sound.setMuted(!m);return !m;})}} label={preset.desc}/>
+      <ScoreRow score={score} stars={stars}/>
+      {celebrating
+        ? <div className="celebrate-text">🦄✨ {prob.start} {prob.op} {prob.amount} = {prob.answer}! 🌈🌸</div>
+        : <div className="prompt-bubble">
+            <span className="start-num">{prob.start}</span>{' '}
+            {prob.op==='+'?<span className="op-add">+ {prob.amount} →</span>:<span className="op-sub">− {prob.amount} ←</span>}
+            {' '}<span className="eq-mark">=</span>{' '}<span className="target-num">?</span>
+          </div>
+      }
+
+      <div className="char-wrap">
+        <div className="character" style={{left:`calc(${((charPos-1)/(MAX-1))*100*(MAX/(MAX+1))}% - 25px)`}}>{char}</div>
+      </div>
+
+      {/* hop arrows with numbered badges */}
+      <div className="hop-strip">
+        <div className="hop-arrows">
+          {Array.from({length:MAX},(_,i)=>{
+            const n=i+1;
+            const hi=hopIndexOf(n);
+            const inPath=hi>=0;
+            const arrow=inPath?(prob.op==='+'?'→':'←'):null;
+            return (
+              <div key={i} className="hop-cell">
+                {inPath?(
+                  <>
+                    <span className={prob.op==='+'?'hop-num-badge hop-num-add':'hop-num-badge hop-num-sub'}>{hi+1}</span>
+                    <span className={prob.op==='+'?'hop-arrow-add':'hop-arrow-sub'}>{arrow}</span>
+                  </>
+                ):(
+                  <span className="hop-dot"/>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="number-line-wrapper">
+        <div className="number-line">
+          <div className="nl-track"/>
+          {Array.from({length:MAX},(_,i)=>{
+            const n=i+1;
+            return <button key={n}
+              className={`nl-number ${n===prob.start&&!celebrating?'start-marker':''} ${n===prob.answer&&celebrating?'correct':''} ${pathSet.has(n)&&!celebrating?'hop-path':''} ${n===wrongId?'wrong':''}`}
+              style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;
+          })}
+        </div>
+      </div>
+      {celebrating&&<button className="next-btn" onClick={next}>Next 🌸</button>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   HOME
+═══════════════════════════════ */
+function Home({ onSelect }) {
+  const title='✨ Magic Math! ✨'.split('');
+  return (
+    <div className="home">
+      <BgDeco/>
+      <div className="home-rainbow">🌈🌸🦄🌸🌈</div>
+      <div className="home-title">
+        {title.map((c,i)=><span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*.07}s`,textShadow:`0 3px 0 ${TITLE_COLORS[(i+4)%TITLE_COLORS.length]}55`}}>{c}</span>)}
+      </div>
+      <div className="home-sub">🌟 Choose your adventure! 🌟</div>
+      <div className="mode-section">
+        <div className="mode-section-label">🧱 Counting Blocks</div>
+        <div className="mode-row">
+          <button className="mode-card mc-pink"   onClick={()=>onSelect('blocks1')}><div className="mode-card-icon">🧱</div><div className="mode-card-label">Build It!</div><div className="mode-card-stars">⭐</div></button>
+          <button className="mode-card mc-purple" onClick={()=>onSelect('blocks2')}><div className="mode-card-icon">💜</div><div className="mode-card-label">Choose the Right Blocks</div><div className="mode-card-stars">⭐⭐</div></button>
+        </div>
+      </div>
+      <div className="mode-section">
+        <div className="mode-section-label">🌈 Number Line</div>
+        <div className="mode-row">
+          <button className="mode-card mc-rose"  onClick={()=>onSelect('line1')}><div className="mode-card-icon">🦄</div><div className="mode-card-label">Hop to a Number</div><div className="mode-card-stars">⭐</div></button>
+          <button className="mode-card mc-magic" onClick={()=>onSelect('line2')}><div className="mode-card-icon">👸</div><div className="mode-card-label">Add &amp; Subtract</div><div className="mode-card-stars">⭐⭐</div></button>
+        </div>
+      </div>
+      <div style={{fontSize:'1.5rem',letterSpacing:'8px',animation:'bounce 2s ease-in-out infinite alternate'}}>🌸🌺🌷🌼🌸</div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════
+   APP
+═══════════════════════════════ */
+function App() {
+  const [mode,setMode]=useState(null);
+  if(mode==='blocks1') return <BlocksGuided     onBack={()=>setMode(null)}/>;
+  if(mode==='blocks2') return <BlocksChoose     onBack={()=>setMode(null)}/>;
+  if(mode==='line1')   return <NumberLineHop    onBack={()=>setMode(null)}/>;
+  if(mode==='line2')   return <NumberLineAddSub onBack={()=>setMode(null)}/>;
+  return <Home onSelect={setMode}/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
