@@ -227,7 +227,7 @@
     .hearts-row{display:flex;gap:3px}
     .heart-ico{font-size:1rem;transition:transform .2s}
     .heart-ico.lit{animation:heartPop .4s cubic-bezier(.34,1.56,.64,1)}
-    .heart-empty{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:1.1rem;line-height:1;opacity:.75}
+    .heart-empty{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#b8b8b8;font-family:Arial,Helvetica,sans-serif;font-size:1.15rem;line-height:1;opacity:.8}
     @keyframes heartPop{from{transform:scale(0)}to{transform:scale(1)}}
     .flower-bar-track{position:relative;width:100%;max-width:180px;height:16px;background:rgba(255,255,255,.55);border-radius:999px;border:2px solid #f48fb1;overflow:visible}
     .flower-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f48fb1,#ce93d8,#f48fb1);background-size:200% 100%;animation:barShimmer 2s linear infinite;transition:width .4s ease;min-width:0}
@@ -420,7 +420,7 @@ function ScoreRow({score,flowers,hearts}){
               ? <img key={i} src="icons/heart-gem.png" alt="♥"
                   className="heart-ico lit"
                   style={{width:22,height:22,objectFit:'contain',opacity:1}}/>
-              : <span key={i} className="heart-empty">♥</span>
+              : <span key={i} className="heart-empty">♥︎</span>
           ))}
         </div>
         <div className="flower-bar-track">
