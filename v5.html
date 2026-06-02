@@ -38,6 +38,7 @@
     .mode-card-art.unicorn-art{width:76px;height:76px}
     .mode-card-art.large-art{width:84px;height:84px}
     .mode-card-label{font-size:.9rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
+    .mode-card-sub{font-size:.66rem;font-weight:900;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.25);text-align:center;margin-top:-5px}
     .mode-card-stars{height:24px;display:flex;align-items:center;justify-content:center;gap:2px}
     .mode-card-stars img{width:24px;height:24px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16))}
     .mc-pink  {background:linear-gradient(160deg,#f48fb1,#e91e63);box-shadow:0 7px 0 #ad1457,0 10px 20px rgba(233,30,99,.3)}
@@ -151,6 +152,73 @@
     .sb-one:active{transform:scale(.88)}
     .slot-empty-hint{font-size:.78rem;color:#bbb;font-weight:700;padding:4px 0}
 
+    /* Place-value builder */
+    .pv-goal-card{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1;flex-wrap:wrap}
+    .pv-goal-piece{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:54px}
+    .pv-goal-num{font-size:clamp(1.7rem,7vw,3rem);font-weight:900;line-height:1}
+    .pv-goal-label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+    .pv-goal-divider{font-size:1.5rem;color:#d7b7df;font-weight:900;padding-bottom:4px}
+    .pv-built-line{background:rgba(255,255,255,.72);border:2px solid #f8bbd0;border-radius:999px;padding:7px 16px;font-size:.9rem;font-weight:900;color:#7b1fa2;position:relative;z-index:1;text-align:center}
+    .pv-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+    .pv-zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+    .pv-zone{min-height:142px;border:3px dashed;border-radius:18px;background:rgba(255,255,255,.56);padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(123,31,162,.08);transition:transform .12s,background .12s}
+    .pv-zone:active{transform:scale(.98)}
+    .pv-zone-h{border-color:#9c27b0;background:rgba(243,229,245,.68)}
+    .pv-zone-t{border-color:#e91e63;background:rgba(252,228,236,.7)}
+    .pv-zone-o{border-color:#f9a825;background:rgba(255,248,225,.72)}
+    .pv-zone-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .pv-zone-title{font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+    .pv-zone-h .pv-zone-title{color:#7b1fa2}.pv-zone-t .pv-zone-title{color:#c2185b}.pv-zone-o .pv-zone-title{color:#e65100}
+    .pv-zone-hint{font-size:.66rem;font-weight:900;color:#999;text-transform:uppercase;letter-spacing:.6px}
+    .pv-zone-count{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;font-size:.9rem;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+    .pv-zone-h .pv-zone-count{color:#7b1fa2}.pv-zone-t .pv-zone-count{color:#c2185b}.pv-zone-o .pv-zone-count{color:#e65100}
+    .pv-block-space{position:relative;min-height:66px;display:flex;align-items:flex-end;justify-content:center;gap:5px;flex-wrap:wrap;flex:1}
+    .pv-placeholder{opacity:.2;pointer-events:none}
+    .pv-placed{cursor:pointer;animation:blockIn .18s ease}
+    .pv-bank{background:rgba(255,255,255,.68);border:2px solid #f8bbd0;border-radius:18px;padding:12px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .pv-bank-title{width:100%;text-align:center;font-size:.78rem;font-weight:900;color:#7b1fa2;text-transform:uppercase;letter-spacing:1px}
+    .pv-bank-btn{border:none;border-radius:16px;background:#fff;min-width:104px;padding:10px 12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .12s}
+    .pv-bank-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+    .pv-bank-btn.h{color:#7b1fa2;border:2px solid #ce93d8}.pv-bank-btn.t{color:#c2185b;border:2px solid #f48fb1}.pv-bank-btn.o{color:#e65100;border:2px solid #ffd54f}
+
+    /* Direct v4-style place-value picker */
+    .direct-progress{background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:999px;padding:8px 28px;font-size:clamp(1.2rem,4vw,1.9rem);font-weight:900;color:#7b1fa2;box-shadow:0 4px 0 #ce93d8;position:relative;z-index:1;min-width:150px;text-align:center}
+    .direct-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:1}
+    .direct-section{background:rgba(255,255,255,.62);border:2px solid #f8bbd0;border-radius:18px;padding:12px 12px 14px;box-shadow:0 5px 18px rgba(123,31,162,.08)}
+    .direct-label{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
+    .direct-label.tens{color:#c2185b}.direct-label.ones{color:#e65100}
+    .direct-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end}
+    .direct-block{cursor:pointer;transition:transform .12s,filter .12s,opacity .12s;position:relative;flex-shrink:0}
+    .direct-block:active{transform:scale(.92) translateY(3px)}
+    .direct-block.off{opacity:.28;filter:saturate(.55)}
+    .direct-block.on{opacity:1;transform:translateY(-3px);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 4px 8px rgba(233,30,99,.22))}
+    .direct-block.on .pb-hundred{box-shadow:0 0 0 3px #fff,0 0 0 6px #ce93d8}
+    .direct-block.on .pb-ten{box-shadow:0 0 0 3px #fff,0 0 0 6px #f06292}
+    .direct-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd54f}
+    .direct-too-many{font-size:.9rem;font-weight:900;color:#c2185b;background:rgba(255,255,255,.72);border:2px solid #f8bbd0;border-radius:999px;padding:6px 14px;text-align:center;position:relative;z-index:1}
+    .direct-nav-gap{height:34px}
+
+    /* Count the blocks */
+    .count-title{background:rgba(255,255,255,.72);border:2px solid #f8bbd0;border-radius:18px;padding:8px 18px;text-align:center;position:relative;z-index:1;box-shadow:0 4px 14px rgba(123,31,162,.08)}
+    .count-title-main{font-size:1.05rem;font-weight:900;color:#7b1fa2;text-transform:uppercase;letter-spacing:1px}
+    .count-title-sub{font-size:.78rem;font-weight:900;color:#e91e63;margin-top:2px}
+    .count-answer-card{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1;display:flex;flex-direction:column;gap:7px;align-items:center;min-width:min(92vw,390px)}
+    .count-place-row{display:flex;gap:14px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+    .count-place{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px}
+    .count-place-num{font-size:clamp(1.5rem,6vw,2.5rem);font-weight:900;line-height:1}
+    .count-place-label{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
+    .count-number{font-size:clamp(1.1rem,4vw,1.65rem);font-weight:900;color:#7b1fa2}
+    .count-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+    .count-section{background:rgba(255,255,255,.62);border:2px solid #f8bbd0;border-radius:18px;padding:12px 12px 14px;box-shadow:0 5px 18px rgba(123,31,162,.08)}
+    .count-label{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
+    .count-label.h{color:#7b1fa2}.count-label.t{color:#c2185b}.count-label.o{color:#e65100}
+    .count-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end;max-width:420px;margin:0 auto}
+    .count-block{cursor:pointer;transition:transform .12s,filter .12s,opacity .12s;position:relative;flex-shrink:0}
+    .count-block:active{transform:scale(.92) translateY(3px)}
+    .count-block.off{opacity:.35;filter:saturate(.65)}
+    .count-block.on{opacity:1;transform:translateY(-3px);filter:drop-shadow(0 4px 8px rgba(123,31,162,.2))}
+    .count-block.on .pb-hundred,.count-block.on .pb-ten,.count-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(240,98,146,.8)}
+
     /* ── SCORE ROW: FLOWER PROGRESS BAR ── */
     .score-row{display:flex;align-items:center;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
     .score-badge{background:linear-gradient(135deg,#fff,#fce4ec);border:2px solid #f48fb1;border-radius:50px;padding:5px 14px;font-size:.95rem;font-weight:900;color:#e91e63;box-shadow:0 3px 8px rgba(240,98,146,.2);white-space:nowrap}
@@ -163,8 +231,8 @@
     .flower-bar-track{position:relative;width:100%;max-width:180px;height:16px;background:rgba(255,255,255,.55);border-radius:999px;border:2px solid #f48fb1;overflow:visible}
     .flower-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f48fb1,#ce93d8,#f48fb1);background-size:200% 100%;animation:barShimmer 2s linear infinite;transition:width .4s ease;min-width:0}
     @keyframes barShimmer{0%{background-position:0%}100%{background-position:200%}}
-    .bar-flower{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:.82rem;opacity:.28;transition:opacity .3s,transform .3s;pointer-events:none}
-    .bar-flower.lit{opacity:1;transform:translate(-50%,-65%) scale(1.25)}
+    .bar-flower{position:absolute;top:50%;transform:translate(-50%,-50%);opacity:.34;transition:opacity .3s,transform .3s;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(123,31,162,.22))}
+    .bar-flower.lit{opacity:1;transform:translate(-50%,-66%) scale(1.34)}
     .flower-count{font-size:.7rem;font-weight:900;color:#9c27b0}
 
     /* ── BUTTONS ── */
@@ -231,7 +299,7 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useCallback, useMemo, useRef } = React;
+const { useState, useCallback, useMemo, useRef, useEffect } = React;
 
 /* ══ SOUND ══ */
 const Sound = (() => {
@@ -355,9 +423,9 @@ function ScoreRow({score,flowers,hearts}){
         <div className="flower-bar-track">
           <div className="flower-bar-fill" style={{width:`${pct}%`}}/>
           {milestones.map(m=>(
-            <img key={m} src="icons/flower-pink.png" alt="🌸"
+            <img key={m} src="icons/star-purple.png" alt=""
               className={`bar-flower ${flowers>=m?'lit':''}`}
-              style={{left:`${(m/MAX_FLOWERS)*100}%`,width:16,height:16,objectFit:'contain'}}/>
+              style={{left:`${(m/MAX_FLOWERS)*100}%`,width:22,height:22,objectFit:'contain'}}/>
           ))}
         </div>
         <div className="flower-count">{flowers}/{MAX_FLOWERS}</div>
@@ -455,8 +523,15 @@ function LineSettings({current, onChange, customOp, onCustomOp, isAddSub, lineMa
     const activeLine=current.id==='lcustom'?{min:parseInt(lcMin),max:parseInt(lcMax)}:{min:current.min,max:current.max};
     const mn=activeLine.min,mx=activeLine.max;
     const bm=parseInt(bMin),bx=parseInt(bMax),am=parseInt(aMin),ax=parseInt(aMax);
-    if(cop==='+'){if(bx+ax>mx){setOpErr(`Max start + max add must be ≤ ${mx}`);return;}}
-    else{if(bm-ax<mn){setOpErr(`Min start - max subtract must be ≥ ${mn}`);return;}}
+    if([mn,mx,bm,bx,am,ax].some(Number.isNaN)||bm>bx||am>ax){setOpErr('Check the from-to ranges.');return;}
+    const valid=[];
+    for(let s=bm;s<=bx;s++){
+      for(let a=am;a<=ax;a++){
+        if(cop==='+'&&s+a<=mx&&s+a>=mn)valid.push(1);
+        if(cop==='-'&&s-a>=mn&&s-a<=mx)valid.push(1);
+      }
+    }
+    if(valid.length===0){setOpErr('No valid problems in this range. Try smaller numbers.');return;}
     onCustomOp(opMode==='custom'?{op:cop,baseMin:bm,baseMax:bx,amtMin:am,amtMax:ax}:null);
     onClose();
   };
@@ -649,168 +724,280 @@ function SlotArea({type, placed, canAccept, wrongFlash, onSlotTap, onReturnBlock
   );
 }
 
-/* ══ MODE b1: BUILD IT ══ */
+function PlaceValueBlock({type, size='slot', className='', onClick}){
+  const hundredClass = size === 'bank' ? 'pb-hundred' : 'sb-hundred';
+  const tenClass = size === 'bank' ? 'pb-ten' : 'sb-ten';
+  const oneClass = size === 'bank' ? 'pb-one' : 'sb-one';
+  const cls = `${type==='h'?hundredClass:type==='t'?tenClass:oneClass} ${className}`;
+  return (
+    <div className={cls} onClick={onClick}>
+      {type==='h'&&Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}
+      {type==='t'&&size==='bank'&&Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}
+    </div>
+  );
+}
+
+function PlaceValueGoal({target, parts, showH, showT}){
+  return(
+    <div className="pv-goal-card">
+      {showH&&<div className="pv-goal-piece"><div className="pv-goal-num digit-hundreds">{parts.h}</div><div className="pv-goal-label digit-hundreds">hundreds</div></div>}
+      {showT&&<div className="pv-goal-piece"><div className="pv-goal-num digit-tens">{parts.t}</div><div className="pv-goal-label digit-tens">tens</div></div>}
+      <div className="pv-goal-piece"><div className="pv-goal-num digit-ones">{parts.o}</div><div className="pv-goal-label digit-ones">ones</div></div>
+      <div className="pv-goal-divider">/</div>
+      <div className="pv-goal-piece"><div className="pv-goal-num" style={{color:'#7b1fa2'}}>{target}</div><div className="pv-goal-label" style={{color:'#ce93d8'}}>goal</div></div>
+    </div>
+  );
+}
+
+function PlaceValueZone({type, label, placed, targetCount, onAdd, onRemove}){
+  const ghostCount = Math.max(1, Math.min(targetCount || 1, type==='h'?2:5));
+  return(
+    <div className={`pv-zone pv-zone-${type}`} onClick={onAdd}>
+      <div className="pv-zone-head">
+        <div>
+          <div className="pv-zone-title">{label}</div>
+          <div className="pv-zone-hint">tap to add</div>
+        </div>
+        <div className="pv-zone-count">{placed}</div>
+      </div>
+      <div className="pv-block-space">
+        {placed>0
+          ? Array.from({length:placed},(_,i)=>(
+              <PlaceValueBlock key={i} type={type} className="pv-placed" onClick={e=>{e.stopPropagation();onRemove();}}/>
+            ))
+          : Array.from({length:ghostCount},(_,i)=><PlaceValueBlock key={i} type={type} className="pv-placeholder"/>)
+        }
+      </div>
+    </div>
+  );
+}
+
+function PlaceValueBankButton({type, label, onAdd}){
+  return(
+    <button className={`pv-bank-btn ${type}`} onClick={onAdd}>
+      <PlaceValueBlock type={type} size="bank"/>
+      <span>{label} +1</span>
+    </button>
+  );
+}
+
+/* ══ MODE b1: WHAT NUMBER? ══ */
 function BlocksGuided({onBack, flowers, hearts, setFlowers, setHearts, score, setScore}){
-  const [preset,setPreset]=useState(BLOCKS_PRESETS[0]);
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const makeProblem = useCallback((p=BLOCKS_PRESETS[1])=>{
+    const max=Math.min(999,p.max);
+    const min=Math.min(Math.max(1,p.min),max);
+    const n=rand(min,max);
+    return decompose(n,false);
+  },[]);
   const [showSettings,setShowSettings]=useState(false);
   const [muted,setMuted]=useState(false);
-  const [target,setTarget]=useState(()=>rand(1,10));
+  const [problem,setProblem]=useState(()=>makeProblem(BLOCKS_PRESETS[1]));
+  const [selectedH,setSelectedH]=useState(()=>Array(problem.h).fill(false));
+  const [selectedT,setSelectedT]=useState(()=>Array(problem.t).fill(false));
+  const [selectedO,setSelectedO]=useState(()=>Array(problem.o).fill(false));
   const [won,setWon]=useState(false);
   const [confetti,setConf]=useState(false);
-  const [showEquiv,setShowEquiv]=useState(false);
   const addFlower = useFlowerReward(flowers,setFlowers,hearts,setHearts,muted);
-  const cnt = isCounting(preset);
-  const {h:tH,t:tT,o:tO} = decompose(target, cnt);
-  const maxPool = useMemo(()=>({h:tH,t:tT,o:tO}),[tH,tT,tO]);
-  const handleWin = useCallback(() => {
-    setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
-    setScore(s=>s+1); addFlower();
-    setTimeout(()=>setConf(false),2600);
-    const showE = (cnt&&target===10)||(target===100)||(target===1000);
-    if(showE) setTimeout(()=>setShowEquiv(true),1800);
-  },[muted,cnt,target,addFlower,setScore]);
-
-  const {selected,placed,wrongSlot,tapPool,tapSlot,returnBlock,reset} = useBlockGame({target,isCnt:cnt,isGuided:true,maxPool,onWin:handleWin});
-
-  const startNextRound = useCallback(() => {
+  const hCount=selectedH.filter(Boolean).length;
+  const tCount=selectedT.filter(Boolean).length;
+  const oCount=selectedO.filter(Boolean).length;
+  const currentNumber=hCount*100+tCount*10+oCount;
+  const correctNumber=problem.h*100+problem.t*10+problem.o;
+  const resetForProblem = useCallback((p)=>{
+    setProblem(p); setSelectedH(Array(p.h).fill(false)); setSelectedT(Array(p.t).fill(false)); setSelectedO(Array(p.o).fill(false)); setWon(false);
+  },[]);
+  const nextProblem = useCallback(()=>{
     if(flowers===MAX_FLOWERS){setFlowers(0);setHearts(0);}
-    const nt = rand(preset.min, preset.max);
-    setTarget(nt); setWon(false); setShowEquiv(false); reset();
-  },[preset,flowers,setFlowers,setHearts,reset]);
+    resetForProblem(makeProblem(preset));
+  },[flowers,setFlowers,setHearts,resetForProblem,makeProblem,preset]);
+  const applyPreset = p => { setPreset(p); resetForProblem(makeProblem(p)); setShowSettings(false); };
+  const toggle = useCallback((type,i)=>{
+    Sound.tap();
+    if(won) return;
+    const setter = type==='h'?setSelectedH:type==='t'?setSelectedT:setSelectedO;
+    setter(prev=>prev.map((v,idx)=>idx===i?!v:v));
+  },[won]);
 
-  const applyPreset = p => {
-    setPreset(p); const nt=rand(p.min,p.max); setTarget(nt); setWon(false); setShowEquiv(false); reset();
+  useEffect(()=>{
+    if(won) return;
+    if(hCount===problem.h&&tCount===problem.t&&oCount===problem.o){
+      setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      setScore(s=>s+1); addFlower();
+      setTimeout(()=>setConf(false),2600);
+    }
+  },[hCount,tCount,oCount,problem,won,muted,setScore,addFlower]);
+
+  const renderCountSection = (type,label,count,selected) => {
+    if(count<=0) return null;
+    return(
+      <div className="count-section">
+        <div className={`count-label ${type}`}>{label}</div>
+        <div className="count-row">
+          {selected.map((isOn,i)=>(
+            <div key={i} className={`count-block ${isOn?'on':'off'}`} onClick={()=>toggle(type,i)}>
+              {type==='h'&&<div className="pb-hundred">{Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}</div>}
+              {type==='t'&&<div className="pb-ten">{Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}</div>}
+              {type==='o'&&<div className="pb-one"/>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
-
-  const needH = tH > 0, needT = tT > 0, needO = tO > 0;
-  const poolH = needH ? tH - placed.h : 0;
-  const poolT = needT ? tT - placed.t : 0;
-  const poolO = needO ? tO - placed.o : 0;
 
   return(
     <div className="screen blocks-screen">
       <div className="screen-bg"/>
       {showSettings&&<BlocksSettings current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
-      {showEquiv&&<EquivalenceModal target={target} counting={cnt} onNext={startNextRound}/>}
       <Confetti active={confetti}/>
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>setMuted(m=>{Sound.setMuted(!m);return !m;})} label={preset.tag}/>
       <ScoreRow score={score} flowers={flowers} hearts={hearts}/>
-      {/* Number display */}
-      <div className="number-display" style={{position:'relative',zIndex:1}}>
-        {needH&&<div className="digit-box"><div className="digit-value digit-hundreds">{placed.h}</div><div className="digit-label digit-hundreds">hundreds</div></div>}
-        {(needH||needT)&&<div className="digit-box"><div className="digit-value digit-tens">{placed.t}</div><div className="digit-label digit-tens">tens</div></div>}
-        <div className="digit-box"><div className="digit-value digit-ones">{placed.o}</div><div className="digit-label digit-ones">ones</div></div>
-        <div style={{fontSize:'1.6rem',color:'#ccc',padding:'0 4px',paddingBottom:2}}>/</div>
-        <div className="digit-box"><div className="digit-value" style={{color:'#7b1fa2'}}>{target}</div><div className="digit-label" style={{color:'#ce93d8'}}>goal</div></div>
+      <div className="count-title"><div className="count-title-main">What Number?</div><div className="count-title-sub">Count the blocks!</div></div>
+      <div className="count-answer-card">
+        <div className="count-place-row">
+          {problem.h>0&&<div className="count-place"><div className="count-place-num digit-hundreds">{hCount}</div><div className="count-place-label digit-hundreds">hundreds</div></div>}
+          <div className="count-place"><div className="count-place-num digit-tens">{tCount}</div><div className="count-place-label digit-tens">tens</div></div>
+          <div className="count-place"><div className="count-place-num digit-ones">{oCount}</div><div className="count-place-label digit-ones">ones</div></div>
+        </div>
+        <div className="count-number">Number: {currentNumber}</div>
       </div>
+      {!won&&<div className="tap-hint">Tap each block as you count it</div>}
       {!won&&(
-        <div className="tap-layout">
-          <div className="tap-hint">
-            {selected ? `${selected==='h'?'💜 Hundred':selected==='t'?'🩷 Ten':'⭐ One'} selected — tap a box below!` : 'Tap a block to pick it up 👆'}
-          </div>
-          {/* Pool */}
-          <div className="pool-area">
-            <div className="pool-label">Blocks to use</div>
-            <div className="pool-blocks">
-              {needH&&<PoolBlock type="h" count={poolH} selected={selected} onTap={()=>poolH>0&&tapPool('h')}/>}
-              {needT&&<PoolBlock type="t" count={poolT} selected={selected} onTap={()=>poolT>0&&tapPool('t')}/>}
-              {needO&&Array.from({length:poolO},(_,i)=><PoolBlock key={i} type="o" count={1} selected={selected} onTap={()=>tapPool('o')}/>)}
-            </div>
-          </div>
-          {/* Slots */}
-          <div className="slots-area">
-            {needH&&<SlotArea type="h" placed={placed.h} canAccept={selected==='h'} wrongFlash={wrongSlot==='h'} onSlotTap={()=>tapSlot('h')} onReturnBlock={()=>returnBlock('h')}/>}
-            {needT&&<SlotArea type="t" placed={placed.t} canAccept={selected==='t'} wrongFlash={wrongSlot==='t'} onSlotTap={()=>tapSlot('t')} onReturnBlock={()=>returnBlock('t')}/>}
-            {needO&&<SlotArea type="o" placed={placed.o} canAccept={selected==='o'} wrongFlash={wrongSlot==='o'} onSlotTap={()=>tapSlot('o')} onReturnBlock={()=>returnBlock('o')}/>}
-          </div>
+        <div className="count-layout">
+          {renderCountSection('h','Hundreds',problem.h,selectedH)}
+          {renderCountSection('t','Tens',problem.t,selectedT)}
+          {renderCountSection('o','Ones',problem.o,selectedO)}
         </div>
       )}
-      {won&&!showEquiv&&(
-        <>
-          <div className="celebrate-text">You built {target}!</div>
-          <button className="next-btn" onClick={startNextRound}>Next</button>
-        </>
-      )}
+      {won&&<div className="celebrate-text">You found it! {correctNumber}!</div>}
+      <div className="direct-nav-gap"/>
+      <button className={won?'next-btn':'new-num-btn'} onClick={nextProblem}>{won?'Next Number':'New Number'}</button>
     </div>
   );
 }
 
 /* ══ MODE b2: FILL THE RIGHT BLOCK ══ */
 function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setScore}){
-  const [preset,setPreset]=useState(BLOCKS_PRESETS[0]);
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
   const [showSettings,setShowSettings]=useState(false);
   const [muted,setMuted]=useState(false);
-  const [target,setTarget]=useState(()=>rand(1,10));
+  const makeFillTarget = useCallback((p)=>{
+    const max=Math.min(999,p.max);
+    const min=Math.min(Math.max(1,p.min),max);
+    return rand(min,max);
+  },[]);
+  const [target,setTarget]=useState(()=>rand(11,99));
   const [won,setWon]=useState(false);
   const [confetti,setConf]=useState(false);
-  const [showEquiv,setShowEquiv]=useState(false);
+  const [selectedHundreds,setSelectedHundreds]=useState(()=>Array(10).fill(false));
+  const [selectedTens,setSelectedTens]=useState(()=>Array(10).fill(false));
+  const [selectedOnes,setSelectedOnes]=useState(()=>Array(10).fill(false));
   const addFlower = useFlowerReward(flowers,setFlowers,hearts,setHearts,muted);
-  const cnt = isCounting(preset);
-  const showH = !cnt && preset.max >= 100;
-  const showT = !cnt && preset.max > 10;
-  const maxPool = useMemo(()=>({h:showH?10:0, t:showT?10:0, o:10}),[showH,showT]);
+  const targetParts = useMemo(()=>decompose(target,false),[target]);
+  const hundredsCount = selectedHundreds.filter(Boolean).length;
+  const tensCount = selectedTens.filter(Boolean).length;
+  const onesCount = selectedOnes.filter(Boolean).length;
+  const built = hundredsCount*100 + tensCount*10 + onesCount;
+  const showH = targetParts.h > 0;
 
-  const handleWin = useCallback(() => {
-    setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
-    setScore(s=>s+1); addFlower();
-    setTimeout(()=>setConf(false),2600);
-    const showE=(cnt&&target===10)||(target===100)||(target===1000);
-    if(showE) setTimeout(()=>setShowEquiv(true),1800);
-  },[muted,cnt,target,addFlower,setScore]);
-
-  const {selected,placed,wrongSlot,tapPool,tapSlot,returnBlock,reset} = useBlockGame({target,isCnt:cnt,isGuided:false,maxPool,onWin:handleWin});
+  const resetSelection = useCallback(()=>{
+    setSelectedHundreds(Array(10).fill(false));
+    setSelectedTens(Array(10).fill(false));
+    setSelectedOnes(Array(10).fill(false));
+  },[]);
 
   const startNextRound = useCallback(() => {
     if(flowers===MAX_FLOWERS){setFlowers(0);setHearts(0);}
-    const nt=rand(preset.min,preset.max); setTarget(nt); setWon(false); setShowEquiv(false); reset();
-  },[preset,flowers,setFlowers,setHearts,reset]);
+    setTarget(makeFillTarget(preset)); setWon(false); resetSelection();
+  },[preset,flowers,setFlowers,setHearts,resetSelection,makeFillTarget]);
 
   const newNum = () => {
-    const nt=rand(preset.min,preset.max); setTarget(nt); setWon(false); setShowEquiv(false); reset();
+    setTarget(makeFillTarget(preset)); setWon(false); resetSelection();
   };
-  const applyPreset=p=>{setPreset(p);const nt=rand(p.min,p.max);setTarget(nt);setWon(false);setShowEquiv(false);reset();};
+  const applyPreset=p=>{setPreset(p);setTarget(makeFillTarget(p));setWon(false);resetSelection();};
+  const toggleHundred = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedHundreds(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
+  const toggleTen = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedTens(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
+  const toggleOne = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedOnes(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
 
-  const availH = maxPool.h - placed.h;
-  const availT = maxPool.t - placed.t;
-  const availO = maxPool.o - placed.o;
+  useEffect(()=>{
+    if(won || built !== target) return;
+    setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+    setScore(s=>s+1); addFlower();
+    setTimeout(()=>setConf(false),2600);
+  },[built,target,won,muted,setScore,addFlower]);
 
   return(
     <div className="screen choose-screen">
       <div className="screen-bg"/>
       {showSettings&&<BlocksSettings current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
-      {showEquiv&&<EquivalenceModal target={target} counting={cnt} onNext={startNextRound}/>}
       <Confetti active={confetti}/>
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>setMuted(m=>{Sound.setMuted(!m);return !m;})} label={preset.tag}/>
       <ScoreRow score={score} flowers={flowers} hearts={hearts}/>
-      <div className="number-display" style={{position:'relative',zIndex:1}}>
-        {showH&&<div className="digit-box"><div className="digit-value digit-hundreds">{placed.h}</div><div className="digit-label digit-hundreds">hundreds</div></div>}
-        {(showH||showT)&&<div className="digit-box"><div className="digit-value digit-tens">{placed.t}</div><div className="digit-label digit-tens">tens</div></div>}
-        <div className="digit-box"><div className="digit-value digit-ones">{placed.o}</div><div className="digit-label digit-ones">ones</div></div>
-        <div style={{fontSize:'1.6rem',color:'#ccc',padding:'0 4px',paddingBottom:2}}>/</div>
-        <div className="digit-box"><div className="digit-value" style={{color:'#7b1fa2'}}>{target}</div><div className="digit-label" style={{color:'#ce93d8'}}>goal</div></div>
-      </div>
+      <PlaceValueGoal target={target} parts={targetParts} showH={showH} showT={true}/>
+      <div className="direct-progress">{built} / {target}</div>
+      {built>target&&!won&&<div className="direct-too-many">Too many! Tap one to remove.</div>}
+      {!won&&<div className="tap-hint">Tap blocks to build the number</div>}
       {!won&&(
-        <div className="tap-layout">
-          <div className="tap-hint">{selected?`${selected==='h'?'💜 Hundred':selected==='t'?'🩷 Ten':'⭐ One'} — tap a box!`:'Tap a block 👆'}</div>
-          <div className="pool-area">
-            <div className="pool-label">Pick the right blocks!</div>
-            <div className="pool-blocks">
-              {showH&&<PoolBlock type="h" count={availH} selected={selected} onTap={()=>availH>0&&tapPool('h')}/>}
-              {showT&&<PoolBlock type="t" count={availT} selected={selected} onTap={()=>availT>0&&tapPool('t')}/>}
-              {Array.from({length:Math.min(availO,10)},(_,i)=><PoolBlock key={i} type="o" count={1} selected={selected} onTap={()=>tapPool('o')}/>)}
+        <div className="direct-layout">
+          {showH&&<div className="direct-section">
+            <div className="direct-label" style={{color:'#7b1fa2'}}>Hundreds — tap to pick!</div>
+            <div className="direct-row">
+              {selectedHundreds.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleHundred(i)}>
+                  <div className="pb-hundred">{Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}</div>
+                </div>
+              ))}
+            </div>
+          </div>}
+          <div className="direct-section">
+            <div className="direct-label tens">Tens — tap to pick!</div>
+            <div className="direct-row">
+              {selectedTens.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleTen(i)}>
+                  <div className="pb-ten">{Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}</div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="slots-area">
-            {showH&&<SlotArea type="h" placed={placed.h} canAccept={selected==='h'} wrongFlash={wrongSlot==='h'} onSlotTap={()=>tapSlot('h')} onReturnBlock={()=>returnBlock('h')}/>}
-            {showT&&<SlotArea type="t" placed={placed.t} canAccept={selected==='t'} wrongFlash={wrongSlot==='t'} onSlotTap={()=>tapSlot('t')} onReturnBlock={()=>returnBlock('t')}/>}
-            <SlotArea type="o" placed={placed.o} canAccept={selected==='o'} wrongFlash={wrongSlot==='o'} onSlotTap={()=>tapSlot('o')} onReturnBlock={()=>returnBlock('o')}/>
+          <div className="direct-section">
+            <div className="direct-label ones">Ones — tap to pick!</div>
+            <div className="direct-row">
+              {selectedOnes.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleOne(i)}>
+                  <div className="pb-one"/>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
-      {won&&!showEquiv&&<div className="celebrate-text">Perfect! {target} is right!</div>}
-      <button className="new-num-btn" onClick={won?startNextRound:newNum}>{won?'Next':'New Number'}</button>
+      {won&&<div className="celebrate-text">You built it!</div>}
+      <div className="direct-nav-gap"/>
+      <button className={won?'next-btn':'new-num-btn'} onClick={won?startNextRound:newNum}>{won?'Next Number':'New Number'}</button>
     </div>
   );
 }
@@ -881,9 +1068,14 @@ function makeProbFromPreset(preset, customOp){
   const{min,max}=preset;
   if(customOp){
     const{op,baseMin,baseMax,amtMin,amtMax}=customOp;
-    const s=rand(baseMin,baseMax),a=rand(amtMin,amtMax);
-    if(op==='+'&&s+a<=max&&s+a>=min)return{start:s,op:'+',amount:a,answer:s+a};
-    if(op==='-'&&s-a>=min&&s-a<=max)return{start:s,op:'-',amount:a,answer:s-a};
+    const valid=[];
+    for(let s=baseMin;s<=baseMax;s++){
+      for(let a=amtMin;a<=amtMax;a++){
+        if(op==='+'&&s+a<=max&&s+a>=min)valid.push({start:s,op:'+',amount:a,answer:s+a});
+        if(op==='-'&&s-a>=min&&s-a<=max)valid.push({start:s,op:'-',amount:a,answer:s-a});
+      }
+    }
+    if(valid.length>0)return valid[rand(0,valid.length-1)];
     return makeProbFromPreset(preset,null); // fallback
   }
   const range=max-min,maxHop=Math.min(5,Math.max(1,Math.floor(range/3)));
@@ -992,7 +1184,7 @@ function Home({onSelect}){
         <div className="mode-row">
           <button className="mode-card mc-pink"   onClick={()=>onSelect('b1')}>
             <div className="mode-card-icon"><CardArt id="b1"/></div>
-            <div className="mode-card-label">Build It!</div><Stars count={1}/>
+            <div className="mode-card-label">What Number?</div><div className="mode-card-sub">Count the blocks!</div><Stars count={1}/>
           </button>
           <button className="mode-card mc-purple" onClick={()=>onSelect('b2')}>
             <div className="mode-card-icon"><CardArt id="b2"/></div>
@@ -1027,16 +1219,17 @@ function Home({onSelect}){
 /* ══ APP ══ */
 function App(){
   const [mode,setMode]=useState(null);
-  // Global progress — persists across mode switches, resets on home nav or refresh
+  // Extra reward progress resets when the child leaves an activity.
   const [flowers,setFlowers]=useState(0);
   const [hearts,setHearts]=useState(0);
   const [scores,setScores]=useState({b1:0,b2:0,l1:0,l2:0});
   const setScore=useCallback(mode=>fn=>setScores(s=>({...s,[mode]:fn(s[mode])})),[]);
+  const goHome=useCallback(()=>{setFlowers(0);setHearts(0);setMode(null);},[]);
 
-  if(mode==='b1')return<BlocksGuided onBack={()=>setMode(null)} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.b1} setScore={setScore('b1')}/>;
-  if(mode==='b2')return<BlocksFill   onBack={()=>setMode(null)} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.b2} setScore={setScore('b2')}/>;
-  if(mode==='l1')return<NumberLineHop onBack={()=>setMode(null)} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.l1} setScore={setScore('l1')}/>;
-  if(mode==='l2')return<NumberLineAddSub onBack={()=>setMode(null)} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.l2} setScore={setScore('l2')}/>;
+  if(mode==='b1')return<BlocksGuided onBack={goHome} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.b1} setScore={setScore('b1')}/>;
+  if(mode==='b2')return<BlocksFill   onBack={goHome} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.b2} setScore={setScore('b2')}/>;
+  if(mode==='l1')return<NumberLineHop onBack={goHome} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.l1} setScore={setScore('l1')}/>;
+  if(mode==='l2')return<NumberLineAddSub onBack={goHome} flowers={flowers} hearts={hearts} setFlowers={setFlowers} setHearts={setHearts} score={scores.l2} setScore={setScore('l2')}/>;
   return<Home onSelect={setMode}/>;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
