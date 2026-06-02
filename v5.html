@@ -415,7 +415,7 @@ function ScoreRow({score,flowers,hearts}){
       <div className="flower-progress">
         <div className="hearts-row">
           {Array.from({length:5},(_,i)=>(
-            <img key={i} src={i<hearts?'icons/heart-pink.png':'icons/heart-purple.png'} alt="♥"
+            <img key={i} src={i<hearts?'icons/heart-gem.png':'icons/heart-purple.png'} alt="♥"
               className={`heart-ico ${i<hearts?'lit':''}`}
               style={{width:22,height:22,objectFit:'contain',opacity:i<hearts?1:.2}}/>
           ))}
