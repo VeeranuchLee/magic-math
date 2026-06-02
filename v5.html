@@ -162,11 +162,18 @@
     .slot-empty-hint{font-size:.78rem;color:#bbb;font-weight:700;padding:4px 0}
 
     /* Place-value builder */
-    .pv-goal-card{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1;flex-wrap:wrap}
-    .pv-goal-piece{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:54px}
-    .pv-goal-num{font-size:clamp(1.7rem,7vw,3rem);font-weight:900;line-height:1}
-    .pv-goal-label{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
-    .pv-goal-divider{font-size:1.5rem;color:#d7b7df;font-weight:900;padding-bottom:4px}
+    .pv-goal-card{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1;min-width:min(92vw,430px)}
+    .pv-visual-row{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .pv-unit-group{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.64);border:2px solid;border-radius:14px;padding:7px 9px;min-height:62px}
+    .pv-unit-group.h{border-color:#ce93d8}.pv-unit-group.t{border-color:#f48fb1}.pv-unit-group.o{border-color:#ffd54f}
+    .pv-goal-num{font-size:clamp(1.9rem,7vw,3.05rem);font-weight:900;line-height:1;min-width:.72em;text-align:center}
+    .pv-goal-plus{font-size:1.55rem;color:#d7b7df;font-weight:900}
+    .pv-expanded-form{font-size:clamp(1rem,4vw,1.45rem);font-weight:900;color:#7b1fa2;text-align:center;line-height:1.15}
+    .gb-hundred{width:48px;height:48px;background:linear-gradient(135deg,#ce93d8,#8e24aa);border-radius:8px;border:3px solid #6a1b9a;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .gb-hundred .ic{background:rgba(255,255,255,.38);border-radius:1px}
+    .gb-ten{width:19px;height:52px;background:linear-gradient(180deg,#f48fb1,#e91e63);border-radius:6px;border:3px solid #c2185b;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .gb-ten .ic{background:rgba(255,255,255,.38);border-radius:2px}
+    .gb-one{width:28px;height:28px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:7px;border:3px solid #e65100}
     .pv-built-line{background:rgba(255,255,255,.72);border:2px solid #f8bbd0;border-radius:999px;padding:7px 16px;font-size:.9rem;font-weight:900;color:#7b1fa2;position:relative;z-index:1;text-align:center}
     .pv-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
     .pv-zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -211,12 +218,6 @@
     .count-title{background:rgba(255,255,255,.72);border:2px solid #f8bbd0;border-radius:18px;padding:8px 18px;text-align:center;position:relative;z-index:1;box-shadow:0 4px 14px rgba(123,31,162,.08)}
     .count-title-main{font-size:1.05rem;font-weight:900;color:#7b1fa2;text-transform:uppercase;letter-spacing:1px}
     .count-title-sub{font-size:.78rem;font-weight:900;color:#e91e63;margin-top:2px}
-    .count-answer-card{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1;display:flex;flex-direction:column;gap:7px;align-items:center;min-width:min(92vw,390px)}
-    .count-place-row{display:flex;gap:14px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
-    .count-place{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px}
-    .count-place-num{font-size:clamp(1.5rem,6vw,2.5rem);font-weight:900;line-height:1}
-    .count-place-label{font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
-    .count-number{font-size:clamp(1.1rem,4vw,1.65rem);font-weight:900;color:#7b1fa2}
     .count-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
     .count-section{background:rgba(255,255,255,.62);border:2px solid #f8bbd0;border-radius:18px;padding:12px 12px 14px;box-shadow:0 5px 18px rgba(123,31,162,.08)}
     .count-label{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
@@ -370,7 +371,13 @@ const CARD_ASSETS={
 };
 
 /* ══ UTILITIES ══ */
-const isCounting = preset => preset.max <= 10 && preset.min >= 1 && preset.id !== 'bcustom';
+const getVisiblePlacesForRange = (min, max) => {
+  if (max <= 10) return {h:false,t:false,o:true,counting:true};
+  if (max <= 100) return {h:false,t:true,o:true,counting:false};
+  return {h:true,t:true,o:true,counting:false};
+};
+const getVisiblePlaces = preset => getVisiblePlacesForRange(preset.min ?? 1, preset.max ?? 1000);
+const isCounting = preset => getVisiblePlaces(preset).counting;
 const decompose = (n, counting) => {
   if (counting) return {h:0,t:0,o:n};
   if (n === 1000) return {h:10,t:0,o:0};
@@ -742,26 +749,46 @@ function SlotArea({type, placed, canAccept, wrongFlash, onSlotTap, onReturnBlock
 }
 
 function PlaceValueBlock({type, size='slot', className='', onClick}){
-  const hundredClass = size === 'bank' ? 'pb-hundred' : 'sb-hundred';
-  const tenClass = size === 'bank' ? 'pb-ten' : 'sb-ten';
-  const oneClass = size === 'bank' ? 'pb-one' : 'sb-one';
+  const isBank = size === 'bank';
+  const isGoal = size === 'goal';
+  const hundredClass = isGoal ? 'gb-hundred' : isBank ? 'pb-hundred' : 'sb-hundred';
+  const tenClass = isGoal ? 'gb-ten' : isBank ? 'pb-ten' : 'sb-ten';
+  const oneClass = isGoal ? 'gb-one' : isBank ? 'pb-one' : 'sb-one';
   const cls = `${type==='h'?hundredClass:type==='t'?tenClass:oneClass} ${className}`;
   return (
     <div className={cls} onClick={onClick}>
       {type==='h'&&Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}
-      {type==='t'&&size==='bank'&&Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}
+      {type==='t'&&(isBank||isGoal)&&Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}
     </div>
   );
 }
 
-function PlaceValueGoal({target, parts, showH, showT}){
+function expandedValueForPart(type, value, counting){
+  if (counting || type === 'o') return value;
+  return type === 'h' ? value * 100 : value * 10;
+}
+
+function VisualPlaceValueCard({parts, total, showH, showT, counting=false}){
+  const groups = [
+    showH && {type:'h', digit:parts.h, value:expandedValueForPart('h', parts.h, counting), digitClass:'digit-hundreds'},
+    showT && {type:'t', digit:parts.t, value:expandedValueForPart('t', parts.t, counting), digitClass:'digit-tens'},
+    {type:'o', digit:parts.o, value:expandedValueForPart('o', parts.o, counting), digitClass:'digit-ones'},
+  ].filter(Boolean);
+  const expanded = groups.map(group=>group.value).join(' + ');
   return(
     <div className="pv-goal-card">
-      {showH&&<div className="pv-goal-piece"><div className="pv-goal-num digit-hundreds">{parts.h}</div><div className="pv-goal-label digit-hundreds">hundreds</div></div>}
-      {showT&&<div className="pv-goal-piece"><div className="pv-goal-num digit-tens">{parts.t}</div><div className="pv-goal-label digit-tens">tens</div></div>}
-      <div className="pv-goal-piece"><div className="pv-goal-num digit-ones">{parts.o}</div><div className="pv-goal-label digit-ones">ones</div></div>
-      <div className="pv-goal-divider">/</div>
-      <div className="pv-goal-piece"><div className="pv-goal-num" style={{color:'#7b1fa2'}}>{target}</div><div className="pv-goal-label" style={{color:'#ce93d8'}}>goal</div></div>
+      <div className="pv-visual-row" aria-label={`Visual place value for ${total}`}>
+        {groups.map((group,index)=>(
+          <React.Fragment key={group.type}>
+            {index>0&&<div className="pv-goal-plus">+</div>}
+            <div className={`pv-unit-group ${group.type}`}>
+              <div className={`pv-goal-num ${group.digitClass}`}>{group.digit}</div>
+              <PlaceValueBlock type={group.type} size="goal"/>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="pv-expanded-form">{expanded} = {total}</div>
     </div>
   );
 }
@@ -801,11 +828,12 @@ function PlaceValueBankButton({type, label, onAdd}){
 /* ══ MODE b1: WHAT NUMBER? ══ */
 function BlocksGuided({onBack, flowers, hearts, setFlowers, setHearts, score, setScore}){
   const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
   const makeProblem = useCallback((p=BLOCKS_PRESETS[1])=>{
     const max=Math.min(999,p.max);
     const min=Math.min(Math.max(1,p.min),max);
     const n=rand(min,max);
-    return decompose(n,false);
+    return decompose(n,isCounting(p));
   },[]);
   const [showSettings,setShowSettings]=useState(false);
   const [muted,setMuted]=useState(false);
@@ -819,8 +847,8 @@ function BlocksGuided({onBack, flowers, hearts, setFlowers, setHearts, score, se
   const hCount=selectedH.filter(Boolean).length;
   const tCount=selectedT.filter(Boolean).length;
   const oCount=selectedO.filter(Boolean).length;
-  const currentNumber=hCount*100+tCount*10+oCount;
-  const correctNumber=problem.h*100+problem.t*10+problem.o;
+  const currentNumber=visiblePlaces.counting ? oCount : hCount*100+tCount*10+oCount;
+  const correctNumber=calcTotal(problem,visiblePlaces.counting);
   const resetForProblem = useCallback((p)=>{
     setProblem(p); setSelectedH(Array(p.h).fill(false)); setSelectedT(Array(p.t).fill(false)); setSelectedO(Array(p.o).fill(false)); setWon(false);
   },[]);
@@ -872,19 +900,18 @@ function BlocksGuided({onBack, flowers, hearts, setFlowers, setHearts, score, se
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>setMuted(m=>{Sound.setMuted(!m);return !m;})} label={preset.tag}/>
       <ScoreRow score={score} flowers={flowers} hearts={hearts}/>
       <div className="count-title"><div className="count-title-main">What Number?</div><div className="count-title-sub">Count the blocks!</div></div>
-      <div className="count-answer-card">
-        <div className="count-place-row">
-          {problem.h>0&&<div className="count-place"><div className="count-place-num digit-hundreds">{hCount}</div><div className="count-place-label digit-hundreds">hundreds</div></div>}
-          <div className="count-place"><div className="count-place-num digit-tens">{tCount}</div><div className="count-place-label digit-tens">tens</div></div>
-          <div className="count-place"><div className="count-place-num digit-ones">{oCount}</div><div className="count-place-label digit-ones">ones</div></div>
-        </div>
-        <div className="count-number">Number: {currentNumber}</div>
-      </div>
+      <VisualPlaceValueCard
+        parts={{h:hCount,t:tCount,o:oCount}}
+        total={currentNumber}
+        showH={visiblePlaces.h}
+        showT={visiblePlaces.t}
+        counting={visiblePlaces.counting}
+      />
       {!won&&<div className="tap-hint">Tap each block as you count it</div>}
       {!won&&(
         <div className="count-layout">
-          {renderCountSection('h','Hundreds',problem.h,selectedH)}
-          {renderCountSection('t','Tens',problem.t,selectedT)}
+          {visiblePlaces.h&&renderCountSection('h','Hundreds',problem.h,selectedH)}
+          {visiblePlaces.t&&renderCountSection('t','Tens',problem.t,selectedT)}
           {renderCountSection('o','Ones',problem.o,selectedO)}
         </div>
       )}
@@ -898,6 +925,7 @@ function BlocksGuided({onBack, flowers, hearts, setFlowers, setHearts, score, se
 /* ══ MODE b2: FILL THE RIGHT BLOCK ══ */
 function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setScore}){
   const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
   const [showSettings,setShowSettings]=useState(false);
   const [muted,setMuted]=useState(false);
   const makeFillTarget = useCallback((p)=>{
@@ -905,19 +933,20 @@ function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setS
     const min=Math.min(Math.max(1,p.min),max);
     return rand(min,max);
   },[]);
-  const [target,setTarget]=useState(()=>rand(11,99));
+  const [target,setTarget]=useState(()=>makeFillTarget(BLOCKS_PRESETS[1]));
   const [won,setWon]=useState(false);
   const [confetti,setConf]=useState(false);
   const [selectedHundreds,setSelectedHundreds]=useState(()=>Array(10).fill(false));
   const [selectedTens,setSelectedTens]=useState(()=>Array(10).fill(false));
   const [selectedOnes,setSelectedOnes]=useState(()=>Array(10).fill(false));
   const addFlower = useFlowerReward(flowers,setFlowers,hearts,setHearts,muted);
-  const targetParts = useMemo(()=>decompose(target,false),[target]);
+  const targetParts = useMemo(()=>decompose(target,visiblePlaces.counting),[target,visiblePlaces.counting]);
   const hundredsCount = selectedHundreds.filter(Boolean).length;
   const tensCount = selectedTens.filter(Boolean).length;
   const onesCount = selectedOnes.filter(Boolean).length;
-  const built = hundredsCount*100 + tensCount*10 + onesCount;
-  const showH = targetParts.h > 0;
+  const built = visiblePlaces.counting ? onesCount : hundredsCount*100 + tensCount*10 + onesCount;
+  const showH = visiblePlaces.h;
+  const showT = visiblePlaces.t;
 
   const resetSelection = useCallback(()=>{
     setSelectedHundreds(Array(10).fill(false));
@@ -974,7 +1003,7 @@ function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setS
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>setMuted(m=>{Sound.setMuted(!m);return !m;})} label={preset.tag}/>
       <ScoreRow score={score} flowers={flowers} hearts={hearts}/>
-      <PlaceValueGoal target={target} parts={targetParts} showH={showH} showT={true}/>
+      <VisualPlaceValueCard parts={targetParts} total={target} showH={showH} showT={showT} counting={visiblePlaces.counting}/>
       <div className="direct-progress">{built} / {target}</div>
       {built>target&&!won&&<div className="direct-too-many">Too many! Tap one to remove.</div>}
       {!won&&<div className="tap-hint">Tap blocks to build the number</div>}
@@ -990,7 +1019,7 @@ function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setS
               ))}
             </div>
           </div>}
-          <div className="direct-section">
+          {showT&&<div className="direct-section">
             <div className="direct-label tens">Tens — tap to pick!</div>
             <div className="direct-row">
               {selectedTens.map((isOn,i)=>(
@@ -999,7 +1028,7 @@ function BlocksFill({onBack, flowers, hearts, setFlowers, setHearts, score, setS
                 </div>
               ))}
             </div>
-          </div>
+          </div>}
           <div className="direct-section">
             <div className="direct-label ones">Ones — tap to pick!</div>
             <div className="direct-row">
