@@ -14,8 +14,17 @@
 
     /* ── BG DECO ── */
     .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-    .bg-deco img{position:absolute;object-fit:contain;opacity:.3;animation:floatDeco linear infinite;filter:drop-shadow(0 2px 5px rgba(233,30,99,.16))}
-    @keyframes floatDeco{0%{transform:translateY(110vh) translateX(0) rotate(0);opacity:0}12%{opacity:.34}86%{opacity:.28}100%{transform:translateY(-12vh) translateX(18px) rotate(360deg);opacity:0}}
+    .bg-deco img{position:absolute;object-fit:contain;animation:floatDeco linear infinite;filter:drop-shadow(0 2px 5px rgba(233,30,99,.16));will-change:transform,opacity}
+    @keyframes floatDeco{
+      0%{transform:translate3d(0,112vh,0) rotate(0);opacity:0}
+      12%{opacity:var(--deco-opacity,.38)}
+      50%{transform:translate3d(var(--deco-drift,18px),48vh,0) rotate(180deg);opacity:calc(var(--deco-opacity,.38) * .9)}
+      88%{opacity:calc(var(--deco-opacity,.38) * .8)}
+      100%{transform:translate3d(calc(var(--deco-drift,18px) * -1),-16vh,0) rotate(360deg);opacity:0}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .bg-deco img{animation:none!important;opacity:.12!important}
+    }
     @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 
     /* ── HOME ── */
@@ -330,10 +339,13 @@ const TITLE_COLORS=['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3',
 // Petals + sparkles float upward like magic dust
 const BG_IMGS=[
   'icons/petal-pink.png','icons/petal-purple.png','icons/petal-yellow.png',
-  'icons/sparkle.png','icons/star.png','icons/petal-pink.png',
+  'icons/sparkle.png','icons/star-purple.png','icons/petal-pink.png',
   'icons/sparkle.png','icons/petal-purple.png','icons/star.png',
-  'icons/petal-yellow.png','icons/sparkle.png','icons/petal-pink.png',
-  'icons/star.png','icons/petal-purple.png','icons/sparkle.png'
+  'icons/petal-yellow.png','icons/sparkle.png','icons/heart-gem.png',
+  'icons/star-purple.png','icons/petal-purple.png','icons/sparkle.png',
+  'icons/flower-pink.png','icons/flower-yellow.png','icons/star-purple.png',
+  'icons/petal-pink.png','icons/sparkle.png','icons/heart-gem.png',
+  'icons/star.png','icons/petal-yellow.png','icons/sparkle.png'
 ];
 
 const BLOCKS_PRESETS=[
@@ -368,7 +380,7 @@ const calcTotal = (p, counting) => counting ? p.o : p.h*100+p.t*10+p.o;
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco(){
-  const items=useMemo(()=>BG_IMGS.map((src,i)=>({src,id:i,left:rand(2,95),dur:rand(12,26),delay:rand(0,18),size:rand(18,36)})),[]);
+  const items=useMemo(()=>BG_IMGS.map((src,i)=>({src,id:i,left:rand(2,95),dur:rand(10,22),delay:rand(0,22),size:rand(18,38),drift:rand(-34,34),opacity:(rand(20,42)/100).toFixed(2)})),[]);
   return(
     <div className="bg-deco">
       {items.map(it=>(
@@ -376,7 +388,9 @@ function BgDeco(){
           style={{
             position:'absolute',left:`${it.left}%`,
             width:it.size,height:it.size,
-            animation:`floatDeco ${it.dur}s ${it.delay}s linear infinite`
+            '--deco-drift':`${it.drift}px`,
+            '--deco-opacity':it.opacity,
+            animation:`floatDeco ${it.dur}s -${it.delay}s linear infinite`
           }}/>
       ))}
     </div>
