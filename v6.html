@@ -1052,7 +1052,6 @@ function BlocksFill({onBack, flowers, gardenFull, setFlowers, setGardenFull, sco
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={()=>setMuted(m=>{Sound.setMuted(!m);return !m;})} label={preset.tag}/>
       <ScoreRow score={score} flowers={flowers}/>
       <SimpleNumberCard value={built} target={target} label="Built"/>
-      <div className="direct-progress">{built} / {target}</div>
       {built>target&&!won&&<div className="direct-too-many">Too many! Tap one to remove.</div>}
       {!won&&<div className="tap-hint">Tap blocks to build the number</div>}
       {!won&&(
