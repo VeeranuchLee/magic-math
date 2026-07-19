@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Magic Spelling 👸</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#fce4ec}
+
+    /* ── BG ── */
+    .app-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:
+        radial-gradient(1.8px 1.8px at 30px 40px,rgba(255,255,255,.95),transparent 55%),
+        radial-gradient(1.4px 1.4px at 150px 110px,rgba(255,213,79,.8),transparent 55%),
+        radial-gradient(1.2px 1.2px at 90px 180px,rgba(255,255,255,.7),transparent 55%),
+        radial-gradient(ellipse 130% 55% at 50% 118%,rgba(206,147,216,.5),transparent 65%),
+        linear-gradient(180deg,#ffe3ef 0%,#fdd0e2 45%,#e8d4f5 100%);
+      background-size:240px 210px,240px 210px,240px 210px,cover,cover;
+      background-repeat:repeat,repeat,repeat,no-repeat,no-repeat}
+    .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bg-deco span{position:absolute;display:inline-block;line-height:1;
+      animation:twinkleDeco ease-in-out infinite alternate;
+      filter:drop-shadow(0 0 6px rgba(255,190,220,.6));will-change:transform,opacity}
+    @keyframes twinkleDeco{
+      0%{opacity:.06;transform:scale(.55) rotate(-12deg)}
+      100%{opacity:var(--deco-opacity,.5);transform:scale(1.15) rotate(12deg)}
+    }
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+    @media (prefers-reduced-motion: reduce){
+      .bg-deco span{animation:none!important;opacity:.12!important}
+      *{animation-duration:.001s!important}
+    }
+
+    /* ── LAYOUT ── */
+    .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 140px;gap:12px}
+
+    /* ── HOME ── */
+    .home-title{font-size:clamp(1.9rem,7.5vw,3.3rem);font-weight:900;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;filter:drop-shadow(0 4px 8px rgba(173,20,87,.25));margin-top:6px}
+    .home-title span{display:inline-block;animation:bounce 1.2s infinite alternate}
+    .home-sub{font-size:1rem;font-weight:900;color:#ad1457;text-shadow:0 1px 0 #fff;letter-spacing:.5px}
+    .home-crown-row{display:flex;gap:80px;align-items:center;justify-content:center;min-height:64px;margin-bottom:-6px}
+    .home-crown{font-size:52px;line-height:1;filter:drop-shadow(0 5px 10px rgba(173,20,87,.25))}
+    .section-heading{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:900;color:#880e4f;text-shadow:0 1px 0 #fff;margin-top:6px}
+    .mode-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;width:100%;max-width:640px}
+    .mode-card{flex:1;min-width:140px;max-width:190px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s;font-family:inherit}
+    .mode-card:active{transform:translateY(5px) scale(.96)}
+    .mc-pink  {background:linear-gradient(160deg,#f48fb1,#e91e63);box-shadow:0 7px 0 #ad1457,0 10px 20px rgba(233,30,99,.3)}
+    .mc-purple{background:linear-gradient(160deg,#ce93d8,#7b1fa2);box-shadow:0 7px 0 #4a148c,0 10px 20px rgba(123,31,162,.3)}
+    .mc-gold  {background:linear-gradient(160deg,#ffe082,#f9a825);box-shadow:0 7px 0 #e65100,0 10px 20px rgba(249,168,37,.35)}
+    .mode-card-art{font-size:56px;line-height:1;height:64px;display:flex;align-items:center;justify-content:center}
+    .mode-card-label{font-size:.95rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+    .mode-card-sub{font-size:.68rem;font-weight:900;color:rgba(255,255,255,.92);text-shadow:0 1px 3px rgba(0,0,0,.25);margin-top:-4px}
+    .trophy-line{font-size:.9rem;font-weight:900;color:#7b1fa2;background:rgba(255,255,255,.7);border-radius:50px;padding:5px 14px}
+
+    /* ── TOP BAR / SHARED ── */
+    .top-bar{width:100%;max-width:640px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .round-btn{width:46px;height:46px;border-radius:50%;border:none;background:#fff;color:#e91e63;font-size:1.3rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #f48fb1;display:flex;align-items:center;justify-content:center;font-family:inherit}
+    .round-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
+    .bar-label{font-size:.8rem;font-weight:900;color:#9c27b0;background:rgba(255,255,255,.7);border-radius:50px;padding:4px 12px}
+    .chip-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .chip{border:none;border-radius:50px;padding:7px 14px;font-family:inherit;font-weight:900;font-size:.78rem;cursor:pointer;background:rgba(255,255,255,.75);color:#ad1457;box-shadow:0 3px 0 rgba(173,20,87,.25)}
+    .chip.on{background:linear-gradient(160deg,#f06292,#c2185b);color:#fff;box-shadow:0 3px 0 #880e4f}
+    .chip:active{transform:translateY(2px)}
+
+    /* ── GAME AREA ── */
+    .word-pic{font-size:clamp(64px,18vw,104px);line-height:1;filter:drop-shadow(0 6px 12px rgba(173,20,87,.25));animation:bounce 1.6s ease-in-out infinite alternate}
+    .prompt-bubble{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 18px;box-shadow:0 4px 0 #f48fb1;font-size:clamp(1rem,4vw,1.4rem);font-weight:900;color:#333;text-align:center;display:flex;align-items:center;gap:10px}
+    .speak-btn{border:none;background:linear-gradient(160deg,#ce93d8,#8e24aa);color:#fff;border-radius:50px;width:42px;height:42px;font-size:1.15rem;cursor:pointer;box-shadow:0 3px 0 #4a148c;flex-shrink:0}
+    .speak-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #4a148c}
+
+    .slot-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .slot{width:52px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;background:rgba(255,255,255,.55);border:3px dashed #f06292;color:#ad1457}
+    .slot.filled{background:linear-gradient(160deg,#fff,#fce4ec);border:3px solid #e91e63;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+    .slot.blank-target{border-color:#9c27b0;background:rgba(243,229,245,.8);animation:pulseSlot 1s infinite alternate}
+    @keyframes popIn{from{transform:scale(0) rotate(-10deg)}to{transform:scale(1)}}
+    @keyframes pulseSlot{from{transform:scale(1)}to{transform:scale(1.1)}}
+
+    .tile-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:560px}
+    .tile{width:60px;height:64px;border-radius:16px;border:none;font-family:inherit;font-size:1.8rem;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);transition:transform .1s}
+    .tile:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+    .tile.t0{background:linear-gradient(160deg,#f48fb1,#e91e63);box-shadow:0 5px 0 #ad1457}
+    .tile.t1{background:linear-gradient(160deg,#ce93d8,#8e24aa);box-shadow:0 5px 0 #4a148c}
+    .tile.t2{background:linear-gradient(160deg,#ffd54f,#f9a825);box-shadow:0 5px 0 #e65100}
+    .tile.t3{background:linear-gradient(160deg,#80cbc4,#00897b);box-shadow:0 5px 0 #004d40}
+    .tile.used{opacity:.25;pointer-events:none;transform:scale(.9)}
+    .tile.wrong{animation:wrongShake .35s ease}
+    .tile.right{animation:correctPop .5s ease}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.4) rotate(-8deg)}70%{transform:scale(1.2) rotate(8deg)}100%{transform:scale(1)}}
+    @keyframes wrongShake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+
+    .praise-banner{font-size:1.3rem;font-weight:900;color:#e91e63;text-shadow:0 1px 0 #fff;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);min-height:1.6em}
+
+    /* ── SCORE / GARDEN ── */
+    .score-row{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.55);backdrop-filter:blur(6px);border-top:2px solid rgba(244,143,177,.5)}
+    .score-badge{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.85);border:2px solid #f8bbd0;border-radius:50px;padding:5px 12px;font-weight:900;color:#ad1457;font-size:.95rem}
+    .flower-garden{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:6px 8px;background:rgba(255,255,255,.84);border:2px solid #f8bbd0;border-radius:16px;max-width:300px;flex:1}
+    .flower-slot{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1}
+    .flower-slot.empty{opacity:.18;filter:grayscale(.45)}
+    .flower-slot.filled{animation:popIn .35s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 2px 3px rgba(123,31,162,.25))}
+    .garden-full-badge{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(160deg,#ffd54f,#f9a825);color:#7b1fa2;font-weight:900;padding:8px 18px;border-radius:50px;box-shadow:0 5px 0 #e65100;z-index:6;animation:popIn .35s}
+
+    /* ── MASCOT ── */
+    .mascot-corner{position:fixed;left:18px;bottom:76px;width:104px;height:104px;z-index:6;pointer-events:none;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 7px 14px rgba(123,31,162,.32))}
+    .mascot-corner::before{content:'';position:absolute;left:50%;bottom:2px;width:96%;height:82%;transform:translateX(-50%);border-radius:999px;background:radial-gradient(circle at 50% 54%,rgba(255,255,255,.96) 0 46%,rgba(255,245,253,.82) 58%,rgba(244,143,177,.38) 75%,rgba(244,143,177,0) 100%);box-shadow:0 0 0 3px rgba(255,255,255,.62),0 8px 22px rgba(123,31,162,.22)}
+    .mascot-emoji{position:relative;font-size:58px;line-height:1;animation:float 2.3s ease-in-out infinite alternate;transform-origin:center bottom}
+    .mascot-corner.happy .mascot-emoji{animation:correctPop 1s cubic-bezier(.34,1.56,.64,1)}
+    .mascot-corner.oops .mascot-emoji{animation:wrongShake .4s ease}
+    @media (max-width:560px){
+      .mascot-corner{width:76px;height:76px;left:8px;bottom:70px}
+      .mascot-emoji{font-size:44px}
+      .flower-garden{max-width:240px}
+      .flower-slot{width:20px;height:20px;font-size:14px}
+      .slot{width:44px;height:50px;font-size:1.4rem}
+      .tile{width:52px;height:56px;font-size:1.5rem}
+    }
+
+    /* ── CONFETTI ── */
+    .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:9;overflow:hidden}
+    .confetti-piece{position:absolute;top:-24px;animation:confettiFall linear forwards}
+    @keyframes confettiFall{to{transform:translateY(110vh) rotate(560deg)}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useMemo,useRef,useCallback} = React;
+
+/* ══ SOUND ══ */
+const Sound=(()=>{ 
+  let _ctx=null,_muted=false;
+  const ctx=()=>{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!_ctx)_ctx=new AC();if(_ctx.state==='suspended')_ctx.resume();return _ctx;};
+  const tone=(c,freq,type,t,dur,vol,fe)=>{try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.setValueAtTime(freq,t);if(fe)o.frequency.exponentialRampToValueAtTime(fe,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}};
+  return{
+    setMuted(m){_muted=m;},
+    tap(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,880,'sine',n,.08,.12);tone(c,1320,'sine',n+.04,.06,.08);},
+    ding(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.06],[784,.12],[1047,.22]].forEach(([f,t])=>tone(c,f,'sine',n+t,.45,.16));},
+    wrong(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,220,'sawtooth',n,.28,.09,100);},
+    celebrate(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.1],[784,.2],[1047,.32],[784,.46],[1047,.58],[1319,.68],[1047,.82]].forEach(([f,t])=>tone(c,f,'sine',n+t,.2,.18));},
+    fanfare(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[523,659,784,1047,1319,1568,2093,1568,1319,1047].forEach((f,i)=>tone(c,f,'sine',n+i*.1,.2,.22));}
+  };
+})();
+
+/* ══ VOICE ══ */
+let _voiceMuted=false;
+const Voice={
+  setMuted(m){_voiceMuted=m; if(m&&window.speechSynthesis)window.speechSynthesis.cancel();},
+  say(text,rate=0.85){
+    if(_voiceMuted)return;
+    try{
+      const s=window.speechSynthesis; if(!s)return;
+      s.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=rate; u.pitch=1.15; u.lang='en-US';
+      s.speak(u);
+    }catch(e){}
+  }
+};
+
+const PRAISE=['Great job!','Amazing!','You did it!','Wonderful!','Beautiful!','Magical!'];
+const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const shuffle=a=>{const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;};
+
+/* ══ WORD BANK (word, emoji) ══ */
+const WORDS3=[['CAT','🐱'],['DOG','🐶'],['SUN','☀️'],['HAT','🎩'],['BEE','🐝'],['CUP','🍵'],['BUS','🚌'],['KEY','🔑'],['PIG','🐷'],['FOX','🦊'],['OWL','🦉'],['EGG','🥚'],['BED','🛏️'],['PIE','🥧'],['GEM','💎'],['COW','🐮'],['ANT','🐜'],['BOW','🎀']];
+const WORDS4=[['STAR','⭐'],['FISH','🐟'],['CAKE','🎂'],['FROG','🐸'],['RING','💍'],['MOON','🌙'],['ROSE','🌹'],['BEAR','🐻'],['DUCK','🦆'],['LION','🦁'],['BOAT','⛵'],['KING','🤴'],['BELL','🔔'],['BIRD','🐦'],['KITE','🪁'],['SWAN','🦢'],['DRUM','🥁'],['CORN','🌽']];
+const WORDS5=[['CROWN','👑'],['APPLE','🍎'],['HEART','💖'],['FAIRY','🧚'],['HORSE','🐴'],['MOUSE','🐭'],['SNAKE','🐍'],['TIGER','🐯'],['TRAIN','🚂'],['CLOUD','☁️'],['GRAPE','🍇'],['LEMON','🍋'],['QUEEN','👸'],['CANDY','🍬'],['CASTLE','🏰'],['FLOWER','🌸'],['DRESS','👗'],['RABBIT','🐰'],['TURTLE','🐢'],['CHERRY','🍒'],['UNICORN','🦄']];
+
+const PRESETS=[
+  {id:'p3',emoji:'🌸',tag:'Short',desc:'3 letters',bank:WORDS3,decoys:0},
+  {id:'p4',emoji:'🌷',tag:'Medium',desc:'4 letters',bank:WORDS4,decoys:1},
+  {id:'p5',emoji:'👑',tag:'Long',desc:'5+ letters',bank:WORDS5,decoys:2},
+];
+const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MAX_FLOWERS=10;
+const FLOWER_TYPES=['🌸','🌼','🌷','🌺','💖'];
+const BG_EMOJI=['✨','🌸','💖','✨','👑','✨','🌸','🦋','✨','💜','🌷','✨','🦄','🌸','✨','💖','🌺','✨','🎀','✨'];
+const TITLE_COLORS=['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3','#00bcd4','#f9a825','#ff9800','#e91e63','#9c27b0','#f06292','#ffd54f','#ab47bc'];
+const CONFETTI_C=['#e91e63','#f06292','#9c27b0','#ce93d8','#ffd54f','#fff176','#f48fb1','#ba68c8','#fff'];
+
+/* ══ SHARED COMPONENTS ══ */
+function BgDeco(){
+  const items=useMemo(()=>BG_EMOJI.map((e,i)=>({e,id:i,left:rand(2,95),top:rand(2,88),dur:(rand(14,34)/10),delay:(rand(0,30)/10),size:rand(16,32),opacity:(rand(28,58)/100).toFixed(2)})),[]);
+  return(
+    <div className="bg-deco">
+      {items.map(it=>(
+        <span key={it.id} aria-hidden="true"
+          style={{left:`${it.left}%`,top:`${it.top}%`,fontSize:it.size,'--deco-opacity':it.opacity,
+            animation:`twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`}}>{it.e}</span>
+      ))}
+    </div>
+  );
+}
+
+function Confetti({active}){
+  const p=useMemo(()=>Array.from({length:70},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,700),dur:rand(1200,2400),color:CONFETTI_C[i%CONFETTI_C.length],size:rand(7,14),isE:i%5===0})),[active]);
+  if(!active)return null;
+  return <div className="confetti-container">{p.map(x=>(
+    <div key={x.id} className="confetti-piece"
+      style={{left:`${x.left}%`,width:x.isE?'auto':x.size,height:x.isE?'auto':x.size,
+        fontSize:x.isE?x.size+6:undefined,borderRadius:x.isE?undefined:(x.id%2?'50%':'3px'),
+        background:x.isE?'none':x.color,animationDuration:`${x.dur}ms`,animationDelay:`${x.delay}ms`}}>
+      {x.isE?['🌸','👑','💖','⭐','🦋'][x.id%5]:null}
+    </div>))}</div>;
+}
+
+function Mascot({mood,stamp}){
+  const face=mood==='oops'?'😯':'👸';
+  return(
+    <div key={stamp} className={`mascot-corner ${mood!=='idle'?mood:''}`} aria-hidden="true">
+      <span className="mascot-emoji">{face}</span>
+    </div>
+  );
+}
+function useMascot(){
+  const [mood,setMood]=useState('idle');
+  const [stamp,setStamp]=useState(0);
+  const tRef=useRef(null);
+  const trigger=useCallback((m,ms)=>{clearTimeout(tRef.current);setMood(m);setStamp(x=>x+1);if(ms)tRef.current=setTimeout(()=>setMood('idle'),ms);},[]);
+  return{mood,stamp,happy:useCallback(()=>trigger('happy',2400),[trigger]),oops:useCallback(()=>trigger('oops',1000),[trigger])};
+}
+
+function FlowerGarden({flowers}){
+  return(
+    <div className="flower-garden" aria-label={`${flowers} of ${MAX_FLOWERS} flowers collected`}>
+      {Array.from({length:MAX_FLOWERS},(_,i)=>(
+        <span key={i} className={`flower-slot ${i<flowers?'filled':'empty'}`}>
+          {i<flowers?FLOWER_TYPES[i%FLOWER_TYPES.length]:'·'}
+        </span>))}
+    </div>
+  );
+}
+function ScoreRow({score,flowers,bouquets,gardenFull}){
+  return(
+    <div className="score-row">
+      <div className="score-badge"><span role="img" aria-label="star">⭐</span><span>{score}</span></div>
+      <FlowerGarden flowers={flowers}/>
+      <div className="score-badge" aria-label={`${bouquets} bouquets collected`}>💐<span>{bouquets}</span></div>
+      {gardenFull&&<div className="garden-full-badge">Garden full! +1 💐</div>}
+    </div>
+  );
+}
+function useFlowerReward(setFlowers,setGardenFull,addBouquet){
+  return useCallback(()=>{
+    setFlowers(f=>{
+      if(f+1>=MAX_FLOWERS){
+        setGardenFull(true);
+        setTimeout(()=>{Sound.fanfare();},300);
+        setTimeout(()=>{setGardenFull(false);setFlowers(0);addBouquet();},2100);
+        return MAX_FLOWERS;
+      }
+      return f+1;
+    });
+  },[setFlowers,setGardenFull,addBouquet]);
+}
+
+function TopBar({onBack,label,muted,onToggleMute}){
+  return(
+    <div className="top-bar">
+      <div style={{display:'flex',alignItems:'center',gap:6}}>
+        <span aria-hidden="true" style={{fontSize:26,lineHeight:1}}>🌸</span>
+        <button className="round-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}>←</button>
+      </div>
+      {label&&<div className="bar-label">{label}</div>}
+      <button className="round-btn" aria-label={muted?'Unmute':'Mute'} onClick={onToggleMute}>{muted?'🔇':'🔊'}</button>
+    </div>
+  );
+}
+
+function PresetChips({preset,setPreset}){
+  return(
+    <div className="chip-row" role="group" aria-label="Word length">
+      {PRESETS.map(p=>(
+        <button key={p.id} className={`chip ${preset.id===p.id?'on':''}`}
+          onClick={()=>{Sound.tap();setPreset(p);}}>
+          {p.emoji} {p.tag} · {p.desc}
+        </button>))}
+    </div>
+  );
+}
+
+/* pick a word, avoiding the previous one */
+function pickWord(bank,prev){
+  let w;
+  do{ w=bank[rand(0,bank.length-1)]; }while(bank.length>1&&prev&&w[0]===prev);
+  return w;
+}
+
+/* shared success/served-problem hook */
+function useGameCore({reward,setScore,mascot,onNew}){
+  const [celebrating,setCelebrating]=useState(false);
+  const [banner,setBanner]=useState('');
+  const win=useCallback((word)=>{
+    Sound.celebrate();
+    const msg=praise();
+    setBanner(msg);
+    Voice.say(msg,1);
+    mascot.happy();
+    setCelebrating(true);
+    setScore(s=>s+1);
+    reward();
+    setTimeout(()=>{setCelebrating(false);setBanner('');onNew();},1900);
+  },[reward,setScore,mascot,onNew]);
+  return{celebrating,banner,win};
+}
+
+/* ══ GAME 1: FIRST LETTER (ages 4-5) ══ */
+function FirstLetter({onBack,shared}){
+  const [preset,setPreset]=useState(PRESETS[0]);
+  const [prob,setProb]=useState(null);
+  const [fx,setFx]=useState({});
+  const prevRef=useRef(null);
+  const mascot=useMascot();
+
+  const newProblem=useCallback(()=>{
+    const [w,e]=pickWord(preset.bank,prevRef.current);
+    prevRef.current=w;
+    const correct=w[0];
+    const opts=new Set([correct]);
+    while(opts.size<4)opts.add(ALPHA[rand(0,25)]);
+    setProb({w,e,correct,opts:shuffle([...opts])});
+    setFx({});
+    setTimeout(()=>Voice.say(w),350);
+  },[preset]);
+  useEffect(newProblem,[newProblem]);
+
+  const core=useGameCore({...shared,mascot,onNew:newProblem});
+
+  const pick=(L)=>{
+    if(core.celebrating)return;
+    if(L===prob.correct){setFx({[L]:'right'});core.win(prob.w);}
+    else{Sound.wrong();mascot.oops();setFx({[L]:'wrong'});setTimeout(()=>setFx({}),400);}
+  };
+
+  if(!prob)return null;
+  return(
+    <div className="screen">
+      <TopBar onBack={onBack} label="First Letter" muted={shared.muted} onToggleMute={shared.toggleMute}/>
+      <PresetChips preset={preset} setPreset={setPreset}/>
+      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
+      <div className="prompt-bubble">
+        What letter does <b style={{color:'#e91e63'}}>{prob.w.toLowerCase()}</b> start with?
+        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
+      </div>
+      <div className="praise-banner">{core.banner}</div>
+      <div className="tile-row">
+        {prob.opts.map((L,i)=>(
+          <button key={L} className={`tile t${i%4} ${fx[L]||''}`} onClick={()=>pick(L)}>{L}</button>))}
+      </div>
+      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
+      <Confetti active={core.celebrating}/>
+      <ScoreRow {...shared.scoreProps}/>
+    </div>
+  );
+}
+
+/* ══ GAME 2: BUILD THE WORD (ages 5-7) ══ */
+function BuildWord({onBack,shared}){
+  const [preset,setPreset]=useState(PRESETS[0]);
+  const [prob,setProb]=useState(null);
+  const [filled,setFilled]=useState(0);
+  const [used,setUsed]=useState([]);
+  const [fx,setFx]=useState({});
+  const prevRef=useRef(null);
+  const mascot=useMascot();
+
+  const newProblem=useCallback(()=>{
+    const [w,e]=pickWord(preset.bank,prevRef.current);
+    prevRef.current=w;
+    const decoys=[];
+    while(decoys.length<preset.decoys){
+      const L=ALPHA[rand(0,25)];
+      if(!w.includes(L)&&!decoys.includes(L))decoys.push(L);
+    }
+    const tiles=shuffle([...w.split(''),...decoys]).map((L,i)=>({L,id:i}));
+    setProb({w,e,tiles});
+    setFilled(0);setUsed([]);setFx({});
+    setTimeout(()=>Voice.say(`Spell ${w}`),350);
+  },[preset]);
+  useEffect(newProblem,[newProblem]);
+
+  const core=useGameCore({...shared,mascot,onNew:newProblem});
+
+  const tap=(tile)=>{
+    if(core.celebrating||used.includes(tile.id))return;
+    if(tile.L===prob.w[filled]){
+      Sound.tap();
+      setUsed(u=>[...u,tile.id]);
+      setFx({[tile.id]:'right'});
+      const nf=filled+1;
+      setFilled(nf);
+      if(nf===prob.w.length)core.win(prob.w);
+    }else{
+      Sound.wrong();mascot.oops();
+      setFx({[tile.id]:'wrong'});
+      setTimeout(()=>setFx({}),400);
+    }
+  };
+
+  if(!prob)return null;
+  return(
+    <div className="screen">
+      <TopBar onBack={onBack} label="Build the Word" muted={shared.muted} onToggleMute={shared.toggleMute}/>
+      <PresetChips preset={preset} setPreset={setPreset}/>
+      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
+      <div className="prompt-bubble">
+        Spell <b style={{color:'#e91e63'}}>{prob.w.toLowerCase()}</b>!
+        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
+      </div>
+      <div className="slot-row" aria-label="Word so far">
+        {prob.w.split('').map((L,i)=>(
+          <div key={i} className={`slot ${i<filled?'filled':''}`}>{i<filled?L:''}</div>))}
+      </div>
+      <div className="praise-banner">{core.banner}</div>
+      <div className="tile-row">
+        {prob.tiles.map((t,i)=>(
+          <button key={t.id} className={`tile t${i%4} ${used.includes(t.id)?'used':''} ${fx[t.id]||''}`}
+            onClick={()=>tap(t)}>{t.L}</button>))}
+      </div>
+      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
+      <Confetti active={core.celebrating}/>
+      <ScoreRow {...shared.scoreProps}/>
+    </div>
+  );
+}
+
+/* ══ GAME 3: MISSING LETTER (ages 6-8) ══ */
+function MissingLetter({onBack,shared}){
+  const [preset,setPreset]=useState(PRESETS[1]);
+  const [prob,setProb]=useState(null);
+  const [solved,setSolved]=useState(false);
+  const [fx,setFx]=useState({});
+  const prevRef=useRef(null);
+  const mascot=useMascot();
+
+  const newProblem=useCallback(()=>{
+    const [w,e]=pickWord(preset.bank,prevRef.current);
+    prevRef.current=w;
+    const gap=rand(0,w.length-1);
+    const correct=w[gap];
+    const opts=new Set([correct]);
+    while(opts.size<4)opts.add(ALPHA[rand(0,25)]);
+    setProb({w,e,gap,correct,opts:shuffle([...opts])});
+    setSolved(false);setFx({});
+    setTimeout(()=>Voice.say(w),350);
+  },[preset]);
+  useEffect(newProblem,[newProblem]);
+
+  const core=useGameCore({...shared,mascot,onNew:newProblem});
+
+  const pick=(L)=>{
+    if(core.celebrating)return;
+    if(L===prob.correct){setSolved(true);setFx({[L]:'right'});core.win(prob.w);}
+    else{Sound.wrong();mascot.oops();setFx({[L]:'wrong'});setTimeout(()=>setFx({}),400);}
+  };
+
+  if(!prob)return null;
+  return(
+    <div className="screen">
+      <TopBar onBack={onBack} label="Missing Letter" muted={shared.muted} onToggleMute={shared.toggleMute}/>
+      <PresetChips preset={preset} setPreset={setPreset}/>
+      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
+      <div className="prompt-bubble">
+        Which letter is missing?
+        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
+      </div>
+      <div className="slot-row" aria-label="Word with a missing letter">
+        {prob.w.split('').map((L,i)=>(
+          <div key={i} className={`slot ${i===prob.gap?(solved?'filled':'blank-target'):'filled'}`}>
+            {i===prob.gap?(solved?L:'?'):L}
+          </div>))}
+      </div>
+      <div className="praise-banner">{core.banner}</div>
+      <div className="tile-row">
+        {prob.opts.map((L,i)=>(
+          <button key={L} className={`tile t${i%4} ${fx[L]||''}`} onClick={()=>pick(L)}>{L}</button>))}
+      </div>
+      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
+      <Confetti active={core.celebrating}/>
+      <ScoreRow {...shared.scoreProps}/>
+    </div>
+  );
+}
+
+/* ══ HOME ══ */
+function Home({go,bouquets}){
+  const title='Magic Spelling!'.split('');
+  return(
+    <div className="screen">
+      <div className="home-crown-row">
+        <span className="home-crown" aria-hidden="true" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}>👑</span>
+        <span className="home-crown" aria-hidden="true" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}>🦄</span>
+      </div>
+      <div className="home-title">
+        {title.map((ch,i)=>(
+          <span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*0.06}s`}}>{ch===' '?'\u00A0':ch}</span>))}
+      </div>
+      <div className="home-sub">Choose your adventure!</div>
+      {bouquets>0&&<div className="trophy-line">💐 Bouquets collected: {bouquets}</div>}
+      <div className="section-heading"><span aria-hidden="true" style={{fontSize:24}}>🌸</span>Letter Games</div>
+      <div className="mode-row">
+        <button className="mode-card mc-pink" onClick={()=>{Sound.tap();go('first');}}>
+          <span className="mode-card-art" role="img" aria-label="princess">👸</span>
+          <span className="mode-card-label">First Letter</span>
+          <span className="mode-card-sub">What does it start with?</span>
+        </button>
+        <button className="mode-card mc-purple" onClick={()=>{Sound.tap();go('missing');}}>
+          <span className="mode-card-art" role="img" aria-label="fairy">🧚</span>
+          <span className="mode-card-label">Missing Letter</span>
+          <span className="mode-card-sub">Fill in the blank!</span>
+        </button>
+      </div>
+      <div className="section-heading"><span aria-hidden="true" style={{fontSize:24}}>👑</span>Word Games</div>
+      <div className="mode-row">
+        <button className="mode-card mc-gold" onClick={()=>{Sound.tap();go('build');}}>
+          <span className="mode-card-art" role="img" aria-label="castle">🏰</span>
+          <span className="mode-card-label">Build the Word</span>
+          <span className="mode-card-sub">Tap the letters in order!</span>
+        </button>
+      </div>
+      <div style={{marginTop:8,fontSize:44,lineHeight:1,filter:'drop-shadow(0 3px 8px rgba(173,20,87,.2))'}} aria-hidden="true">🌈</div>
+    </div>
+  );
+}
+
+/* ══ APP ══ */
+function App(){
+  const [screen,setScreen]=useState('home');
+  const [score,setScore]=useState(0);
+  const [flowers,setFlowers]=useState(0);
+  const [bouquets,setBouquets]=useState(0);
+  const [gardenFull,setGardenFull]=useState(false);
+  const [muted,setMuted]=useState(false);
+
+  const addBouquet=useCallback(()=>setBouquets(b=>b+1),[]);
+  const reward=useFlowerReward(setFlowers,setGardenFull,addBouquet);
+  const toggleMute=()=>{
+    setMuted(m=>{const nm=!m;Sound.setMuted(nm);Voice.setMuted(nm);if(!nm)Sound.tap();return nm;});
+  };
+
+  const shared={
+    reward,setScore,muted,toggleMute,
+    scoreProps:{score,flowers,bouquets,gardenFull},
+  };
+
+  return(
+    <React.Fragment>
+      <div className="app-bg"/>
+      <BgDeco/>
+      {screen==='home'&&<Home go={setScreen} bouquets={bouquets}/>}
+      {screen==='first'&&<FirstLetter onBack={()=>setScreen('home')} shared={shared}/>}
+      {screen==='build'&&<BuildWord onBack={()=>setScreen('home')} shared={shared}/>}
+      {screen==='missing'&&<MissingLetter onBack={()=>setScreen('home')} shared={shared}/>}
+    </React.Fragment>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

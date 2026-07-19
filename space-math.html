@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Space Math</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+    body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#0a0e2d}
+
+    /* ── BG DECO ── */
+    .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bg-deco img{position:absolute;display:inline-block;object-fit:contain;animation:twinkleDeco ease-in-out infinite alternate;filter:drop-shadow(0 0 7px rgba(140,190,255,.5));will-change:transform,opacity}
+    @keyframes twinkleDeco{
+      0%{opacity:.06;transform:scale(.55) rotate(-12deg)}
+      100%{opacity:var(--deco-opacity,.5);transform:scale(1.15) rotate(12deg)}
+    }
+    @media (prefers-reduced-motion: reduce){
+      .bg-deco img{animation:none!important;opacity:.12!important}
+    }
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+
+    /* ── HOME ── */
+    .home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px;overflow:hidden}
+    .home-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(10,14,45,.32),rgba(10,14,45,.32)),url('assets/space/bg-nebula.png');background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0}
+    .home-tint{position:absolute;inset:0;background:rgba(8,12,40,.1);z-index:0}
+    .home>*:not(.home-bg):not(.home-tint){position:relative;z-index:1}
+    .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
+    .home-title{font-size:clamp(1.8rem,7vw,3.2rem);font-weight:900;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
+    .home-title span{display:inline-block;animation:bounce 1.2s infinite alternate}
+    .home-sub{font-size:clamp(.85rem,2.8vw,1.1rem);font-weight:900;color:#5a2ed6;background:rgba(255,255,255,.7);border-radius:50px;padding:6px 20px;box-shadow:0 2px 8px rgba(171,71,188,.2)}
+    .mode-section{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:640px}
+    .mode-section-label{font-size:.95rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:2px;background:rgba(255,255,255,.75);border-radius:50px;padding:5px 18px}
+    .mode-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;width:100%}
+    .mode-card{flex:1;min-width:130px;max-width:185px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s}
+    .mode-card:active{transform:translateY(5px) scale(.96)}
+    .mode-card-icon{width:100px;height:88px;line-height:1;display:flex;align-items:center;justify-content:center;overflow:visible}
+    .mode-card-art{display:block;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(4,8,30,.35))}
+    .mode-card-art.planet-art{width:80px;height:80px}
+    .mode-card-art.rocket-art{width:84px;height:84px}
+    .mode-card-art.large-art{width:92px;height:92px}
+    .mode-card-label{font-size:.78rem;font-weight:900;color:rgba(255,255,255,.92);text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
+    /* Pictogram row: how a pre-reader "reads" what the game is (digits + symbols + mini blocks) */
+    .mode-card-pict{display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,.24);border:1.5px solid rgba(255,255,255,.35);border-radius:14px;padding:6px 12px;min-height:34px}
+    .mode-card-pict.pict-col{flex-direction:column;gap:2px;padding:5px 14px}
+    .pict-num{font-size:1.15rem;font-weight:900;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.4);line-height:1}
+    .pict-col .pict-num{font-size:.85rem}
+    .pict-line{width:26px;height:3px;background:#fff;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+    .pict-block{width:13px;height:13px;background:linear-gradient(135deg,#ffd54f,#f9a825);border:2px solid #e65100;border-radius:3px;flex-shrink:0}
+    .pict-ten{width:9px;height:24px;background:linear-gradient(180deg,#93b7fb,#2f6df6);border:2px solid #1f54d6;border-radius:2px;flex-shrink:0}
+    .mode-card-stars{height:24px;display:flex;align-items:center;justify-content:center;gap:2px}
+    .mode-card-stars img{width:17px;height:17px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+    .mc-pink  {background:linear-gradient(160deg,#93b7fb,#2f6df6);box-shadow:0 7px 0 #1746b8,0 10px 20px rgba(47,109,246,.3)}
+    .mc-purple{background:linear-gradient(160deg,#ab97f5,#5a2ed6);box-shadow:0 7px 0 #371a92,0 10px 20px rgba(90,46,214,.3)}
+    .mc-rose  {background:linear-gradient(160deg,#5b8cf8,#1f54d6);box-shadow:0 7px 0 #0f2e86,0 10px 20px rgba(31,84,214,.3)}
+    .mc-magic {background:linear-gradient(160deg,#8f6cee,#371a92);box-shadow:0 7px 0 #311b92,0 10px 20px rgba(55,26,146,.3)}
+
+    /* ── SCREEN ── */
+    .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px;gap:11px;background:transparent;overflow:hidden}
+    .screen-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(6,9,30,.26),rgba(6,9,30,.26)),var(--game-bg,url('assets/space/bg-earth.png'));background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0;pointer-events:none;transition:opacity .4s}
+    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner){position:relative;z-index:1}
+
+    /* ── TOP BAR ── */
+    .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
+    .back-btn{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:50px;padding:8px 14px;font-family:inherit;font-size:1.2rem;font-weight:900;color:#2f6df6;cursor:pointer;box-shadow:0 4px 0 #93b7fb;transition:transform .1s;white-space:nowrap;line-height:1;min-width:52px}
+    .back-btn:active{transform:translateY(3px)}
+    .settings-btn,.sound-btn{background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1;min-width:48px}
+    .settings-btn:active,.sound-btn:active{transform:translateY(3px)}
+
+    /* ── MODALS ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
+    .modal-box{background:#fff;border-radius:28px;padding:22px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:3px solid #93b7fb;max-height:90vh;overflow-y:auto}
+    .modal-title{font-size:1.2rem;font-weight:900;color:#5a2ed6;text-align:center;margin-bottom:14px}
+    .preset-btn{width:100%;padding:12px 16px;border-radius:14px;border:3px solid;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:10px;transition:transform .1s;margin-bottom:7px}
+    .preset-btn:active{transform:scale(.97)}
+    .preset-btn.active{background:linear-gradient(135deg,#93b7fb,#2f6df6);border-color:#2f6df6;color:#fff}
+    .preset-btn.inactive{background:#fff;border-color:#c4d7fd;color:#5a2ed6}
+    .preset-tag{font-size:1.2rem}
+    .preset-info{text-align:left;flex:1}
+    .preset-name{font-size:.95rem;font-weight:900}
+    .preset-range{font-size:.74rem;opacity:.7;font-weight:700}
+    .modal-close{margin-top:8px;width:100%;padding:11px;border-radius:50px;border:none;background:linear-gradient(135deg,#93b7fb,#2f6df6);color:#fff;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #1746b8}
+    .modal-close:active{transform:translateY(3px)}
+    /* custom range inputs */
+    .custom-range-box{background:#e8f0ff;border-radius:14px;padding:14px;margin-top:4px;border:2px solid #93b7fb}
+    .custom-range-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .custom-range-row label{font-size:.85rem;font-weight:900;color:#5a2ed6;display:flex;align-items:center;gap:6px}
+    .custom-input{width:68px;padding:6px 8px;border-radius:8px;border:2px solid #93b7fb;font-family:inherit;font-size:1rem;font-weight:900;color:#333;text-align:center}
+    .custom-apply{background:linear-gradient(135deg,#ab97f5,#5a2ed6);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-family:inherit;font-size:.9rem;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #371a92}
+    .custom-error{font-size:.8rem;font-weight:900;color:#c62828;background:#ffcdd2;border-radius:8px;padding:5px 10px;margin-bottom:6px}
+    /* add/sub custom op */
+    .op-toggle-row{display:flex;gap:8px;margin-bottom:10px}
+    .op-toggle{flex:1;padding:9px;border-radius:10px;border:2px solid #c4d7fd;font-family:inherit;font-size:.9rem;font-weight:900;cursor:pointer;background:#fff;color:#5a2ed6}
+    .op-toggle.active{background:linear-gradient(135deg,#93b7fb,#2f6df6);border-color:#2f6df6;color:#fff}
+    .section-label{font-size:.78rem;font-weight:900;color:#6d3ff0;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+    .mode-toggle-row{display:flex;gap:8px;margin-bottom:10px}
+
+    /* ── EQUIVALENCE MODAL ── */
+    .equiv-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.55)}
+    .equiv-box{background:#fff;border-radius:28px;padding:28px 22px;max-width:360px;width:100%;border:4px solid #93b7fb;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}
+    .equiv-title{font-size:1.3rem;font-weight:900;color:#2f6df6;margin-bottom:6px}
+    .equiv-sub{font-size:1rem;font-weight:700;color:#5a2ed6;margin-bottom:18px}
+    .equiv-visual{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+    .equiv-side{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;max-width:140px}
+    .equiv-eq{font-size:2rem;font-weight:900;color:#6d3ff0}
+    .mini-h{width:34px;height:34px;background:linear-gradient(135deg,#ab97f5,#6236e0);border-radius:6px;border:2px solid #4a25b5}
+    .mini-t{width:13px;height:34px;background:linear-gradient(180deg,#93b7fb,#2f6df6);border-radius:4px;border:2px solid #1f54d6}
+    .mini-o{width:13px;height:13px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:3px;border:2px solid #e65100}
+    .equiv-next{background:linear-gradient(160deg,#5b8cf8,#1746b8);color:#fff;border:none;border-radius:50px;padding:13px 32px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #0f2e86}
+    .equiv-next:active{transform:translateY(3px)}
+
+    /* ── NUMBER DISPLAY ── */
+    .number-display{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:20px;padding:10px 18px;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    .digit-box{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .digit-value{font-size:clamp(2rem,8.5vw,3.5rem);font-weight:900;line-height:1;min-width:42px;text-align:center}
+    .digit-value.shake{animation:shake .35s ease}
+    .digit-label{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+    .digit-hundreds{color:#6d3ff0}.digit-tens{color:#2f6df6}.digit-ones{color:#ff6f00}
+    .simple-number-card{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(232,240,255,.9));border:2.5px solid #93b7fb;border-radius:20px;padding:12px 22px;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    .simple-number-main{font-size:clamp(2rem,8vw,3.4rem);font-weight:900;color:#5a2ed6;line-height:1}
+    .simple-number-sub{font-size:clamp(1.05rem,4vw,1.6rem);font-weight:900;color:#2f6df6}
+    .simple-number-divider{font-size:clamp(1.4rem,5vw,2rem);font-weight:900;color:#d7b7df}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+    /* ── TAP-TO-SLOT ── */
+    .tap-layout{width:100%;max-width:700px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+    .tap-hint{font-size:.82rem;font-weight:900;color:#6d3ff0;text-align:center;background:rgba(255,255,255,.65);border-radius:50px;padding:5px 16px;border:1.5px solid #ab97f5}
+
+    /* Pool */
+    .pool-area{background:rgba(255,255,255,.55);border-radius:18px;padding:12px;border:2px solid #c4d7fd}
+    .pool-label{font-size:.75rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;text-align:center}
+    .pool-blocks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:flex-end}
+
+    /* Pool block wrappers */
+    .pool-block{cursor:pointer;border-radius:10px;transition:transform .1s;position:relative}
+    .pool-block.selected{filter:drop-shadow(0 0 8px #2f6df6) drop-shadow(0 0 4px #fff);transform:scale(1.12) translateY(-3px)}
+    .pool-block.empty{opacity:.2;cursor:default;pointer-events:none}
+
+    /* The actual block shapes (pool size) */
+    .pb-hundred{width:72px;height:72px;background:linear-gradient(135deg,#ab97f5,#6236e0);border-radius:10px;border:3px solid #4a25b5;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .pb-hundred .ic{background:rgba(255,255,255,.38);border-radius:1px}
+    .pb-ten{width:30px;height:72px;background:linear-gradient(180deg,#93b7fb,#2f6df6);border-radius:7px;border:3px solid #1f54d6;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .pb-ten .ic{background:rgba(255,255,255,.38);border-radius:2px}
+    .pb-one{width:38px;height:38px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:9px;border:3px solid #e65100}
+
+    /* Slots */
+    .slots-area{display:flex;flex-direction:column;gap:8px}
+    .slot-row{background:rgba(255,255,255,.65);border:3px dashed #93b7fb;border-radius:16px;padding:10px 12px;min-height:64px;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
+    .slot-row.can-accept{border-color:#2f6df6;background:rgba(255,255,255,.85);box-shadow:0 0 0 3px rgba(47,109,246,.2)}
+    .slot-row.wrong-flash{animation:slotWrong .35s ease}
+    @keyframes slotWrong{0%,100%{background:rgba(255,255,255,.65);border-color:#93b7fb}50%{background:#ffcdd2;border-color:#f44336;box-shadow:0 0 0 3px rgba(244,67,54,.3)}}
+    .slot-header{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .slot-h-header{color:#5a2ed6}.slot-t-header{color:#1f54d6}.slot-o-header{color:#e65100}
+    .slot-blocks{display:flex;flex-wrap:wrap;gap:5px;align-items:flex-end;min-height:28px}
+
+    /* Mini blocks inside slots (tappable to return) */
+    .sb-hundred{width:38px;height:38px;background:linear-gradient(135deg,#ab97f5,#6236e0);border-radius:7px;border:2.5px solid #4a25b5;cursor:pointer;transition:transform .1s;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .sb-hundred:active{transform:scale(.88)}.sb-hundred .ic{background:rgba(255,255,255,.35);border-radius:1px}
+    .sb-ten{width:16px;height:38px;background:linear-gradient(180deg,#93b7fb,#2f6df6);border-radius:5px;border:2.5px solid #1f54d6;cursor:pointer;transition:transform .1s}
+    .sb-ten:active{transform:scale(.88)}
+    .sb-one{width:18px;height:18px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:5px;border:2.5px solid #e65100;cursor:pointer;transition:transform .1s}
+    .sb-one:active{transform:scale(.88)}
+    .slot-empty-hint{font-size:.78rem;color:#bbb;font-weight:700;padding:4px 0}
+
+    /* Place-value builder */
+    .pv-goal-card{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:20px;padding:10px 16px;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1;min-width:min(92vw,430px)}
+    .pv-visual-row{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .pv-unit-group{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.64);border:2px solid;border-radius:14px;padding:7px 9px;min-height:62px}
+    .pv-unit-group.h{border-color:#ab97f5}.pv-unit-group.t{border-color:#93b7fb}.pv-unit-group.o{border-color:#ffd54f}
+    .pv-goal-num{font-size:clamp(1.9rem,7vw,3.05rem);font-weight:900;line-height:1;min-width:.72em;text-align:center}
+    .pv-goal-plus{font-size:1.55rem;color:#d7b7df;font-weight:900}
+    .pv-expanded-form{font-size:clamp(1rem,4vw,1.45rem);font-weight:900;color:#5a2ed6;text-align:center;line-height:1.15}
+    .gb-hundred{width:48px;height:48px;background:linear-gradient(135deg,#ab97f5,#6236e0);border-radius:8px;border:3px solid #4a25b5;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .gb-hundred .ic{background:rgba(255,255,255,.38);border-radius:1px}
+    .gb-ten{width:19px;height:52px;background:linear-gradient(180deg,#93b7fb,#2f6df6);border-radius:6px;border:3px solid #1f54d6;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(10,1fr);gap:1px;padding:3px}
+    .gb-ten .ic{background:rgba(255,255,255,.38);border-radius:2px}
+    .gb-one{width:28px;height:28px;background:linear-gradient(135deg,#ffd54f,#f9a825);border-radius:7px;border:3px solid #e65100}
+    .pv-built-line{background:rgba(255,255,255,.72);border:2px solid #c4d7fd;border-radius:999px;padding:7px 16px;font-size:.9rem;font-weight:900;color:#5a2ed6;position:relative;z-index:1;text-align:center}
+    .pv-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+    .pv-zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+    .pv-zone{min-height:142px;border:3px dashed;border-radius:18px;background:rgba(255,255,255,.56);padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(90,46,214,.08);transition:transform .12s,background .12s}
+    .pv-zone:active{transform:scale(.98)}
+    .pv-zone-h{border-color:#6d3ff0;background:rgba(243,229,245,.68)}
+    .pv-zone-t{border-color:#2f6df6;background:rgba(232,240,255,.7)}
+    .pv-zone-o{border-color:#f9a825;background:rgba(255,248,225,.72)}
+    .pv-zone-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .pv-zone-title{font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+    .pv-zone-h .pv-zone-title{color:#5a2ed6}.pv-zone-t .pv-zone-title{color:#1f54d6}.pv-zone-o .pv-zone-title{color:#e65100}
+    .pv-zone-hint{font-size:.66rem;font-weight:900;color:#999;text-transform:uppercase;letter-spacing:.6px}
+    .pv-zone-count{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;font-size:.9rem;font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+    .pv-zone-h .pv-zone-count{color:#5a2ed6}.pv-zone-t .pv-zone-count{color:#1f54d6}.pv-zone-o .pv-zone-count{color:#e65100}
+    .pv-block-space{position:relative;min-height:66px;display:flex;align-items:flex-end;justify-content:center;gap:5px;flex-wrap:wrap;flex:1}
+    .pv-placeholder{opacity:.2;pointer-events:none}
+    .pv-placed{cursor:pointer;animation:blockIn .18s ease}
+    .pv-bank{background:rgba(255,255,255,.68);border:2px solid #c4d7fd;border-radius:18px;padding:12px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .pv-bank-title{width:100%;text-align:center;font-size:.78rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:1px}
+    .pv-bank-btn{border:none;border-radius:16px;background:#fff;min-width:104px;padding:10px 12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .12s}
+    .pv-bank-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
+    .pv-bank-btn.h{color:#5a2ed6;border:2px solid #ab97f5}.pv-bank-btn.t{color:#1f54d6;border:2px solid #93b7fb}.pv-bank-btn.o{color:#e65100;border:2px solid #ffd54f}
+
+    /* Direct v4-style place-value picker */
+    .direct-progress{background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:999px;padding:8px 28px;font-size:clamp(1.2rem,4vw,1.9rem);font-weight:900;color:#5a2ed6;box-shadow:0 4px 0 #ab97f5;position:relative;z-index:1;min-width:150px;text-align:center}
+    .direct-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:1}
+    .direct-section{background:rgba(255,255,255,.62);border:2px solid #c4d7fd;border-radius:18px;padding:12px 12px 14px;box-shadow:0 5px 18px rgba(90,46,214,.08)}
+    .direct-label{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
+    .direct-label.tens{color:#1f54d6}.direct-label.ones{color:#e65100}
+    .direct-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:flex-end}
+    .direct-block{cursor:pointer;transition:transform .12s,filter .12s,opacity .12s;position:relative;flex-shrink:0}
+    .direct-block:active{transform:scale(.92) translateY(3px)}
+    .direct-block.off{opacity:.55;filter:saturate(.8)}
+    .direct-block.on{opacity:1;transform:translateY(-3px);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 4px 8px rgba(47,109,246,.22))}
+    .direct-block.on .pb-hundred{box-shadow:0 0 0 3px #fff,0 0 0 6px #ab97f5}
+    .direct-block.on .pb-ten{box-shadow:0 0 0 3px #fff,0 0 0 6px #5b8cf8}
+    .direct-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd54f}
+    .direct-too-many{font-size:.9rem;font-weight:900;color:#1f54d6;background:rgba(255,255,255,.72);border:2px solid #c4d7fd;border-radius:999px;padding:6px 14px;text-align:center;position:relative;z-index:1}
+    .direct-nav-gap{height:34px}
+
+    /* Count the blocks */
+    .count-title{background:rgba(255,255,255,.72);border:2px solid #c4d7fd;border-radius:18px;padding:8px 18px;text-align:center;position:relative;z-index:1;box-shadow:0 4px 14px rgba(90,46,214,.08)}
+    .count-title-main{font-size:1.05rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:1px}
+    .count-title-sub{font-size:.78rem;font-weight:900;color:#2f6df6;margin-top:2px}
+    .count-layout{width:100%;max-width:740px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+    .count-section{background:rgba(255,255,255,.62);border:2px solid #c4d7fd;border-radius:18px;padding:12px 12px 14px;box-shadow:0 5px 18px rgba(90,46,214,.08)}
+    .count-label{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:center}
+    .count-label.h{color:#5a2ed6}.count-label.t{color:#1f54d6}.count-label.o{color:#e65100}
+    .count-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:flex-end;max-width:470px;margin:0 auto}
+    .count-block{cursor:pointer;transition:transform .12s,filter .12s,opacity .12s;position:relative;flex-shrink:0}
+    .count-block:active{transform:scale(.92) translateY(3px)}
+    .count-block.off{opacity:.85;filter:saturate(.95)}
+    .count-block.on{opacity:1;transform:translateY(-3px);filter:drop-shadow(0 4px 8px rgba(90,46,214,.2))}
+    .count-block.on .pb-hundred,.count-block.on .pb-ten,.count-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(91,140,248,.8)}
+
+    /* Column Add */
+    .column-card{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(232,240,255,.9));border:3px solid #93b7fb;border-radius:22px;padding:18px 22px 20px;box-shadow:0 5px 0 #93b7fb,0 10px 24px rgba(91,140,248,.16);position:relative;z-index:1;min-width:min(92vw,360px)}
+    .column-grid{display:grid;grid-template-columns:34px repeat(var(--col-count,3),54px);gap:7px;align-items:center;justify-content:center;font-family:'Nunito',system-ui,sans-serif}
+    .column-digit,.column-plus,.column-answer-box{height:54px;display:flex;align-items:center;justify-content:center;font-size:clamp(1.8rem,8vw,3rem);font-weight:900;line-height:1}
+    .column-digit{color:#5a2ed6}
+    .column-plus{color:#2f6df6}
+    .column-blank{height:54px}
+    .column-line{grid-column:1 / -1;height:4px;background:#6d3ff0;border-radius:99px;margin:3px 0}
+    .column-final-line{grid-column:1 / -1;height:8px;border-top:4px solid #2f6df6;border-bottom:4px solid #2f6df6;border-radius:99px;margin-top:5px}
+    .column-answer-box{background:#fff;border:3px solid #ab97f5;border-radius:14px;color:#2f6df6;box-shadow:0 3px 0 #ab97f5;min-width:54px}
+    .column-answer-box.active{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.16),0 3px 0 #1746b8}
+    .column-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .keypad{display:grid;grid-template-columns:repeat(5,62px);gap:10px;justify-content:center;position:relative;z-index:1}
+    .key-btn{height:58px;border:none;border-radius:17px;background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;color:#5a2ed6;font-family:inherit;font-size:1.55rem;font-weight:900;box-shadow:0 4px 0 #93b7fb;cursor:pointer}
+    .key-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
+    .key-btn.clear{color:#2f6df6;grid-column:span 2;display:flex;align-items:center;justify-content:center}
+    .key-btn.clear .btn-svg{width:26px;height:26px}
+    .column-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+
+    /* Multiplication */
+    .multiply-card{display:flex;flex-direction:column;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(232,240,255,.9));border:3px solid #93b7fb;border-radius:24px;padding:20px 24px;box-shadow:0 5px 0 #93b7fb,0 10px 24px rgba(91,140,248,.16);position:relative;z-index:1;min-width:min(92vw,430px)}
+    .multiply-problem{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;color:#5a2ed6;font-size:clamp(2.1rem,9vw,4.1rem);font-weight:900;line-height:1}
+    .times-symbol,.equals-symbol{color:#2f6df6}
+    .multiply-answer-row{display:flex;align-items:center;justify-content:center;gap:8px}
+    .multiply-answer-box{width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:#fff;border:3px solid #ab97f5;border-radius:15px;color:#2f6df6;font-size:clamp(1.8rem,8vw,3rem);font-weight:900;box-shadow:0 3px 0 #ab97f5}
+    .multiply-answer-box.active{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.16),0 3px 0 #1746b8}
+    .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    .times-range-preview{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 14px;color:#5a2ed6;font-size:1.15rem;font-weight:900}
+    .times-value-box{min-width:54px;padding:7px 12px;border-radius:14px;border:3px solid #93b7fb;background:#e8f0ff;color:#2f6df6;text-align:center;box-shadow:0 3px 0 #93b7fb}
+    .times-picker-label{font-size:.82rem;font-weight:900;color:#6d3ff0;text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;text-align:center}
+    .times-option-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+    .times-option-btn{height:38px;border-radius:12px;border:2px solid #c4d7fd;background:#fff;color:#5a2ed6;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer}
+    .times-option-btn.active{background:linear-gradient(135deg,#93b7fb,#2f6df6);border-color:#2f6df6;color:#fff;box-shadow:0 3px 0 #1746b8}
+    @media (max-width:430px){.times-option-grid{grid-template-columns:repeat(4,1fr)}}
+
+    /* ── SCORE ROW: SPACE JOURNEY TRACK ── */
+    .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
+    .score-badge{background:linear-gradient(135deg,#fff,#e8f0ff);border:2px solid #93b7fb;border-radius:50px;padding:5px 14px;font-size:.95rem;font-weight:900;color:#2f6df6;box-shadow:0 3px 8px rgba(91,140,248,.2);white-space:nowrap;display:flex;align-items:center;gap:4px}
+    .score-badge span{color:#5a2ed6}
+    .score-badge img{width:20px;height:20px;object-fit:contain}
+    .journey-track{display:flex;align-items:center;gap:5px;padding:6px 10px;background:rgba(255,255,255,.88);border:2px solid #c4d7fd;border-radius:18px;box-shadow:0 3px 10px rgba(91,140,248,.12);flex:1;max-width:360px;min-width:0}
+    .journey-node{width:36px;height:36px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(20,30,90,.25))}
+    .journey-node.to{animation:destPulse 1.5s ease-in-out infinite alternate}
+    @keyframes destPulse{from{transform:scale(1)}to{transform:scale(1.14)}}
+    .journey-dots{flex:1;display:flex;align-items:center;justify-content:space-between;min-width:0;padding:0 2px}
+    .journey-dot{width:9px;height:9px;border-radius:50%;background:#d3ddf5;flex-shrink:0}
+    .journey-star{width:16px;height:16px;object-fit:contain;flex-shrink:0;animation:starPop .35s cubic-bezier(.34,1.56,.64,1)}
+    .journey-rocket{width:30px;height:30px;object-fit:contain;transform:rotate(42deg);flex-shrink:0;animation:rocketPop .45s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 2px 4px rgba(20,30,90,.3))}
+    @keyframes starPop{from{transform:scale(0) rotate(-12deg)}to{transform:scale(1) rotate(0)}}
+    @keyframes rocketPop{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(42deg)}}
+    @media (max-width:430px){
+      .score-row{gap:6px}
+      .score-badge{padding:5px 10px}
+      .journey-track{gap:3px;padding:5px 7px}
+      .journey-node{width:30px;height:30px}
+      .journey-rocket{width:26px;height:26px}
+      .journey-star{width:13px;height:13px}
+      .journey-dot{width:7px;height:7px}
+    }
+
+    /* ── BUTTONS ── */
+    .check-btn{background:linear-gradient(160deg,#8f6cee,#4a25b5);color:#fff;border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #371a92;transition:transform .1s;position:relative;z-index:1}
+    .check-btn:active{transform:translateY(4px)}
+    .new-num-btn{background:linear-gradient(160deg,#93b7fb,#1f54d6);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-family:inherit;font-size:1.05rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #0f2e86;transition:transform .1s;position:relative;z-index:1}
+    .new-num-btn:active{transform:translateY(4px)}
+    .next-btn{background:linear-gradient(160deg,#5b8cf8,#1746b8);color:#fff;border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #0f2e86;transition:transform .1s;position:relative;z-index:1}
+    .next-btn:active{transform:translateY(4px)}
+
+    /* ── NUMBER LINE ── */
+    .prompt-bubble{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:20px;padding:12px 18px;box-shadow:0 4px 0 #93b7fb;font-size:clamp(1.05rem,4vw,1.6rem);font-weight:900;color:#333;text-align:center;position:relative;z-index:1}
+    .target-num{display:inline-block;color:#2f6df6;font-size:1.3em;animation:pulse 1s infinite alternate}
+    .start-num{display:inline-block;color:#5a2ed6;font-size:1.15em}
+    .op-add{display:inline-block;color:#2e7d32;font-size:1.15em}
+    .op-sub{display:inline-block;color:#c62828;font-size:1.15em}
+    .eq-mark{color:#999}
+    @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.22)}}
+    .hop-counter{background:linear-gradient(135deg,#fff,#e8f5e9);border:2px solid #a5d6a7;border-radius:50px;padding:5px 16px;font-size:.9rem;font-weight:900;color:#2e7d32;position:relative;z-index:1}
+    .char-inner{position:absolute;top:4px;transition:left .45s cubic-bezier(.34,1.56,.64,1);animation:float 2s ease-in-out infinite alternate;display:flex;align-items:flex-end}
+    .char-inner .char-img{width:72px;height:72px;object-fit:contain;transform:rotate(42deg);filter:drop-shadow(0 4px 8px rgba(10,16,50,.4))}
+    .char-missing{width:76px;height:76px}
+    @keyframes float{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+    .number-line-wrapper{width:100%;max-width:740px;overflow-x:auto;padding:4px 0 12px;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
+    .number-line{display:flex;align-items:center;min-width:max-content;padding:8px 16px;position:relative}
+    .nl-track{position:absolute;top:50%;left:0;right:0;height:12px;background:linear-gradient(90deg,#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#6d3ff0,#2f6df6);border-radius:6px;transform:translateY(-50%);box-shadow:0 3px 10px rgba(0,0,0,.2);z-index:0}
+    .nl-number{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;cursor:pointer;border:none;position:relative;z-index:1;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s;flex-shrink:0}
+    .nl-number:active{transform:scale(.9) translateY(3px)}
+    .nl-number.start-marker{background:#fff!important;color:#5a2ed6!important;font-size:1.25rem;width:54px;height:54px;box-shadow:0 0 0 4px #2f6df6,0 5px 0 #0f2e86!important;animation:startPulse 1.1s ease-in-out infinite;z-index:2}
+    @keyframes startPulse{0%,100%{box-shadow:0 0 0 4px #2f6df6,0 5px 0 #0f2e86;transform:scale(1)}50%{box-shadow:0 0 0 7px #5b8cf8,0 5px 0 #0f2e86;transform:scale(1.07)}}
+    .nl-number.hop-path{outline:3px solid rgba(255,255,255,.75);outline-offset:2px}
+    .nl-number.correct{animation:correctPop .5s ease}
+    .nl-number.wrong{animation:wrongShake .35s ease}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-8deg)}70%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1)}}
+    @keyframes wrongShake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+    .hop-arrows{display:flex;align-items:flex-end;min-width:max-content;gap:0;padding:0 16px}
+    .hop-cell{width:50px;display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0}
+    .hop-cell.start-cell{width:54px}
+    .hop-num-badge{font-size:.72rem;font-weight:900;padding:1px 3px;border-radius:4px;min-width:14px;text-align:center}
+    .hop-num-add{color:#1b5e20;background:#c8e6c9}.hop-num-sub{color:#b71c1c;background:#ffcdd2}
+    .hop-arrow-add{color:#2e7d32;font-size:1.35rem;font-weight:900;line-height:1}
+    .hop-arrow-sub{color:#c62828;font-size:1.35rem;font-weight:900;line-height:1}
+    .hop-dot{width:7px;height:7px;border-radius:50%;background:#e0e0e0;margin-bottom:4px}
+    .start-flag{font-size:.65rem;font-weight:900;line-height:1;margin-bottom:4px;color:#5a2ed6}
+    .inline-icon{width:1.05em;height:1.05em;object-fit:contain;vertical-align:-.14em}
+    .home-cloud-row{display:flex;gap:96px;align-items:center;justify-content:center;min-height:72px;margin-bottom:-8px}
+    .home-cloud{width:62px;height:62px;object-fit:contain;opacity:.97;filter:drop-shadow(0 5px 12px rgba(20,30,90,.4))}
+    .home-section-heading{display:flex;align-items:center;gap:8px}
+    .section-icon{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+
+    /* ── MASCOT ── */
+    .screen>.mascot-corner{position:fixed;left:22px;bottom:22px;width:116px;height:116px;z-index:6;pointer-events:none;display:flex;align-items:center;justify-content:center;isolation:isolate;filter:drop-shadow(0 7px 14px rgba(90,46,214,.32))}
+    .screen>.mascot-corner::before{content:'';position:absolute;left:50%;bottom:2px;width:96%;height:82%;transform:translateX(-50%);border-radius:999px;background:radial-gradient(circle at 50% 54%,rgba(255,255,255,.96) 0 46%,rgba(240,246,255,.82) 58%,rgba(130,177,255,.38) 75%,rgba(130,177,255,0) 100%);box-shadow:0 0 0 3px rgba(255,255,255,.62),0 8px 22px rgba(90,46,214,.22);z-index:0}
+    .screen>.mascot-corner .mascot-img{position:relative;z-index:1;width:78%;height:78%;object-fit:contain;animation:float 2.3s ease-in-out infinite alternate;transform-origin:center bottom;will-change:transform;filter:saturate(1.08) contrast(1.04) drop-shadow(0 3px 5px rgba(55,26,146,.22))}
+    .screen>.mascot-corner.happy .mascot-img{animation:mascotHappy 1s cubic-bezier(.34,1.56,.64,1)}
+    .screen>.mascot-corner.oops .mascot-img{animation:mascotOops .6s ease}
+    @keyframes mascotHappy{0%{transform:translateY(0) rotate(0) scale(1)}30%{transform:translateY(-38px) rotate(-10deg) scale(1.15)}55%{transform:translateY(0) rotate(7deg)}75%{transform:translateY(-18px) rotate(-5deg) scale(1.08)}100%{transform:translateY(0) rotate(0) scale(1)}}
+    @keyframes mascotOops{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg) translateX(-4px)}50%{transform:rotate(7deg) translateX(4px)}75%{transform:rotate(-4deg)}}
+    @media (max-width:430px){.screen>.mascot-corner{left:10px;bottom:12px;width:78px;height:78px}.screen>.mascot-corner::before{width:98%;height:84%}}
+    .char-inner.oops{animation:mascotOops .6s ease}
+    .char-inner.happy{animation:mascotHappy 1s cubic-bezier(.34,1.56,.64,1)}
+
+    /* ── HINTS & GENTLE HELP ── */
+    .ghost-hint{opacity:.35;color:#6d3ff0}
+    .nl-number.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    @keyframes hintGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.16);box-shadow:0 0 0 8px #ffd54f,0 4px 0 rgba(0,0,0,.2)}}
+    .hold-hint{position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:2px solid #ab97f5;border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:900;color:#5a2ed6;z-index:9;box-shadow:0 3px 8px rgba(0,0,0,.15);white-space:nowrap}
+
+    /* ── UNIFIED NUMBER LINE SCROLL ── */
+    .line-stack{min-width:max-content;display:flex;flex-direction:column}
+    .char-row{position:relative;height:90px}
+    .char-row .char-inner{position:absolute;top:2px}
+
+    /* ── CELEBRATE / WRONG TEXT ── */
+    .celebrate-text{font-size:clamp(1.2rem,4.5vw,2rem);font-weight:900;text-align:center;color:#2f6df6;text-shadow:0 3px 0 #6d3ff0;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1}
+    .wrong-text{font-size:clamp(1.1rem,4vw,1.7rem);font-weight:900;text-align:center;color:#2f6df6;animation:popIn .35s ease;position:relative;z-index:1}
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+    /* ── CONFETTI ── */
+    .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+    .confetti-piece{position:absolute;animation:confettiFall linear forwards}
+    @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+    /* ── ICON BUTTONS (SVG) ── */
+    .icon-svg{width:22px;height:22px;display:block}
+    .btn-svg{width:30px;height:30px;display:block}
+    .next-btn .btn-svg,.new-num-btn .btn-svg{margin:0 auto}
+    .btn-confirm{animation:mascotOops .6s ease}
+    .preset-tag-img{width:28px;height:28px;object-fit:contain;display:block;flex-shrink:0}
+
+    /* ── CARD LAUNCH (menu tap feedback) ── */
+    .mode-card.launching{animation:cardLaunch 1s ease forwards;position:relative;z-index:5}
+    @keyframes cardLaunch{0%{transform:scale(1)}35%{transform:scale(1.13)}100%{transform:scale(1.18);filter:brightness(1.18)}}
+    .mode-card.dimmed{opacity:.45;filter:saturate(.6)}
+
+    /* ── PLANET ARRIVAL ── */
+    .arrival-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,7,26,.78);animation:fadeIn .35s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .arrival-box{position:relative;background:linear-gradient(180deg,#131b52,#1d2467);border:4px solid #93b7fb;border-radius:32px;padding:16px 18px 22px;max-width:430px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.55);animation:popIn .45s cubic-bezier(.34,1.56,.64,1)}
+    .arrival-photo{width:100%;height:150px;object-fit:cover;border-radius:22px;border:3px solid rgba(147,183,251,.55);display:block}
+    .arrival-planet{width:112px;height:112px;object-fit:contain;margin:-64px auto 4px;position:relative;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));animation:arrivalPlanet .8s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes arrivalPlanet{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+    .arrival-title{color:#fff;font-size:clamp(1.25rem,5vw,1.7rem);font-weight:900;margin:2px 0 12px;text-shadow:0 3px 8px rgba(0,0,0,.4)}
+    .arrival-fact-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.13);border:2px solid rgba(147,183,251,.4);border-radius:18px;padding:12px 14px;margin-bottom:16px}
+    .arrival-fact{flex:1;color:#eaf1ff;font-size:clamp(.95rem,3.6vw,1.08rem);font-weight:700;line-height:1.45;text-align:left}
+    .arrival-replay{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:50%;width:46px;height:46px;min-width:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 0 #93b7fb;color:#2f6df6;transition:transform .1s}
+    .arrival-replay:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
+    .arrival-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(160deg,#ffd54f,#f9a825);color:#5a2100;border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-size:1.15rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #c17900,0 10px 24px rgba(249,168,37,.35);transition:transform .1s}
+    .arrival-btn:active{transform:translateY(4px)}
+    .arrival-btn img{width:30px;height:30px;object-fit:contain;transform:rotate(42deg)}
+    .arrival-trophy{width:74px;height:74px;object-fit:contain;margin:2px auto 6px;display:block;animation:arrivalPlanet .6s cubic-bezier(.34,1.56,.64,1)}
+    @media (max-width:430px){.arrival-photo{height:118px}.arrival-planet{width:92px;height:92px;margin-top:-54px}}
+
+    /* ── SPACE THEME OVERRIDES ── */
+    .home-sub,.home-section-heading{color:#eaf1ff!important;text-shadow:0 2px 6px rgba(4,8,30,.7)}
+    .home-rainbow{filter:drop-shadow(0 0 8px rgba(140,190,255,.35))}
+    .screen>.mascot-corner::before{background:radial-gradient(circle at 50% 54%,rgba(255,255,255,.95) 0 46%,rgba(230,240,255,.8) 58%,rgba(130,177,255,.35) 75%,rgba(130,177,255,0) 100%)!important;box-shadow:0 0 0 3px rgba(255,255,255,.5),0 8px 22px rgba(20,30,90,.45)!important}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useMemo, useRef, useEffect } = React;
+
+/* ══ SOUND ══ */
+const Sound = (() => {
+  let _ctx=null,_muted=false;
+  const ctx=()=>{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!_ctx)_ctx=new AC();if(_ctx.state==='suspended')_ctx.resume();return _ctx;};
+  const tone=(c,freq,type,t,dur,vol,fe)=>{try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.setValueAtTime(freq,t);if(fe)o.frequency.exponentialRampToValueAtTime(fe,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}};
+  return{
+    setMuted(v){_muted=v;},
+    tap(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,880,'sine',n,.08,.12);tone(c,1320,'sine',n+.04,.06,.08);},
+    twinkle(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[523,659,784,1047,1319].forEach((f,i)=>tone(c,f,'sine',n+i*.07,.18,.14));},
+    ding(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.06],[784,.12],[1047,.22],[1319,.32]].forEach(([f,t])=>tone(c,f,'sine',n+t,.55,.18));},
+    wrong(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,220,'sawtooth',n,.28,.1,100);},
+    celebrate(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.1],[784,.2],[1047,.32],[784,.46],[1047,.58],[1319,.68],[1047,.82]].forEach(([f,t])=>tone(c,f,'sine',n+t,.2,.2));[1047,1319,1568,2093].forEach((f,i)=>tone(c,f,'sine',n+.9+i*.08,.15,.1));},
+    hop(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,400,'sine',n,.12,.12,600);},
+    arrive(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,180,'sine',n,.55,.16,900);tone(c,90,'triangle',n,.5,.12,300);[[784,.4],[988,.5],[1175,.6],[1568,.72],[2093,.86]].forEach(([f,t])=>tone(c,f,'sine',n+t,.3,.18));}
+  };
+})();
+
+/* ══ VOICE (Web Speech) ══ */
+const Voice={
+  muted:false,
+  say(text){
+    if(this.muted)return;
+    try{
+      const s=window.speechSynthesis; if(!s)return;
+      s.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.rate=.95; u.pitch=1.15; u.lang='en-US';
+      s.speak(u);
+    }catch(e){}
+  }
+};
+const PRAISE=['Blast off!','Out of this world!','You did it!','Stellar!','Super nova!','Mission complete!'];
+const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
+
+/* ══ CONSTANTS ══ */
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+
+/* ── THE SPACE JOURNEY ──
+   Every correct answer flies the rocket one step further.
+   Every LEG_LEN steps the rocket arrives somewhere new: the game background
+   changes to that place and a one-sentence fact is read aloud (Usborne style).
+   Finishing the whole journey earns a trophy, then a new journey begins. */
+const LEG_LEN=5;
+const JOURNEY_STOPS=[
+  {id:'earth',  name:'Earth',            title:'Earth',            icon:'assets/space/icons/earth.png',    bg:'assets/space/bg-earth.png',    fact:'Earth is our home planet — the only place we know with oceans, trees and you!'},
+  {id:'moon',   name:'the Moon',         title:'The Moon',         icon:'assets/space/icons/moon.png',     bg:'assets/space/bg-moon.png',     fact:'Footprints on the Moon never blow away, because the Moon has no wind at all!'},
+  {id:'mars',   name:'Mars',             title:'Mars',             icon:'assets/space/icons/mars.png',     bg:'assets/space/bg-mars.png',     fact:'Mars is called the Red Planet, because it is covered in rusty red dust!'},
+  {id:'belt',   name:'the Asteroid Belt',title:'The Asteroid Belt',icon:'assets/space/icons/asteroid.png', bg:'assets/space/bg-asteroids.png',fact:'The asteroid belt is full of giant space rocks, all tumbling around the Sun!'},
+  {id:'jupiter',name:'Jupiter',          title:'Jupiter',          icon:'assets/space/icons/jupiter.png',  bg:'assets/space/bg-jupiter.png',  fact:'Jupiter is the biggest planet of all — one thousand Earths could fit inside it!'},
+  {id:'saturn', name:'Saturn',           title:'Saturn',           icon:'assets/space/icons/saturn.png',   bg:'assets/space/bg-saturn.png',   fact:'Saturn’s beautiful rings are made of billions of pieces of sparkling ice!'},
+  {id:'galaxy', name:'the Milky Way',    title:'The Milky Way',    icon:'assets/space/icons/swirl-gold.png',bg:'assets/space/bg-galaxy.png',  fact:'Our galaxy is called the Milky Way — it has more stars than you could ever count!'},
+];
+const JOURNEY_LEGS=JOURNEY_STOPS.length-1;
+const JOURNEY_TOTAL=LEG_LEN*JOURNEY_LEGS;
+
+const CONFETTI_C=['#40c4ff','#82b1ff','#7c4dff','#b388ff','#ffd54f','#fff176','#4fc3f7','#8c9eff','#ff9e40','#fff','#80d8ff','#c5cae9'];
+const CONFETTI_IMGS=['assets/space/icons/fourstar-gold.png','assets/space/icons/sparkle-blue.png','assets/space/icons/puffstar-purple.png','assets/space/icons/star.png','assets/space/icons/shoot-gold.png'];
+const NL_COLORS=[['#2f6df6','#0f2e86'],['#6d3ff0','#371a92'],['#673ab7','#311b92'],['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#f44336','#b71c1c'],['#2f6df6','#0f2e86']];
+const TITLE_COLORS=['#4fc3f7','#82b1ff','#ffd54f','#ff9e40','#69f0ae','#40c4ff','#b388ff','#fff59d','#80d8ff','#ffab40','#4fc3f7','#b388ff','#82b1ff','#ffd54f','#8c9eff','#40c4ff'];
+// Image-based bg deco: sparkles + stars drift like stardust
+const DECO_IMGS=[
+  'assets/space/icons/fourstar-gold.png','assets/space/icons/sparkle-blue.png','assets/space/icons/starthin.png','assets/space/icons/glint-blue.png',
+  'assets/space/icons/fourstar-purple.png','assets/space/icons/sparkle-gold.png','assets/space/icons/puffstar-blue.png','assets/space/icons/sparkle-purple.png',
+  'assets/space/icons/glint-gold.png','assets/space/icons/fourstar-blue.png','assets/space/icons/shoot-blue.png','assets/space/icons/sparkle-blue.png',
+  'assets/space/icons/starthin.png','assets/space/icons/fourstar-gold.png','assets/space/icons/glint-purple.png','assets/space/icons/sparkle-gold.png',
+  'assets/space/icons/puffstar-purple.png','assets/space/icons/fourstar-blue.png','assets/space/icons/sparkle-purple.png','assets/space/icons/glint-blue.png'
+];
+
+const ICON_EARTH='assets/space/icons/earth.png';
+const ICON_ROCKET='assets/space/icons/rocket.png';
+const ICON_SATURN='assets/space/icons/saturn.png';
+const ICON_GALAXY='assets/space/icons/swirl-gold.png';
+const ICON_CUSTOM='assets/space/icons/question-orb.png';
+
+const BLOCKS_PRESETS=[
+  {id:'b10',  icon:ICON_EARTH, tag:'1 – 10',   min:1,  max:10,  desc:'Counting mode'},
+  {id:'b100', icon:ICON_ROCKET,tag:'11 – 100', min:11, max:100, desc:'Tens & ones'},
+  {id:'b1000',icon:ICON_SATURN,tag:'101 – 1000',min:101,max:1000,desc:'Hundreds'},
+  {id:'bfull',icon:ICON_GALAXY,tag:'Full',      min:1,  max:1000,desc:'1 – 1000'},
+  {id:'bcustom',icon:ICON_CUSTOM,tag:'Custom',  min:null,max:null,desc:'Set your own'},
+];
+const LINE_PRESETS=[
+  {id:'l10', icon:ICON_EARTH, tag:'1 – 10', min:1, max:10,desc:'First ten'},
+  {id:'l20', icon:ICON_ROCKET,tag:'11 – 20',min:11,max:20,desc:'Teen numbers'},
+  {id:'l30', icon:ICON_SATURN,tag:'21 – 30',min:21,max:30,desc:'Twenties'},
+  {id:'lfull',icon:ICON_GALAXY,tag:'Full',  min:1, max:30,desc:'1 – 30'},
+  {id:'lcustom',icon:ICON_CUSTOM,tag:'Custom',min:null,max:null,desc:'Set your own'},
+];
+const COLUMN_ADD_PRESETS=[
+  {id:'tiny',icon:ICON_EARTH,tag:'<10 + <10',desc:'Tiny add'},
+  {id:'small20',icon:ICON_ROCKET,tag:'<20 + <20',desc:'Small add'},
+  {id:'twoDigit',icon:ICON_SATURN,tag:'<100 + <100',desc:'No carry'},
+  {id:'big',icon:ICON_GALAXY,tag:'>100 + <100',desc:'Big add'},
+];
+const TIMES_MAX_OPTIONS=Array.from({length:12},(_,i)=>i+1);
+const DEFAULT_TIMES_RANGE={rowMax:12,colMax:12};
+const CARD_ASSETS={
+  b1:{src:'assets/space/icons/sun.png',kind:'planet-art',label:'What Number? smiling sun'},
+  b2:{src:'assets/space/icons/earth.png',kind:'planet-art',label:'Fill the Right Block smiling Earth'},
+  l2:{src:'assets/space/icons/comet.png',kind:'large-art',label:'Add and Subtract comet'},
+  c1:{src:'assets/space/icons/rocket-badge.png',kind:'rocket-art',label:'Column Add rocket badge'},
+  m1:{src:'assets/space/icons/saturn.png',kind:'large-art',label:'Times Tables smiling Saturn'},
+};
+const CARD_VOICE={
+  b1:'What Number? Count the blocks!',
+  b2:'Fill the Right Block!',
+  l2:'Add and Subtract!',
+  c1:'Column Add!',
+  m1:'Times Tables!',
+};
+
+
+/* ══ UTILITIES ══ */
+const getVisiblePlacesForRange = (min, max) => {
+  if (max <= 10) return {h:false,t:false,o:true,counting:true};
+  if (max <= 100) return {h:false,t:true,o:true,counting:false};
+  return {h:true,t:true,o:true,counting:false};
+};
+const getVisiblePlaces = preset => getVisiblePlacesForRange(preset.min ?? 1, preset.max ?? 1000);
+const isCounting = preset => getVisiblePlaces(preset).counting;
+const decompose = (n, counting) => {
+  if (counting) return {h:0,t:0,o:n};
+  if (n === 1000) return {h:10,t:0,o:0};
+  return {h:Math.floor(n/100),t:Math.floor((n%100)/10),o:n%10};
+};
+const calcTotal = (p, counting) => counting ? p.o : p.h*100+p.t*10+p.o;
+
+/* ══ SHARED COMPONENTS ══ */
+function BgDeco(){
+  const items=useMemo(()=>DECO_IMGS.map((src,i)=>({src,id:i,left:rand(2,95),top:rand(2,92),dur:(rand(14,34)/10),delay:(rand(0,30)/10),size:rand(16,34),opacity:(rand(28,58)/100).toFixed(2)})),[]);
+  return(
+    <div className="bg-deco">
+      {items.map(it=>(
+        <img key={it.id} src={it.src} alt="" aria-hidden="true"
+          style={{
+            left:`${it.left}%`,top:`${it.top}%`,
+            width:it.size,height:it.size,
+            '--deco-opacity':it.opacity,
+            animation:`twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`
+          }}/>
+      ))}
+    </div>
+  );
+}
+
+/* ══ SVG ICON BUTTONS (crisp, no emoji) ══ */
+function SpeakerOnIcon(){return(<svg className="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>);}
+function SpeakerOffIcon(){return(<svg className="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><line x1="16" y1="9" x2="22" y2="15"/><line x1="22" y1="9" x2="16" y2="15"/></svg>);}
+function GearIcon(){return(<svg className="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>);}
+function BackIcon(){return(<svg className="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>);}
+function NextIcon(){return(<svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>);}
+function RefreshIcon(){return(<svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>);}
+function BackspaceIcon(){return(<svg className="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><line x1="12" y1="9" x2="17" y2="14"/><line x1="17" y1="9" x2="12" y2="14"/></svg>);}
+
+/* ══ CARD PICTOGRAMS ══
+   Pre-readers can't read words yet, but they DO know digits and + − × = ?.
+   Each card shows a tiny picture of the game itself. */
+function CardPict({id}){
+  if(id==='b1')return(
+    <div className="mode-card-pict" aria-hidden="true">
+      <span className="pict-ten"/><span className="pict-block"/><span className="pict-block"/>
+      <span className="pict-num">= ?</span>
+    </div>);
+  if(id==='b2')return(
+    <div className="mode-card-pict" aria-hidden="true">
+      <span className="pict-num">7 =</span>
+      <span className="pict-ten"/><span className="pict-block"/><span className="pict-block"/>
+    </div>);
+  if(id==='c1')return(
+    <div className="mode-card-pict pict-col" aria-hidden="true">
+      <span className="pict-num">2</span>
+      <span className="pict-num">+ 3</span>
+      <span className="pict-line"/>
+      <span className="pict-num">?</span>
+    </div>);
+  if(id==='l2')return(
+    <div className="mode-card-pict" aria-hidden="true">
+      <span className="pict-num">3 + 2</span>
+      <img src="assets/space/icons/rocket.png" alt="" style={{width:20,height:20,objectFit:'contain',transform:'rotate(42deg)'}}/>
+      <span className="pict-num">?</span>
+    </div>);
+  if(id==='m1')return(
+    <div className="mode-card-pict" aria-hidden="true">
+      <span className="pict-num">2 × 3</span>
+    </div>);
+  return null;
+}
+function Confetti({active}){
+  const p=useMemo(()=>Array.from({length:90},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,900),dur:rand(1200,2400),color:CONFETTI_C[i%CONFETTI_C.length],size:rand(7,15),shape:i%4===0?'50%':i%4===1?'2px':'0',isF:i%6===0})),[]);
+  if(!active)return null;
+  return<div className="confetti-container">{p.map(x=><div key={x.id} className="confetti-piece" style={{left:`${x.left}%`,width:x.isF?'auto':x.size,height:x.isF?'auto':x.size,borderRadius:x.isF?undefined:x.shape,background:x.isF?'none':x.color,animationDuration:`${x.dur}ms`,animationDelay:`${x.delay}ms`}}>{x.isF?<img src={CONFETTI_IMGS[x.id%CONFETTI_IMGS.length]} alt="" style={{width:x.size+8,height:x.size+8,objectFit:'contain',display:'block'}}/>:null}</div>)}</div>;
+}
+
+/* Character with image fallback */
+function CharImg({src,fallback='' }){
+  const [failed,setFailed]=useState(false);
+  return failed?<span className="char-missing" aria-hidden="true"></span>:<img src={src} alt={fallback} style={{}} onError={()=>setFailed(true)}/>;
+}
+
+function Stars({count}){
+  return <div className="mode-card-stars">{Array.from({length:count},(_,i)=><img key={i} src="assets/space/icons/fourstar-gold.png" alt="" aria-hidden="true"/>)}</div>;
+}
+
+function CardArt({id}){
+  const asset=CARD_ASSETS[id];
+  return <img className={`mode-card-art ${asset.kind}`} src={asset.src} alt={asset.label}/>;
+}
+
+/* ══ MASCOT ══ */
+const MASCOTS={
+  rocket:{idle:'assets/space/icons/rocket.png',happy:'assets/space/icons/rocket.png',oops:'assets/space/icons/comet.png'},
+  star:{idle:'assets/space/icons/star.png',happy:'assets/space/icons/star.png',oops:'assets/space/icons/comet.png'},
+};
+function useMascot(){
+  const [mood,setMood]=useState('idle');
+  const [stamp,setStamp]=useState(0);
+  const tRef=useRef(null);
+  const trigger=useCallback((m,revertMs)=>{
+    clearTimeout(tRef.current);
+    setMood(m); setStamp(x=>x+1);
+    if(revertMs) tRef.current=setTimeout(()=>setMood('idle'),revertMs);
+  },[]);
+  const happy=useCallback(()=>trigger('happy',2600),[trigger]);
+  const oops=useCallback(()=>trigger('oops',1100),[trigger]);
+  return {mood,stamp,happy,oops};
+}
+function Mascot({kind='rocket',mood,stamp}){
+  const set=MASCOTS[kind]||MASCOTS.rocket;
+  const src=mood==='happy'?set.happy:mood==='oops'?set.oops:set.idle;
+  return(
+    <div key={stamp} className={`mascot-corner ${mood!=='idle'?mood:''}`} aria-hidden="true">
+      <img className="mascot-img" src={src} alt=""/>
+    </div>
+  );
+}
+
+/* ══ JOURNEY TRACK ══
+   Shows the current leg: where we left, stars earned so far, the rocket,
+   and the destination we are flying to. */
+function JourneyTrack({progress}){
+  const legIdx=Math.min(Math.floor(progress/LEG_LEN),JOURNEY_LEGS-1);
+  const inLeg=Math.min(progress-legIdx*LEG_LEN,LEG_LEN);
+  const from=JOURNEY_STOPS[legIdx],to=JOURNEY_STOPS[legIdx+1];
+  const cells=[];
+  for(let i=0;i<LEG_LEN;i++){
+    if(i<inLeg)cells.push(<img key={`s${i}`} className="journey-star" src="assets/space/icons/fourstar-gold.png" alt=""/>);
+    else cells.push(<span key={`d${i}`} className="journey-dot"/>);
+  }
+  cells.splice(inLeg,0,<img key={`r${inLeg}`} className="journey-rocket" src="assets/space/icons/rocket.png" alt=""/>);
+  return(
+    <div className="journey-track" aria-label={`Flying from ${from.title} to ${to.title}, ${inLeg} of ${LEG_LEN} stars`}>
+      <img className="journey-node" src={from.icon} alt={from.title}/>
+      <div className="journey-dots">{cells}</div>
+      <img className="journey-node to" src={to.icon} alt={to.title}/>
+    </div>
+  );
+}
+
+/* ══ SCORE ROW ══ */
+function ScoreRow({score,journey,trophies=0}){
+  return(
+    <div className="score-row">
+      <div style={{display:'flex',alignItems:'center',gap:6}}>
+        <img src="assets/space/icons/star.png" alt="score" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <div className="score-badge"><span>{score}</span></div>
+      </div>
+      <JourneyTrack progress={journey}/>
+      <div className="score-badge" aria-label={`${trophies} journeys completed`}>
+        <img src="assets/space/icons/trophy.png" alt="trophies"/><span>{trophies}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ══ PLANET ARRIVAL (Usborne moment) ══ */
+function ArrivalOverlay({stopIdx,complete,onClose}){
+  const stop=JOURNEY_STOPS[stopIdx];
+  return(
+    <div className="arrival-overlay">
+      <Confetti active={true}/>
+      <div className="arrival-box" onClick={e=>e.stopPropagation()}>
+        <img className="arrival-photo" src={stop.bg} alt=""/>
+        <img className="arrival-planet" src={stop.icon} alt={stop.title}/>
+        <div className="arrival-title">{complete?'Journey Complete!':`You reached ${stop.title}!`}</div>
+        {complete&&<img className="arrival-trophy" src="assets/space/icons/trophy.png" alt="trophy earned"/>}
+        <div className="arrival-fact-row">
+          <button className="arrival-replay" aria-label="Hear it again" onClick={()=>{Sound.tap();Voice.say(stop.fact);}}><SpeakerOnIcon/></button>
+          <div className="arrival-fact">{stop.fact}</div>
+        </div>
+        <button className="arrival-btn" onClick={onClose}>
+          <img src="assets/space/icons/rocket.png" alt=""/>{complete?'New Journey!':'Keep Flying!'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ══ SETTINGS MODAL: BLOCKS ══ */
+function BlocksSettings({current, onChange, onClose}){
+  const [showCustom,setShowCustom]=useState(current.id==='bcustom');
+  const [cMin,setCMin]=useState(current.id==='bcustom'?current.min??1:1);
+  const [cMax,setCMax]=useState(current.id==='bcustom'?current.max??100:100);
+  const [err,setErr]=useState('');
+  const apply=()=>{
+    const mn=parseInt(cMin),mx=parseInt(cMax);
+    if(isNaN(mn)||isNaN(mx)||mn<1||mx>1000||mx<=mn){setErr('Min ≥ 1, Max ≤ 1000, Max > Min');return;}
+    onChange({id:'bcustom',icon:ICON_CUSTOM,tag:`${mn}–${mx}`,min:mn,max:mx,desc:'Custom range'});
+    onClose();
+  };
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">Number Range</div>
+        {BLOCKS_PRESETS.filter(p=>p.id!=='bcustom').map(p=>(
+          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);onClose();}}>
+            <img className="preset-tag-img" src={p.icon} alt=""/>
+            <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
+            {current.id===p.id&&<span>✓</span>}
+          </button>
+        ))}
+        <button className={`preset-btn ${current.id==='bcustom'?'active':'inactive'}`} onClick={()=>{Sound.tap();setShowCustom(true);}}>
+          <img className="preset-tag-img" src={ICON_CUSTOM} alt=""/>
+          <div className="preset-info"><div className="preset-name">Custom</div><div className="preset-range">Set your own range</div></div>
+          {current.id==='bcustom'&&<span>✓</span>}
+        </button>
+        {showCustom&&(
+          <div className="custom-range-box">
+            {err&&<div className="custom-error">{err}</div>}
+            <div className="custom-range-row">
+              <label>From: <input className="custom-input" type="number" value={cMin} onChange={e=>setCMin(e.target.value)} min="1" max="999"/></label>
+              <label>To: <input className="custom-input" type="number" value={cMax} onChange={e=>setCMax(e.target.value)} min="2" max="1000"/></label>
+              <button className="custom-apply" onClick={apply}>Set ✓</button>
+            </div>
+          </div>
+        )}
+        <button className="modal-close" onClick={onClose}>Done</button>
+      </div>
+    </div>
+  );
+}
+
+/* ══ SETTINGS MODAL: NUMBER LINE + ADD/SUB ══ */
+function LineSettings({current, onChange, customOp, onCustomOp, isAddSub, lineMax, onClose}){
+  const [showLineCustom,setShowLineCustom]=useState(current.id==='lcustom');
+  const [lcMin,setLcMin]=useState(current.id==='lcustom'?current.min??1:1);
+  const [lcMax,setLcMax]=useState(current.id==='lcustom'?current.max??20:20);
+  const [lcErr,setLcErr]=useState('');
+  const [opMode,setOpMode]=useState(customOp?'custom':'random');
+  const [cop,setCop]=useState(customOp?.op||'+');
+  const [bMin,setBMin]=useState(customOp?.baseMin??1);
+  const [bMax,setBMax]=useState(customOp?.baseMax??10);
+  const [aMin,setAMin]=useState(customOp?.amtMin??1);
+  const [aMax,setAMax]=useState(customOp?.amtMax??5);
+  const [opErr,setOpErr]=useState('');
+
+  const applyLine=()=>{
+    const mn=parseInt(lcMin),mx=parseInt(lcMax);
+    if(isNaN(mn)||isNaN(mx)||mn<1||mx>30||mx<=mn){setLcErr('Min ≥ 1, Max ≤ 30, Max > Min');return;}
+    onChange({id:'lcustom',icon:ICON_CUSTOM,tag:`${mn}–${mx}`,min:mn,max:mx,desc:'Custom'});
+    setLcErr('');
+    if(!isAddSub)onClose();
+  };
+  const applyOp=()=>{
+    const activeLine=current.id==='lcustom'?{min:parseInt(lcMin),max:parseInt(lcMax)}:{min:current.min,max:current.max};
+    const mn=activeLine.min,mx=activeLine.max;
+    const bm=parseInt(bMin),bx=parseInt(bMax),am=parseInt(aMin),ax=parseInt(aMax);
+    if([mn,mx,bm,bx,am,ax].some(Number.isNaN)||bm>bx||am>ax){setOpErr('Check the from-to ranges.');return;}
+    const valid=[];
+    for(let s=bm;s<=bx;s++){
+      for(let a=am;a<=ax;a++){
+        if(cop==='+'&&s+a<=mx&&s+a>=mn)valid.push(1);
+        if(cop==='-'&&s-a>=mn&&s-a<=mx)valid.push(1);
+      }
+    }
+    if(valid.length===0){setOpErr('No valid problems in this range. Try smaller numbers.');return;}
+    onCustomOp(opMode==='custom'?{op:cop,baseMin:bm,baseMax:bx,amtMin:am,amtMax:ax}:null);
+    onClose();
+  };
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">Settings</div>
+        <div className="section-label">Number Range</div>
+        {LINE_PRESETS.filter(p=>p.id!=='lcustom').map(p=>(
+          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);}}>
+            <img className="preset-tag-img" src={p.icon} alt=""/>
+            <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
+            {current.id===p.id&&<span>✓</span>}
+          </button>
+        ))}
+        <button className={`preset-btn ${current.id==='lcustom'?'active':'inactive'}`} onClick={()=>{Sound.tap();setShowLineCustom(true);}}>
+          <img className="preset-tag-img" src={ICON_CUSTOM} alt=""/>
+          <div className="preset-info"><div className="preset-name">Custom</div><div className="preset-range">Set your own</div></div>
+          {current.id==='lcustom'&&<span>✓</span>}
+        </button>
+        {showLineCustom&&(
+          <div className="custom-range-box">
+            {lcErr&&<div className="custom-error">{lcErr}</div>}
+            <div className="custom-range-row">
+              <label>From: <input className="custom-input" type="number" value={lcMin} onChange={e=>setLcMin(e.target.value)} min="1" max="29"/></label>
+              <label>To: <input className="custom-input" type="number" value={lcMax} onChange={e=>setLcMax(e.target.value)} min="2" max="30"/></label>
+              <button className="custom-apply" onClick={applyLine}>Set ✓</button>
+            </div>
+          </div>
+        )}
+        {isAddSub&&<>
+          <div className="section-label" style={{marginTop:12}}>Problem Type</div>
+          <div className="mode-toggle-row">
+            <button className={`op-toggle ${opMode==='random'?'active':''}`} onClick={()=>setOpMode('random')}>Random</button>
+            <button className={`op-toggle ${opMode==='custom'?'active':''}`} onClick={()=>setOpMode('custom')}>Custom Range</button>
+          </div>
+          {opMode==='custom'&&(
+            <div className="custom-range-box">
+              {opErr&&<div className="custom-error">{opErr}</div>}
+              <div className="op-toggle-row">
+                <button className={`op-toggle ${cop==='+'?'active':''}`} onClick={()=>setCop('+')}>+ Add</button>
+                <button className={`op-toggle ${cop==='-'?'active':''}`} onClick={()=>setCop('-')}>− Subtract</button>
+              </div>
+              <div className="section-label">Start number: from – to</div>
+              <div className="custom-range-row" style={{marginBottom:8}}>
+                <input className="custom-input" type="number" value={bMin} onChange={e=>setBMin(e.target.value)}/><span style={{color:'#6d3ff0',fontWeight:900}}>–</span>
+                <input className="custom-input" type="number" value={bMax} onChange={e=>setBMax(e.target.value)}/>
+              </div>
+              <div className="section-label">{cop==='+'?'Add':'Subtract'} amount: from – to</div>
+              <div className="custom-range-row">
+                <input className="custom-input" type="number" value={aMin} onChange={e=>setAMin(e.target.value)}/><span style={{color:'#6d3ff0',fontWeight:900}}>–</span>
+                <input className="custom-input" type="number" value={aMax} onChange={e=>setAMax(e.target.value)}/>
+              </div>
+            </div>
+          )}
+          <button className="modal-close" style={{marginTop:10}} onClick={applyOp}>Apply</button>
+        </>}
+        {!isAddSub&&<button className="modal-close" onClick={onClose}>Done</button>}
+      </div>
+    </div>
+  );
+}
+
+function TopBar({onBack,onSettings,muted,onToggleMute,label}){
+  const holdT=useRef(null);
+  const firedRef=useRef(false);
+  const hintT=useRef(null);
+  const [hint,setHint]=useState(false);
+  const startHold=()=>{
+    if(!onSettings)return;
+    firedRef.current=false;
+    clearTimeout(holdT.current);
+    holdT.current=setTimeout(()=>{firedRef.current=true;Sound.tap();onSettings();},1200);
+  };
+  const endHold=()=>{
+    clearTimeout(holdT.current);
+    if(!firedRef.current){
+      setHint(true);
+      clearTimeout(hintT.current);
+      hintT.current=setTimeout(()=>setHint(false),1800);
+    }
+  };
+  const cancelHold=()=>clearTimeout(holdT.current);
+  return(
+    <div className="top-bar">
+      <div style={{display:'flex',alignItems:'center',gap:5}}>
+        <img src="assets/space/icons/saturn.png" alt="" aria-hidden="true" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <button className="back-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}><BackIcon/></button>
+      </div>
+      {label&&<div style={{fontSize:'.78rem',fontWeight:900,color:'#6d3ff0',background:'rgba(255,255,255,.65)',borderRadius:50,padding:'4px 10px'}}>{label}</div>}
+      <div style={{display:'flex',gap:6}}>
+        <button className="sound-btn" aria-label={muted?'Sound off':'Sound on'} onClick={()=>{onToggleMute();Sound.tap();}}>{muted?<SpeakerOffIcon/>:<SpeakerOnIcon/>}</button>
+        {onSettings&&<button className="settings-btn" aria-label="Settings (hold to open)"
+          onPointerDown={startHold} onPointerUp={endHold} onPointerLeave={cancelHold}
+          onContextMenu={e=>e.preventDefault()}><GearIcon/></button>}
+      </div>
+      {hint&&<div className="hold-hint">Grown-ups: press &amp; hold the gear</div>}
+    </div>
+  );
+}
+
+function SimpleNumberCard({value, target, label='Number'}){
+  return(
+    <div className="simple-number-card" aria-label={`${label}: ${value}${target!==undefined?` of ${target}`:''}`}>
+      <div>
+        <div className="simple-number-sub">{label}</div>
+        <div className="simple-number-main">{value}</div>
+      </div>
+      {target!==undefined&&<>
+        <div className="simple-number-divider">/</div>
+        <div>
+          <div className="simple-number-sub">Goal</div>
+          <div className="simple-number-main">{target}</div>
+        </div>
+      </>}
+    </div>
+  );
+}
+
+/* ══ MODE b1: WHAT NUMBER? ══ */
+function BlocksGuided({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
+  const makeProblem = useCallback((p=BLOCKS_PRESETS[1])=>{
+    const max=Math.min(999,p.max);
+    const min=Math.min(Math.max(1,p.min),max);
+    const n=rand(min,max);
+    return decompose(n,isCounting(p));
+  },[]);
+  const [showSettings,setShowSettings]=useState(false);
+  const [problem,setProblem]=useState(()=>makeProblem(BLOCKS_PRESETS[1]));
+  const [selectedH,setSelectedH]=useState(()=>Array(problem.h).fill(false));
+  const [selectedT,setSelectedT]=useState(()=>Array(problem.t).fill(false));
+  const [selectedO,setSelectedO]=useState(()=>Array(problem.o).fill(false));
+  const mascot=useMascot();
+  const [confirmNew,setConfirmNew]=useState(false);
+  const confirmT=useRef(null);
+  const [won,setWon]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const hCount=selectedH.filter(Boolean).length;
+  const tCount=selectedT.filter(Boolean).length;
+  const oCount=selectedO.filter(Boolean).length;
+  const currentNumber=visiblePlaces.counting ? oCount : hCount*100+tCount*10+oCount;
+  const correctNumber=calcTotal(problem,visiblePlaces.counting);
+  const resetForProblem = useCallback((p)=>{
+    setProblem(p); setSelectedH(Array(p.h).fill(false)); setSelectedT(Array(p.t).fill(false)); setSelectedO(Array(p.o).fill(false)); setWon(false);
+  },[]);
+  const nextProblem = useCallback(()=>{
+    resetForProblem(makeProblem(preset));
+  },[resetForProblem,makeProblem,preset]);
+  const applyPreset = p => { setPreset(p); resetForProblem(makeProblem(p)); setShowSettings(false); };
+  const toggle = useCallback((type,i)=>{
+    Sound.tap();
+    if(won) return;
+    const setter = type==='h'?setSelectedH:type==='t'?setSelectedT:setSelectedO;
+    setter(prev=>prev.map((v,idx)=>idx===i?!v:v));
+  },[won]);
+
+  useEffect(()=>{Voice.say('What number? Count the blocks!');},[problem]);
+
+  useEffect(()=>{
+    if(won) return;
+    if(hCount===problem.h&&tCount===problem.t&&oCount===problem.o){
+      setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      mascot.happy();
+      const arrived=addProgress();
+      Voice.say(arrived?`You found it! ${correctNumber}!`:`You found it! ${correctNumber}! ${praise()}`);
+      setScore(s=>s+1);
+      setTimeout(()=>setConf(false),2600);
+    }
+  },[hCount,tCount,oCount,problem,won,muted,setScore,addProgress]);
+
+  const handleBottomTap=()=>{
+    Sound.tap();
+    if(won){setConfirmNew(false);nextProblem();return;}
+    if(confirmNew){clearTimeout(confirmT.current);setConfirmNew(false);nextProblem();}
+    else{setConfirmNew(true);Voice.say('Tap again for a new one!');clearTimeout(confirmT.current);confirmT.current=setTimeout(()=>setConfirmNew(false),2200);}
+  };
+
+  const renderCountSection = (type,label,count,selected) => {
+    if(count<=0) return null;
+    return(
+      <div className="count-section">
+        <div className={`count-label ${type}`}>{label}</div>
+        <div className="count-row">
+          {selected.map((isOn,i)=>(
+            <div key={i} className={`count-block ${isOn?'on':'off'}`} onClick={()=>toggle(type,i)}>
+              {type==='h'&&<div className="pb-hundred">{Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}</div>}
+              {type==='t'&&<div className="pb-ten">{Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}</div>}
+              {type==='o'&&<div className="pb-one"/>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return(
+    <div className="screen blocks-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<BlocksSettings current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={preset.tag}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      <Mascot kind="rocket" mood={mascot.mood} stamp={mascot.stamp}/>
+      <div className="count-title"><div className="count-title-main">What Number?</div><div className="count-title-sub">Tap the blocks!</div></div>
+      <SimpleNumberCard value={currentNumber} label="Number"/>
+      {!won&&<div className="tap-hint">Tap each block as you count it</div>}
+      {!won&&(
+        <div className="count-layout">
+          {visiblePlaces.h&&renderCountSection('h','Hundreds',problem.h,selectedH)}
+          {visiblePlaces.t&&renderCountSection('t','Tens',problem.t,selectedT)}
+          {renderCountSection('o','Ones',problem.o,selectedO)}
+        </div>
+      )}
+      {won&&<div className="celebrate-text">You found it! {correctNumber}!</div>}
+      <div className="direct-nav-gap"/>
+      <button className={`${won?'next-btn':'new-num-btn'} ${confirmNew?'btn-confirm':''}`} onClick={handleBottomTap} aria-label={won?'Next number':'New number'}>{won?<NextIcon/>:<RefreshIcon/>}</button>
+    </div>
+  );
+}
+
+/* ══ MODE b2: FILL THE RIGHT BLOCK ══ */
+function BlocksFill({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
+  const [showSettings,setShowSettings]=useState(false);
+  const makeFillTarget = useCallback((p)=>{
+    const max=Math.min(999,p.max);
+    const min=Math.min(Math.max(1,p.min),max);
+    return rand(min,max);
+  },[]);
+  const [target,setTarget]=useState(()=>makeFillTarget(BLOCKS_PRESETS[1]));
+  const [won,setWon]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const [selectedHundreds,setSelectedHundreds]=useState(()=>Array(10).fill(false));
+  const [selectedTens,setSelectedTens]=useState(()=>Array(10).fill(false));
+  const [selectedOnes,setSelectedOnes]=useState(()=>Array(10).fill(false));
+  const mascot=useMascot();
+  const [confirmNew,setConfirmNew]=useState(false);
+  const confirmT=useRef(null);
+  const targetParts = useMemo(()=>decompose(target,visiblePlaces.counting),[target,visiblePlaces.counting]);
+  const hundredsCount = selectedHundreds.filter(Boolean).length;
+  const tensCount = selectedTens.filter(Boolean).length;
+  const onesCount = selectedOnes.filter(Boolean).length;
+  const built = visiblePlaces.counting ? onesCount : hundredsCount*100 + tensCount*10 + onesCount;
+  const showH = visiblePlaces.h;
+  const showT = visiblePlaces.t;
+
+  const resetSelection = useCallback(()=>{
+    setSelectedHundreds(Array(10).fill(false));
+    setSelectedTens(Array(10).fill(false));
+    setSelectedOnes(Array(10).fill(false));
+  },[]);
+
+  const startNextRound = useCallback(() => {
+    setTarget(makeFillTarget(preset)); setWon(false); resetSelection();
+  },[preset,resetSelection,makeFillTarget]);
+
+  const newNum = () => {
+    setTarget(makeFillTarget(preset)); setWon(false); resetSelection();
+  };
+  const applyPreset=p=>{setPreset(p);setTarget(makeFillTarget(p));setWon(false);resetSelection();};
+  const toggleHundred = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedHundreds(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
+  const toggleTen = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedTens(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
+  const toggleOne = useCallback((i)=>{
+    Sound.tap();
+    if(won) return;
+    setSelectedOnes(prev=>{
+      const nextOn = !prev[i];
+      return prev.map((_,idx)=>nextOn ? idx<=i : idx<i);
+    });
+  },[won]);
+
+  useEffect(()=>{Voice.say(`Can you build ${target}?`);},[target]);
+
+  const overRef=useRef(false);
+  useEffect(()=>{
+    const over=!won&&built>target;
+    if(over){
+      mascot.oops();
+      if(!overRef.current)Voice.say('Too many! Take one away.');
+    }
+    overRef.current=over;
+  },[built,target,won]);
+
+  useEffect(()=>{
+    if(won || built !== target) return;
+    setWon(true); setConf(true); Sound.setMuted(muted); Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+    mascot.happy();
+    const arrived=addProgress();
+    Voice.say(arrived?`You built ${target}!`:`You built ${target}! ${praise()}`);
+    setScore(s=>s+1);
+    setTimeout(()=>setConf(false),2600);
+  },[built,target,won,muted,setScore,addProgress]);
+
+  const handleBottomTap=()=>{
+    Sound.tap();
+    if(won){setConfirmNew(false);startNextRound();return;}
+    if(confirmNew){clearTimeout(confirmT.current);setConfirmNew(false);newNum();}
+    else{setConfirmNew(true);Voice.say('Tap again for a new one!');clearTimeout(confirmT.current);confirmT.current=setTimeout(()=>setConfirmNew(false),2200);}
+  };
+
+  return(
+    <div className="screen choose-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<BlocksSettings current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={preset.tag}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      <Mascot kind="star" mood={mascot.mood} stamp={mascot.stamp}/>
+      <SimpleNumberCard value={built} target={target} label="Built"/>
+      {built>target&&!won&&<div className="direct-too-many">Too many! Tap one to remove.</div>}
+      {!won&&<div className="tap-hint">Tap blocks to build the number</div>}
+      {!won&&(
+        <div className="direct-layout">
+          {showH&&<div className="direct-section">
+            <div className="direct-label" style={{color:'#5a2ed6'}}>Hundreds — tap to pick!</div>
+            <div className="direct-row">
+              {selectedHundreds.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleHundred(i)}>
+                  <div className="pb-hundred">{Array.from({length:100},(_,j)=><div key={j} className="ic"/>)}</div>
+                </div>
+              ))}
+            </div>
+          </div>}
+          {showT&&<div className="direct-section">
+            <div className="direct-label tens">Tens — tap to pick!</div>
+            <div className="direct-row">
+              {selectedTens.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleTen(i)}>
+                  <div className="pb-ten">{Array.from({length:10},(_,j)=><div key={j} className="ic"/>)}</div>
+                </div>
+              ))}
+            </div>
+          </div>}
+          <div className="direct-section">
+            <div className="direct-label ones">Ones — tap to pick!</div>
+            <div className="direct-row">
+              {selectedOnes.map((isOn,i)=>(
+                <div key={i} className={`direct-block ${isOn?'on':'off'}`} onClick={()=>toggleOne(i)}>
+                  <div className="pb-one"/>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {won&&<div className="celebrate-text">You built it!</div>}
+      <div className="direct-nav-gap"/>
+      <button className={`${won?'next-btn':'new-num-btn'} ${confirmNew?'btn-confirm':''}`} onClick={handleBottomTap} aria-label={won?'Next number':'New number'}>{won?<NextIcon/>:<RefreshIcon/>}</button>
+    </div>
+  );
+}
+
+/* ══ MODE l2: ADD & SUBTRACT ══ */
+function makeProbFromPreset(preset, customOp){
+  const{min,max}=preset;
+  if(customOp){
+    const{op,baseMin,baseMax,amtMin,amtMax}=customOp;
+    const valid=[];
+    for(let s=baseMin;s<=baseMax;s++){
+      for(let a=amtMin;a<=amtMax;a++){
+        if(op==='+'&&s+a<=max&&s+a>=min)valid.push({start:s,op:'+',amount:a,answer:s+a});
+        if(op==='-'&&s-a>=min&&s-a<=max)valid.push({start:s,op:'-',amount:a,answer:s-a});
+      }
+    }
+    if(valid.length>0)return valid[rand(0,valid.length-1)];
+    return makeProbFromPreset(preset,null); // fallback
+  }
+  const range=max-min,maxHop=Math.min(5,Math.max(1,Math.floor(range/3)));
+  const op=Math.random()<.5?'+':'-';
+  if(op==='+'){const s=rand(min,max-1),a=rand(1,Math.min(maxHop,max-s));return{start:s,op:'+',amount:a,answer:s+a};}
+  else{const s=rand(min+1,max),a=rand(1,Math.min(maxHop,s-min));return{start:s,op:'-',amount:a,answer:s-a};}
+}
+
+function NumberLineAddSub({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [preset,setPreset]=useState(LINE_PRESETS[0]);
+  const [customOp,setCustomOp]=useState(null);
+  const [showSettings,setShowSettings]=useState(false);
+  const [prob,setProb]=useState(()=>makeProbFromPreset(LINE_PRESETS[0],null));
+  const [celebrating,setCel]=useState(false);
+  const [wrongId,setWrong]=useState(null);
+  const [misses,setMisses]=useState(0);
+  const scrollRef=useRef(null);
+  const [confetti,setConf]=useState(false);
+
+  const next=useCallback(()=>{
+    setProb(makeProbFromPreset(preset,customOp));setCel(false);setWrong(null);
+  },[preset,customOp]);
+
+  const applyPreset=p=>{setPreset(p);setProb(makeProbFromPreset(p,customOp));setCel(false);setWrong(null);};
+  const applyCustomOp=op=>{setCustomOp(op);setProb(makeProbFromPreset(preset,op));setCel(false);setWrong(null);};
+
+  useEffect(()=>{setMisses(0);},[prob]);
+  useEffect(()=>{Voice.say(`${prob.start} ${prob.op==='+'?'plus':'minus'} ${prob.amount}. Hop to the answer!`);},[prob]);
+
+  const tap=useCallback((n)=>{
+    Sound.setMuted(muted);if(celebrating)return;
+    if(n===prob.answer){setCel(true);setConf(true);Sound.ding();setTimeout(()=>Sound.celebrate(),200);const arrived=addProgress();Voice.say(arrived?`${prob.start} ${prob.op==='+'?'plus':'minus'} ${prob.amount} is ${prob.answer}!`:`${prob.start} ${prob.op==='+'?'plus':'minus'} ${prob.amount} is ${prob.answer}! ${praise()}`);setScore(s=>s+1);setTimeout(()=>setConf(false),2500);}
+    else{setWrong(n);setMisses(m=>m+1);Sound.wrong();setTimeout(()=>setWrong(null),400);}
+  },[prob,celebrating,muted,addProgress,setScore]);
+
+  const{min,max}=preset;const count=max-min+1;
+  const nlColor=n=>{const[bg,sh]=NL_COLORS[(n-min)%NL_COLORS.length];return{background:bg,boxShadow:`0 4px 0 ${sh}`};};
+  const pathSet=new Set();
+  if(prob.op==='+'){for(let i=prob.start+1;i<=prob.answer;i++)pathSet.add(i);}
+  else{for(let i=prob.answer;i<prob.start;i++)pathSet.add(i);}
+  const ordPath=prob.op==='+'?Array.from({length:prob.amount},(_,i)=>prob.start+1+i):Array.from({length:prob.amount},(_,i)=>prob.start-1-i);
+  const charPos=celebrating?prob.answer:prob.start;
+  const topLabel=customOp?'Custom':preset.tag;
+
+  useEffect(()=>{
+    const el=scrollRef.current; if(!el) return;
+    const idx=(celebrating?prob.answer:prob.start)-min;
+    const target=16+idx*50+27-el.clientWidth/2;
+    el.scrollTo({left:Math.max(0,target),behavior:'smooth'});
+  },[prob,celebrating,min]);
+
+  return(
+    <div className="screen addsub-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<LineSettings current={preset} onChange={applyPreset} customOp={customOp} onCustomOp={applyCustomOp} isAddSub={true} lineMax={max} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={topLabel}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      {celebrating?<div className="celebrate-text">{prob.start} {prob.op} {prob.amount} = {prob.answer}!</div>
+        :<div className="prompt-bubble"><span className="start-num">{prob.start}</span>{' '}{prob.op==='+'?<span className="op-add">+ {prob.amount} →</span>:<span className="op-sub">− {prob.amount} ←</span>}{' '}<span className="eq-mark">=</span>{' '}<span className="target-num">?</span></div>}
+      <div className="number-line-wrapper" ref={scrollRef}>
+        <div className="line-stack">
+          <div className="char-row">
+            <div className={`char-inner ${celebrating?'happy':''} ${wrongId!=null?'oops':''}`} style={{left:16+(charPos-min)*50+((!celebrating?54:50)-76)/2}}>
+              <img className="char-img" src="assets/space/icons/rocket.png" alt="rocket"/>
+            </div>
+          </div>
+          <div className="hop-arrows">
+            {Array.from({length:count},(_,i)=>{const n=min+i;const hi=ordPath.indexOf(n);const inPath=hi>=0;const isStart=n===prob.start&&!celebrating;const arrow=inPath?(prob.op==='+'?'→':'←'):null;
+              return(<div key={i} className={`hop-cell ${isStart?'start-cell':''}`}>
+                {isStart?<span className="start-flag">START</span>:inPath?<span className={prob.op==='+'?'hop-num-badge hop-num-add':'hop-num-badge hop-num-sub'}>{hi+1}</span>:<span style={{height:18,display:'block'}}/>}
+                {inPath?<span className={prob.op==='+'?'hop-arrow-add':'hop-arrow-sub'}>{arrow}</span>:<span className="hop-dot"/>}
+              </div>);
+            })}
+          </div>
+          <div className="number-line">
+            <div className="nl-track"/>
+            {Array.from({length:count},(_,i)=>{const n=min+i;return<button key={n} className={`nl-number ${n===prob.start&&!celebrating?'start-marker':''} ${n===prob.answer&&celebrating?'correct':''} ${pathSet.has(n)&&!celebrating?'hop-path':''} ${n===wrongId?'wrong':''} ${misses>=3&&n===prob.answer&&!celebrating?'hint-glow':''}`} style={nlColor(n)} onClick={()=>tap(n)}>{n}</button>;})}
+          </div>
+        </div>
+      </div>
+      {celebrating&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}
+    </div>
+  );
+}
+
+/* ══ MODE c1: COLUMN ADD ══ */
+const ones=n=>n%10;
+const tens=n=>Math.floor((n%100)/10);
+
+function isNoCarry(a,b){
+  return ones(a)+ones(b)<=9 && tens(a)+tens(b)<=9;
+}
+
+function buildColumnAddProblems(preset){
+  const valid=[];
+  const ranges={
+    tiny:{aMin:1,aMax:9,bMin:1,bMax:9},
+    small20:{aMin:1,aMax:19,bMin:1,bMax:19},
+    twoDigit:{aMin:1,aMax:99,bMin:1,bMax:99},
+    big:{aMin:100,aMax:999,bMin:1,bMax:99},
+  };
+  const r=ranges[preset.id]||ranges.big;
+  for(let a=r.aMin;a<=r.aMax;a++){
+    for(let b=r.bMin;b<=r.bMax;b++){
+      if(preset.id==='tiny'&&a+b>9) continue;
+      if(preset.id!=='tiny'&&!isNoCarry(a,b)) continue;
+      valid.push({a,b,answer:a+b});
+    }
+  }
+  return valid;
+}
+
+function makeColumnAddProblem(preset=COLUMN_ADD_PRESETS[0]){
+  const valid=buildColumnAddProblems(preset);
+  return valid[rand(0,valid.length-1)];
+}
+
+function toColumnDigits(n,colCount){
+  const chars=String(n).split('');
+  return [...Array(Math.max(0,colCount-chars.length)).fill(''),...chars];
+}
+
+function ColumnAddSettings({current,onChange,onClose}){
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">Column Add</div>
+        {COLUMN_ADD_PRESETS.map(p=>(
+          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);}}>
+            <img className="preset-tag-img" src={p.icon} alt=""/>
+            <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
+            {current.id===p.id&&<span>✓</span>}
+          </button>
+        ))}
+        <button className="modal-close" onClick={onClose}>Done</button>
+      </div>
+    </div>
+  );
+}
+
+function ColumnAdd({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [preset,setPreset]=useState(COLUMN_ADD_PRESETS[0]);
+  const [showSettings,setShowSettings]=useState(false);
+  const [problem,setProblem]=useState(()=>makeColumnAddProblem(COLUMN_ADD_PRESETS[0]));
+  const colCount=useMemo(()=>Math.max(String(problem.a).length,String(problem.b).length,String(problem.answer).length),[problem]);
+  const [digits,setDigits]=useState(()=>Array(colCount).fill(''));
+  const [won,setWon]=useState(false);
+  const [wrong,setWrong]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const mascot=useMascot();
+  const [misses,setMisses]=useState(0);
+  const aDigits=toColumnDigits(problem.a,colCount);
+  const bDigits=toColumnDigits(problem.b,colCount);
+  const nextIndex=digits.findIndex(d=>d==='');
+
+  const resetForProblem=useCallback(p=>{
+    setProblem(p);
+    const nextCols=Math.max(String(p.a).length,String(p.b).length,String(p.answer).length);
+    setDigits(Array(nextCols).fill(''));
+    setWon(false);
+    setWrong(false);
+    setMisses(0);
+  },[]);
+
+  useEffect(()=>{Voice.say(`${problem.a} plus ${problem.b}. Tap the answer!`);},[problem]);
+
+  const next=useCallback(()=>{
+    resetForProblem(makeColumnAddProblem(preset));
+  },[preset,resetForProblem]);
+
+  const applyPreset=useCallback(p=>{
+    setPreset(p);
+    resetForProblem(makeColumnAddProblem(p));
+    setShowSettings(false);
+  },[resetForProblem]);
+
+  const clear=useCallback(()=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(Array(colCount).fill(''));
+    setWrong(false);
+  },[muted,won,colCount]);
+
+  const tapDigit=useCallback(n=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(prev=>{
+      const idx=prev.findIndex(d=>d==='');
+      if(idx<0) return prev;
+      const out=[...prev];
+      out[idx]=String(n);
+      return out;
+    });
+  },[muted,won]);
+
+  useEffect(()=>{
+    if(won || digits.some(d=>d==='')) return;
+    const guess=digits.join('');
+    Sound.setMuted(muted);
+    if(guess===String(problem.answer)){
+      setWon(true); setWrong(false); setConf(true);
+      Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      mascot.happy();
+      const arrived=addProgress();
+      Voice.say(arrived?`${problem.a} plus ${problem.b} is ${problem.answer}!`:`${problem.a} plus ${problem.b} is ${problem.answer}! ${praise()}`);
+      setScore(s=>s+1);
+      setTimeout(()=>setConf(false),2500);
+    }else{
+      setWrong(true); Sound.wrong(); mascot.oops(); setMisses(m=>m+1);
+      const ansStr=String(problem.answer);
+      setTimeout(()=>{setDigits(prev=>prev.map((d,i)=>d===ansStr[i]?d:''));setWrong(false);},650);
+    }
+  },[digits,won,muted,problem,setScore,addProgress,colCount]);
+
+  return(
+    <div className="screen column-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<ColumnAddSettings current={preset} onChange={applyPreset} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={preset.tag}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      <Mascot kind="rocket" mood={mascot.mood} stamp={mascot.stamp}/>
+      <div className="count-title"><div className="count-title-main">Column Add</div><div className="count-title-sub">Tap the answer!</div></div>
+      <div className="column-card">
+        <div className="column-grid" style={{'--col-count':colCount}}>
+          <div className="column-blank"/>
+          {aDigits.map((d,i)=><div key={`a${i}`} className="column-digit">{d}</div>)}
+          <div className="column-plus">+</div>
+          {bDigits.map((d,i)=><div key={`b${i}`} className="column-digit">{d}</div>)}
+          <div className="column-line"/>
+          <div className="column-blank"/>
+          {digits.map((d,i)=>(
+            <div key={`ans${i}`} className={`column-answer-box ${nextIndex===i&&!won?'active':''} ${wrong?'wrong':''}`}>{d || (misses>=3?<span className="ghost-hint">{String(problem.answer)[i]}</span>:'_')}</div>
+          ))}
+          <div className="column-final-line"/>
+        </div>
+      </div>
+      {won&&<div className="column-celebrate">{problem.a} + {problem.b} = {problem.answer}!</div>}
+      {!won&&(
+        <div className="keypad">
+          {[1,2,3,4,5,6,7,8,9,0].map(n=><button key={n} className="key-btn" onClick={()=>tapDigit(n)}>{n}</button>)}
+          <button className="key-btn clear" onClick={clear} aria-label="Clear"><BackspaceIcon/></button>
+        </div>
+      )}
+      {won&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}
+    </div>
+  );
+}
+
+/* ══ MODE m1: TIMES TABLES ══ */
+function timesRangeLabel(range){
+  return `${range.rowMax} × ${range.colMax}`;
+}
+
+function makeMultiplicationProblem(range=DEFAULT_TIMES_RANGE){
+  const a=rand(1,range.rowMax);
+  const b=rand(1,range.colMax);
+  return {a,b,answer:a*b};
+}
+
+function MultiplicationSettings({range,onChange,onClose}){
+  const [rowMax,setRowMax]=useState(range.rowMax);
+  const [colMax,setColMax]=useState(range.colMax);
+  const apply=()=>onChange({rowMax,colMax});
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">Times Tables</div>
+        <div className="times-range-preview">
+          <span>Up to</span>
+          <span className="times-value-box">{rowMax}</span>
+          <span>×</span>
+          <span className="times-value-box">{colMax}</span>
+        </div>
+        <div className="times-picker-label">Rows</div>
+        <div className="times-option-grid">
+          {TIMES_MAX_OPTIONS.map(n=>(
+            <button key={`r${n}`} className={`times-option-btn ${rowMax===n?'active':''}`} onClick={()=>{Sound.tap();setRowMax(n);}}>{n}</button>
+          ))}
+        </div>
+        <div className="times-picker-label">Columns</div>
+        <div className="times-option-grid">
+          {TIMES_MAX_OPTIONS.map(n=>(
+            <button key={`c${n}`} className={`times-option-btn ${colMax===n?'active':''}`} onClick={()=>{Sound.tap();setColMax(n);}}>{n}</button>
+          ))}
+        </div>
+        <button className="modal-close" onClick={apply}>Done</button>
+      </div>
+    </div>
+  );
+}
+
+function MultiplicationGame({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [range,setRange]=useState(DEFAULT_TIMES_RANGE);
+  const [showSettings,setShowSettings]=useState(false);
+  const [problem,setProblem]=useState(()=>makeMultiplicationProblem(DEFAULT_TIMES_RANGE));
+  const answerLength=String(problem.answer).length;
+  const mascot=useMascot();
+  const [misses,setMisses]=useState(0);
+  const [digits,setDigits]=useState(()=>Array(answerLength).fill(''));
+  const [won,setWon]=useState(false);
+  const [wrong,setWrong]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const nextIndex=digits.findIndex(d=>d==='');
+
+  const resetForProblem=useCallback(p=>{
+    setProblem(p);
+    setDigits(Array(String(p.answer).length).fill(''));
+    setWon(false);
+    setWrong(false);
+    setMisses(0);
+  },[]);
+
+  useEffect(()=>{Voice.say(`${problem.a} times ${problem.b}?`);},[problem]);
+
+  const next=useCallback(()=>{
+    resetForProblem(makeMultiplicationProblem(range));
+  },[range,resetForProblem]);
+
+  const applyRange=useCallback(nextRange=>{
+    setRange(nextRange);
+    resetForProblem(makeMultiplicationProblem(nextRange));
+    setShowSettings(false);
+  },[resetForProblem]);
+
+  const clear=useCallback(()=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(Array(answerLength).fill(''));
+    setWrong(false);
+  },[muted,won,answerLength]);
+
+  const tapDigit=useCallback(n=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(prev=>{
+      const idx=prev.findIndex(d=>d==='');
+      if(idx<0) return prev;
+      const out=[...prev];
+      out[idx]=String(n);
+      return out;
+    });
+  },[muted,won]);
+
+  useEffect(()=>{
+    if(won || digits.some(d=>d==='')) return;
+    const guess=digits.join('');
+    Sound.setMuted(muted);
+    if(guess===String(problem.answer)){
+      setWon(true); setWrong(false); setConf(true);
+      Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      mascot.happy();
+      const arrived=addProgress();
+      Voice.say(arrived?`${problem.a} times ${problem.b} is ${problem.answer}!`:`${problem.a} times ${problem.b} is ${problem.answer}! ${praise()}`);
+      setScore(s=>s+1);
+      setTimeout(()=>setConf(false),2500);
+    }else{
+      setWrong(true); Sound.wrong(); mascot.oops(); setMisses(m=>m+1);
+      const ansStr=String(problem.answer);
+      setTimeout(()=>{setDigits(prev=>prev.map((d,i)=>d===ansStr[i]?d:''));setWrong(false);},650);
+    }
+  },[digits,won,muted,problem,setScore,addProgress,answerLength]);
+
+  return(
+    <div className="screen multiply-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<MultiplicationSettings range={range} onChange={applyRange} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={timesRangeLabel(range)}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      <Mascot kind="star" mood={mascot.mood} stamp={mascot.stamp}/>
+      <div className="count-title"><div className="count-title-main">Times Tables</div><div className="count-title-sub">Tap the answer!</div></div>
+      <div className="multiply-card">
+        <div className="multiply-problem">
+          <span>{problem.a}</span>
+          <span className="times-symbol">×</span>
+          <span>{problem.b}</span>
+          <span className="equals-symbol">=</span>
+          <span>?</span>
+        </div>
+        <div className="multiply-answer-row">
+          {digits.map((d,i)=>(
+            <div key={i} className={`multiply-answer-box ${nextIndex===i&&!won?'active':''} ${wrong?'wrong':''}`}>{d || (misses>=3?<span className="ghost-hint">{String(problem.answer)[i]}</span>:'_')}</div>
+          ))}
+        </div>
+      </div>
+      {won&&<div className="multiply-celebrate">{problem.a} × {problem.b} = {problem.answer}!</div>}
+      {!won&&(
+        <div className="keypad">
+          {[1,2,3,4,5,6,7,8,9,0].map(n=><button key={n} className="key-btn" onClick={()=>tapDigit(n)}>{n}</button>)}
+          <button className="key-btn clear" onClick={clear} aria-label="Clear"><BackspaceIcon/></button>
+        </div>
+      )}
+      {won&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}
+    </div>
+  );
+}
+
+/* ══ HOME ══
+   Built for pre-readers: each card is a big picture that SPEAKS its name
+   when tapped, zooms for feedback, then flies into the game. */
+function Home({onSelect,trophies=0,journey=0}){
+  const title='Space Math!'.split('');
+  const [launching,setLaunching]=useState(null);
+  const launchT=useRef(null);
+  useEffect(()=>()=>clearTimeout(launchT.current),[]);
+  const pick=(id)=>{
+    if(launching)return;
+    Sound.tap();
+    Voice.say(CARD_VOICE[id]);
+    setLaunching(id);
+    clearTimeout(launchT.current);
+    launchT.current=setTimeout(()=>onSelect(id),1050);
+  };
+  const cardCls=(id,base)=>`mode-card ${base} ${launching===id?'launching':launching?'dimmed':''}`;
+  return(
+    <div className="home">
+      <div className="home-bg"/>
+      <div className="home-tint"/>
+      <BgDeco/>
+      <div className="home-rainbow home-cloud-row">
+        <img className="home-cloud" src="assets/space/icons/saturn.png" alt="" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}/>
+        <img className="home-cloud" src="assets/space/icons/rocket.png" alt="" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}/>
+      </div>
+      <div className="home-title">
+        {title.map((c,i)=><span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*.07}s`,textShadow:`0 3px 0 ${TITLE_COLORS[(i+4)%TITLE_COLORS.length]}55`}}>{c}</span>)}
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:8}}>
+        <img src="assets/space/icons/star.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <div className="home-sub">Choose your mission!</div>
+        <img src="assets/space/icons/star.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+      </div>
+      {trophies>0&&<div className="home-sub" style={{fontSize:'.85rem',display:'flex',alignItems:'center',gap:6}}>
+        <img src="assets/space/icons/trophy.png" alt="" style={{width:22,height:22,objectFit:'contain'}}/>Journeys completed: {trophies}
+      </div>}
+      <div className="mode-section">
+        <div className="home-section-heading">
+          <img className="section-icon" src="assets/space/icons/rocket.png" alt=""/>
+          <div className="mode-section-label">Counting Blocks</div>
+          <img className="section-icon" src="assets/space/icons/moon.png" alt=""/>
+        </div>
+        <div className="mode-row">
+          <button className={cardCls('b1','mc-pink')} onClick={()=>pick('b1')} aria-label="What Number? Count the blocks">
+            <div className="mode-card-icon"><CardArt id="b1"/></div>
+            <CardPict id="b1"/>
+            <div className="mode-card-label">What Number?</div><Stars count={1}/>
+          </button>
+          <button className={cardCls('b2','mc-purple')} onClick={()=>pick('b2')} aria-label="Fill the Right Block. Build the number">
+            <div className="mode-card-icon"><CardArt id="b2"/></div>
+            <CardPict id="b2"/>
+            <div className="mode-card-label">Fill the Right Block</div><Stars count={2}/>
+          </button>
+        </div>
+      </div>
+      <div className="mode-section">
+        <div className="home-section-heading">
+          <img className="section-icon" src="assets/space/icons/comet.png" alt=""/>
+          <div className="mode-section-label">Number Games</div>
+          <img className="section-icon" src="assets/space/icons/star.png" alt=""/>
+        </div>
+        <div className="mode-row">
+          <button className={cardCls('c1','mc-rose')} onClick={()=>pick('c1')} aria-label="Column Add">
+            <div className="mode-card-icon"><CardArt id="c1"/></div>
+            <CardPict id="c1"/>
+            <div className="mode-card-label">Column Add</div><Stars count={2}/>
+          </button>
+          <button className={cardCls('l2','mc-magic')} onClick={()=>pick('l2')} aria-label="Add and Subtract">
+            <div className="mode-card-icon"><CardArt id="l2"/></div>
+            <CardPict id="l2"/>
+            <div className="mode-card-label">Add &amp; Subtract</div><Stars count={2}/>
+          </button>
+          <button className={cardCls('m1','mc-purple')} onClick={()=>pick('m1')} aria-label="Times Tables">
+            <div className="mode-card-icon"><CardArt id="m1"/></div>
+            <CardPict id="m1"/>
+            <div className="mode-card-label">Times Tables</div><Stars count={2}/>
+          </button>
+        </div>
+      </div>
+      <div style={{width:'100%',maxWidth:420,display:'flex',justifyContent:'center'}}>
+        <JourneyTrack progress={journey}/>
+      </div>
+      <div style={{display:'flex',justifyContent:'center',padding:'0 8px',animation:'bounce 2s ease-in-out infinite alternate'}}>
+        <img src="assets/space/icons/starcloud-blue.png" alt="" style={{width:64,height:64,objectFit:'contain',filter:'drop-shadow(0 0 12px rgba(140,190,255,.6))'}}/>
+      </div>
+    </div>
+  );
+}
+
+/* ══ APP ══ */
+function App(){
+  const [mode,setMode]=useState(null);
+  // The journey (0..JOURNEY_TOTAL) is shared by every game and persists,
+  // so the rocket keeps flying no matter which game is played.
+  // Finished journeys become trophies (localStorage).
+  const [journey,setJourneyState]=useState(()=>{try{const v=parseInt(localStorage.getItem('sm_journey')||'0',10)||0;return v>=JOURNEY_TOTAL||v<0?0:v;}catch(e){return 0;}});
+  const [trophies,setTrophies]=useState(()=>{try{return parseInt(localStorage.getItem('sm_trophies')||'0',10)||0;}catch(e){return 0;}});
+  const [arrivalIdx,setArrivalIdx]=useState(null);
+  const arrivalT=useRef(null);
+  const [scores,setScores]=useState({b1:0,b2:0,l2:0,c1:0,m1:0});
+  const [muted,setMutedState]=useState(()=>{try{return localStorage.getItem('sm_muted')==='1';}catch(e){return false;}});
+  useEffect(()=>{Sound.setMuted(muted);Voice.muted=muted;},[]);
+  useEffect(()=>()=>clearTimeout(arrivalT.current),[]);
+  // Preload every journey background + icon so arriving somewhere new never flashes.
+  useEffect(()=>{JOURNEY_STOPS.forEach(s=>{const a=new Image();a.src=s.bg;const b=new Image();b.src=s.icon;});},[]);
+  const onToggleMute=useCallback(()=>setMutedState(m=>{const n=!m;Sound.setMuted(n);Voice.muted=n;try{localStorage.setItem('sm_muted',n?'1':'0');}catch(e){}return n;}),[]);
+  const setScore=useCallback(mode=>fn=>setScores(s=>({...s,[mode]:fn(s[mode])})),[]);
+
+  /* One correct answer = one step of the journey.
+     Returns true when this step lands on a new stop (arrival overlay follows). */
+  const addProgress=useCallback(()=>{
+    const nj=Math.min(journey+1,JOURNEY_TOTAL);
+    if(nj===journey)return false;
+    setJourneyState(nj);
+    try{localStorage.setItem('sm_journey',String(nj));}catch(e){}
+    const arrived=nj%LEG_LEN===0;
+    if(arrived){
+      const stopIdx=nj/LEG_LEN;
+      if(nj===JOURNEY_TOTAL){
+        setTrophies(t=>{const n=t+1;try{localStorage.setItem('sm_trophies',String(n));}catch(e){}return n;});
+      }
+      clearTimeout(arrivalT.current);
+      arrivalT.current=setTimeout(()=>{
+        setArrivalIdx(stopIdx);
+        Sound.arrive();
+        const s=JOURNEY_STOPS[stopIdx];
+        Voice.say(`${nj===JOURNEY_TOTAL?'Journey complete! ':''}You reached ${s.name}! ${s.fact}`);
+      },1700);
+    }
+    return arrived;
+  },[journey]);
+
+  const journeyComplete=journey>=JOURNEY_TOTAL;
+  const closeArrival=useCallback(()=>{
+    Sound.tap();
+    setArrivalIdx(null);
+    if(journeyComplete){
+      setJourneyState(0);
+      try{localStorage.setItem('sm_journey','0');}catch(e){}
+      Voice.say('A brand new journey begins. Blast off!');
+    }else{
+      Voice.say('Off we go!');
+    }
+  },[journeyComplete]);
+
+  const locIdx=Math.min(Math.floor(journey/LEG_LEN),JOURNEY_LEGS);
+  const journeyBg=JOURNEY_STOPS[locIdx].bg;
+  const goHome=useCallback(()=>setMode(null),[]);
+
+  const shared={onBack:goHome,journey,addProgress,trophies,journeyBg,muted,onToggleMute};
+  let screen;
+  if(mode==='b1')screen=<BlocksGuided {...shared} score={scores.b1} setScore={setScore('b1')}/>;
+  else if(mode==='b2')screen=<BlocksFill {...shared} score={scores.b2} setScore={setScore('b2')}/>;
+  else if(mode==='l2')screen=<NumberLineAddSub {...shared} score={scores.l2} setScore={setScore('l2')}/>;
+  else if(mode==='c1')screen=<ColumnAdd {...shared} score={scores.c1} setScore={setScore('c1')}/>;
+  else if(mode==='m1')screen=<MultiplicationGame {...shared} score={scores.m1} setScore={setScore('m1')}/>;
+  else screen=<Home onSelect={setMode} trophies={trophies} journey={journey}/>;
+  return<>{screen}{arrivalIdx!=null&&<ArrivalOverlay stopIdx={arrivalIdx} complete={journeyComplete} onClose={closeArrival}/>}</>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

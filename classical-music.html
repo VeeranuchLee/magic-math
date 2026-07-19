@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Maestro 🎵</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sky: #6EC6F0;
+    --sun: #FFD93D;
+    --coral: #FF6B6B;
+    --mint: #6BCB77;
+    --lavender: #C77DFF;
+    --cream: #FFF8EC;
+    --dark: #2D2D2D;
+    --card: #ffffff;
+    --shadow: 0 6px 20px rgba(0,0,0,0.10);
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #e0f4ff 0%, #ffecd2 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    padding: 16px;
+  }
+
+  h1.logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3rem);
+    text-align: center;
+    color: #4a4a8a;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .tagline {
+    text-align: center;
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 20px;
+  }
+
+  /* MODE SWITCHER */
+  .mode-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .mode-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .mode-btn.teach { background: var(--sky); color: #fff; }
+  .mode-btn.quiz  { background: var(--sun); color: #555; }
+  .mode-btn.active { transform: scale(1.07); filter: brightness(1.08); outline: 3px solid #4a4a8a; }
+
+  /* SONG SELECTOR */
+  .song-picker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .song-chip {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 7px 16px;
+    border: 2.5px solid transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    background: var(--card);
+    transition: all 0.18s;
+    box-shadow: var(--shadow);
+  }
+  .song-chip:hover { transform: translateY(-2px); }
+  .song-chip.active { border-color: #4a4a8a; background: #ece9ff; }
+
+  /* MAIN CARD */
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 680px;
+    margin: 0 auto 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .song-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    color: #4a4a8a;
+    margin-bottom: 2px;
+  }
+  .composer-line {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 18px;
+  }
+
+  /* TAGS */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .tag {
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tag.mood     { background: #ffe0e0; color: #c0392b; }
+  .tag.tempo    { background: #e0f7e0; color: #1a7a1a; }
+  .tag.pitch    { background: #e8e0ff; color: #5a00b0; }
+
+  /* PIANO ROLL */
+  .piano-section { margin-bottom: 20px; }
+  .piano-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  .notes-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .note-btn {
+    width: 46px;
+    height: 52px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+    position: relative;
+  }
+  .note-btn:active, .note-btn.playing {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.18);
+  }
+  .note-btn.white-key { background: #f9f9f9; color: #333; border: 1.5px solid #ddd; }
+  .note-btn.black-key { background: #333; color: #fff; width: 38px; height: 44px; }
+
+  /* PLAY MELODY BTN */
+  .play-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4a4a8a, #7b68ee);
+    color: #fff;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s;
+    margin-bottom: 18px;
+  }
+  .play-btn:hover { transform: scale(1.04); }
+  .play-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* VISUALIZER */
+  .visualizer {
+    height: 48px;
+    border-radius: 12px;
+    background: #f0eeff;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 6px 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .viz-bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    background: #c9bfff;
+    transition: height 0.12s ease;
+    min-height: 4px;
+  }
+
+  /* HISTORY CARD */
+  .history-box {
+    background: #fffbec;
+    border-left: 5px solid var(--sun);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.93rem;
+    line-height: 1.6;
+    color: #555;
+  }
+  .history-box .hist-title {
+    font-weight: 900;
+    color: #b8860b;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+
+  /* QUIZ MODE */
+  .quiz-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 680px;
+    margin: 0 auto 20px;
+    box-shadow: var(--shadow);
+  }
+  .quiz-header {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: #4a4a8a;
+    margin-bottom: 6px;
+  }
+  .quiz-sub {
+    font-size: 0.9rem;
+    color: #999;
+    margin-bottom: 20px;
+  }
+  .quiz-q {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+    color: #333;
+  }
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .choice-btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 10px;
+    border: 2.5px solid #e0e0e0;
+    border-radius: 14px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: #7b68ee; background: #f0eeff; }
+  .choice-btn.correct { background: #d4f4d4; border-color: var(--mint); color: #1a7a1a; }
+  .choice-btn.wrong   { background: #ffe0e0; border-color: var(--coral); color: #c0392b; }
+
+  .feedback-box {
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct { background: #d4f4d4; color: #1a7a1a; }
+  .feedback-box.wrong   { background: #ffe0e0; color: #c0392b; }
+
+  .next-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: var(--mint);
+    color: #fff;
+    box-shadow: var(--shadow);
+    display: none;
+    transition: transform 0.15s;
+  }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { transform: scale(1.04); }
+
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #666;
+  }
+  .stars { font-size: 1.3rem; letter-spacing: 2px; }
+
+  /* PLAY SNIPPET */
+  .snippet-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: #e8e0ff;
+    color: #5a00b0;
+    margin-bottom: 16px;
+    transition: transform 0.15s;
+  }
+  .snippet-btn:hover { transform: scale(1.04); }
+
+  /* RESULTS */
+  .results-card {
+    text-align: center;
+    padding: 32px 24px;
+  }
+  .results-emoji { font-size: 4rem; margin-bottom: 10px; }
+  .results-title { font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: #4a4a8a; margin-bottom: 8px; }
+  .results-score { font-size: 1.1rem; color: #666; margin-bottom: 20px; }
+  .restart-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4a4a8a, #7b68ee);
+    color: #fff;
+    box-shadow: var(--shadow);
+  }
+
+  /* Note colors */
+  .n-C { background: #ff9a9e; color: #fff; }
+  .n-D { background: #fecfef; color: #555; }
+  .n-E { background: #ffd89b; color: #555; }
+  .n-F { background: #a1c4fd; color: #fff; }
+  .n-G { background: #84fab0; color: #fff; }
+  .n-A { background: #d4fc79; color: #555; }
+  .n-B { background: #96e6a1; color: #555; }
+  .n-c { background: #fddb92; color: #555; }
+
+  @media (max-width: 500px) {
+    .choices { grid-template-columns: 1fr; }
+    .note-btn { width: 38px; height: 44px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1 class="logo">🎵 Little Maestro</h1>
+<p class="tagline">Discover classical music — listen, learn & play!</p>
+
+<div class="mode-bar">
+  <button class="mode-btn teach active" onclick="setMode('teach')">📖 Teach Me</button>
+  <button class="mode-btn quiz"  onclick="setMode('quiz')">🎮 Quiz Time</button>
+</div>
+
+<!-- TEACH MODE -->
+<div id="teach-mode">
+  <div class="song-picker" id="song-picker"></div>
+  <div class="card" id="teach-card"></div>
+</div>
+
+<!-- QUIZ MODE -->
+<div id="quiz-mode" style="display:none">
+  <div class="quiz-card" id="quiz-card"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// AUDIO ENGINE
+// ─────────────────────────────────────────────
+let audioCtx = null;
+
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+const NOTE_FREQS = {
+  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
+  G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25,
+  D5: 587.33, E5: 659.25, G3: 196.00, A3: 220.00,
+  B3: 246.94, F5: 698.46, G5: 783.99, A5: 880.00
+};
+
+function playNote(noteName, duration = 0.5, startTime = 0, wave = 'triangle') {
+  const ctx = getCtx();
+  const freq = NOTE_FREQS[noteName];
+  if (!freq) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.type = wave;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+  gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+  gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + startTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+  osc.start(ctx.currentTime + startTime);
+  osc.stop(ctx.currentTime + startTime + duration + 0.05);
+}
+
+// ─────────────────────────────────────────────
+// SONG DATA
+// ─────────────────────────────────────────────
+const SONGS = [
+  {
+    id: 'ode',
+    name: 'Ode to Joy',
+    composer: 'Ludwig van Beethoven',
+    year: '1824',
+    emoji: '🎊',
+    mood: '😄 Happy & Triumphant',
+    moodKey: 'happy',
+    tempo: '🚂 Moderate (not too fast, not too slow)',
+    tempoKey: 'moderate',
+    pitch: '↔️ Mix of middle & high notes',
+    pitchKey: 'middle-high',
+    color: '#7b68ee',
+    history: "Beethoven wrote this piece when he was almost completely deaf — he couldn't hear a single note! It was first played in Vienna in 1824, and when it finished, the audience clapped so loudly that someone had to turn Beethoven around so he could see their cheers. Today it is the anthem of Europe! 🌍",
+    funFact: "Beethoven couldn't hear his own masterpiece!",
+    notes: [
+      {n:'E4',d:0.4},{n:'E4',d:0.4},{n:'F4',d:0.4},{n:'G4',d:0.4},
+      {n:'G4',d:0.4},{n:'F4',d:0.4},{n:'E4',d:0.4},{n:'D4',d:0.4},
+      {n:'C4',d:0.4},{n:'C4',d:0.4},{n:'D4',d:0.4},{n:'E4',d:0.4},
+      {n:'E4',d:0.6},{n:'D4',d:0.2},{n:'D4',d:0.8}
+    ],
+    freeNotes: ['C4','D4','E4','F4','G4','A4','B4','C5']
+  },
+  {
+    id: 'elise',
+    name: 'Für Elise',
+    composer: 'Ludwig van Beethoven',
+    year: '1810',
+    emoji: '🌸',
+    mood: '💭 Gentle & Dreamy',
+    moodKey: 'gentle',
+    tempo: '🌊 Flowing (gentle and smooth)',
+    tempoKey: 'slow',
+    pitch: '🎠 High & delicate notes',
+    pitchKey: 'high',
+    color: '#ff6b9d',
+    history: "Nobody knows exactly who 'Elise' was! Some people think Beethoven wrote this piece for a woman he loved, but her name might have been 'Therese' — and the handwriting was just hard to read. This piece was found in a drawer after Beethoven died and wasn't published until 40 years later! 🗝️",
+    funFact: "We still don't know who Elise really was!",
+    notes: [
+      {n:'E5',d:0.3},{n:'D5',d:0.3},{n:'E5',d:0.3},{n:'D5',d:0.3},{n:'E5',d:0.3},
+      {n:'B4',d:0.3},{n:'D5',d:0.3},{n:'C5',d:0.3},{n:'A4',d:0.6},
+      {n:'C4',d:0.3},{n:'E4',d:0.3},{n:'A4',d:0.3},{n:'B4',d:0.6},
+      {n:'E4',d:0.3},{n:'G4',d:0.3},{n:'B4',d:0.3},{n:'C5',d:0.6}
+    ],
+    freeNotes: ['E4','G4','A4','B4','C5','D5','E5','F5']
+  },
+  {
+    id: 'twinkle',
+    name: 'Twinkle Twinkle Little Star',
+    composer: 'Wolfgang Amadeus Mozart (variations)',
+    year: '1781',
+    emoji: '⭐',
+    mood: '🌟 Bright & Playful',
+    moodKey: 'playful',
+    tempo: '🐢 Slow & easy to follow',
+    tempoKey: 'slow',
+    pitch: '⬆️ Mostly middle notes',
+    pitchKey: 'middle',
+    color: '#FFD93D',
+    history: "The tune was originally a French song called 'Ah! vous dirai-je, maman' (which means 'Ah! Shall I tell you, Mama?'). Mozart was only 25 when he wrote 12 brilliant variations on this melody — that means he turned this simple tune into 12 different musical adventures! 🎭",
+    funFact: "Mozart wrote 12 different versions of this tune!",
+    notes: [
+      {n:'C4',d:0.4},{n:'C4',d:0.4},{n:'G4',d:0.4},{n:'G4',d:0.4},
+      {n:'A4',d:0.4},{n:'A4',d:0.4},{n:'G4',d:0.8},
+      {n:'F4',d:0.4},{n:'F4',d:0.4},{n:'E4',d:0.4},{n:'E4',d:0.4},
+      {n:'D4',d:0.4},{n:'D4',d:0.4},{n:'C4',d:0.8}
+    ],
+    freeNotes: ['C4','D4','E4','F4','G4','A4','B4','C5']
+  },
+  {
+    id: 'swan',
+    name: 'Swan Lake (Theme)',
+    composer: 'Pyotr Ilyich Tchaikovsky',
+    year: '1876',
+    emoji: '🦢',
+    mood: '😢 Mysterious & Bittersweet',
+    moodKey: 'sad',
+    tempo: '🌙 Slow & graceful',
+    tempoKey: 'slow',
+    pitch: '🌊 Low flowing to high',
+    pitchKey: 'low-high',
+    color: '#6EC6F0',
+    history: "Swan Lake is a ballet — a dance story — about a princess turned into a swan by a wicked spell. When it was first performed in Moscow, people didn't like it very much! But after Tchaikovsky died, a famous choreographer revived it, and it became one of the most beloved ballets in the whole world. 🏰",
+    funFact: "The audience didn't like Swan Lake at first!",
+    notes: [
+      {n:'B3',d:0.6},{n:'A3',d:0.3},{n:'B3',d:0.3},
+      {n:'E4',d:0.9},{n:'D4',d:0.3},{n:'C4',d:0.3},{n:'B3',d:0.3},
+      {n:'A3',d:0.9},{n:'B3',d:0.3},{n:'C4',d:0.3},
+      {n:'D4',d:0.6},{n:'E4',d:0.3},{n:'D4',d:0.3},{n:'C4',d:0.6}
+    ],
+    freeNotes: ['G3','A3','B3','C4','D4','E4','F4','G4']
+  }
+];
+
+// ─────────────────────────────────────────────
+// QUIZ QUESTIONS
+// ─────────────────────────────────────────────
+function buildQuizQuestions() {
+  const qs = [];
+  SONGS.forEach(s => {
+    qs.push({
+      songId: s.id,
+      type: 'mood',
+      question: `🎵 Listen to this snippet — how does it make you feel?`,
+      answer: s.mood,
+      choices: shuffle([s.mood,
+        ...SONGS.filter(x=>x.id!==s.id).map(x=>x.mood).slice(0,3)
+      ]).slice(0,4),
+      explanation: `✅ ${s.name} by ${s.composer} is ${s.mood.toLowerCase()}!`
+    });
+    qs.push({
+      songId: s.id,
+      type: 'name',
+      question: `🎵 Can you guess the name of this piece?`,
+      answer: s.name,
+      choices: shuffle([s.name,
+        ...SONGS.filter(x=>x.id!==s.id).map(x=>x.name)
+      ]).slice(0,4),
+      explanation: `✅ That's "${s.name}" by ${s.composer}!`
+    });
+    qs.push({
+      songId: s.id,
+      type: 'tempo',
+      question: `🎵 How fast or slow is this music?`,
+      answer: s.tempo,
+      choices: shuffle([s.tempo,
+        ...SONGS.filter(x=>x.id!==s.id).map(x=>x.tempo).slice(0,3)
+      ]).slice(0,4),
+      explanation: `✅ Correct! ${s.name} has a ${s.tempo.toLowerCase()} rhythm.`
+    });
+  });
+  return shuffle(qs);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentMode = 'teach';
+let currentSongIdx = 0;
+let isPlaying = false;
+let quizQuestions = [];
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+// ─────────────────────────────────────────────
+// MODE SWITCH
+// ─────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+  document.getElementById('teach-mode').style.display = mode === 'teach' ? '' : 'none';
+  document.getElementById('quiz-mode').style.display  = mode === 'quiz'  ? '' : 'none';
+  if (mode === 'quiz') startQuiz();
+}
+
+// ─────────────────────────────────────────────
+// TEACH MODE
+// ─────────────────────────────────────────────
+function renderSongPicker() {
+  const el = document.getElementById('song-picker');
+  el.innerHTML = SONGS.map((s,i) =>
+    `<button class="song-chip ${i===currentSongIdx?'active':''}" onclick="selectSong(${i})">${s.emoji} ${s.name}</button>`
+  ).join('');
+}
+
+function selectSong(idx) {
+  currentSongIdx = idx;
+  renderSongPicker();
+  renderTeachCard();
+}
+
+function renderTeachCard() {
+  const s = SONGS[currentSongIdx];
+  const noteColors = ['n-C','n-D','n-E','n-F','n-G','n-A','n-B','n-c'];
+
+  const noteButtons = s.freeNotes.map((n,i) => {
+    const label = n.replace(/\d/,'');
+    return `<button class="note-btn ${noteColors[i]}" onclick="playNoteBtn('${n}',this)" title="${n}">${label}</button>`;
+  }).join('');
+
+  const vizBars = Array.from({length:16}, (_,i) =>
+    `<div class="viz-bar" id="vbar-${i}" style="height:6px"></div>`
+  ).join('');
+
+  document.getElementById('teach-card').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+      <span style="font-size:2.5rem">${s.emoji}</span>
+      <div>
+        <div class="song-title">${s.name}</div>
+        <div class="composer-line">by ${s.composer} · ${s.year}</div>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag mood">🎭 ${s.mood}</span>
+      <span class="tag tempo">⏱️ ${s.tempo}</span>
+      <span class="tag pitch">🎼 ${s.pitch}</span>
+    </div>
+
+    <button class="play-btn" id="play-melody-btn" onclick="playMelody()">
+      ▶ Play the Melody
+    </button>
+
+    <div class="visualizer" id="visualizer">${vizBars}</div>
+
+    <div class="piano-section">
+      <div class="piano-label">🎹 Try the notes yourself!</div>
+      <div class="notes-row">${noteButtons}</div>
+    </div>
+
+    <div class="history-box">
+      <div class="hist-title">📖 Did you know?</div>
+      ${s.history}
+      <br><br>
+      <strong>⭐ Fun fact:</strong> ${s.funFact}
+    </div>
+  `;
+}
+
+function playNoteBtn(noteName, btn) {
+  getCtx();
+  playNote(noteName, 0.5);
+  btn.classList.add('playing');
+  animateViz(0.5);
+  setTimeout(() => btn.classList.remove('playing'), 200);
+}
+
+let vizInterval = null;
+function animateViz(duration) {
+  if (vizInterval) clearInterval(vizInterval);
+  const end = Date.now() + duration * 1000;
+  vizInterval = setInterval(() => {
+    for (let i = 0; i < 16; i++) {
+      const b = document.getElementById(`vbar-${i}`);
+      if (b) b.style.height = (4 + Math.random() * 36) + 'px';
+    }
+    if (Date.now() > end) {
+      clearInterval(vizInterval);
+      for (let i = 0; i < 16; i++) {
+        const b = document.getElementById(`vbar-${i}`);
+        if (b) b.style.height = '6px';
+      }
+    }
+  }, 100);
+}
+
+async function playMelody() {
+  if (isPlaying) return;
+  isPlaying = true;
+  const btn = document.getElementById('play-melody-btn');
+  if (btn) btn.disabled = true;
+  const s = SONGS[currentSongIdx];
+
+  let t = 0;
+  const totalDuration = s.notes.reduce((sum,n) => sum + n.d, 0);
+  s.notes.forEach(({n, d}) => {
+    playNote(n, d * 0.85);
+    t += d;
+  });
+  animateViz(totalDuration);
+
+  setTimeout(() => {
+    isPlaying = false;
+    if (btn) { btn.disabled = false; btn.innerHTML = '▶ Play Again'; }
+  }, totalDuration * 1000 + 300);
+}
+
+// ─────────────────────────────────────────────
+// QUIZ MODE
+// ─────────────────────────────────────────────
+function startQuiz() {
+  quizQuestions = buildQuizQuestions();
+  quizIdx = 0;
+  quizScore = 0;
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (quizIdx >= quizQuestions.length) {
+    renderResults();
+    return;
+  }
+  quizAnswered = false;
+  const q = quizQuestions[quizIdx];
+  const total = quizQuestions.length;
+  const stars = '⭐'.repeat(quizScore);
+
+  const choiceButtons = q.choices.map(c =>
+    `<button class="choice-btn" onclick="answerQuiz(this,'${escQ(c)}','${escQ(q.answer)}')">${c}</button>`
+  ).join('');
+
+  document.getElementById('quiz-card').innerHTML = `
+    <div class="score-bar">
+      <span>Question ${quizIdx+1} of ${total}</span>
+      <span class="stars">${stars || '—'}</span>
+    </div>
+
+    <div class="quiz-header">🎵 Listen & Guess!</div>
+    <div class="quiz-sub">Tap the music, then pick your answer.</div>
+
+    <button class="snippet-btn" id="snippet-play" onclick="playSnippet('${q.songId}')">
+      🔊 Play Snippet
+    </button>
+
+    <div class="quiz-q">${q.question}</div>
+
+    <div class="choices">${choiceButtons}</div>
+
+    <div class="feedback-box" id="feedback"></div>
+
+    <button class="next-btn" id="next-btn" onclick="nextQuiz()">
+      Next →
+    </button>
+  `;
+}
+
+function escQ(s) { return s.replace(/'/g,"&#39;").replace(/"/g,'&quot;'); }
+
+function playSnippet(songId) {
+  const s = SONGS.find(x => x.id === songId);
+  if (!s || isPlaying) return;
+  isPlaying = true;
+  const btn = document.getElementById('snippet-play');
+  if (btn) { btn.disabled = true; btn.innerHTML = '🎵 Playing...'; }
+
+  const snippet = s.notes.slice(0, 8);
+  const dur = snippet.reduce((sum,n) => sum + n.d, 0);
+  snippet.forEach(({n, d}) => playNote(n, d * 0.85));
+
+  setTimeout(() => {
+    isPlaying = false;
+    if (btn) { btn.disabled = false; btn.innerHTML = '🔊 Play Again'; }
+  }, dur * 1000 + 300);
+}
+
+function answerQuiz(btn, chosen, correct) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === correct) b.classList.add('correct');
+  });
+
+  const fb = document.getElementById('feedback');
+  const q = quizQuestions[quizIdx];
+
+  if (chosen === correct) {
+    quizScore++;
+    btn.classList.add('correct');
+    fb.className = 'feedback-box show correct';
+    fb.innerHTML = '🌟 ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback-box show wrong';
+    fb.innerHTML = `❌ Not quite! ${q.explanation}`;
+  }
+
+  const nb = document.getElementById('next-btn');
+  if (nb) nb.classList.add('show');
+}
+
+function nextQuiz() {
+  quizIdx++;
+  renderQuiz();
+}
+
+function renderResults() {
+  const total = quizQuestions.length;
+  const pct = Math.round((quizScore / total) * 100);
+  let emoji = '🌟', msg = 'Amazing job!';
+  if (pct < 50) { emoji = '🎵'; msg = 'Good try! Keep listening!'; }
+  else if (pct < 75) { emoji = '🎶'; msg = 'Great job, little maestro!'; }
+
+  document.getElementById('quiz-card').innerHTML = `
+    <div class="results-card">
+      <div class="results-emoji">${emoji}</div>
+      <div class="results-title">${msg}</div>
+      <div class="results-score">You got <strong>${quizScore} out of ${total}</strong> correct! (${pct}%)</div>
+      <div style="font-size:2rem;margin-bottom:20px">${'⭐'.repeat(Math.min(quizScore,10))}</div>
+      <button class="restart-btn" onclick="startQuiz()">🎵 Play Again</button>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderSongPicker();
+renderTeachCard();
+</script>
+</body>
+</html>
