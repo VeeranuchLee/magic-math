@@ -270,6 +270,36 @@
     .times-option-btn.active{background:linear-gradient(135deg,#93b7fb,#2f6df6);border-color:#2f6df6;color:#fff;box-shadow:0 3px 0 #1746b8}
     @media (max-width:430px){.times-option-grid{grid-template-columns:repeat(4,1fr)}}
 
+    /* ── COUNT BY: the same numbers read two ways at once ──
+       Top strip = the skip-counting chant (12, 24, 36, ?).
+       Ladder below = the very same numbers written as the times table.
+       The child types into the ladder, so filling in the table IS counting on. */
+    .countby-card{gap:10px;padding:15px 16px 17px;min-width:min(92vw,470px)}
+    .cb-chain{display:flex;align-items:center;gap:6px;width:100%;overflow-x:auto;padding:2px 2px 7px;scrollbar-width:none}
+    .cb-chain::-webkit-scrollbar{display:none}
+    .cb-chip{flex:0 0 auto;min-width:46px;padding:6px 11px;border-radius:999px;background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;color:#2f6df6;font-size:1.05rem;font-weight:900;text-align:center;box-shadow:0 3px 0 #93b7fb}
+    .cb-chip.next{border-style:dashed;border-color:#2f6df6;color:#5a2ed6;animation:cbPulse 1.2s ease-in-out infinite}
+    .cb-arrow{flex:0 0 auto;color:#5a2ed6;font-weight:900;opacity:.5}
+    /* Height is budgeted against the viewport, not guessed: everything else on this
+       screen (bars, title, chain, keypad) plus the corner mascot's fixed footprint
+       costs ~620px, and the keypad must stay clear of the mascot on a phone. */
+    .cb-ladder{display:flex;flex-direction:column;gap:6px;width:100%;max-height:clamp(140px,calc(100vh - 620px),290px);overflow-y:auto;padding:2px}
+    .cb-rung{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:5px 12px;border-radius:14px;border:2.5px solid #c4d7fd;background:#fff;overflow:hidden}
+    .cb-rung::before{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--fill,0%);background:linear-gradient(90deg,rgba(147,183,251,.5),rgba(47,109,246,.2));transition:width .35s ease}
+    .cb-rung>*{position:relative;z-index:1}
+    .cb-fact{font-size:1rem;font-weight:900;color:#5a2ed6;white-space:nowrap}
+    .cb-fact b{color:#2f6df6;font-size:1.2rem}
+    .cb-val{font-size:1.4rem;font-weight:900;color:#2f6df6;min-width:62px;text-align:right}
+    .cb-rung.todo{opacity:.42;border-style:dashed}
+    .cb-rung.todo .cb-val{color:#93b7fb}
+    .cb-rung.active{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.16)}
+    .cb-rung.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .cb-rung.fresh{animation:correctPop .5s ease}
+    .cb-answer{display:flex;gap:5px}
+    .cb-box{width:34px;height:40px;display:flex;align-items:center;justify-content:center;background:#fff;border:2.5px solid #ab97f5;border-radius:11px;color:#2f6df6;font-size:1.3rem;font-weight:900;box-shadow:0 2px 0 #ab97f5}
+    .cb-box.active{border-color:#2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,.18),0 2px 0 #1746b8}
+    @keyframes cbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.09);opacity:.72}}
+
     /* ── SCORE ROW: SPACE JOURNEY TRACK ── */
     .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
     .score-badge{background:linear-gradient(135deg,#fff,#e8f0ff);border:2px solid #93b7fb;border-radius:50px;padding:5px 14px;font-size:.95rem;font-weight:900;color:#2f6df6;box-shadow:0 3px 8px rgba(91,140,248,.2);white-space:nowrap;display:flex;align-items:center;gap:4px}
@@ -513,12 +543,18 @@ const COLUMN_ADD_PRESETS=[
 ];
 const TIMES_MAX_OPTIONS=Array.from({length:12},(_,i)=>i+1);
 const DEFAULT_TIMES_RANGE={rowMax:12,colMax:12};
+/* Count By: the skip-counting chant and the times table are the same list of numbers,
+   so this game writes both at once. step = what we count by, upTo = how many jumps. */
+const COUNT_BY_STEP_OPTIONS=Array.from({length:12},(_,i)=>i+1);
+const COUNT_BY_UPTO_OPTIONS=Array.from({length:11},(_,i)=>i+2);
+const DEFAULT_COUNT_BY={step:12,upTo:12};
 const CARD_ASSETS={
   b1:{src:'assets/space/icons/sun.png',kind:'planet-art',label:'What Number? smiling sun'},
   b2:{src:'assets/space/icons/earth.png',kind:'planet-art',label:'Fill the Right Block smiling Earth'},
   l2:{src:'assets/space/icons/comet.png',kind:'large-art',label:'Add and Subtract comet'},
   c1:{src:'assets/space/icons/rocket-badge.png',kind:'rocket-art',label:'Column Add rocket badge'},
   m1:{src:'assets/space/icons/saturn.png',kind:'large-art',label:'Times Tables smiling Saturn'},
+  s1:{src:'assets/space/icons/cluster-gold.png',kind:'large-art',label:'Count By star cluster'},
 };
 const CARD_VOICE={
   b1:'What Number? Count the blocks!',
@@ -526,6 +562,7 @@ const CARD_VOICE={
   l2:'Add and Subtract!',
   c1:'Column Add!',
   m1:'Times Tables!',
+  s1:'Count By! Count in jumps!',
 };
 
 
@@ -601,6 +638,11 @@ function CardPict({id}){
   if(id==='m1')return(
     <div className="mode-card-pict" aria-hidden="true">
       <span className="pict-num">2 × 3</span>
+    </div>);
+  if(id==='s1')return(
+    <div className="mode-card-pict" aria-hidden="true">
+      <span className="pict-num">2 4 6</span>
+      <span className="pict-num">?</span>
     </div>);
   return null;
 }
@@ -913,16 +955,18 @@ function SimpleNumberCard({value, target, label='Number'}){
 
 /* ══ MODE b1: WHAT NUMBER? ══ */
 function BlocksGuided({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
-  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  // Defaults start at the hardest preset in every game (owner rule, 2026-08-14):
+  // BLOCKS_PRESETS[3] is 'Full 1 – 1000', the counterpart of Times Tables' 12 × 12.
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[3]);
   const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
-  const makeProblem = useCallback((p=BLOCKS_PRESETS[1])=>{
+  const makeProblem = useCallback((p=BLOCKS_PRESETS[3])=>{
     const max=Math.min(999,p.max);
     const min=Math.min(Math.max(1,p.min),max);
     const n=rand(min,max);
     return decompose(n,isCounting(p));
   },[]);
   const [showSettings,setShowSettings]=useState(false);
-  const [problem,setProblem]=useState(()=>makeProblem(BLOCKS_PRESETS[1]));
+  const [problem,setProblem]=useState(()=>makeProblem(BLOCKS_PRESETS[3]));
   const [selectedH,setSelectedH]=useState(()=>Array(problem.h).fill(false));
   const [selectedT,setSelectedT]=useState(()=>Array(problem.t).fill(false));
   const [selectedO,setSelectedO]=useState(()=>Array(problem.o).fill(false));
@@ -1017,7 +1061,7 @@ function BlocksGuided({onBack, journey, addProgress, trophies, journeyBg, score,
 
 /* ══ MODE b2: FILL THE RIGHT BLOCK ══ */
 function BlocksFill({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
-  const [preset,setPreset]=useState(BLOCKS_PRESETS[1]);
+  const [preset,setPreset]=useState(BLOCKS_PRESETS[3]);
   const visiblePlaces = useMemo(()=>getVisiblePlaces(preset),[preset]);
   const [showSettings,setShowSettings]=useState(false);
   const makeFillTarget = useCallback((p)=>{
@@ -1025,7 +1069,7 @@ function BlocksFill({onBack, journey, addProgress, trophies, journeyBg, score, s
     const min=Math.min(Math.max(1,p.min),max);
     return rand(min,max);
   },[]);
-  const [target,setTarget]=useState(()=>makeFillTarget(BLOCKS_PRESETS[1]));
+  const [target,setTarget]=useState(()=>makeFillTarget(BLOCKS_PRESETS[3]));
   const [won,setWon]=useState(false);
   const [confetti,setConf]=useState(false);
   const [selectedHundreds,setSelectedHundreds]=useState(()=>Array(10).fill(false));
@@ -1185,10 +1229,10 @@ function makeProbFromPreset(preset, customOp){
 }
 
 function NumberLineAddSub({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
-  const [preset,setPreset]=useState(LINE_PRESETS[0]);
+  const [preset,setPreset]=useState(LINE_PRESETS[3]);
   const [customOp,setCustomOp]=useState(null);
   const [showSettings,setShowSettings]=useState(false);
-  const [prob,setProb]=useState(()=>makeProbFromPreset(LINE_PRESETS[0],null));
+  const [prob,setProb]=useState(()=>makeProbFromPreset(LINE_PRESETS[3],null));
   const [celebrating,setCel]=useState(false);
   const [wrongId,setWrong]=useState(null);
   const [misses,setMisses]=useState(0);
@@ -1290,7 +1334,7 @@ function buildColumnAddProblems(preset){
   return valid;
 }
 
-function makeColumnAddProblem(preset=COLUMN_ADD_PRESETS[0]){
+function makeColumnAddProblem(preset=COLUMN_ADD_PRESETS[3]){
   const valid=buildColumnAddProblems(preset);
   return valid[rand(0,valid.length-1)];
 }
@@ -1319,9 +1363,9 @@ function ColumnAddSettings({current,onChange,onClose}){
 }
 
 function ColumnAdd({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
-  const [preset,setPreset]=useState(COLUMN_ADD_PRESETS[0]);
+  const [preset,setPreset]=useState(COLUMN_ADD_PRESETS[3]);
   const [showSettings,setShowSettings]=useState(false);
-  const [problem,setProblem]=useState(()=>makeColumnAddProblem(COLUMN_ADD_PRESETS[0]));
+  const [problem,setProblem]=useState(()=>makeColumnAddProblem(COLUMN_ADD_PRESETS[3]));
   const colCount=useMemo(()=>Math.max(String(problem.a).length,String(problem.b).length,String(problem.answer).length),[problem]);
   const [digits,setDigits]=useState(()=>Array(colCount).fill(''));
   const [won,setWon]=useState(false);
@@ -1578,6 +1622,202 @@ function MultiplicationGame({onBack, journey, addProgress, trophies, journeyBg, 
   );
 }
 
+/* ══ MODE s1: COUNT BY ══
+   Counting by 3 and the 3 times table are the same list of numbers. This game
+   puts both on screen at once: the chant runs along the top (3 › 6 › 9 › ?) and
+   the very same numbers are written underneath as multiplication. The child
+   types the missing number straight into the table, so "count on one more jump"
+   and "one more group of 3" are the same action. */
+const countByLabel=cfg=>`Count by ${cfg.step}`;
+
+function CountBySettings({config,onChange,onClose}){
+  const [step,setStep]=useState(config.step);
+  const [upTo,setUpTo]=useState(config.upTo);
+  const apply=()=>onChange({step,upTo});
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-title">Count By</div>
+        <div className="times-range-preview">
+          <span>Count by</span>
+          <span className="times-value-box">{step}</span>
+          <span>to</span>
+          <span className="times-value-box">{step*upTo}</span>
+        </div>
+        <div className="times-picker-label">Count by</div>
+        <div className="times-option-grid">
+          {COUNT_BY_STEP_OPTIONS.map(n=>(
+            <button key={`s${n}`} className={`times-option-btn ${step===n?'active':''}`} onClick={()=>{Sound.tap();setStep(n);}}>{n}</button>
+          ))}
+        </div>
+        <div className="times-picker-label">How many jumps</div>
+        <div className="times-option-grid">
+          {COUNT_BY_UPTO_OPTIONS.map(n=>(
+            <button key={`u${n}`} className={`times-option-btn ${upTo===n?'active':''}`} onClick={()=>{Sound.tap();setUpTo(n);}}>{n}</button>
+          ))}
+        </div>
+        <button className="modal-close" onClick={apply}>Done</button>
+      </div>
+    </div>
+  );
+}
+
+function CountByGame({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){
+  const [cfg,setCfg]=useState(DEFAULT_COUNT_BY);
+  const [showSettings,setShowSettings]=useState(false);
+  const [filled,setFilled]=useState(0);   // rungs finished and moved past
+  const [won,setWon]=useState(false);     // current rung solved, waiting for Next
+  const [digits,setDigits]=useState(()=>Array(String(DEFAULT_COUNT_BY.step).length).fill(''));
+  const [misses,setMisses]=useState(0);
+  const [wrong,setWrong]=useState(false);
+  const [confetti,setConf]=useState(false);
+  const mascot=useMascot();
+  const ladderRef=useRef(null);
+  const chainRef=useRef(null);
+
+  const k=filled+1;                       // which multiple is being asked for
+  const target=k*cfg.step;
+  const shown=filled+(won?1:0);           // rungs drawn as complete
+  const tableDone=won&&k>=cfg.upTo;
+  const nextIndex=digits.findIndex(d=>d==='');
+
+  /* One place moves the live rung, so the answer boxes always match it.
+     Doing it in a single batch (not an effect) means there is never a render
+     where the old digits sit against the new target. */
+  const goToRung=useCallback((nextFilled,nextCfg)=>{
+    const c=nextCfg||cfg;
+    setFilled(nextFilled);
+    setWon(false); setWrong(false); setMisses(0);
+    setDigits(Array(String((nextFilled+1)*c.step).length).fill(''));
+  },[cfg]);
+
+  const next=useCallback(()=>{
+    Sound.setMuted(muted); Sound.tap();
+    goToRung(tableDone?0:filled+1);
+  },[muted,tableDone,filled,goToRung]);
+
+  const applyConfig=useCallback(nextCfg=>{
+    setCfg(nextCfg);
+    goToRung(0,nextCfg);
+    setShowSettings(false);
+  },[goToRung]);
+
+  const clear=useCallback(()=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(prev=>prev.map(()=>''));
+    setWrong(false);
+  },[muted,won]);
+
+  const tapDigit=useCallback(n=>{
+    Sound.setMuted(muted); Sound.tap();
+    if(won) return;
+    setDigits(prev=>{
+      const idx=prev.findIndex(d=>d==='');
+      if(idx<0) return prev;
+      const out=[...prev];
+      out[idx]=String(n);
+      return out;
+    });
+  },[muted,won]);
+
+  /* Ask by chanting what is already on the ladder: "12, 24, 36. What comes next?" */
+  useEffect(()=>{
+    if(filled===0){Voice.say(`Let's count by ${cfg.step}. What number comes first?`);return;}
+    const back=Math.min(3,filled);
+    const tail=Array.from({length:back},(_,i)=>(filled-back+1+i)*cfg.step);
+    Voice.say(`${tail.join(', ')}. What comes next?`);
+  },[filled,cfg]);
+
+  useEffect(()=>{
+    if(won||digits.some(d=>d==='')) return;
+    Sound.setMuted(muted);
+    if(digits.join('')===String(target)){
+      setWon(true); setWrong(false);
+      Sound.ding(); setTimeout(()=>Sound.celebrate(),200);
+      mascot.happy();
+      const arrived=addProgress();
+      setScore(s=>s+1);
+      if(k>=cfg.upTo){
+        setConf(true); setTimeout(()=>setConf(false),2500);
+        Voice.say(`${target}! You counted by ${cfg.step} all the way to ${target}. That is the ${cfg.step} times table!`);
+      }else{
+        // The bridge sentence: the number they just counted to, named as a times fact.
+        Voice.say(arrived?`${target}! ${k} times ${cfg.step} is ${target}.`:`${target}! ${k} times ${cfg.step} is ${target}. ${praise()}`);
+      }
+    }else{
+      setWrong(true); Sound.wrong(); mascot.oops(); setMisses(m=>m+1);
+      const ansStr=String(target);
+      setTimeout(()=>{setDigits(prev=>prev.map((d,i)=>d===ansStr[i]?d:''));setWrong(false);},650);
+    }
+  },[digits,won,muted,target,k,cfg,setScore,addProgress]);
+
+  /* Keep the live rung and the tail of the chant on screen. 'nearest' scrolls only
+     when the rung has actually left the window, so the numbers already counted stay
+     in view for as long as they fit — that list is the lesson. It targets the rung
+     the child is answering (`filled`), while the chant follows `shown`; re-running
+     on an already-visible rung is a no-op, so the two never fight. */
+  useEffect(()=>{
+    const el=ladderRef.current;
+    const row=el&&el.children[Math.min(filled,cfg.upTo-1)];
+    if(row) row.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const chain=chainRef.current;
+    if(chain) chain.scrollTo({left:chain.scrollWidth,behavior:'smooth'});
+  },[filled,shown,cfg]);
+
+  const chainNodes=[];
+  for(let n=1;n<=shown;n++){
+    if(n>1)chainNodes.push(<span key={`a${n}`} className="cb-arrow" aria-hidden="true">›</span>);
+    chainNodes.push(<span key={`c${n}`} className="cb-chip">{n*cfg.step}</span>);
+  }
+  if(!tableDone){
+    if(shown>0)chainNodes.push(<span key="aq" className="cb-arrow" aria-hidden="true">›</span>);
+    chainNodes.push(<span key="cq" className="cb-chip next">?</span>);
+  }
+  const rungs=Array.from({length:cfg.upTo},(_,i)=>i+1);
+
+  return(
+    <div className="screen countby-screen" style={{'--game-bg':`url('${journeyBg}')`}}>
+      <div className="screen-bg"/>
+      {showSettings&&<CountBySettings config={cfg} onChange={applyConfig} onClose={()=>setShowSettings(false)}/>}
+      <Confetti active={confetti}/>
+      <BgDeco/>
+      <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={countByLabel(cfg)}/>
+      <ScoreRow score={score} journey={journey} trophies={trophies}/>
+      <Mascot kind="star" mood={mascot.mood} stamp={mascot.stamp}/>
+      <div className="count-title"><div className="count-title-main">Count by {cfg.step}</div><div className="count-title-sub">same as the {cfg.step} times table</div></div>
+      <div className="multiply-card countby-card">
+        <div className="cb-chain" ref={chainRef} aria-label={`Counting by ${cfg.step}`}>{chainNodes}</div>
+        <div className="cb-ladder" ref={ladderRef}>
+          {rungs.map(n=>{
+            const isDone=n<=shown;
+            const isActive=!won&&n===k;
+            const cls=isDone?`cb-rung done ${won&&n===shown?'fresh':''}`:isActive?`cb-rung active ${wrong?'wrong':''}`:'cb-rung todo';
+            return(
+              <div key={n} className={cls} style={{'--fill':`${isDone?Math.round(n/cfg.upTo*100):0}%`}}>
+                <span className="cb-fact"><b>{n}</b> × {cfg.step} =</span>
+                {isActive
+                  ? <span className="cb-answer">{digits.map((d,i)=>(
+                      <span key={i} className={`cb-box ${nextIndex===i?'active':''}`}>{d||(misses>=3?<span className="ghost-hint">{String(target)[i]}</span>:'_')}</span>
+                    ))}</span>
+                  : <span className="cb-val">{isDone?n*cfg.step:'?'}</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {tableDone&&<div className="multiply-celebrate">Counted by {cfg.step} to {cfg.step*cfg.upTo}!</div>}
+      {!won&&(
+        <div className="keypad">
+          {[1,2,3,4,5,6,7,8,9,0].map(n=><button key={n} className="key-btn" onClick={()=>tapDigit(n)}>{n}</button>)}
+          <button className="key-btn clear" onClick={clear} aria-label="Clear"><BackspaceIcon/></button>
+        </div>
+      )}
+      {won&&<button className="next-btn" onClick={next} aria-label={tableDone?'Play again':'Next'}><NextIcon/></button>}
+    </div>
+  );
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -1656,6 +1896,11 @@ function Home({onSelect,trophies=0,journey=0}){
             <CardPict id="m1"/>
             <div className="mode-card-label">Times Tables</div><Stars count={2}/>
           </button>
+          <button className={cardCls('s1','mc-rose')} onClick={()=>pick('s1')} aria-label="Count By. Count in jumps">
+            <div className="mode-card-icon"><CardArt id="s1"/></div>
+            <CardPict id="s1"/>
+            <div className="mode-card-label">Count By</div><Stars count={2}/>
+          </button>
         </div>
       </div>
       <div style={{width:'100%',maxWidth:420,display:'flex',justifyContent:'center'}}>
@@ -1678,7 +1923,7 @@ function App(){
   const [trophies,setTrophies]=useState(()=>{try{return parseInt(localStorage.getItem('sm_trophies')||'0',10)||0;}catch(e){return 0;}});
   const [arrivalIdx,setArrivalIdx]=useState(null);
   const arrivalT=useRef(null);
-  const [scores,setScores]=useState({b1:0,b2:0,l2:0,c1:0,m1:0});
+  const [scores,setScores]=useState({b1:0,b2:0,l2:0,c1:0,m1:0,s1:0});
   const [muted,setMutedState]=useState(()=>{try{return localStorage.getItem('sm_muted')==='1';}catch(e){return false;}});
   useEffect(()=>{Sound.setMuted(muted);Voice.muted=muted;},[]);
   useEffect(()=>()=>clearTimeout(arrivalT.current),[]);
@@ -1735,6 +1980,7 @@ function App(){
   else if(mode==='l2')screen=<NumberLineAddSub {...shared} score={scores.l2} setScore={setScore('l2')}/>;
   else if(mode==='c1')screen=<ColumnAdd {...shared} score={scores.c1} setScore={setScore('c1')}/>;
   else if(mode==='m1')screen=<MultiplicationGame {...shared} score={scores.m1} setScore={setScore('m1')}/>;
+  else if(mode==='s1')screen=<CountByGame {...shared} score={scores.s1} setScore={setScore('s1')}/>;
   else screen=<Home onSelect={setMode} trophies={trophies} journey={journey}/>;
   return<>{screen}{arrivalIdx!=null&&<ArrivalOverlay stopIdx={arrivalIdx} complete={journeyComplete} onClose={closeArrival}/>}</>;
 }

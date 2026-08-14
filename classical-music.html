@@ -389,7 +389,15 @@
 let audioCtx = null;
 
 function getCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!audioCtx) audioCtx = new AC();
+  // iPadOS/iOS start the context suspended; it can only be unlocked from
+  // inside a user gesture, which is why every caller is a tap handler.
+  if (audioCtx.state === 'suspended') {
+    const r = audioCtx.resume();
+    if (r && r.catch) r.catch(() => {});
+  }
   return audioCtx;
 }
 
@@ -402,6 +410,7 @@ const NOTE_FREQS = {
 
 function playNote(noteName, duration = 0.5, startTime = 0, wave = 'triangle') {
   const ctx = getCtx();
+  if (!ctx) return;
   const freq = NOTE_FREQS[noteName];
   if (!freq) return;
 
@@ -690,7 +699,7 @@ async function playMelody() {
   let t = 0;
   const totalDuration = s.notes.reduce((sum,n) => sum + n.d, 0);
   s.notes.forEach(({n, d}) => {
-    playNote(n, d * 0.85);
+    playNote(n, d * 0.85, t);
     t += d;
   });
   animateViz(totalDuration);
@@ -761,7 +770,11 @@ function playSnippet(songId) {
 
   const snippet = s.notes.slice(0, 8);
   const dur = snippet.reduce((sum,n) => sum + n.d, 0);
-  snippet.forEach(({n, d}) => playNote(n, d * 0.85));
+  let st = 0;
+  snippet.forEach(({n, d}) => {
+    playNote(n, d * 0.85, st);
+    st += d;
+  });
 
   setTimeout(() => {
     isPlaying = false;
