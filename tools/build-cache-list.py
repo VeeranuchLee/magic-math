@@ -16,8 +16,13 @@ result:
 
     python tools/build-cache-list.py
 
-Backgrounds and the large character art are deliberately excluded — they are ~21 MB
-and are cached on demand as each game is actually played.
+Backgrounds are deliberately excluded — they are cached on demand as each game is
+actually played.
+
+This reads the generated `assets-runtime/` WebP tree, not the `assets/` masters:
+the runtime tree is what the pages actually reference. Re-run
+`tools/build-runtime-assets.py` first if art changed, or this list will name files
+that do not exist yet.
 """
 
 from __future__ import annotations
@@ -25,15 +30,15 @@ from __future__ import annotations
 import pathlib
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
-ICON_DIRS = ["assets/space/icons", "assets/unicorn/icons"]
-# Referenced by menus or mascots. `bg-nebula.png` is the one background included:
+ICON_DIRS = ["assets-runtime/space/icons", "assets-runtime/unicorn/icons"]
+# Referenced by menus or mascots. `bg-nebula.webp` is the one background included:
 # it is the menu's own backdrop, and the menu is the screen every session opens on,
 # so leaving it out is the difference between the app looking finished offline and
 # looking half-loaded. The per-game backgrounds stay on demand.
 EXTRA = [
-    "assets/unicorn/princess.png",
-    "assets/unicorn/unicorn-fixed.png",
-    "assets/space/bg-nebula.png",
+    "assets-runtime/unicorn/princess.webp",
+    "assets-runtime/unicorn/unicorn-fixed.webp",
+    "assets-runtime/space/bg-nebula.webp",
 ]
 OUT = HERE / "cache-list.js"
 
@@ -44,7 +49,7 @@ def main() -> None:
         directory = HERE / d
         if not directory.is_dir():
             raise SystemExit(f"missing icon directory: {d}")
-        paths += sorted(f"./{d}/{p.name}" for p in directory.iterdir() if p.suffix.lower() == ".png")
+        paths += sorted(f"./{d}/{p.name}" for p in directory.iterdir() if p.suffix.lower() == ".webp")
     paths += [f"./{p}" for p in EXTRA if (HERE / p).exists()]
 
     total = sum((HERE / p[2:]).stat().st_size for p in paths)

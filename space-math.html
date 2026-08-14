@@ -32,7 +32,7 @@
 
     /* ── HOME ── */
     .home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px;overflow:hidden}
-    .home-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(10,14,45,.32),rgba(10,14,45,.32)),url('assets/space/bg-nebula.png');background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0}
+    .home-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(10,14,45,.32),rgba(10,14,45,.32)),url('assets-runtime/space/bg-nebula.webp');background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0}
     .home-tint{position:absolute;inset:0;background:rgba(8,12,40,.1);z-index:0}
     .home>*:not(.home-bg):not(.home-tint){position:relative;z-index:1}
     .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
@@ -67,7 +67,7 @@
 
     /* ── SCREEN ── */
     .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px;gap:11px;background:transparent;overflow:hidden}
-    .screen-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(6,9,30,.26),rgba(6,9,30,.26)),var(--game-bg,url('assets/space/bg-earth.png'));background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0;pointer-events:none;transition:opacity .4s}
+    .screen-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(6,9,30,.26),rgba(6,9,30,.26)),var(--game-bg,url('assets-runtime/space/bg-earth.webp'));background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0;pointer-events:none;transition:opacity .4s}
     /* Every :not() here adds specificity, so this rule outweighs a plain class rule on
        any child. The settings overlay is a child of .screen and must stay position:fixed
        to cover the viewport — without this exclusion it lays out inline in the column,
@@ -524,35 +524,35 @@ const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
    Finishing the whole journey earns a trophy, then a new journey begins. */
 const LEG_LEN=5;
 const JOURNEY_STOPS=[
-  {id:'earth',  name:'Earth',            title:'Earth',            icon:'assets/space/icons/earth.png',    bg:'assets/space/bg-earth.png',    fact:'Earth is our home planet — the only place we know with oceans, trees and you!'},
-  {id:'moon',   name:'the Moon',         title:'The Moon',         icon:'assets/space/icons/moon.png',     bg:'assets/space/bg-moon.png',     fact:'Footprints on the Moon never blow away, because the Moon has no wind at all!'},
-  {id:'mars',   name:'Mars',             title:'Mars',             icon:'assets/space/icons/mars.png',     bg:'assets/space/bg-mars.png',     fact:'Mars is called the Red Planet, because it is covered in rusty red dust!'},
-  {id:'belt',   name:'the Asteroid Belt',title:'The Asteroid Belt',icon:'assets/space/icons/asteroid.png', bg:'assets/space/bg-asteroids.png',fact:'The asteroid belt is full of giant space rocks, all tumbling around the Sun!'},
-  {id:'jupiter',name:'Jupiter',          title:'Jupiter',          icon:'assets/space/icons/jupiter.png',  bg:'assets/space/bg-jupiter.png',  fact:'Jupiter is the biggest planet of all — one thousand Earths could fit inside it!'},
-  {id:'saturn', name:'Saturn',           title:'Saturn',           icon:'assets/space/icons/saturn.png',   bg:'assets/space/bg-saturn.png',   fact:'Saturn’s beautiful rings are made of billions of pieces of sparkling ice!'},
-  {id:'galaxy', name:'the Milky Way',    title:'The Milky Way',    icon:'assets/space/icons/swirl-gold.png',bg:'assets/space/bg-galaxy.png',  fact:'Our galaxy is called the Milky Way — it has more stars than you could ever count!'},
+  {id:'earth',  name:'Earth',            title:'Earth',            icon:'assets-runtime/space/icons/earth.webp',    bg:'assets-runtime/space/bg-earth.webp',    fact:'Earth is our home planet — the only place we know with oceans, trees and you!'},
+  {id:'moon',   name:'the Moon',         title:'The Moon',         icon:'assets-runtime/space/icons/moon.webp',     bg:'assets-runtime/space/bg-moon.webp',     fact:'Footprints on the Moon never blow away, because the Moon has no wind at all!'},
+  {id:'mars',   name:'Mars',             title:'Mars',             icon:'assets-runtime/space/icons/mars.webp',     bg:'assets-runtime/space/bg-mars.webp',     fact:'Mars is called the Red Planet, because it is covered in rusty red dust!'},
+  {id:'belt',   name:'the Asteroid Belt',title:'The Asteroid Belt',icon:'assets-runtime/space/icons/asteroid.webp', bg:'assets-runtime/space/bg-asteroids.webp',fact:'The asteroid belt is full of giant space rocks, all tumbling around the Sun!'},
+  {id:'jupiter',name:'Jupiter',          title:'Jupiter',          icon:'assets-runtime/space/icons/jupiter.webp',  bg:'assets-runtime/space/bg-jupiter.webp',  fact:'Jupiter is the biggest planet of all — one thousand Earths could fit inside it!'},
+  {id:'saturn', name:'Saturn',           title:'Saturn',           icon:'assets-runtime/space/icons/saturn.webp',   bg:'assets-runtime/space/bg-saturn.webp',   fact:'Saturn’s beautiful rings are made of billions of pieces of sparkling ice!'},
+  {id:'galaxy', name:'the Milky Way',    title:'The Milky Way',    icon:'assets-runtime/space/icons/swirl-gold.webp',bg:'assets-runtime/space/bg-galaxy.webp',  fact:'Our galaxy is called the Milky Way — it has more stars than you could ever count!'},
 ];
 const JOURNEY_LEGS=JOURNEY_STOPS.length-1;
 const JOURNEY_TOTAL=LEG_LEN*JOURNEY_LEGS;
 
 const CONFETTI_C=['#40c4ff','#82b1ff','#7c4dff','#b388ff','#ffd54f','#fff176','#4fc3f7','#8c9eff','#ff9e40','#fff','#80d8ff','#c5cae9'];
-const CONFETTI_IMGS=['assets/space/icons/fourstar-gold.png','assets/space/icons/sparkle-blue.png','assets/space/icons/puffstar-purple.png','assets/space/icons/star.png','assets/space/icons/shoot-gold.png'];
+const CONFETTI_IMGS=['assets-runtime/space/icons/fourstar-gold.webp','assets-runtime/space/icons/sparkle-blue.webp','assets-runtime/space/icons/puffstar-purple.webp','assets-runtime/space/icons/star.webp','assets-runtime/space/icons/shoot-gold.webp'];
 const NL_COLORS=[['#2f6df6','#0f2e86'],['#6d3ff0','#371a92'],['#673ab7','#311b92'],['#3f51b5','#1a237e'],['#2196f3','#0d47a1'],['#00bcd4','#006064'],['#4caf50','#1b5e20'],['#ff9800','#e65100'],['#f44336','#b71c1c'],['#2f6df6','#0f2e86']];
 const TITLE_COLORS=['#4fc3f7','#82b1ff','#ffd54f','#ff9e40','#69f0ae','#40c4ff','#b388ff','#fff59d','#80d8ff','#ffab40','#4fc3f7','#b388ff','#82b1ff','#ffd54f','#8c9eff','#40c4ff'];
 // Image-based bg deco: sparkles + stars drift like stardust
 const DECO_IMGS=[
-  'assets/space/icons/fourstar-gold.png','assets/space/icons/sparkle-blue.png','assets/space/icons/starthin.png','assets/space/icons/glint-blue.png',
-  'assets/space/icons/fourstar-purple.png','assets/space/icons/sparkle-gold.png','assets/space/icons/puffstar-blue.png','assets/space/icons/sparkle-purple.png',
-  'assets/space/icons/glint-gold.png','assets/space/icons/fourstar-blue.png','assets/space/icons/shoot-blue.png','assets/space/icons/sparkle-blue.png',
-  'assets/space/icons/starthin.png','assets/space/icons/fourstar-gold.png','assets/space/icons/glint-purple.png','assets/space/icons/sparkle-gold.png',
-  'assets/space/icons/puffstar-purple.png','assets/space/icons/fourstar-blue.png','assets/space/icons/sparkle-purple.png','assets/space/icons/glint-blue.png'
+  'assets-runtime/space/icons/fourstar-gold.webp','assets-runtime/space/icons/sparkle-blue.webp','assets-runtime/space/icons/starthin.webp','assets-runtime/space/icons/glint-blue.webp',
+  'assets-runtime/space/icons/fourstar-purple.webp','assets-runtime/space/icons/sparkle-gold.webp','assets-runtime/space/icons/puffstar-blue.webp','assets-runtime/space/icons/sparkle-purple.webp',
+  'assets-runtime/space/icons/glint-gold.webp','assets-runtime/space/icons/fourstar-blue.webp','assets-runtime/space/icons/shoot-blue.webp','assets-runtime/space/icons/sparkle-blue.webp',
+  'assets-runtime/space/icons/starthin.webp','assets-runtime/space/icons/fourstar-gold.webp','assets-runtime/space/icons/glint-purple.webp','assets-runtime/space/icons/sparkle-gold.webp',
+  'assets-runtime/space/icons/puffstar-purple.webp','assets-runtime/space/icons/fourstar-blue.webp','assets-runtime/space/icons/sparkle-purple.webp','assets-runtime/space/icons/glint-blue.webp'
 ];
 
-const ICON_EARTH='assets/space/icons/earth.png';
-const ICON_ROCKET='assets/space/icons/rocket.png';
-const ICON_SATURN='assets/space/icons/saturn.png';
-const ICON_GALAXY='assets/space/icons/swirl-gold.png';
-const ICON_CUSTOM='assets/space/icons/question-orb.png';
+const ICON_EARTH='assets-runtime/space/icons/earth.webp';
+const ICON_ROCKET='assets-runtime/space/icons/rocket.webp';
+const ICON_SATURN='assets-runtime/space/icons/saturn.webp';
+const ICON_GALAXY='assets-runtime/space/icons/swirl-gold.webp';
+const ICON_CUSTOM='assets-runtime/space/icons/question-orb.webp';
 
 const BLOCKS_PRESETS=[
   {id:'b10',  icon:ICON_EARTH, tag:'1 – 10',   min:1,  max:10,  desc:'Counting mode'},
@@ -584,12 +584,12 @@ const COUNT_BY_STEP_OPTIONS=Array.from({length:20},(_,i)=>i+1);
 const COUNT_BY_UPTO_OPTIONS=Array.from({length:19},(_,i)=>i+2);
 const DEFAULT_COUNT_BY={step:12,upTo:12};
 const CARD_ASSETS={
-  b1:{src:'assets/space/icons/sun.png',kind:'planet-art',label:'What Number? smiling sun'},
-  b2:{src:'assets/space/icons/earth.png',kind:'planet-art',label:'Fill the Right Block smiling Earth'},
-  l2:{src:'assets/space/icons/comet.png',kind:'large-art',label:'Add and Subtract comet'},
-  c1:{src:'assets/space/icons/rocket-badge.png',kind:'rocket-art',label:'Column Add rocket badge'},
-  m1:{src:'assets/space/icons/saturn.png',kind:'large-art',label:'Times Tables smiling Saturn'},
-  s1:{src:'assets/space/icons/cluster-gold.png',kind:'large-art',label:'Count By star cluster'},
+  b1:{src:'assets-runtime/space/icons/sun.webp',kind:'planet-art',label:'What Number? smiling sun'},
+  b2:{src:'assets-runtime/space/icons/earth.webp',kind:'planet-art',label:'Fill the Right Block smiling Earth'},
+  l2:{src:'assets-runtime/space/icons/comet.webp',kind:'large-art',label:'Add and Subtract comet'},
+  c1:{src:'assets-runtime/space/icons/rocket-badge.webp',kind:'rocket-art',label:'Column Add rocket badge'},
+  m1:{src:'assets-runtime/space/icons/saturn.webp',kind:'large-art',label:'Times Tables smiling Saturn'},
+  s1:{src:'assets-runtime/space/icons/cluster-gold.webp',kind:'large-art',label:'Count By star cluster'},
 };
 const CARD_VOICE={
   b1:'What Number? Count the blocks!',
@@ -667,7 +667,7 @@ function CardPict({id}){
   if(id==='l2')return(
     <div className="mode-card-pict" aria-hidden="true">
       <span className="pict-num">3 + 2</span>
-      <img src="assets/space/icons/rocket.png" alt="" style={{width:20,height:20,objectFit:'contain',transform:'rotate(42deg)'}}/>
+      <img src="assets-runtime/space/icons/rocket.webp" alt="" style={{width:20,height:20,objectFit:'contain',transform:'rotate(42deg)'}}/>
       <span className="pict-num">?</span>
     </div>);
   if(id==='m1')return(
@@ -694,7 +694,7 @@ function CharImg({src,fallback='' }){
 }
 
 function Stars({count}){
-  return <div className="mode-card-stars">{Array.from({length:count},(_,i)=><img key={i} src="assets/space/icons/fourstar-gold.png" alt="" aria-hidden="true"/>)}</div>;
+  return <div className="mode-card-stars">{Array.from({length:count},(_,i)=><img key={i} src="assets-runtime/space/icons/fourstar-gold.webp" alt="" aria-hidden="true"/>)}</div>;
 }
 
 function CardArt({id}){
@@ -704,8 +704,8 @@ function CardArt({id}){
 
 /* ══ MASCOT ══ */
 const MASCOTS={
-  rocket:{idle:'assets/space/icons/rocket.png',happy:'assets/space/icons/rocket.png',oops:'assets/space/icons/comet.png'},
-  star:{idle:'assets/space/icons/star.png',happy:'assets/space/icons/star.png',oops:'assets/space/icons/comet.png'},
+  rocket:{idle:'assets-runtime/space/icons/rocket.webp',happy:'assets-runtime/space/icons/rocket.webp',oops:'assets-runtime/space/icons/comet.webp'},
+  star:{idle:'assets-runtime/space/icons/star.webp',happy:'assets-runtime/space/icons/star.webp',oops:'assets-runtime/space/icons/comet.webp'},
 };
 function useMascot(){
   const [mood,setMood]=useState('idle');
@@ -739,10 +739,10 @@ function JourneyTrack({progress}){
   const from=JOURNEY_STOPS[legIdx],to=JOURNEY_STOPS[legIdx+1];
   const cells=[];
   for(let i=0;i<LEG_LEN;i++){
-    if(i<inLeg)cells.push(<img key={`s${i}`} className="journey-star" src="assets/space/icons/fourstar-gold.png" alt=""/>);
+    if(i<inLeg)cells.push(<img key={`s${i}`} className="journey-star" src="assets-runtime/space/icons/fourstar-gold.webp" alt=""/>);
     else cells.push(<span key={`d${i}`} className="journey-dot"/>);
   }
-  cells.splice(inLeg,0,<img key={`r${inLeg}`} className="journey-rocket" src="assets/space/icons/rocket.png" alt=""/>);
+  cells.splice(inLeg,0,<img key={`r${inLeg}`} className="journey-rocket" src="assets-runtime/space/icons/rocket.webp" alt=""/>);
   return(
     <div className="journey-track" aria-label={`Flying from ${from.title} to ${to.title}, ${inLeg} of ${LEG_LEN} stars`}>
       <img className="journey-node" src={from.icon} alt={from.title}/>
@@ -757,12 +757,12 @@ function ScoreRow({score,journey,trophies=0}){
   return(
     <div className="score-row">
       <div style={{display:'flex',alignItems:'center',gap:6}}>
-        <img src="assets/space/icons/star.png" alt="score" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <img src="assets-runtime/space/icons/star.webp" alt="score" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
         <div className="score-badge"><span>{score}</span></div>
       </div>
       <JourneyTrack progress={journey}/>
       <div className="score-badge" aria-label={`${trophies} journeys completed`}>
-        <img src="assets/space/icons/trophy.png" alt="trophies"/><span>{trophies}</span>
+        <img src="assets-runtime/space/icons/trophy.webp" alt="trophies"/><span>{trophies}</span>
       </div>
     </div>
   );
@@ -778,13 +778,13 @@ function ArrivalOverlay({stopIdx,complete,onClose}){
         <img className="arrival-photo" src={stop.bg} alt=""/>
         <img className="arrival-planet" src={stop.icon} alt={stop.title}/>
         <div className="arrival-title">{complete?'Journey Complete!':`You reached ${stop.title}!`}</div>
-        {complete&&<img className="arrival-trophy" src="assets/space/icons/trophy.png" alt="trophy earned"/>}
+        {complete&&<img className="arrival-trophy" src="assets-runtime/space/icons/trophy.webp" alt="trophy earned"/>}
         <div className="arrival-fact-row">
           <button className="arrival-replay" aria-label="Hear it again" onClick={()=>{Sound.tap();Voice.say(stop.fact);}}><SpeakerOnIcon/></button>
           <div className="arrival-fact">{stop.fact}</div>
         </div>
         <button className="arrival-btn" onClick={onClose}>
-          <img src="assets/space/icons/rocket.png" alt=""/>{complete?'New Journey!':'Keep Flying!'}
+          <img src="assets-runtime/space/icons/rocket.webp" alt=""/>{complete?'New Journey!':'Keep Flying!'}
         </button>
       </div>
     </div>
@@ -945,7 +945,7 @@ function TopBar({onBack,onSettings,muted,onToggleMute,label}){
   return(
     <div className="top-bar">
       <div style={{display:'flex',alignItems:'center',gap:5}}>
-        <img src="assets/space/icons/saturn.png" alt="" aria-hidden="true" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <img src="assets-runtime/space/icons/saturn.webp" alt="" aria-hidden="true" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
         <button className="back-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}><BackIcon/></button>
       </div>
       {label&&(onSettings
@@ -1309,7 +1309,7 @@ function NumberLineAddSub({onBack, journey, addProgress, trophies, journeyBg, sc
         <div className="line-stack">
           <div className="char-row">
             <div className={`char-inner ${celebrating?'happy':''} ${wrongId!=null?'oops':''}`} style={{left:16+(charPos-min)*50+((!celebrating?54:50)-76)/2}}>
-              <img className="char-img" src="assets/space/icons/rocket.png" alt="rocket"/>
+              <img className="char-img" src="assets-runtime/space/icons/rocket.webp" alt="rocket"/>
             </div>
           </div>
           <div className="hop-arrows">
@@ -1872,25 +1872,25 @@ function Home({onSelect,trophies=0,journey=0}){
       <div className="home-tint"/>
       <BgDeco/>
       <div className="home-rainbow home-cloud-row">
-        <img className="home-cloud" src="assets/space/icons/saturn.png" alt="" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}/>
-        <img className="home-cloud" src="assets/space/icons/rocket.png" alt="" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}/>
+        <img className="home-cloud" src="assets-runtime/space/icons/saturn.webp" alt="" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}/>
+        <img className="home-cloud" src="assets-runtime/space/icons/rocket.webp" alt="" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}/>
       </div>
       <div className="home-title">
         {title.map((c,i)=><span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*.07}s`,textShadow:`0 3px 0 ${TITLE_COLORS[(i+4)%TITLE_COLORS.length]}55`}}>{c}</span>)}
       </div>
       <div style={{display:'flex',alignItems:'center',gap:8}}>
-        <img src="assets/space/icons/star.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <img src="assets-runtime/space/icons/star.webp" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
         <div className="home-sub">Choose your mission!</div>
-        <img src="assets/space/icons/star.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
+        <img src="assets-runtime/space/icons/star.webp" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.3))'}}/>
       </div>
       {trophies>0&&<div className="home-sub" style={{fontSize:'.85rem',display:'flex',alignItems:'center',gap:6}}>
-        <img src="assets/space/icons/trophy.png" alt="" style={{width:22,height:22,objectFit:'contain'}}/>Journeys completed: {trophies}
+        <img src="assets-runtime/space/icons/trophy.webp" alt="" style={{width:22,height:22,objectFit:'contain'}}/>Journeys completed: {trophies}
       </div>}
       <div className="mode-section">
         <div className="home-section-heading">
-          <img className="section-icon" src="assets/space/icons/rocket.png" alt=""/>
+          <img className="section-icon" src="assets-runtime/space/icons/rocket.webp" alt=""/>
           <div className="mode-section-label">Counting Blocks</div>
-          <img className="section-icon" src="assets/space/icons/moon.png" alt=""/>
+          <img className="section-icon" src="assets-runtime/space/icons/moon.webp" alt=""/>
         </div>
         <div className="mode-row">
           <button className={cardCls('b1','mc-pink')} onClick={()=>pick('b1')} aria-label="What Number? Count the blocks">
@@ -1907,9 +1907,9 @@ function Home({onSelect,trophies=0,journey=0}){
       </div>
       <div className="mode-section">
         <div className="home-section-heading">
-          <img className="section-icon" src="assets/space/icons/comet.png" alt=""/>
+          <img className="section-icon" src="assets-runtime/space/icons/comet.webp" alt=""/>
           <div className="mode-section-label">Number Games</div>
-          <img className="section-icon" src="assets/space/icons/star.png" alt=""/>
+          <img className="section-icon" src="assets-runtime/space/icons/star.webp" alt=""/>
         </div>
         <div className="mode-row">
           <button className={cardCls('c1','mc-rose')} onClick={()=>pick('c1')} aria-label="Column Add">
@@ -1938,7 +1938,7 @@ function Home({onSelect,trophies=0,journey=0}){
         <JourneyTrack progress={journey}/>
       </div>
       <div style={{display:'flex',justifyContent:'center',padding:'0 8px',animation:'bounce 2s ease-in-out infinite alternate'}}>
-        <img src="assets/space/icons/starcloud-blue.png" alt="" style={{width:64,height:64,objectFit:'contain',filter:'drop-shadow(0 0 12px rgba(140,190,255,.6))'}}/>
+        <img src="assets-runtime/space/icons/starcloud-blue.webp" alt="" style={{width:64,height:64,objectFit:'contain',filter:'drop-shadow(0 0 12px rgba(140,190,255,.6))'}}/>
       </div>
     </div>
   );
@@ -1958,8 +1958,13 @@ function App(){
   const [muted,setMutedState]=useState(()=>{try{return localStorage.getItem('sm_muted')==='1';}catch(e){return false;}});
   useEffect(()=>{Sound.setMuted(muted);Voice.muted=muted;},[]);
   useEffect(()=>()=>clearTimeout(arrivalT.current),[]);
-  // Preload every journey background + icon so arriving somewhere new never flashes.
-  useEffect(()=>{JOURNEY_STOPS.forEach(s=>{const a=new Image();a.src=s.bg;const b=new Image();b.src=s.icon;});},[]);
+  /* Arriving somewhere new must never flash, which is what this preload is for — but
+     the flash can only ever happen at the *next* stop, and this used to fetch all
+     eight backgrounds on mount to prevent it. That was 14.13 MB spent up front to
+     cover a place the child reaches after 30 correct answers. Only the next one is
+     fetched now, re-run as the journey advances, so the guarantee is unchanged.
+     Stop icons stay eager: they are small, and the whole set is on the home screen. */
+  useEffect(()=>{JOURNEY_STOPS.forEach(s=>{const i=new Image();i.src=s.icon;});},[]);
   const onToggleMute=useCallback(()=>setMutedState(m=>{const n=!m;Sound.setMuted(n);Voice.muted=n;try{localStorage.setItem('sm_muted',n?'1':'0');}catch(e){}return n;}),[]);
   const setScore=useCallback(mode=>fn=>setScores(s=>({...s,[mode]:fn(s[mode])})),[]);
 
@@ -2002,6 +2007,11 @@ function App(){
 
   const locIdx=Math.min(Math.floor(journey/LEG_LEN),JOURNEY_LEGS);
   const journeyBg=JOURNEY_STOPS[locIdx].bg;
+  // Fetch the next stop's background while the child is still answering at this one.
+  useEffect(()=>{
+    const next=JOURNEY_STOPS[Math.min(locIdx+1,JOURNEY_LEGS)];
+    if(next&&next.bg!==journeyBg){const im=new Image();im.src=next.bg;}
+  },[locIdx,journeyBg]);
   const goHome=useCallback(()=>setMode(null),[]);
 
   const shared={onBack:goHome,journey,addProgress,trophies,journeyBg,muted,onToggleMute};

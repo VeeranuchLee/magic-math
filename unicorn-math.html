@@ -32,7 +32,7 @@
 
     /* ── HOME ── */
     .home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px;overflow:hidden}
-    .home-bg{position:absolute;inset:0;background:url('assets/unicorn/bg-home.png') center/cover no-repeat;z-index:0}
+    .home-bg{position:absolute;inset:0;background:url('assets-runtime/unicorn/bg-home.webp') center/cover no-repeat;z-index:0}
     .home-tint{position:absolute;inset:0;background:rgba(252,228,236,.42);z-index:0}
     .home>*:not(.home-bg):not(.home-tint){position:relative;z-index:1}
     .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
@@ -66,9 +66,9 @@
        to cover the viewport — without this exclusion it lays out inline in the column,
        squeezed to the flex width instead of centred over the game. */
     .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.modal-overlay){position:relative;z-index:1}
-    .blocks-screen {--game-bg:url('assets/unicorn/bg-what-number.png');--screen-fallback:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
-    .choose-screen {--game-bg:url('assets/unicorn/bg-fill-right-block.png');--screen-fallback:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
-    .addsub-screen {--game-bg:url('assets/unicorn/bg-add-subtract.png');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
+    .blocks-screen {--game-bg:url('assets-runtime/unicorn/bg-what-number.webp');--screen-fallback:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
+    .choose-screen {--game-bg:url('assets-runtime/unicorn/bg-fill-right-block.webp');--screen-fallback:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
+    .addsub-screen {--game-bg:url('assets-runtime/unicorn/bg-add-subtract.webp');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
 
     /* ── TOP BAR ── */
     .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
@@ -241,7 +241,7 @@
     .count-block.on .pb-hundred,.count-block.on .pb-ten,.count-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(240,98,146,.8)}
 
     /* Column Add */
-    .column-screen{--game-bg:url('assets/unicorn/bg-add-subtract.png');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
+    .column-screen{--game-bg:url('assets-runtime/unicorn/bg-add-subtract.webp');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
     .column-card{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(252,228,236,.9));border:3px solid #f48fb1;border-radius:22px;padding:18px 22px 20px;box-shadow:0 5px 0 #f48fb1,0 10px 24px rgba(240,98,146,.16);position:relative;z-index:1;min-width:min(92vw,360px)}
     .column-grid{display:grid;grid-template-columns:34px repeat(var(--col-count,3),54px);gap:7px;align-items:center;justify-content:center;font-family:'Nunito',system-ui,sans-serif}
     .column-digit,.column-plus,.column-answer-box{height:54px;display:flex;align-items:center;justify-content:center;font-size:clamp(1.8rem,8vw,3rem);font-weight:900;line-height:1}
@@ -260,7 +260,7 @@
     .column-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:999px;padding:8px 18px;color:#e91e63;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1}
 
     /* Multiplication */
-    .multiply-screen{--game-bg:url('assets/unicorn/bg-hop-to-number.png');--screen-fallback:linear-gradient(160deg,#f3e5f5,#fce4ec,#fff3e0)}
+    .multiply-screen{--game-bg:url('assets-runtime/unicorn/bg-hop-to-number.webp');--screen-fallback:linear-gradient(160deg,#f3e5f5,#fce4ec,#fff3e0)}
     .multiply-card{display:flex;flex-direction:column;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(252,228,236,.9));border:3px solid #f48fb1;border-radius:24px;padding:20px 24px;box-shadow:0 5px 0 #f48fb1,0 10px 24px rgba(240,98,146,.16);position:relative;z-index:1;min-width:min(92vw,430px)}
     .multiply-problem{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;color:#7b1fa2;font-size:clamp(2.1rem,9vw,4.1rem);font-weight:900;line-height:1}
     .times-symbol,.equals-symbol{color:#e91e63}
@@ -300,7 +300,7 @@
        Top strip = the skip-counting chant (12, 24, 36, ?).
        Ladder below = the very same numbers written as the times table.
        The child types into the ladder, so filling in the table IS counting on. */
-    .countby-screen{--game-bg:url('assets/unicorn/bg-hop-to-number.png');--screen-fallback:linear-gradient(160deg,#f3e5f5,#fce4ec,#fff3e0)}
+    .countby-screen{--game-bg:url('assets-runtime/unicorn/bg-hop-to-number.webp');--screen-fallback:linear-gradient(160deg,#f3e5f5,#fce4ec,#fff3e0)}
     /* max-width, not just min-width: the chant strip is one long flex row, and a row of
        20 chips reports that whole length as the card's intrinsic width — which dragged the
        card wider than the phone and clipped both ends of every rung. Pinning both bounds
@@ -479,11 +479,11 @@ const TITLE_COLORS=['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3',
 // Image-based bg deco sources
 // Petals + sparkles float upward like magic dust
 const BG_IMGS=[
-  'assets/unicorn/icons/sparkle.png','assets/unicorn/icons/star.png','assets/unicorn/icons/star-purple.png','assets/unicorn/icons/sparkle.png',
-  'assets/unicorn/icons/heart-gem.png','assets/unicorn/icons/sparkle.png','assets/unicorn/icons/star.png','assets/unicorn/icons/petal-pink.png',
-  'assets/unicorn/icons/sparkle.png','assets/unicorn/icons/star-purple.png','assets/unicorn/icons/heart-gem.png','assets/unicorn/icons/sparkle.png',
-  'assets/unicorn/icons/petal-purple.png','assets/unicorn/icons/star.png','assets/unicorn/icons/sparkle.png','assets/unicorn/icons/star-purple.png',
-  'assets/unicorn/icons/petal-yellow.png','assets/unicorn/icons/sparkle.png','assets/unicorn/icons/heart-pink.png','assets/unicorn/icons/star.png'
+  'assets-runtime/unicorn/icons/sparkle.webp','assets-runtime/unicorn/icons/star.webp','assets-runtime/unicorn/icons/star-purple.webp','assets-runtime/unicorn/icons/sparkle.webp',
+  'assets-runtime/unicorn/icons/heart-gem.webp','assets-runtime/unicorn/icons/sparkle.webp','assets-runtime/unicorn/icons/star.webp','assets-runtime/unicorn/icons/petal-pink.webp',
+  'assets-runtime/unicorn/icons/sparkle.webp','assets-runtime/unicorn/icons/star-purple.webp','assets-runtime/unicorn/icons/heart-gem.webp','assets-runtime/unicorn/icons/sparkle.webp',
+  'assets-runtime/unicorn/icons/petal-purple.webp','assets-runtime/unicorn/icons/star.webp','assets-runtime/unicorn/icons/sparkle.webp','assets-runtime/unicorn/icons/star-purple.webp',
+  'assets-runtime/unicorn/icons/petal-yellow.webp','assets-runtime/unicorn/icons/sparkle.webp','assets-runtime/unicorn/icons/heart-pink.webp','assets-runtime/unicorn/icons/star.webp'
 ];
 
 const BLOCKS_PRESETS=[
@@ -516,21 +516,21 @@ const COUNT_BY_STEP_OPTIONS=Array.from({length:20},(_,i)=>i+1);
 const COUNT_BY_UPTO_OPTIONS=Array.from({length:19},(_,i)=>i+2);
 const DEFAULT_COUNT_BY={step:12,upTo:12};
 const CARD_ASSETS={
-  b1:{src:'assets/unicorn/icons/unicorn-card-fixed.png',kind:'unicorn-art',label:'Build It character'},
-  b2:{src:'assets/unicorn/icons/princess-card-clean.png',kind:'princess-art',label:'Fill the Right Block character'},
-  l2:{src:'assets/unicorn/princess.png',kind:'princess-art large-art',label:'Add and Subtract character'},
-  c1:{src:'assets/unicorn/unicorn-fixed.png',kind:'unicorn-art large-art',label:'Column Add character'},
-  m1:{src:'assets/unicorn/icons/unicorn-flower.png',kind:'unicorn-art large-art',label:'Times Tables character'},
-  s1:{src:'assets/unicorn/icons/bouquet.png',kind:'large-art',label:'Count By bouquet'},
+  b1:{src:'assets-runtime/unicorn/icons/unicorn-card-fixed.webp',kind:'unicorn-art',label:'Build It character'},
+  b2:{src:'assets-runtime/unicorn/icons/princess-card-clean.webp',kind:'princess-art',label:'Fill the Right Block character'},
+  l2:{src:'assets-runtime/unicorn/princess.webp',kind:'princess-art large-art',label:'Add and Subtract character'},
+  c1:{src:'assets-runtime/unicorn/unicorn-fixed.webp',kind:'unicorn-art large-art',label:'Column Add character'},
+  m1:{src:'assets-runtime/unicorn/icons/unicorn-flower.webp',kind:'unicorn-art large-art',label:'Times Tables character'},
+  s1:{src:'assets-runtime/unicorn/icons/bouquet.webp',kind:'large-art',label:'Count By bouquet'},
 };
 const GAME_BACKGROUNDS={
-  whatNumber:'assets/unicorn/bg-what-number.png',
-  fillRightBlock:'assets/unicorn/bg-fill-right-block.png',
-  hopToNumber:'assets/unicorn/bg-hop-to-number.png',
-  addSubtract:'assets/unicorn/bg-add-subtract.png',
-  columnAdd:'assets/unicorn/bg-add-subtract.png',
-  multiplication:'assets/unicorn/bg-hop-to-number.png',
-  countBy:'assets/unicorn/bg-hop-to-number.png',
+  whatNumber:'assets-runtime/unicorn/bg-what-number.webp',
+  fillRightBlock:'assets-runtime/unicorn/bg-fill-right-block.webp',
+  hopToNumber:'assets-runtime/unicorn/bg-hop-to-number.webp',
+  addSubtract:'assets-runtime/unicorn/bg-add-subtract.webp',
+  columnAdd:'assets-runtime/unicorn/bg-add-subtract.webp',
+  multiplication:'assets-runtime/unicorn/bg-hop-to-number.webp',
+  countBy:'assets-runtime/unicorn/bg-hop-to-number.webp',
 };
 Object.values(GAME_BACKGROUNDS).forEach(src=>{
   const img=new Image();
@@ -582,7 +582,7 @@ function CharImg({src,fallback='' }){
 }
 
 function Stars({count}){
-  return <div className="mode-card-stars">{Array.from({length:count},(_,i)=><img key={i} src="assets/unicorn/icons/star.png" alt=""/>)}</div>;
+  return <div className="mode-card-stars">{Array.from({length:count},(_,i)=><img key={i} src="assets-runtime/unicorn/icons/star.webp" alt=""/>)}</div>;
 }
 
 function CardArt({id}){
@@ -592,8 +592,8 @@ function CardArt({id}){
 
 /* ══ MASCOT ══ */
 const MASCOTS={
-  unicorn:{idle:'assets/unicorn/icons/unicorn-stand.png',happy:'assets/unicorn/icons/unicorn-leap.png',oops:'assets/unicorn/icons/unicorn-sit.png'},
-  princess:{idle:'assets/unicorn/princess.png',happy:'assets/unicorn/princess.png',oops:'assets/unicorn/princess.png'},
+  unicorn:{idle:'assets-runtime/unicorn/icons/unicorn-stand.webp',happy:'assets-runtime/unicorn/icons/unicorn-leap.webp',oops:'assets-runtime/unicorn/icons/unicorn-sit.webp'},
+  princess:{idle:'assets-runtime/unicorn/princess.webp',happy:'assets-runtime/unicorn/princess.webp',oops:'assets-runtime/unicorn/princess.webp'},
 };
 function useMascot(){
   const [mood,setMood]=useState('idle');
@@ -637,7 +637,7 @@ function ScoreRow({score,flowers,bouquets=0}){
   return(
     <div className="score-row">
       <div style={{display:'flex',alignItems:'center',gap:6}}>
-        <img src="assets/unicorn/icons/star.png" alt="★" style={{width:34,height:34,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.2))'}}/>
+        <img src="assets-runtime/unicorn/icons/star.webp" alt="★" style={{width:34,height:34,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.2))'}}/>
         <div className="score-badge"><span>{score}</span></div>
       </div>
       <FlowerGarden flowers={flowers}/>
@@ -822,7 +822,7 @@ function TopBar({onBack,onSettings,muted,onToggleMute,label}){
   return(
     <div className="top-bar">
       <div style={{display:'flex',alignItems:'center',gap:5}}>
-        <img src="assets/unicorn/icons/flower-pink.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
+        <img src="assets-runtime/unicorn/icons/flower-pink.webp" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
         <button className="back-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}>←</button>
       </div>
       {label&&(onSettings
@@ -1184,7 +1184,7 @@ function NumberLineAddSub({onBack, flowers, gardenFull, setFlowers, setGardenFul
         <div className="line-stack">
           <div className="char-row">
             <div className={`char-inner ${celebrating?'happy':''} ${wrongId!=null?'oops':''}`} style={{left:16+(charPos-min)*50+((!celebrating?54:50)-76)/2}}>
-              <CharImg src="assets/unicorn/princess.png"/>
+              <CharImg src="assets-runtime/unicorn/princess.webp"/>
             </div>
           </div>
           <div className="hop-arrows">
@@ -1736,23 +1736,23 @@ function Home({onSelect,bouquets=0}){
       <div className="home-tint"/>
       <BgDeco/>
       <div className="home-rainbow home-cloud-row">
-        <img className="home-cloud" src="assets/unicorn/icons/cloud-pink.png" alt="" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}/>
-        <img className="home-cloud" src="assets/unicorn/icons/cloud-blue.png" alt="" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}/>
+        <img className="home-cloud" src="assets-runtime/unicorn/icons/cloud-pink.webp" alt="" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}/>
+        <img className="home-cloud" src="assets-runtime/unicorn/icons/cloud-blue.webp" alt="" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}/>
       </div>
       <div className="home-title">
         {title.map((c,i)=><span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*.07}s`,textShadow:`0 3px 0 ${TITLE_COLORS[(i+4)%TITLE_COLORS.length]}55`}}>{c}</span>)}
       </div>
       <div style={{display:'flex',alignItems:'center',gap:8}}>
-        <img src="assets/unicorn/icons/star.png" alt="" style={{width:32,height:32,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
+        <img src="assets-runtime/unicorn/icons/star.webp" alt="" style={{width:32,height:32,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
         <div className="home-sub">Choose your adventure!</div>
-        <img src="assets/unicorn/icons/star.png" alt="" style={{width:32,height:32,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
+        <img src="assets-runtime/unicorn/icons/star.webp" alt="" style={{width:32,height:32,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
       </div>
       {bouquets>0&&<div className="home-sub" style={{fontSize:'.85rem'}}>💐 Bouquets collected: {bouquets}</div>}
       <div className="mode-section">
         <div className="home-section-heading">
-          <img className="section-icon" src="assets/unicorn/icons/bouquet.png" alt="" style={{width:24,height:36}}/>
+          <img className="section-icon" src="assets-runtime/unicorn/icons/bouquet.webp" alt="" style={{width:24,height:36}}/>
           <div className="mode-section-label">Counting Blocks</div>
-          <img className="section-icon" src="assets/unicorn/icons/flower-yellow.png" alt="" style={{width:24,height:36}}/>
+          <img className="section-icon" src="assets-runtime/unicorn/icons/flower-yellow.webp" alt="" style={{width:24,height:36}}/>
         </div>
         <div className="mode-row">
           <button className="mode-card mc-pink"   onClick={()=>onSelect('b1')}>
@@ -1767,9 +1767,9 @@ function Home({onSelect,bouquets=0}){
       </div>
       <div className="mode-section">
         <div className="home-section-heading">
-          <img className="section-icon" src="assets/unicorn/icons/rainbow.png" alt="" style={{width:44,height:25}}/>
+          <img className="section-icon" src="assets-runtime/unicorn/icons/rainbow.webp" alt="" style={{width:44,height:25}}/>
           <div className="mode-section-label">Number Games</div>
-          <img className="section-icon" src="assets/unicorn/icons/star.png" alt="" style={{width:24,height:24}}/>
+          <img className="section-icon" src="assets-runtime/unicorn/icons/star.webp" alt="" style={{width:24,height:24}}/>
         </div>
         <div className="mode-row">
           <button className="mode-card mc-rose" onClick={()=>onSelect('c1')}>
@@ -1791,7 +1791,7 @@ function Home({onSelect,bouquets=0}){
         </div>
       </div>
       <div style={{display:'flex',justifyContent:'center',padding:'0 8px',animation:'bounce 2s ease-in-out infinite alternate'}}>
-        <img src="assets/unicorn/icons/rainbow.png" alt="" style={{width:200,objectFit:'contain',filter:'drop-shadow(0 3px 8px rgba(0,0,0,.12))'}}/>
+        <img src="assets-runtime/unicorn/icons/rainbow.webp" alt="" style={{width:200,objectFit:'contain',filter:'drop-shadow(0 3px 8px rgba(0,0,0,.12))'}}/>
       </div>
     </div>
   );

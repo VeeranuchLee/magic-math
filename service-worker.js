@@ -22,7 +22,9 @@
 
 importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 
-const CACHE_NAME = "magic-math-v2";
+// v3: every image path moved to assets-runtime/*.webp, so a device holding v2 must
+// drop it wholesale rather than keep serving PNGs nothing references any more.
+const CACHE_NAME = "magic-math-v3";
 
 const SHELL = [
   "./",
