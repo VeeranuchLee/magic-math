@@ -4,11 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Magic Math v7</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="stylesheet" href="./fonts.css"/>
+  <meta name="theme-color" content="#0a0e2d"/>
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Magic Math"/>
+  <script src="./vendor/react-18.3.1.production.min.js"></script>
+  <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
+  <script src="./vendor/babel-7.26.4.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
 
@@ -55,7 +61,11 @@
     /* ── SCREEN ── */
     .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px;gap:11px;background:transparent;overflow:hidden}
     .screen-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(255,245,255,.16),rgba(255,245,255,.16)),var(--game-bg),var(--screen-fallback,#fce4ec);background-size:cover,cover,cover;background-position:var(--game-bg-position,center center);background-repeat:no-repeat;z-index:0;pointer-events:none}
-    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner){position:relative;z-index:1}
+    /* Every :not() here adds specificity, so this rule outweighs a plain class rule on
+       any child. The settings overlay is a child of .screen and must stay position:fixed
+       to cover the viewport — without this exclusion it lays out inline in the column,
+       squeezed to the flex width instead of centred over the game. */
+    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.modal-overlay){position:relative;z-index:1}
     .blocks-screen {--game-bg:url('assets/unicorn/bg-what-number.png');--screen-fallback:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
     .choose-screen {--game-bg:url('assets/unicorn/bg-fill-right-block.png');--screen-fallback:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
     .addsub-screen {--game-bg:url('assets/unicorn/bg-add-subtract.png');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
@@ -259,21 +269,45 @@
     .multiply-answer-box.active{border-color:#e91e63;box-shadow:0 0 0 4px rgba(233,30,99,.16),0 3px 0 #ad1457}
     .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:999px;padding:8px 18px;color:#e91e63;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1}
-    .times-range-preview{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 14px;color:#7b1fa2;font-size:1.15rem;font-weight:900}
-    .times-value-box{min-width:54px;padding:7px 12px;border-radius:14px;border:3px solid #f48fb1;background:#fce4ec;color:#e91e63;text-align:center;box-shadow:0 3px 0 #f48fb1}
     .times-picker-label{font-size:.82rem;font-weight:900;color:#9c27b0;text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;text-align:center}
-    .times-option-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-    .times-option-btn{height:38px;border-radius:12px;border:2px solid #f8bbd0;background:#fff;color:#7b1fa2;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer}
-    .times-option-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 3px 0 #ad1457}
-    @media (max-width:430px){.times-option-grid{grid-template-columns:repeat(4,1fr)}}
+
+    /* ── PICK YOUR NUMBER ──
+       The child chooses the difficulty, so the choice is the biggest thing on screen:
+       one tap on a number IS the setting, no confirm step and no grown-up gesture.
+       Tiles are 60px so a 4-year-old's fingertip cannot miss between them. */
+    .pick-box{max-width:440px}
+    .pick-question{font-size:clamp(1.25rem,5.5vw,1.7rem);font-weight:900;color:#7b1fa2;text-align:center;line-height:1.15}
+    .pick-question span{color:#e91e63}
+    .pick-hint{font-size:.9rem;font-weight:900;color:#9c27b0;opacity:.75;text-align:center;margin-top:3px}
+    .pick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+    .pick-btn{height:60px;border-radius:18px;border:3px solid #f48fb1;background:linear-gradient(160deg,#fff,#fce4ec);color:#7b1fa2;font-family:inherit;font-size:1.6rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #f48fb1;transition:transform .1s}
+    .pick-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
+    .pick-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 4px 0 #ad1457}
+    /* Second choice, deliberately quieter than the number tiles: a child can ignore it. */
+    .pick-second{margin-top:16px;padding-top:12px;border-top:2.5px dashed #f8bbd0}
+    .pick-second-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+    .pick-small-btn{height:34px;border-radius:11px;border:2px solid #f8bbd0;background:#fff;color:#7b1fa2;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer}
+    .pick-small-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 3px 0 #ad1457}
+    @media (max-width:430px){.pick-grid{grid-template-columns:repeat(4,1fr)}.pick-second-grid{grid-template-columns:repeat(5,1fr)}}
+    /* The difficulty pill in the top bar is the way back to the picker, so it has to
+       look pressable — it is a wider target than the gear beside it. */
+    .level-chip{display:flex;align-items:center;gap:5px;font-family:inherit;font-size:.85rem;font-weight:900;color:#e91e63;background:linear-gradient(160deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:6px 13px;cursor:pointer;box-shadow:0 3px 0 #f48fb1;white-space:nowrap}
+    .level-chip:active{transform:translateY(2px);box-shadow:0 1px 0 #f48fb1}
+    .level-chip-caret{font-size:.7rem;opacity:.8}
+    .level-chip.static{background:rgba(255,255,255,.65);border-color:transparent;box-shadow:none;color:#9c27b0;cursor:default}
 
     /* ── COUNT BY: the same numbers read two ways at once ──
        Top strip = the skip-counting chant (12, 24, 36, ?).
        Ladder below = the very same numbers written as the times table.
        The child types into the ladder, so filling in the table IS counting on. */
     .countby-screen{--game-bg:url('assets/unicorn/bg-hop-to-number.png');--screen-fallback:linear-gradient(160deg,#f3e5f5,#fce4ec,#fff3e0)}
-    .countby-card{gap:10px;padding:15px 16px 17px;min-width:min(92vw,470px)}
-    .cb-chain{display:flex;align-items:center;gap:6px;width:100%;overflow-x:auto;padding:2px 2px 7px;scrollbar-width:none}
+    /* max-width, not just min-width: the chant strip is one long flex row, and a row of
+       20 chips reports that whole length as the card's intrinsic width — which dragged the
+       card wider than the phone and clipped both ends of every rung. Pinning both bounds
+       fixes the card to the screen and lets .cb-chain scroll inside it, which is what its
+       overflow-x was always for. */
+    .countby-card{gap:10px;padding:15px 16px 17px;min-width:min(92vw,470px);max-width:min(92vw,470px)}
+    .cb-chain{display:flex;align-items:center;gap:6px;width:100%;min-width:0;overflow-x:auto;padding:2px 2px 7px;scrollbar-width:none}
     .cb-chain::-webkit-scrollbar{display:none}
     .cb-chip{flex:0 0 auto;min-width:46px;padding:6px 11px;border-radius:999px;background:linear-gradient(160deg,#fff,#fce4ec);border:2.5px solid #f48fb1;color:#e91e63;font-size:1.05rem;font-weight:900;text-align:center;box-shadow:0 3px 0 #f48fb1}
     .cb-chip.next{border-style:dashed;border-color:#e91e63;color:#7b1fa2;animation:cbPulse 1.2s ease-in-out infinite}
@@ -379,7 +413,6 @@
     .ghost-hint{opacity:.35;color:#9c27b0}
     .nl-number.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
     @keyframes hintGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.16);box-shadow:0 0 0 8px #ffd54f,0 4px 0 rgba(0,0,0,.2)}}
-    .hold-hint{position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:2px solid #ce93d8;border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:900;color:#7b1fa2;z-index:9;box-shadow:0 3px 8px rgba(0,0,0,.15);white-space:nowrap}
 
     /* ── UNIFIED NUMBER LINE SCROLL ── */
     .line-stack{min-width:max-content;display:flex;flex-direction:column}
@@ -473,12 +506,14 @@ const COLUMN_ADD_PRESETS=[
   {id:'twoDigit',emoji:'🌺',tag:'<100 + <100',desc:'No carry'},
   {id:'big',emoji:'💜',tag:'>100 + <100',desc:'Big add'},
 ];
-const TIMES_MAX_OPTIONS=Array.from({length:12},(_,i)=>i+1);
+/* The number games let the child pick their own number, so these lists are what a
+   child actually taps — 1 to 20 (owner request, 2026-08-14: "more than 12, maybe up to 20"). */
+const TIMES_MAX_OPTIONS=Array.from({length:20},(_,i)=>i+1);
 const DEFAULT_TIMES_RANGE={rowMax:12,colMax:12};
 /* Count By: the skip-counting chant and the times table are the same list of numbers,
    so this game writes both at once. step = what we count by, upTo = how many jumps. */
-const COUNT_BY_STEP_OPTIONS=Array.from({length:12},(_,i)=>i+1);
-const COUNT_BY_UPTO_OPTIONS=Array.from({length:11},(_,i)=>i+2);
+const COUNT_BY_STEP_OPTIONS=Array.from({length:20},(_,i)=>i+1);
+const COUNT_BY_UPTO_OPTIONS=Array.from({length:19},(_,i)=>i+2);
 const DEFAULT_COUNT_BY={step:12,upTo:12};
 const CARD_ASSETS={
   b1:{src:'assets/unicorn/icons/unicorn-card-fixed.png',kind:'unicorn-art',label:'Build It character'},
@@ -690,6 +725,7 @@ function LineSettings({current, onChange, customOp, onCustomOp, isAddSub, lineMa
   const [aMin,setAMin]=useState(customOp?.amtMin??1);
   const [aMax,setAMax]=useState(customOp?.amtMax??5);
   const [opErr,setOpErr]=useState('');
+  const typedPanelOpen=showLineCustom||opMode==='custom';
 
   const applyLine=()=>{
     const mn=parseInt(lcMin),mx=parseInt(lcMax);
@@ -719,8 +755,11 @@ function LineSettings({current, onChange, customOp, onCustomOp, isAddSub, lineMa
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
         <div className="modal-title">Settings</div>
         <div className="section-label">Number Range</div>
+        {/* One tap on a picture picks the range and gets straight back to playing —
+            unless a grown-up has one of the typed panels open below, where the tap is
+            a step in a longer edit and closing would throw their work away. */}
         {LINE_PRESETS.filter(p=>p.id!=='lcustom').map(p=>(
-          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);}}>
+          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);if(!typedPanelOpen)onClose();}}>
             <span className="preset-tag">{p.emoji}</span>
             <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
             {current.id===p.id&&<span>✓</span>}
@@ -774,40 +813,25 @@ function LineSettings({current, onChange, customOp, onCustomOp, isAddSub, lineMa
   );
 }
 
+/* The gear used to need a 1200 ms press-and-hold so that only a grown-up could change
+   the difficulty. The owner reversed that (2026-08-14): the child is meant to choose.
+   So one tap opens the panel, and the difficulty pill opens it too — a much bigger
+   target than the gear, and the one place a child is already looking. */
 function TopBar({onBack,onSettings,muted,onToggleMute,label}){
-  const holdT=useRef(null);
-  const firedRef=useRef(false);
-  const hintT=useRef(null);
-  const [hint,setHint]=useState(false);
-  const startHold=()=>{
-    if(!onSettings)return;
-    firedRef.current=false;
-    clearTimeout(holdT.current);
-    holdT.current=setTimeout(()=>{firedRef.current=true;Sound.tap();onSettings();},1200);
-  };
-  const endHold=()=>{
-    clearTimeout(holdT.current);
-    if(!firedRef.current){
-      setHint(true);
-      clearTimeout(hintT.current);
-      hintT.current=setTimeout(()=>setHint(false),1800);
-    }
-  };
-  const cancelHold=()=>clearTimeout(holdT.current);
+  const open=()=>{Sound.tap();onSettings();};
   return(
     <div className="top-bar">
       <div style={{display:'flex',alignItems:'center',gap:5}}>
         <img src="assets/unicorn/icons/flower-pink.png" alt="" style={{width:30,height:30,objectFit:'contain',filter:'drop-shadow(0 2px 4px rgba(0,0,0,.15))'}}/>
         <button className="back-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}>←</button>
       </div>
-      {label&&<div style={{fontSize:'.78rem',fontWeight:900,color:'#9c27b0',background:'rgba(255,255,255,.65)',borderRadius:50,padding:'4px 10px'}}>{label}</div>}
+      {label&&(onSettings
+        ? <button className="level-chip" aria-label={`${label}. Tap to change`} onClick={open}>{label}<span className="level-chip-caret" aria-hidden="true">▼</span></button>
+        : <div className="level-chip static">{label}</div>)}
       <div style={{display:'flex',gap:6}}>
         <button className="sound-btn" aria-label={muted?'Sound off':'Sound on'} onClick={()=>{onToggleMute();Sound.tap();}}>{muted?'🔇':'🔊'}</button>
-        {onSettings&&<button className="settings-btn" aria-label="Settings (hold to open)"
-          onPointerDown={startHold} onPointerUp={endHold} onPointerLeave={cancelHold}
-          onContextMenu={e=>e.preventDefault()}>⚙️</button>}
+        {onSettings&&<button className="settings-btn" aria-label="Change the numbers" onClick={open}>⚙️</button>}
       </div>
-      {hint&&<div className="hold-hint">Grown-ups: press &amp; hold ⚙️</div>}
     </div>
   );
 }
@@ -1224,8 +1248,9 @@ function ColumnAddSettings({current,onChange,onClose}){
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
         <div className="modal-title">Column Add</div>
+        {/* Tapping a picture IS the choice, the same as the number games. */}
         {COLUMN_ADD_PRESETS.map(p=>(
-          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);}}>
+          <button key={p.id} className={`preset-btn ${current.id===p.id?'active':'inactive'}`} onClick={()=>{Sound.tap();onChange(p);onClose();}}>
             <span className="preset-tag">{p.emoji}</span>
             <div className="preset-info"><div className="preset-name">{p.tag}</div><div className="preset-range">{p.desc}</div></div>
             {current.id===p.id&&<span>✓</span>}
@@ -1359,33 +1384,23 @@ function makeMultiplicationProblem(range=DEFAULT_TIMES_RANGE){
   return {a,b,answer:a*b};
 }
 
-function MultiplicationSettings({range,onChange,onClose}){
-  const [rowMax,setRowMax]=useState(range.rowMax);
-  const [colMax,setColMax]=useState(range.colMax);
-  const apply=()=>onChange({rowMax,colMax});
+/* One number, tapped once. This used to be two grids (Rows and Columns) behind a
+   Done button; a child asked for "the twelves" does not think in rows and columns,
+   they think "how big". The tap sets both sides of the table and starts the game. */
+function MultiplicationPicker({range,onChange,onClose}){
+  useEffect(()=>{Voice.say('How big shall we go? Tap a number!');},[]);
   return(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={e=>e.stopPropagation()}>
-        <div className="modal-title">Times Tables</div>
-        <div className="times-range-preview">
-          <span>Up to</span>
-          <span className="times-value-box">{rowMax}</span>
-          <span>×</span>
-          <span className="times-value-box">{colMax}</span>
-        </div>
-        <div className="times-picker-label">Rows</div>
-        <div className="times-option-grid">
+      <div className="modal-box pick-box" onClick={e=>e.stopPropagation()}>
+        <div className="pick-question">How big? <span>{range.rowMax} × {range.colMax}</span></div>
+        <div className="pick-hint">Tap a number</div>
+        <div className="pick-grid">
           {TIMES_MAX_OPTIONS.map(n=>(
-            <button key={`r${n}`} className={`times-option-btn ${rowMax===n?'active':''}`} onClick={()=>{Sound.tap();setRowMax(n);}}>{n}</button>
+            <button key={n} className={`pick-btn ${range.rowMax===n&&range.colMax===n?'active':''}`}
+              onClick={()=>{Sound.tap();onChange({rowMax:n,colMax:n});}}>{n}</button>
           ))}
         </div>
-        <div className="times-picker-label">Columns</div>
-        <div className="times-option-grid">
-          {TIMES_MAX_OPTIONS.map(n=>(
-            <button key={`c${n}`} className={`times-option-btn ${colMax===n?'active':''}`} onClick={()=>{Sound.tap();setColMax(n);}}>{n}</button>
-          ))}
-        </div>
-        <button className="modal-close" onClick={apply}>Done</button>
+        <button className="modal-close" onClick={onClose}>Play!</button>
       </div>
     </div>
   );
@@ -1393,7 +1408,9 @@ function MultiplicationSettings({range,onChange,onClose}){
 
 function MultiplicationGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, score, setScore, bouquets, addBouquet, muted, onToggleMute}){
   const [range,setRange]=useState(DEFAULT_TIMES_RANGE);
-  const [showSettings,setShowSettings]=useState(false);
+  // Opens on the picker: the child chooses how big before the first question.
+  // Tapping "Play!" without choosing keeps the 12 × 12 default they arrived with.
+  const [showSettings,setShowSettings]=useState(true);
   const [problem,setProblem]=useState(()=>makeMultiplicationProblem(DEFAULT_TIMES_RANGE));
   const answerLength=String(problem.answer).length;
   const mascot=useMascot();
@@ -1413,7 +1430,8 @@ function MultiplicationGame({onBack, flowers, gardenFull, setFlowers, setGardenF
     setMisses(0);
   },[]);
 
-  useEffect(()=>{Voice.say(`${problem.a} times ${problem.b}?`);},[problem]);
+  // Silent while the picker is up, so it does not talk over "How big shall we go?".
+  useEffect(()=>{if(showSettings)return;Voice.say(`${problem.a} times ${problem.b}?`);},[problem,showSettings]);
 
   const next=useCallback(()=>{
     if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}
@@ -1466,7 +1484,7 @@ function MultiplicationGame({onBack, flowers, gardenFull, setFlowers, setGardenF
   return(
     <div className="screen multiply-screen">
       <div className="screen-bg"/>
-      {showSettings&&<MultiplicationSettings range={range} onChange={applyRange} onClose={()=>setShowSettings(false)}/>}
+      {showSettings&&<MultiplicationPicker range={range} onChange={applyRange} onClose={()=>setShowSettings(false)}/>}
       <Confetti active={confetti}/>
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={timesRangeLabel(range)}/>
@@ -1507,33 +1525,37 @@ function MultiplicationGame({onBack, flowers, gardenFull, setFlowers, setGardenF
    and "one more group of 3" are the same action. */
 const countByLabel=cfg=>`Count by ${cfg.step}`;
 
-function CountBySettings({config,onChange,onClose}){
-  const [step,setStep]=useState(config.step);
+/* "The child should be able to click the number they want to count, then get that
+   setting" (owner, 2026-08-14). So the number tiles are the whole screen and the tap
+   is the whole interaction — no Done button to find, no hold gesture to learn.
+   How many jumps stays available underneath, quieter, for whoever wants it; changing
+   it does not close the picker, so the number tap is always the last thing tapped. */
+function CountByPicker({config,onChange}){
   const [upTo,setUpTo]=useState(config.upTo);
-  const apply=()=>onChange({step,upTo});
+  // Leaving by any route keeps the jumps the child just set; onChange is a no-op
+  // when nothing actually changed, so dismissing never wipes a ladder in progress.
+  const done=()=>onChange({step:config.step,upTo});
+  useEffect(()=>{Voice.say('Which number shall we count by? Tap it!');},[]);
   return(
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={e=>e.stopPropagation()}>
-        <div className="modal-title">Count By</div>
-        <div className="times-range-preview">
-          <span>Count by</span>
-          <span className="times-value-box">{step}</span>
-          <span>to</span>
-          <span className="times-value-box">{step*upTo}</span>
-        </div>
-        <div className="times-picker-label">Count by</div>
-        <div className="times-option-grid">
+    <div className="modal-overlay" onClick={done}>
+      <div className="modal-box pick-box" onClick={e=>e.stopPropagation()}>
+        <div className="pick-question">Count by…</div>
+        <div className="pick-hint">Tap your number</div>
+        <div className="pick-grid">
           {COUNT_BY_STEP_OPTIONS.map(n=>(
-            <button key={`s${n}`} className={`times-option-btn ${step===n?'active':''}`} onClick={()=>{Sound.tap();setStep(n);}}>{n}</button>
+            <button key={n} className={`pick-btn ${config.step===n?'active':''}`}
+              onClick={()=>{Sound.tap();Voice.say(`Count by ${n}!`);onChange({step:n,upTo});}}>{n}</button>
           ))}
         </div>
-        <div className="times-picker-label">How many jumps</div>
-        <div className="times-option-grid">
-          {COUNT_BY_UPTO_OPTIONS.map(n=>(
-            <button key={`u${n}`} className={`times-option-btn ${upTo===n?'active':''}`} onClick={()=>{Sound.tap();setUpTo(n);}}>{n}</button>
-          ))}
+        <div className="pick-second">
+          <div className="times-picker-label" style={{marginTop:0}}>How many jumps</div>
+          <div className="pick-second-grid">
+            {COUNT_BY_UPTO_OPTIONS.map(n=>(
+              <button key={n} className={`pick-small-btn ${upTo===n?'active':''}`} onClick={()=>{Sound.tap();setUpTo(n);}}>{n}</button>
+            ))}
+          </div>
         </div>
-        <button className="modal-close" onClick={apply}>Done</button>
+        <button className="modal-close" onClick={done}>Play!</button>
       </div>
     </div>
   );
@@ -1541,7 +1563,8 @@ function CountBySettings({config,onChange,onClose}){
 
 function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, score, setScore, bouquets, addBouquet, muted, onToggleMute}){
   const [cfg,setCfg]=useState(DEFAULT_COUNT_BY);
-  const [showSettings,setShowSettings]=useState(false);
+  // Opens on the picker: the child names their number before the first rung.
+  const [showSettings,setShowSettings]=useState(true);
   const [filled,setFilled]=useState(0);   // rungs finished and moved past
   const [won,setWon]=useState(false);     // current rung solved, waiting for Next
   const [digits,setDigits]=useState(()=>Array(String(DEFAULT_COUNT_BY.step).length).fill(''));
@@ -1575,11 +1598,14 @@ function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, sc
     goToRung(tableDone?0:filled+1);
   },[muted,flowers,setFlowers,setGardenFull,addBouquet,tableDone,filled,goToRung]);
 
+  /* Only restart the ladder when the numbers really moved — closing the picker on
+     the same settings must not throw away the rungs already counted. */
   const applyConfig=useCallback(nextCfg=>{
+    setShowSettings(false);
+    if(nextCfg.step===cfg.step&&nextCfg.upTo===cfg.upTo)return;
     setCfg(nextCfg);
     goToRung(0,nextCfg);
-    setShowSettings(false);
-  },[goToRung]);
+  },[cfg,goToRung]);
 
   const clear=useCallback(()=>{
     Sound.setMuted(muted); Sound.tap();
@@ -1600,13 +1626,15 @@ function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, sc
     });
   },[muted,won]);
 
-  /* Ask by chanting what is already on the ladder: "12, 24, 36. What comes next?" */
+  /* Ask by chanting what is already on the ladder: "12, 24, 36. What comes next?"
+     Silent while the picker is up, so it does not talk over the choosing prompt. */
   useEffect(()=>{
+    if(showSettings)return;
     if(filled===0){Voice.say(`Let's count by ${cfg.step}. What number comes first?`);return;}
     const back=Math.min(3,filled);
     const tail=Array.from({length:back},(_,i)=>(filled-back+1+i)*cfg.step);
     Voice.say(`${tail.join(', ')}. What comes next?`);
-  },[filled,cfg]);
+  },[filled,cfg,showSettings]);
 
   useEffect(()=>{
     if(won||digits.some(d=>d==='')) return;
@@ -1638,7 +1666,10 @@ function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, sc
   useEffect(()=>{
     const el=ladderRef.current;
     const row=el&&el.children[Math.min(filled,cfg.upTo-1)];
-    if(row) row.scrollIntoView({block:'nearest',behavior:'smooth'});
+    /* Instant, not smooth: the chain's smooth scroll on the next line lands in the same
+       frame and Chrome drops the ladder's animation, so the live rung silently stayed
+       off-screen. Cheap to see with 12 rungs, unplayable with 20. */
+    if(row) row.scrollIntoView({block:'nearest'});
     const chain=chainRef.current;
     if(chain) chain.scrollTo({left:chain.scrollWidth,behavior:'smooth'});
   },[filled,shown,cfg]);
@@ -1657,7 +1688,7 @@ function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, sc
   return(
     <div className="screen countby-screen">
       <div className="screen-bg"/>
-      {showSettings&&<CountBySettings config={cfg} onChange={applyConfig} onClose={()=>setShowSettings(false)}/>}
+      {showSettings&&<CountByPicker config={cfg} onChange={applyConfig}/>}
       <Confetti active={confetti}/>
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={countByLabel(cfg)}/>
@@ -1751,7 +1782,7 @@ function Home({onSelect,bouquets=0}){
           </button>
           <button className="mode-card mc-purple" onClick={()=>onSelect('m1')}>
             <div className="mode-card-icon"><CardArt id="m1"/></div>
-            <div className="mode-card-label">Times Tables</div><div className="mode-card-sub">Up to 12×12</div><Stars count={2}/>
+            <div className="mode-card-label">Times Tables</div><div className="mode-card-sub">You pick how big</div><Stars count={2}/>
           </button>
           <button className="mode-card mc-rose" onClick={()=>onSelect('s1')}>
             <div className="mode-card-icon"><CardArt id="s1"/></div>
@@ -1795,6 +1826,15 @@ function App(){
   return<Home onSelect={setMode} bouquets={bouquets}/>;
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script>
+  /* Offline support. Registration is best-effort: opened straight from a file
+     the browser refuses it, and the games must still run. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./service-worker.js').catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>

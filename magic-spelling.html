@@ -4,11 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Magic Spelling 👸</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="stylesheet" href="./fonts.css"/>
+  <meta name="theme-color" content="#0a0e2d"/>
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Magic Math"/>
+  <script src="./vendor/react-18.3.1.production.min.js"></script>
+  <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
+  <script src="./vendor/babel-7.26.4.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#fce4ec}
 
@@ -561,6 +567,15 @@ function App(){
   );
 }
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script>
+  /* Offline support. Registration is best-effort: opened straight from a file
+     the browser refuses it, and the games must still run. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./service-worker.js').catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>

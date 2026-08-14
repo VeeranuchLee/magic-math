@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Little Maestro 🎵</title>
+  <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="stylesheet" href="./fonts.css"/>
+  <meta name="theme-color" content="#0a0e2d"/>
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Magic Math"/>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Fredoka+One&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -838,6 +844,15 @@ function renderResults() {
 // ─────────────────────────────────────────────
 renderSongPicker();
 renderTeachCard();
+</script>
+<script>
+  /* Offline support. Registration is best-effort: opened straight from a file
+     the browser refuses it, and the games must still run. */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./service-worker.js').catch(function () {});
+    });
+  }
 </script>
 </body>
 </html>
