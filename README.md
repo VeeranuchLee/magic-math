@@ -101,9 +101,16 @@ separate skills:
   twelve."* Finishing the ladder says *"You counted by 3 all the way to 36 — that is
   the 3 times table!"*
 
-The child picks the number: Count By opens on a grid of 1–20 and one tap on a tile both
-sets it and starts the ladder. How many jumps (2–20) sits underneath as a quieter second
-choice. The pill in the top bar — "Count by 7" — reopens the same picker at any time.
+The child picks the number: Count By opens on a grid of 1–20, and one tap on a tile both
+sets it and starts the ladder. Every ladder is **20 rungs**, so counting by 3 runs to 60 and
+counting by 20 runs to 400.
+
+There is nothing else to choose. A "how many jumps" row lived here for a day and was removed
+on 2026-08-15 after watching real children: they never touched it, and when they wanted a
+different number they left the game and came back rather than reaching for a control — which
+lands them straight on these tiles anyway. They also rarely finish a ladder, so a shorter one
+buys nothing and a longer one costs nothing. The pill in the top bar — "Count by 7" — reopens
+the same picker without leaving.
 
 ## Choosing the difficulty
 
@@ -112,8 +119,8 @@ the gear — or on the difficulty pill next to it, which is the bigger target �
 choice, and picking an option applies it immediately. There is no "Done" to find.
 
 - **Count By** and **Times Tables** open on their picker, so the first thing a child does
-  is name their number. Count By asks "Count by…" over tiles 1–20; Times Tables asks
-  "How big?" and one tap sets both sides of the table (up to 20 × 20).
+  is name their number. Count By asks "Count by…" over tiles 1–20 and nothing else; Times
+  Tables asks "How big?" and one tap sets both sides of the table (up to 20 × 20).
 - **What Number?**, **Fill the Right Block**, **Add & Subtract** and **Column Add** choose
   from pictures instead of numbers. Tapping a picture picks it and returns to the game.
 - Tapping **Play!** without choosing keeps whatever the game was already on.

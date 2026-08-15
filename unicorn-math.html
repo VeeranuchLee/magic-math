@@ -283,13 +283,7 @@
     .pick-btn{height:60px;border-radius:18px;border:3px solid #f48fb1;background:linear-gradient(160deg,#fff,#fce4ec);color:#7b1fa2;font-family:inherit;font-size:1.6rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #f48fb1;transition:transform .1s}
     .pick-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
     .pick-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 4px 0 #ad1457}
-    /* Second choice, deliberately quieter than the number tiles: a child can ignore it. */
-    .pick-second{margin-top:16px;padding-top:12px;border-top:2.5px dashed #f8bbd0}
-    .pick-second-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-    .pick-small-btn{height:34px;border-radius:11px;border:2px solid #f8bbd0;background:#fff;color:#7b1fa2;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer}
-    .pick-small-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 3px 0 #ad1457}
-    @media (max-width:430px){.pick-grid{grid-template-columns:repeat(4,1fr)}.pick-second-grid{grid-template-columns:repeat(5,1fr)}}
-    /* The difficulty pill in the top bar is the way back to the picker, so it has to
+    @media (max-width:430px){.pick-grid{grid-template-columns:repeat(4,1fr)}    /* The difficulty pill in the top bar is the way back to the picker, so it has to
        look pressable — it is a wider target than the gear beside it. */
     .level-chip{display:flex;align-items:center;gap:5px;font-family:inherit;font-size:.85rem;font-weight:900;color:#e91e63;background:linear-gradient(160deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:6px 13px;cursor:pointer;box-shadow:0 3px 0 #f48fb1;white-space:nowrap}
     .level-chip:active{transform:translateY(2px);box-shadow:0 1px 0 #f48fb1}
@@ -513,8 +507,9 @@ const DEFAULT_TIMES_RANGE={rowMax:12,colMax:12};
 /* Count By: the skip-counting chant and the times table are the same list of numbers,
    so this game writes both at once. step = what we count by, upTo = how many jumps. */
 const COUNT_BY_STEP_OPTIONS=Array.from({length:20},(_,i)=>i+1);
-const COUNT_BY_UPTO_OPTIONS=Array.from({length:19},(_,i)=>i+2);
-const DEFAULT_COUNT_BY={step:12,upTo:12};
+/* upTo is no longer a control — every ladder is 20 rungs. Kept as a named value
+   rather than a 20 sprinkled through the ladder logic, so the length is one edit. */
+const DEFAULT_COUNT_BY={step:12,upTo:20};
 const CARD_ASSETS={
   b1:{src:'assets-runtime/unicorn/icons/unicorn-card-fixed.webp',kind:'unicorn-art',label:'Build It character'},
   b2:{src:'assets-runtime/unicorn/icons/princess-card-clean.webp',kind:'princess-art',label:'Fill the Right Block character'},
@@ -1528,34 +1523,24 @@ const countByLabel=cfg=>`Count by ${cfg.step}`;
 /* "The child should be able to click the number they want to count, then get that
    setting" (owner, 2026-08-14). So the number tiles are the whole screen and the tap
    is the whole interaction — no Done button to find, no hold gesture to learn.
-   How many jumps stays available underneath, quieter, for whoever wants it; changing
-   it does not close the picker, so the number tap is always the last thing tapped. */
-function CountByPicker({config,onChange}){
-  const [upTo,setUpTo]=useState(config.upTo);
-  // Leaving by any route keeps the jumps the child just set; onChange is a no-op
-  // when nothing actually changed, so dismissing never wipes a ladder in progress.
-  const done=()=>onChange({step:config.step,upTo});
+   There was a "how many jumps" row here too. The owner watched their children use
+   this for a day (2026-08-15): they never touched it, and to change the number they
+   leave the game and come straight back to these tiles. Dead UI, so it is gone —
+   one screen, one question, one tap. */
+function CountByPicker({config,onChange,onClose}){
   useEffect(()=>{Voice.say('Which number shall we count by? Tap it!');},[]);
   return(
-    <div className="modal-overlay" onClick={done}>
+    <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box pick-box" onClick={e=>e.stopPropagation()}>
         <div className="pick-question">Count by…</div>
         <div className="pick-hint">Tap your number</div>
         <div className="pick-grid">
           {COUNT_BY_STEP_OPTIONS.map(n=>(
             <button key={n} className={`pick-btn ${config.step===n?'active':''}`}
-              onClick={()=>{Sound.tap();Voice.say(`Count by ${n}!`);onChange({step:n,upTo});}}>{n}</button>
+              onClick={()=>{Sound.tap();Voice.say(`Count by ${n}!`);onChange({step:n,upTo:config.upTo});}}>{n}</button>
           ))}
         </div>
-        <div className="pick-second">
-          <div className="times-picker-label" style={{marginTop:0}}>How many jumps</div>
-          <div className="pick-second-grid">
-            {COUNT_BY_UPTO_OPTIONS.map(n=>(
-              <button key={n} className={`pick-small-btn ${upTo===n?'active':''}`} onClick={()=>{Sound.tap();setUpTo(n);}}>{n}</button>
-            ))}
-          </div>
-        </div>
-        <button className="modal-close" onClick={done}>Play!</button>
+        <button className="modal-close" onClick={onClose}>Play!</button>
       </div>
     </div>
   );
@@ -1688,7 +1673,7 @@ function CountByGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, sc
   return(
     <div className="screen countby-screen">
       <div className="screen-bg"/>
-      {showSettings&&<CountByPicker config={cfg} onChange={applyConfig}/>}
+      {showSettings&&<CountByPicker config={cfg} onChange={applyConfig} onClose={()=>setShowSettings(false)}/>}
       <Confetti active={confetti}/>
       <BgDeco/>
       <TopBar onBack={onBack} onSettings={()=>setShowSettings(true)} muted={muted} onToggleMute={onToggleMute} label={countByLabel(cfg)}/>

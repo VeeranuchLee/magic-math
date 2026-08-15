@@ -22,9 +22,12 @@
 
 importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 
-// v3: every image path moved to assets-runtime/*.webp, so a device holding v2 must
-// drop it wholesale rather than keep serving PNGs nothing references any more.
-const CACHE_NAME = "magic-math-v3";
+// Bump on every publish; the activate handler drops every other cache, which is what
+// actually delivers an update to a device that already installed the app.
+//   v2 -> v3  every image path moved to assets-runtime/*.webp, so v2 had to go wholesale
+//             rather than keep serving PNGs nothing references any more.
+//   v3 -> v4  Count By lost its "how many jumps" row and fixed the ladder at 20 rungs.
+const CACHE_NAME = "magic-math-v4";
 
 const SHELL = [
   "./",
