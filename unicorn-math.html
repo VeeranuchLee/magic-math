@@ -547,17 +547,49 @@ const Sound = (() => {
 /* ══ VOICE (Web Speech) ══ */
 const Voice = {
   muted: false,
+  /* Bumped by every new request. A queued `lines` chain checks it before speaking
+     the next part, so an interrupted sequence cannot finish talking over whatever
+     replaced it — cancel() alone does not stop a part that has not started yet. */
+  gen: 0,
+  utterance(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = .95;
+    u.pitch = 1.15;
+    u.lang = 'en-US';
+    return u;
+  },
   say(text) {
     if (this.muted) return;
     try {
       const s = window.speechSynthesis;
       if (!s) return;
+      this.gen++;
       s.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = .95;
-      u.pitch = 1.15;
-      u.lang = 'en-US';
-      s.speak(u);
+      s.speak(this.utterance(text));
+    } catch (e) {}
+  },
+  /* Several short lines instead of one long string.
+     "26! 2 times 13 is 26. You did it!" as a single utterance comes out as one
+     breathless run — the child hears the answer, the explanation and the praise
+     with no seam, and the number they just typed never lands (owner, 2026-08-15).
+     One utterance per line gives a real break; punctuation inside a single string
+     does not.
+      All parts are queued at once, deliberately. Chaining each part off the
+     previous one's `onend` reads better but is not safe: `onend` is unreliable —
+     in testing here it never fired at all, which left the child hearing "26!" and
+     nothing else. speechSynthesis already queues utterances and speaks them in
+     order, so queueing cannot lose a line. The trailing period on each part is
+     what buys the pause, since the engine closes off the sentence. */
+  lines(parts) {
+    if (this.muted) return;
+    const list = parts.filter(Boolean);
+    if (!list.length) return;
+    try {
+      const s = window.speechSynthesis;
+      if (!s) return;
+      this.gen++;
+      s.cancel();
+      list.forEach(text => s.speak(this.utterance(text)));
     } catch (e) {}
   }
 };
@@ -1565,7 +1597,7 @@ function BlocksGuided({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.say(`You found it! ${correctNumber}! ${praise()}`);
+      Voice.lines([`You found it! ${correctNumber}!`, praise()]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2600);
@@ -1768,7 +1800,7 @@ function BlocksFill({
     Sound.ding();
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
-    Voice.say(`You built ${target}! ${praise()}`);
+    Voice.lines([`You built ${target}!`, praise()]);
     setScore(s => s + 1);
     addFlower();
     setTimeout(() => setConf(false), 2600);
@@ -1999,7 +2031,7 @@ function NumberLineAddSub({
       setConf(true);
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
-      Voice.say(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}! ${praise()}`);
+      Voice.lines([`${prob.answer}!`, `${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}.`, praise()]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -2315,7 +2347,7 @@ function ColumnAdd({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.say(`${problem.a} plus ${problem.b} is ${problem.answer}! ${praise()}`);
+      Voice.lines([`${problem.answer}!`, `${problem.a} plus ${problem.b} is ${problem.answer}.`, praise()]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -2541,7 +2573,7 @@ function MultiplicationGame({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.say(`${problem.a} times ${problem.b} is ${problem.answer}! ${praise()}`);
+      Voice.lines([`${problem.answer}!`, `${problem.a} times ${problem.b} is ${problem.answer}.`, praise()]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -2780,10 +2812,10 @@ function CountByGame({
       if (k >= cfg.upTo) {
         setConf(true);
         setTimeout(() => setConf(false), 2500);
-        Voice.say(`${target}! You counted by ${cfg.step} all the way to ${target}. That is the ${cfg.step} times table!`);
+        Voice.lines([`${target}!`, `You counted by ${cfg.step} all the way to ${target}.`, `That is the ${cfg.step} times table!`]);
       } else {
         // The bridge sentence: the number they just counted to, named as a times fact.
-        Voice.say(`${target}! ${k} times ${cfg.step} is ${target}. ${praise()}`);
+        Voice.lines([`${target}!`, `${k} times ${cfg.step} is ${target}.`, praise()]);
       }
     } else {
       setWrong(true);

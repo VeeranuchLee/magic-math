@@ -29,7 +29,8 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v3 -> v4  Count By lost its "how many jumps" row and fixed the ladder at 20 rungs.
 //   v4 -> v5  the unclosed @media brace fix, the JSX precompile (Babel stops shipping,
 //             so it also leaves SHELL), and game previews on the home cards.
-const CACHE_NAME = "magic-math-v5";
+//   v5 -> v6  correct answers are spoken as separate lines instead of one run-on.
+const CACHE_NAME = "magic-math-v6";
 
 const SHELL = [
   "./",
