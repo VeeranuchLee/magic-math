@@ -40,12 +40,14 @@ What works offline, and when:
   because that is what a web manifest and `apple-touch-icon` want.
 - `vendor/` – React, ReactDOM and Babel, self-hosted so the games start offline.
   Byte-identical to the published releases named in the filenames; re-verify against
-  the CDN's SRI if you ever replace one.
+  the CDN's SRI if you ever replace one. **Babel is development-only** — it compiles
+  the JSX while you work locally, and the publish build strips it out.
 - `fonts/`, `fonts.css` – Nunito and Fredoka One, self-hosted for the same reason
 - `tools/` – deterministic generators: `build-runtime-assets.py` (the WebP runtime tree),
-  `build-icons.py` (app icons) and `build-cache-list.py` (the offline warm list). After
-  changing any art, re-run `build-runtime-assets.py` **then** `build-cache-list.py` and
-  commit the result — otherwise the games keep serving the previous encode.
+  `build-icons.py` (app icons), `build-cache-list.py` (the offline warm list) and
+  `build-for-publish.js` (compiles the JSX out, for publishing only). After changing any
+  art, re-run `build-runtime-assets.py` **then** `build-cache-list.py` and commit the
+  result — otherwise the games keep serving the previous encode.
 - `archive/` – older versions of the math game (v1–v7), kept for reference
 - `art-source/` – original AI-generated art sheets the icons were cut from
   (kept locally only, not uploaded — see `.gitignore`)
@@ -63,6 +65,37 @@ offline cache settles at 5.6 MB instead of ~16 MB.
 
 **Requires WebP** — Safari 14 / iOS 14, September 2020. That is not a new floor: the
 games already need service workers, ES6 and React 18, none of which run on iOS 13.
+
+## Two forms: the file you edit, and the file that ships
+
+The three React games — Space Math, Unicorn Math, Magic Spelling — are written as single
+self-contained HTML files with **inline JSX**, and that is deliberate: the file you open
+is the file you edit. They keep that form in this repository, forever.
+
+They do **not** ship that way. Publishing runs:
+
+```bash
+node tools/build-for-publish.js <copy-of-math-app>
+```
+
+which compiles the JSX with the app's own vendored Babel, strips the Babel script tag,
+deletes `vendor/babel-7.26.4.min.js` and drops it from the service worker's shell. It
+only ever writes to the copy you point it at — never to this folder.
+
+Why it matters: Babel is 629 KB over the wire and **2,914 KB once decompressed**, and it
+existed only to redo the same translation of the same 166 KB of JSX at every single
+launch. That is CPU a child's tablet spends before anything appears. Compiling ahead of
+time takes the JS a cold launch fetches from **692 KB to 76 KB gzipped**.
+
+The compiled pages are slightly larger on their own (`space-math.html` 127 → 152 KB raw)
+because `React.createElement` is verbose — but gzipped that is 29 → 30 KB. The win is the
+compiler that no longer ships.
+
+**If you skip this step you silently republish the slow version**, so the publish gate
+checks that nothing in the shipped tree mentions Babel.
+
+`index.html` and `classical-music.html` are untouched — they are plain DOM JavaScript and
+never used React or Babel.
 
 ## Publishing an update
 

@@ -13,7 +13,6 @@
   <meta name="apple-mobile-web-app-title" content="Magic Math"/>
   <script src="./vendor/react-18.3.1.production.min.js"></script>
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
-  <script src="./vendor/babel-7.26.4.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#fce4ec}
@@ -134,439 +133,828 @@
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel" data-presets="react">
-const {useState,useEffect,useMemo,useRef,useCallback} = React;
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback
+} = React;
 
 /* ══ SOUND ══ */
-const Sound=(()=>{ 
-  let _ctx=null,_muted=false;
-  const ctx=()=>{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!_ctx)_ctx=new AC();if(_ctx.state==='suspended')_ctx.resume();return _ctx;};
-  const tone=(c,freq,type,t,dur,vol,fe)=>{try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.setValueAtTime(freq,t);if(fe)o.frequency.exponentialRampToValueAtTime(fe,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}};
-  return{
-    setMuted(m){_muted=m;},
-    tap(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,880,'sine',n,.08,.12);tone(c,1320,'sine',n+.04,.06,.08);},
-    ding(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.06],[784,.12],[1047,.22]].forEach(([f,t])=>tone(c,f,'sine',n+t,.45,.16));},
-    wrong(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;tone(c,220,'sawtooth',n,.28,.09,100);},
-    celebrate(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[[523,0],[659,.1],[784,.2],[1047,.32],[784,.46],[1047,.58],[1319,.68],[1047,.82]].forEach(([f,t])=>tone(c,f,'sine',n+t,.2,.18));},
-    fanfare(){if(_muted)return;const c=ctx();if(!c)return;const n=c.currentTime;[523,659,784,1047,1319,1568,2093,1568,1319,1047].forEach((f,i)=>tone(c,f,'sine',n+i*.1,.2,.22));}
+const Sound = (() => {
+  let _ctx = null,
+    _muted = false;
+  const ctx = () => {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!_ctx) _ctx = new AC();
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  };
+  const tone = (c, freq, type, t, dur, vol, fe) => {
+    try {
+      const o = c.createOscillator(),
+        g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (fe) o.frequency.exponentialRampToValueAtTime(fe, t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.start(t);
+      o.stop(t + dur);
+    } catch (e) {}
+  };
+  return {
+    setMuted(m) {
+      _muted = m;
+    },
+    tap() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 880, 'sine', n, .08, .12);
+      tone(c, 1320, 'sine', n + .04, .06, .08);
+    },
+    ding() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      [[523, 0], [659, .06], [784, .12], [1047, .22]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .45, .16));
+    },
+    wrong() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 220, 'sawtooth', n, .28, .09, 100);
+    },
+    celebrate() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      [[523, 0], [659, .1], [784, .2], [1047, .32], [784, .46], [1047, .58], [1319, .68], [1047, .82]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .2, .18));
+    },
+    fanfare() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      [523, 659, 784, 1047, 1319, 1568, 2093, 1568, 1319, 1047].forEach((f, i) => tone(c, f, 'sine', n + i * .1, .2, .22));
+    }
   };
 })();
 
 /* ══ VOICE ══ */
-let _voiceMuted=false;
-const Voice={
-  setMuted(m){_voiceMuted=m; if(m&&window.speechSynthesis)window.speechSynthesis.cancel();},
-  say(text,rate=0.85){
-    if(_voiceMuted)return;
-    try{
-      const s=window.speechSynthesis; if(!s)return;
+let _voiceMuted = false;
+const Voice = {
+  setMuted(m) {
+    _voiceMuted = m;
+    if (m && window.speechSynthesis) window.speechSynthesis.cancel();
+  },
+  say(text, rate = 0.85) {
+    if (_voiceMuted) return;
+    try {
+      const s = window.speechSynthesis;
+      if (!s) return;
       s.cancel();
-      const u=new SpeechSynthesisUtterance(text);
-      u.rate=rate; u.pitch=1.15; u.lang='en-US';
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = rate;
+      u.pitch = 1.15;
+      u.lang = 'en-US';
       s.speak(u);
-    }catch(e){}
+    } catch (e) {}
   }
 };
-
-const PRAISE=['Great job!','Amazing!','You did it!','Wonderful!','Beautiful!','Magical!'];
-const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
-const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const shuffle=a=>{const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;};
+const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Beautiful!', 'Magical!'];
+const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
+const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const shuffle = a => {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+};
 
 /* ══ WORD BANK (word, emoji) ══ */
-const WORDS3=[['CAT','🐱'],['DOG','🐶'],['SUN','☀️'],['HAT','🎩'],['BEE','🐝'],['CUP','🍵'],['BUS','🚌'],['KEY','🔑'],['PIG','🐷'],['FOX','🦊'],['OWL','🦉'],['EGG','🥚'],['BED','🛏️'],['PIE','🥧'],['GEM','💎'],['COW','🐮'],['ANT','🐜'],['BOW','🎀']];
-const WORDS4=[['STAR','⭐'],['FISH','🐟'],['CAKE','🎂'],['FROG','🐸'],['RING','💍'],['MOON','🌙'],['ROSE','🌹'],['BEAR','🐻'],['DUCK','🦆'],['LION','🦁'],['BOAT','⛵'],['KING','🤴'],['BELL','🔔'],['BIRD','🐦'],['KITE','🪁'],['SWAN','🦢'],['DRUM','🥁'],['CORN','🌽']];
-const WORDS5=[['CROWN','👑'],['APPLE','🍎'],['HEART','💖'],['FAIRY','🧚'],['HORSE','🐴'],['MOUSE','🐭'],['SNAKE','🐍'],['TIGER','🐯'],['TRAIN','🚂'],['CLOUD','☁️'],['GRAPE','🍇'],['LEMON','🍋'],['QUEEN','👸'],['CANDY','🍬'],['CASTLE','🏰'],['FLOWER','🌸'],['DRESS','👗'],['RABBIT','🐰'],['TURTLE','🐢'],['CHERRY','🍒'],['UNICORN','🦄']];
-
-const PRESETS=[
-  {id:'p3',emoji:'🌸',tag:'Short',desc:'3 letters',bank:WORDS3,decoys:0},
-  {id:'p4',emoji:'🌷',tag:'Medium',desc:'4 letters',bank:WORDS4,decoys:1},
-  {id:'p5',emoji:'👑',tag:'Long',desc:'5+ letters',bank:WORDS5,decoys:2},
-];
-const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const MAX_FLOWERS=10;
-const FLOWER_TYPES=['🌸','🌼','🌷','🌺','💖'];
-const BG_EMOJI=['✨','🌸','💖','✨','👑','✨','🌸','🦋','✨','💜','🌷','✨','🦄','🌸','✨','💖','🌺','✨','🎀','✨'];
-const TITLE_COLORS=['#e91e63','#f06292','#9c27b0','#7b1fa2','#3f51b5','#2196f3','#00bcd4','#f9a825','#ff9800','#e91e63','#9c27b0','#f06292','#ffd54f','#ab47bc'];
-const CONFETTI_C=['#e91e63','#f06292','#9c27b0','#ce93d8','#ffd54f','#fff176','#f48fb1','#ba68c8','#fff'];
+const WORDS3 = [['CAT', '🐱'], ['DOG', '🐶'], ['SUN', '☀️'], ['HAT', '🎩'], ['BEE', '🐝'], ['CUP', '🍵'], ['BUS', '🚌'], ['KEY', '🔑'], ['PIG', '🐷'], ['FOX', '🦊'], ['OWL', '🦉'], ['EGG', '🥚'], ['BED', '🛏️'], ['PIE', '🥧'], ['GEM', '💎'], ['COW', '🐮'], ['ANT', '🐜'], ['BOW', '🎀']];
+const WORDS4 = [['STAR', '⭐'], ['FISH', '🐟'], ['CAKE', '🎂'], ['FROG', '🐸'], ['RING', '💍'], ['MOON', '🌙'], ['ROSE', '🌹'], ['BEAR', '🐻'], ['DUCK', '🦆'], ['LION', '🦁'], ['BOAT', '⛵'], ['KING', '🤴'], ['BELL', '🔔'], ['BIRD', '🐦'], ['KITE', '🪁'], ['SWAN', '🦢'], ['DRUM', '🥁'], ['CORN', '🌽']];
+const WORDS5 = [['CROWN', '👑'], ['APPLE', '🍎'], ['HEART', '💖'], ['FAIRY', '🧚'], ['HORSE', '🐴'], ['MOUSE', '🐭'], ['SNAKE', '🐍'], ['TIGER', '🐯'], ['TRAIN', '🚂'], ['CLOUD', '☁️'], ['GRAPE', '🍇'], ['LEMON', '🍋'], ['QUEEN', '👸'], ['CANDY', '🍬'], ['CASTLE', '🏰'], ['FLOWER', '🌸'], ['DRESS', '👗'], ['RABBIT', '🐰'], ['TURTLE', '🐢'], ['CHERRY', '🍒'], ['UNICORN', '🦄']];
+const PRESETS = [{
+  id: 'p3',
+  emoji: '🌸',
+  tag: 'Short',
+  desc: '3 letters',
+  bank: WORDS3,
+  decoys: 0
+}, {
+  id: 'p4',
+  emoji: '🌷',
+  tag: 'Medium',
+  desc: '4 letters',
+  bank: WORDS4,
+  decoys: 1
+}, {
+  id: 'p5',
+  emoji: '👑',
+  tag: 'Long',
+  desc: '5+ letters',
+  bank: WORDS5,
+  decoys: 2
+}];
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const MAX_FLOWERS = 10;
+const FLOWER_TYPES = ['🌸', '🌼', '🌷', '🌺', '💖'];
+const BG_EMOJI = ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'];
+const TITLE_COLORS = ['#e91e63', '#f06292', '#9c27b0', '#7b1fa2', '#3f51b5', '#2196f3', '#00bcd4', '#f9a825', '#ff9800', '#e91e63', '#9c27b0', '#f06292', '#ffd54f', '#ab47bc'];
+const CONFETTI_C = ['#e91e63', '#f06292', '#9c27b0', '#ce93d8', '#ffd54f', '#fff176', '#f48fb1', '#ba68c8', '#fff'];
 
 /* ══ SHARED COMPONENTS ══ */
-function BgDeco(){
-  const items=useMemo(()=>BG_EMOJI.map((e,i)=>({e,id:i,left:rand(2,95),top:rand(2,88),dur:(rand(14,34)/10),delay:(rand(0,30)/10),size:rand(16,32),opacity:(rand(28,58)/100).toFixed(2)})),[]);
-  return(
-    <div className="bg-deco">
-      {items.map(it=>(
-        <span key={it.id} aria-hidden="true"
-          style={{left:`${it.left}%`,top:`${it.top}%`,fontSize:it.size,'--deco-opacity':it.opacity,
-            animation:`twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`}}>{it.e}</span>
-      ))}
-    </div>
-  );
+function BgDeco() {
+  const items = useMemo(() => BG_EMOJI.map((e, i) => ({
+    e,
+    id: i,
+    left: rand(2, 95),
+    top: rand(2, 88),
+    dur: rand(14, 34) / 10,
+    delay: rand(0, 30) / 10,
+    size: rand(16, 32),
+    opacity: (rand(28, 58) / 100).toFixed(2)
+  })), []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "bg-deco"
+  }, items.map(it => /*#__PURE__*/React.createElement("span", {
+    key: it.id,
+    "aria-hidden": "true",
+    style: {
+      left: `${it.left}%`,
+      top: `${it.top}%`,
+      fontSize: it.size,
+      '--deco-opacity': it.opacity,
+      animation: `twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`
+    }
+  }, it.e)));
 }
-
-function Confetti({active}){
-  const p=useMemo(()=>Array.from({length:70},(_,i)=>({id:i,left:rand(0,100),delay:rand(0,700),dur:rand(1200,2400),color:CONFETTI_C[i%CONFETTI_C.length],size:rand(7,14),isE:i%5===0})),[active]);
-  if(!active)return null;
-  return <div className="confetti-container">{p.map(x=>(
-    <div key={x.id} className="confetti-piece"
-      style={{left:`${x.left}%`,width:x.isE?'auto':x.size,height:x.isE?'auto':x.size,
-        fontSize:x.isE?x.size+6:undefined,borderRadius:x.isE?undefined:(x.id%2?'50%':'3px'),
-        background:x.isE?'none':x.color,animationDuration:`${x.dur}ms`,animationDelay:`${x.delay}ms`}}>
-      {x.isE?['🌸','👑','💖','⭐','🦋'][x.id%5]:null}
-    </div>))}</div>;
+function Confetti({
+  active
+}) {
+  const p = useMemo(() => Array.from({
+    length: 70
+  }, (_, i) => ({
+    id: i,
+    left: rand(0, 100),
+    delay: rand(0, 700),
+    dur: rand(1200, 2400),
+    color: CONFETTI_C[i % CONFETTI_C.length],
+    size: rand(7, 14),
+    isE: i % 5 === 0
+  })), [active]);
+  if (!active) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "confetti-container"
+  }, p.map(x => /*#__PURE__*/React.createElement("div", {
+    key: x.id,
+    className: "confetti-piece",
+    style: {
+      left: `${x.left}%`,
+      width: x.isE ? 'auto' : x.size,
+      height: x.isE ? 'auto' : x.size,
+      fontSize: x.isE ? x.size + 6 : undefined,
+      borderRadius: x.isE ? undefined : x.id % 2 ? '50%' : '3px',
+      background: x.isE ? 'none' : x.color,
+      animationDuration: `${x.dur}ms`,
+      animationDelay: `${x.delay}ms`
+    }
+  }, x.isE ? ['🌸', '👑', '💖', '⭐', '🦋'][x.id % 5] : null)));
 }
-
-function Mascot({mood,stamp}){
-  const face=mood==='oops'?'😯':'👸';
-  return(
-    <div key={stamp} className={`mascot-corner ${mood!=='idle'?mood:''}`} aria-hidden="true">
-      <span className="mascot-emoji">{face}</span>
-    </div>
-  );
+function Mascot({
+  mood,
+  stamp
+}) {
+  const face = mood === 'oops' ? '😯' : '👸';
+  return /*#__PURE__*/React.createElement("div", {
+    key: stamp,
+    className: `mascot-corner ${mood !== 'idle' ? mood : ''}`,
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mascot-emoji"
+  }, face));
 }
-function useMascot(){
-  const [mood,setMood]=useState('idle');
-  const [stamp,setStamp]=useState(0);
-  const tRef=useRef(null);
-  const trigger=useCallback((m,ms)=>{clearTimeout(tRef.current);setMood(m);setStamp(x=>x+1);if(ms)tRef.current=setTimeout(()=>setMood('idle'),ms);},[]);
-  return{mood,stamp,happy:useCallback(()=>trigger('happy',2400),[trigger]),oops:useCallback(()=>trigger('oops',1000),[trigger])};
+function useMascot() {
+  const [mood, setMood] = useState('idle');
+  const [stamp, setStamp] = useState(0);
+  const tRef = useRef(null);
+  const trigger = useCallback((m, ms) => {
+    clearTimeout(tRef.current);
+    setMood(m);
+    setStamp(x => x + 1);
+    if (ms) tRef.current = setTimeout(() => setMood('idle'), ms);
+  }, []);
+  return {
+    mood,
+    stamp,
+    happy: useCallback(() => trigger('happy', 2400), [trigger]),
+    oops: useCallback(() => trigger('oops', 1000), [trigger])
+  };
 }
-
-function FlowerGarden({flowers}){
-  return(
-    <div className="flower-garden" aria-label={`${flowers} of ${MAX_FLOWERS} flowers collected`}>
-      {Array.from({length:MAX_FLOWERS},(_,i)=>(
-        <span key={i} className={`flower-slot ${i<flowers?'filled':'empty'}`}>
-          {i<flowers?FLOWER_TYPES[i%FLOWER_TYPES.length]:'·'}
-        </span>))}
-    </div>
-  );
+function FlowerGarden({
+  flowers
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "flower-garden",
+    "aria-label": `${flowers} of ${MAX_FLOWERS} flowers collected`
+  }, Array.from({
+    length: MAX_FLOWERS
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: `flower-slot ${i < flowers ? 'filled' : 'empty'}`
+  }, i < flowers ? FLOWER_TYPES[i % FLOWER_TYPES.length] : '·')));
 }
-function ScoreRow({score,flowers,bouquets,gardenFull}){
-  return(
-    <div className="score-row">
-      <div className="score-badge"><span role="img" aria-label="star">⭐</span><span>{score}</span></div>
-      <FlowerGarden flowers={flowers}/>
-      <div className="score-badge" aria-label={`${bouquets} bouquets collected`}>💐<span>{bouquets}</span></div>
-      {gardenFull&&<div className="garden-full-badge">Garden full! +1 💐</div>}
-    </div>
-  );
+function ScoreRow({
+  score,
+  flowers,
+  bouquets,
+  gardenFull
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "score-row"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "score-badge"
+  }, /*#__PURE__*/React.createElement("span", {
+    role: "img",
+    "aria-label": "star"
+  }, "\u2B50"), /*#__PURE__*/React.createElement("span", null, score)), /*#__PURE__*/React.createElement(FlowerGarden, {
+    flowers: flowers
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "score-badge",
+    "aria-label": `${bouquets} bouquets collected`
+  }, "\uD83D\uDC90", /*#__PURE__*/React.createElement("span", null, bouquets)), gardenFull && /*#__PURE__*/React.createElement("div", {
+    className: "garden-full-badge"
+  }, "Garden full! +1 \uD83D\uDC90"));
 }
-function useFlowerReward(setFlowers,setGardenFull,addBouquet){
-  return useCallback(()=>{
-    setFlowers(f=>{
-      if(f+1>=MAX_FLOWERS){
+function useFlowerReward(setFlowers, setGardenFull, addBouquet) {
+  return useCallback(() => {
+    setFlowers(f => {
+      if (f + 1 >= MAX_FLOWERS) {
         setGardenFull(true);
-        setTimeout(()=>{Sound.fanfare();},300);
-        setTimeout(()=>{setGardenFull(false);setFlowers(0);addBouquet();},2100);
+        setTimeout(() => {
+          Sound.fanfare();
+        }, 300);
+        setTimeout(() => {
+          setGardenFull(false);
+          setFlowers(0);
+          addBouquet();
+        }, 2100);
         return MAX_FLOWERS;
       }
-      return f+1;
+      return f + 1;
     });
-  },[setFlowers,setGardenFull,addBouquet]);
+  }, [setFlowers, setGardenFull, addBouquet]);
 }
-
-function TopBar({onBack,label,muted,onToggleMute}){
-  return(
-    <div className="top-bar">
-      <div style={{display:'flex',alignItems:'center',gap:6}}>
-        <span aria-hidden="true" style={{fontSize:26,lineHeight:1}}>🌸</span>
-        <button className="round-btn" aria-label="Back home" onClick={()=>{Sound.tap();onBack();}}>←</button>
-      </div>
-      {label&&<div className="bar-label">{label}</div>}
-      <button className="round-btn" aria-label={muted?'Unmute':'Mute'} onClick={onToggleMute}>{muted?'🔇':'🔊'}</button>
-    </div>
-  );
+function TopBar({
+  onBack,
+  label,
+  muted,
+  onToggleMute
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "top-bar"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      fontSize: 26,
+      lineHeight: 1
+    }
+  }, "\uD83C\uDF38"), /*#__PURE__*/React.createElement("button", {
+    className: "round-btn",
+    "aria-label": "Back home",
+    onClick: () => {
+      Sound.tap();
+      onBack();
+    }
+  }, "\u2190")), label && /*#__PURE__*/React.createElement("div", {
+    className: "bar-label"
+  }, label), /*#__PURE__*/React.createElement("button", {
+    className: "round-btn",
+    "aria-label": muted ? 'Unmute' : 'Mute',
+    onClick: onToggleMute
+  }, muted ? '🔇' : '🔊'));
 }
-
-function PresetChips({preset,setPreset}){
-  return(
-    <div className="chip-row" role="group" aria-label="Word length">
-      {PRESETS.map(p=>(
-        <button key={p.id} className={`chip ${preset.id===p.id?'on':''}`}
-          onClick={()=>{Sound.tap();setPreset(p);}}>
-          {p.emoji} {p.tag} · {p.desc}
-        </button>))}
-    </div>
-  );
+function PresetChips({
+  preset,
+  setPreset
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "chip-row",
+    role: "group",
+    "aria-label": "Word length"
+  }, PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `chip ${preset.id === p.id ? 'on' : ''}`,
+    onClick: () => {
+      Sound.tap();
+      setPreset(p);
+    }
+  }, p.emoji, " ", p.tag, " \xB7 ", p.desc)));
 }
 
 /* pick a word, avoiding the previous one */
-function pickWord(bank,prev){
+function pickWord(bank, prev) {
   let w;
-  do{ w=bank[rand(0,bank.length-1)]; }while(bank.length>1&&prev&&w[0]===prev);
+  do {
+    w = bank[rand(0, bank.length - 1)];
+  } while (bank.length > 1 && prev && w[0] === prev);
   return w;
 }
 
 /* shared success/served-problem hook */
-function useGameCore({reward,setScore,mascot,onNew}){
-  const [celebrating,setCelebrating]=useState(false);
-  const [banner,setBanner]=useState('');
-  const win=useCallback((word)=>{
+function useGameCore({
+  reward,
+  setScore,
+  mascot,
+  onNew
+}) {
+  const [celebrating, setCelebrating] = useState(false);
+  const [banner, setBanner] = useState('');
+  const win = useCallback(word => {
     Sound.celebrate();
-    const msg=praise();
+    const msg = praise();
     setBanner(msg);
-    Voice.say(msg,1);
+    Voice.say(msg, 1);
     mascot.happy();
     setCelebrating(true);
-    setScore(s=>s+1);
+    setScore(s => s + 1);
     reward();
-    setTimeout(()=>{setCelebrating(false);setBanner('');onNew();},1900);
-  },[reward,setScore,mascot,onNew]);
-  return{celebrating,banner,win};
+    setTimeout(() => {
+      setCelebrating(false);
+      setBanner('');
+      onNew();
+    }, 1900);
+  }, [reward, setScore, mascot, onNew]);
+  return {
+    celebrating,
+    banner,
+    win
+  };
 }
 
 /* ══ GAME 1: FIRST LETTER (ages 4-5) ══ */
-function FirstLetter({onBack,shared}){
-  const [preset,setPreset]=useState(PRESETS[0]);
-  const [prob,setProb]=useState(null);
-  const [fx,setFx]=useState({});
-  const prevRef=useRef(null);
-  const mascot=useMascot();
-
-  const newProblem=useCallback(()=>{
-    const [w,e]=pickWord(preset.bank,prevRef.current);
-    prevRef.current=w;
-    const correct=w[0];
-    const opts=new Set([correct]);
-    while(opts.size<4)opts.add(ALPHA[rand(0,25)]);
-    setProb({w,e,correct,opts:shuffle([...opts])});
+function FirstLetter({
+  onBack,
+  shared
+}) {
+  const [preset, setPreset] = useState(PRESETS[0]);
+  const [prob, setProb] = useState(null);
+  const [fx, setFx] = useState({});
+  const prevRef = useRef(null);
+  const mascot = useMascot();
+  const newProblem = useCallback(() => {
+    const [w, e] = pickWord(preset.bank, prevRef.current);
+    prevRef.current = w;
+    const correct = w[0];
+    const opts = new Set([correct]);
+    while (opts.size < 4) opts.add(ALPHA[rand(0, 25)]);
+    setProb({
+      w,
+      e,
+      correct,
+      opts: shuffle([...opts])
+    });
     setFx({});
-    setTimeout(()=>Voice.say(w),350);
-  },[preset]);
-  useEffect(newProblem,[newProblem]);
-
-  const core=useGameCore({...shared,mascot,onNew:newProblem});
-
-  const pick=(L)=>{
-    if(core.celebrating)return;
-    if(L===prob.correct){setFx({[L]:'right'});core.win(prob.w);}
-    else{Sound.wrong();mascot.oops();setFx({[L]:'wrong'});setTimeout(()=>setFx({}),400);}
+    setTimeout(() => Voice.say(w), 350);
+  }, [preset]);
+  useEffect(newProblem, [newProblem]);
+  const core = useGameCore({
+    ...shared,
+    mascot,
+    onNew: newProblem
+  });
+  const pick = L => {
+    if (core.celebrating) return;
+    if (L === prob.correct) {
+      setFx({
+        [L]: 'right'
+      });
+      core.win(prob.w);
+    } else {
+      Sound.wrong();
+      mascot.oops();
+      setFx({
+        [L]: 'wrong'
+      });
+      setTimeout(() => setFx({}), 400);
+    }
   };
-
-  if(!prob)return null;
-  return(
-    <div className="screen">
-      <TopBar onBack={onBack} label="First Letter" muted={shared.muted} onToggleMute={shared.toggleMute}/>
-      <PresetChips preset={preset} setPreset={setPreset}/>
-      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
-      <div className="prompt-bubble">
-        What letter does <b style={{color:'#e91e63'}}>{prob.w.toLowerCase()}</b> start with?
-        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
-      </div>
-      <div className="praise-banner">{core.banner}</div>
-      <div className="tile-row">
-        {prob.opts.map((L,i)=>(
-          <button key={L} className={`tile t${i%4} ${fx[L]||''}`} onClick={()=>pick(L)}>{L}</button>))}
-      </div>
-      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
-      <Confetti active={core.celebrating}/>
-      <ScoreRow {...shared.scoreProps}/>
-    </div>
-  );
+  if (!prob) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    label: "First Letter",
+    muted: shared.muted,
+    onToggleMute: shared.toggleMute
+  }), /*#__PURE__*/React.createElement(PresetChips, {
+    preset: preset,
+    setPreset: setPreset
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "word-pic",
+    role: "img",
+    "aria-label": prob.w.toLowerCase()
+  }, prob.e), /*#__PURE__*/React.createElement("div", {
+    className: "prompt-bubble"
+  }, "What letter does ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: '#e91e63'
+    }
+  }, prob.w.toLowerCase()), " start with?", /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word",
+    onClick: () => Voice.say(prob.w)
+  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+    className: "praise-banner"
+  }, core.banner), /*#__PURE__*/React.createElement("div", {
+    className: "tile-row"
+  }, prob.opts.map((L, i) => /*#__PURE__*/React.createElement("button", {
+    key: L,
+    className: `tile t${i % 4} ${fx[L] || ''}`,
+    onClick: () => pick(L)
+  }, L))), /*#__PURE__*/React.createElement(Mascot, {
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: core.celebrating
+  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
 }
 
 /* ══ GAME 2: BUILD THE WORD (ages 5-7) ══ */
-function BuildWord({onBack,shared}){
-  const [preset,setPreset]=useState(PRESETS[0]);
-  const [prob,setProb]=useState(null);
-  const [filled,setFilled]=useState(0);
-  const [used,setUsed]=useState([]);
-  const [fx,setFx]=useState({});
-  const prevRef=useRef(null);
-  const mascot=useMascot();
-
-  const newProblem=useCallback(()=>{
-    const [w,e]=pickWord(preset.bank,prevRef.current);
-    prevRef.current=w;
-    const decoys=[];
-    while(decoys.length<preset.decoys){
-      const L=ALPHA[rand(0,25)];
-      if(!w.includes(L)&&!decoys.includes(L))decoys.push(L);
+function BuildWord({
+  onBack,
+  shared
+}) {
+  const [preset, setPreset] = useState(PRESETS[0]);
+  const [prob, setProb] = useState(null);
+  const [filled, setFilled] = useState(0);
+  const [used, setUsed] = useState([]);
+  const [fx, setFx] = useState({});
+  const prevRef = useRef(null);
+  const mascot = useMascot();
+  const newProblem = useCallback(() => {
+    const [w, e] = pickWord(preset.bank, prevRef.current);
+    prevRef.current = w;
+    const decoys = [];
+    while (decoys.length < preset.decoys) {
+      const L = ALPHA[rand(0, 25)];
+      if (!w.includes(L) && !decoys.includes(L)) decoys.push(L);
     }
-    const tiles=shuffle([...w.split(''),...decoys]).map((L,i)=>({L,id:i}));
-    setProb({w,e,tiles});
-    setFilled(0);setUsed([]);setFx({});
-    setTimeout(()=>Voice.say(`Spell ${w}`),350);
-  },[preset]);
-  useEffect(newProblem,[newProblem]);
-
-  const core=useGameCore({...shared,mascot,onNew:newProblem});
-
-  const tap=(tile)=>{
-    if(core.celebrating||used.includes(tile.id))return;
-    if(tile.L===prob.w[filled]){
+    const tiles = shuffle([...w.split(''), ...decoys]).map((L, i) => ({
+      L,
+      id: i
+    }));
+    setProb({
+      w,
+      e,
+      tiles
+    });
+    setFilled(0);
+    setUsed([]);
+    setFx({});
+    setTimeout(() => Voice.say(`Spell ${w}`), 350);
+  }, [preset]);
+  useEffect(newProblem, [newProblem]);
+  const core = useGameCore({
+    ...shared,
+    mascot,
+    onNew: newProblem
+  });
+  const tap = tile => {
+    if (core.celebrating || used.includes(tile.id)) return;
+    if (tile.L === prob.w[filled]) {
       Sound.tap();
-      setUsed(u=>[...u,tile.id]);
-      setFx({[tile.id]:'right'});
-      const nf=filled+1;
+      setUsed(u => [...u, tile.id]);
+      setFx({
+        [tile.id]: 'right'
+      });
+      const nf = filled + 1;
       setFilled(nf);
-      if(nf===prob.w.length)core.win(prob.w);
-    }else{
-      Sound.wrong();mascot.oops();
-      setFx({[tile.id]:'wrong'});
-      setTimeout(()=>setFx({}),400);
+      if (nf === prob.w.length) core.win(prob.w);
+    } else {
+      Sound.wrong();
+      mascot.oops();
+      setFx({
+        [tile.id]: 'wrong'
+      });
+      setTimeout(() => setFx({}), 400);
     }
   };
-
-  if(!prob)return null;
-  return(
-    <div className="screen">
-      <TopBar onBack={onBack} label="Build the Word" muted={shared.muted} onToggleMute={shared.toggleMute}/>
-      <PresetChips preset={preset} setPreset={setPreset}/>
-      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
-      <div className="prompt-bubble">
-        Spell <b style={{color:'#e91e63'}}>{prob.w.toLowerCase()}</b>!
-        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
-      </div>
-      <div className="slot-row" aria-label="Word so far">
-        {prob.w.split('').map((L,i)=>(
-          <div key={i} className={`slot ${i<filled?'filled':''}`}>{i<filled?L:''}</div>))}
-      </div>
-      <div className="praise-banner">{core.banner}</div>
-      <div className="tile-row">
-        {prob.tiles.map((t,i)=>(
-          <button key={t.id} className={`tile t${i%4} ${used.includes(t.id)?'used':''} ${fx[t.id]||''}`}
-            onClick={()=>tap(t)}>{t.L}</button>))}
-      </div>
-      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
-      <Confetti active={core.celebrating}/>
-      <ScoreRow {...shared.scoreProps}/>
-    </div>
-  );
+  if (!prob) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    label: "Build the Word",
+    muted: shared.muted,
+    onToggleMute: shared.toggleMute
+  }), /*#__PURE__*/React.createElement(PresetChips, {
+    preset: preset,
+    setPreset: setPreset
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "word-pic",
+    role: "img",
+    "aria-label": prob.w.toLowerCase()
+  }, prob.e), /*#__PURE__*/React.createElement("div", {
+    className: "prompt-bubble"
+  }, "Spell ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: '#e91e63'
+    }
+  }, prob.w.toLowerCase()), "!", /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word",
+    onClick: () => Voice.say(prob.w)
+  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+    className: "slot-row",
+    "aria-label": "Word so far"
+  }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `slot ${i < filled ? 'filled' : ''}`
+  }, i < filled ? L : ''))), /*#__PURE__*/React.createElement("div", {
+    className: "praise-banner"
+  }, core.banner), /*#__PURE__*/React.createElement("div", {
+    className: "tile-row"
+  }, prob.tiles.map((t, i) => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: `tile t${i % 4} ${used.includes(t.id) ? 'used' : ''} ${fx[t.id] || ''}`,
+    onClick: () => tap(t)
+  }, t.L))), /*#__PURE__*/React.createElement(Mascot, {
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: core.celebrating
+  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
 }
 
 /* ══ GAME 3: MISSING LETTER (ages 6-8) ══ */
-function MissingLetter({onBack,shared}){
-  const [preset,setPreset]=useState(PRESETS[1]);
-  const [prob,setProb]=useState(null);
-  const [solved,setSolved]=useState(false);
-  const [fx,setFx]=useState({});
-  const prevRef=useRef(null);
-  const mascot=useMascot();
-
-  const newProblem=useCallback(()=>{
-    const [w,e]=pickWord(preset.bank,prevRef.current);
-    prevRef.current=w;
-    const gap=rand(0,w.length-1);
-    const correct=w[gap];
-    const opts=new Set([correct]);
-    while(opts.size<4)opts.add(ALPHA[rand(0,25)]);
-    setProb({w,e,gap,correct,opts:shuffle([...opts])});
-    setSolved(false);setFx({});
-    setTimeout(()=>Voice.say(w),350);
-  },[preset]);
-  useEffect(newProblem,[newProblem]);
-
-  const core=useGameCore({...shared,mascot,onNew:newProblem});
-
-  const pick=(L)=>{
-    if(core.celebrating)return;
-    if(L===prob.correct){setSolved(true);setFx({[L]:'right'});core.win(prob.w);}
-    else{Sound.wrong();mascot.oops();setFx({[L]:'wrong'});setTimeout(()=>setFx({}),400);}
+function MissingLetter({
+  onBack,
+  shared
+}) {
+  const [preset, setPreset] = useState(PRESETS[1]);
+  const [prob, setProb] = useState(null);
+  const [solved, setSolved] = useState(false);
+  const [fx, setFx] = useState({});
+  const prevRef = useRef(null);
+  const mascot = useMascot();
+  const newProblem = useCallback(() => {
+    const [w, e] = pickWord(preset.bank, prevRef.current);
+    prevRef.current = w;
+    const gap = rand(0, w.length - 1);
+    const correct = w[gap];
+    const opts = new Set([correct]);
+    while (opts.size < 4) opts.add(ALPHA[rand(0, 25)]);
+    setProb({
+      w,
+      e,
+      gap,
+      correct,
+      opts: shuffle([...opts])
+    });
+    setSolved(false);
+    setFx({});
+    setTimeout(() => Voice.say(w), 350);
+  }, [preset]);
+  useEffect(newProblem, [newProblem]);
+  const core = useGameCore({
+    ...shared,
+    mascot,
+    onNew: newProblem
+  });
+  const pick = L => {
+    if (core.celebrating) return;
+    if (L === prob.correct) {
+      setSolved(true);
+      setFx({
+        [L]: 'right'
+      });
+      core.win(prob.w);
+    } else {
+      Sound.wrong();
+      mascot.oops();
+      setFx({
+        [L]: 'wrong'
+      });
+      setTimeout(() => setFx({}), 400);
+    }
   };
-
-  if(!prob)return null;
-  return(
-    <div className="screen">
-      <TopBar onBack={onBack} label="Missing Letter" muted={shared.muted} onToggleMute={shared.toggleMute}/>
-      <PresetChips preset={preset} setPreset={setPreset}/>
-      <div className="word-pic" role="img" aria-label={prob.w.toLowerCase()}>{prob.e}</div>
-      <div className="prompt-bubble">
-        Which letter is missing?
-        <button className="speak-btn" aria-label="Say the word" onClick={()=>Voice.say(prob.w)}>🔊</button>
-      </div>
-      <div className="slot-row" aria-label="Word with a missing letter">
-        {prob.w.split('').map((L,i)=>(
-          <div key={i} className={`slot ${i===prob.gap?(solved?'filled':'blank-target'):'filled'}`}>
-            {i===prob.gap?(solved?L:'?'):L}
-          </div>))}
-      </div>
-      <div className="praise-banner">{core.banner}</div>
-      <div className="tile-row">
-        {prob.opts.map((L,i)=>(
-          <button key={L} className={`tile t${i%4} ${fx[L]||''}`} onClick={()=>pick(L)}>{L}</button>))}
-      </div>
-      <Mascot mood={mascot.mood} stamp={mascot.stamp}/>
-      <Confetti active={core.celebrating}/>
-      <ScoreRow {...shared.scoreProps}/>
-    </div>
-  );
+  if (!prob) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    label: "Missing Letter",
+    muted: shared.muted,
+    onToggleMute: shared.toggleMute
+  }), /*#__PURE__*/React.createElement(PresetChips, {
+    preset: preset,
+    setPreset: setPreset
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "word-pic",
+    role: "img",
+    "aria-label": prob.w.toLowerCase()
+  }, prob.e), /*#__PURE__*/React.createElement("div", {
+    className: "prompt-bubble"
+  }, "Which letter is missing?", /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word",
+    onClick: () => Voice.say(prob.w)
+  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+    className: "slot-row",
+    "aria-label": "Word with a missing letter"
+  }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `slot ${i === prob.gap ? solved ? 'filled' : 'blank-target' : 'filled'}`
+  }, i === prob.gap ? solved ? L : '?' : L))), /*#__PURE__*/React.createElement("div", {
+    className: "praise-banner"
+  }, core.banner), /*#__PURE__*/React.createElement("div", {
+    className: "tile-row"
+  }, prob.opts.map((L, i) => /*#__PURE__*/React.createElement("button", {
+    key: L,
+    className: `tile t${i % 4} ${fx[L] || ''}`,
+    onClick: () => pick(L)
+  }, L))), /*#__PURE__*/React.createElement(Mascot, {
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: core.celebrating
+  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
 }
 
 /* ══ HOME ══ */
-function Home({go,bouquets}){
-  const title='Magic Spelling!'.split('');
-  return(
-    <div className="screen">
-      <div className="home-crown-row">
-        <span className="home-crown" aria-hidden="true" style={{animation:'bounce 1.7s 0s ease-in-out infinite alternate'}}>👑</span>
-        <span className="home-crown" aria-hidden="true" style={{animation:'bounce 1.6s .12s ease-in-out infinite alternate'}}>🦄</span>
-      </div>
-      <div className="home-title">
-        {title.map((ch,i)=>(
-          <span key={i} style={{color:TITLE_COLORS[i%TITLE_COLORS.length],animationDelay:`${i*0.06}s`}}>{ch===' '?'\u00A0':ch}</span>))}
-      </div>
-      <div className="home-sub">Choose your adventure!</div>
-      {bouquets>0&&<div className="trophy-line">💐 Bouquets collected: {bouquets}</div>}
-      <div className="section-heading"><span aria-hidden="true" style={{fontSize:24}}>🌸</span>Letter Games</div>
-      <div className="mode-row">
-        <button className="mode-card mc-pink" onClick={()=>{Sound.tap();go('first');}}>
-          <span className="mode-card-art" role="img" aria-label="princess">👸</span>
-          <span className="mode-card-label">First Letter</span>
-          <span className="mode-card-sub">What does it start with?</span>
-        </button>
-        <button className="mode-card mc-purple" onClick={()=>{Sound.tap();go('missing');}}>
-          <span className="mode-card-art" role="img" aria-label="fairy">🧚</span>
-          <span className="mode-card-label">Missing Letter</span>
-          <span className="mode-card-sub">Fill in the blank!</span>
-        </button>
-      </div>
-      <div className="section-heading"><span aria-hidden="true" style={{fontSize:24}}>👑</span>Word Games</div>
-      <div className="mode-row">
-        <button className="mode-card mc-gold" onClick={()=>{Sound.tap();go('build');}}>
-          <span className="mode-card-art" role="img" aria-label="castle">🏰</span>
-          <span className="mode-card-label">Build the Word</span>
-          <span className="mode-card-sub">Tap the letters in order!</span>
-        </button>
-      </div>
-      <div style={{marginTop:8,fontSize:44,lineHeight:1,filter:'drop-shadow(0 3px 8px rgba(173,20,87,.2))'}} aria-hidden="true">🌈</div>
-    </div>
-  );
+function Home({
+  go,
+  bouquets
+}) {
+  const title = 'Magic Spelling!'.split('');
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-crown-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "home-crown",
+    "aria-hidden": "true",
+    style: {
+      animation: 'bounce 1.7s 0s ease-in-out infinite alternate'
+    }
+  }, "\uD83D\uDC51"), /*#__PURE__*/React.createElement("span", {
+    className: "home-crown",
+    "aria-hidden": "true",
+    style: {
+      animation: 'bounce 1.6s .12s ease-in-out infinite alternate'
+    }
+  }, "\uD83E\uDD84")), /*#__PURE__*/React.createElement("div", {
+    className: "home-title"
+  }, title.map((ch, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    style: {
+      color: TITLE_COLORS[i % TITLE_COLORS.length],
+      animationDelay: `${i * 0.06}s`
+    }
+  }, ch === ' ' ? '\u00A0' : ch))), /*#__PURE__*/React.createElement("div", {
+    className: "home-sub"
+  }, "Choose your adventure!"), bouquets > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "trophy-line"
+  }, "\uD83D\uDC90 Bouquets collected: ", bouquets), /*#__PURE__*/React.createElement("div", {
+    className: "section-heading"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      fontSize: 24
+    }
+  }, "\uD83C\uDF38"), "Letter Games"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-pink",
+    onClick: () => {
+      Sound.tap();
+      go('first');
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-art",
+    role: "img",
+    "aria-label": "princess"
+  }, "\uD83D\uDC78"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-label"
+  }, "First Letter"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-sub"
+  }, "What does it start with?")), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-purple",
+    onClick: () => {
+      Sound.tap();
+      go('missing');
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-art",
+    role: "img",
+    "aria-label": "fairy"
+  }, "\uD83E\uDDDA"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-label"
+  }, "Missing Letter"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-sub"
+  }, "Fill in the blank!"))), /*#__PURE__*/React.createElement("div", {
+    className: "section-heading"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      fontSize: 24
+    }
+  }, "\uD83D\uDC51"), "Word Games"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-gold",
+    onClick: () => {
+      Sound.tap();
+      go('build');
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-art",
+    role: "img",
+    "aria-label": "castle"
+  }, "\uD83C\uDFF0"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-label"
+  }, "Build the Word"), /*#__PURE__*/React.createElement("span", {
+    className: "mode-card-sub"
+  }, "Tap the letters in order!"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 44,
+      lineHeight: 1,
+      filter: 'drop-shadow(0 3px 8px rgba(173,20,87,.2))'
+    },
+    "aria-hidden": "true"
+  }, "\uD83C\uDF08"));
 }
 
 /* ══ APP ══ */
-function App(){
-  const [screen,setScreen]=useState('home');
-  const [score,setScore]=useState(0);
-  const [flowers,setFlowers]=useState(0);
-  const [bouquets,setBouquets]=useState(0);
-  const [gardenFull,setGardenFull]=useState(false);
-  const [muted,setMuted]=useState(false);
-
-  const addBouquet=useCallback(()=>setBouquets(b=>b+1),[]);
-  const reward=useFlowerReward(setFlowers,setGardenFull,addBouquet);
-  const toggleMute=()=>{
-    setMuted(m=>{const nm=!m;Sound.setMuted(nm);Voice.setMuted(nm);if(!nm)Sound.tap();return nm;});
+function App() {
+  const [screen, setScreen] = useState('home');
+  const [score, setScore] = useState(0);
+  const [flowers, setFlowers] = useState(0);
+  const [bouquets, setBouquets] = useState(0);
+  const [gardenFull, setGardenFull] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const addBouquet = useCallback(() => setBouquets(b => b + 1), []);
+  const reward = useFlowerReward(setFlowers, setGardenFull, addBouquet);
+  const toggleMute = () => {
+    setMuted(m => {
+      const nm = !m;
+      Sound.setMuted(nm);
+      Voice.setMuted(nm);
+      if (!nm) Sound.tap();
+      return nm;
+    });
   };
-
-  const shared={
-    reward,setScore,muted,toggleMute,
-    scoreProps:{score,flowers,bouquets,gardenFull},
+  const shared = {
+    reward,
+    setScore,
+    muted,
+    toggleMute,
+    scoreProps: {
+      score,
+      flowers,
+      bouquets,
+      gardenFull
+    }
   };
-
-  return(
-    <React.Fragment>
-      <div className="app-bg"/>
-      <BgDeco/>
-      {screen==='home'&&<Home go={setScreen} bouquets={bouquets}/>}
-      {screen==='first'&&<FirstLetter onBack={()=>setScreen('home')} shared={shared}/>}
-      {screen==='build'&&<BuildWord onBack={()=>setScreen('home')} shared={shared}/>}
-      {screen==='missing'&&<MissingLetter onBack={()=>setScreen('home')} shared={shared}/>}
-    </React.Fragment>
-  );
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "app-bg"
+  }), /*#__PURE__*/React.createElement(BgDeco, null), screen === 'home' && /*#__PURE__*/React.createElement(Home, {
+    go: setScreen,
+    bouquets: bouquets
+  }), screen === 'first' && /*#__PURE__*/React.createElement(FirstLetter, {
+    onBack: () => setScreen('home'),
+    shared: shared
+  }), screen === 'build' && /*#__PURE__*/React.createElement(BuildWord, {
+    onBack: () => setScreen('home'),
+    shared: shared
+  }), screen === 'missing' && /*#__PURE__*/React.createElement(MissingLetter, {
+    onBack: () => setScreen('home'),
+    shared: shared
+  }));
 }
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
 </script>
 <script>
   /* Offline support. Registration is best-effort: opened straight from a file

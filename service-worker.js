@@ -27,7 +27,9 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v2 -> v3  every image path moved to assets-runtime/*.webp, so v2 had to go wholesale
 //             rather than keep serving PNGs nothing references any more.
 //   v3 -> v4  Count By lost its "how many jumps" row and fixed the ladder at 20 rungs.
-const CACHE_NAME = "magic-math-v4";
+//   v4 -> v5  the unclosed @media brace fix, the JSX precompile (Babel stops shipping,
+//             so it also leaves SHELL), and game previews on the home cards.
+const CACHE_NAME = "magic-math-v5";
 
 const SHELL = [
   "./",
@@ -41,7 +43,6 @@ const SHELL = [
   // Without these three the games are a blank screen, so they are never optional.
   "./vendor/react-18.3.1.production.min.js",
   "./vendor/react-dom-18.3.1.production.min.js",
-  "./vendor/babel-7.26.4.min.js",
 
   "./fonts.css",
   "./fonts/Nunito-latin.woff2",
