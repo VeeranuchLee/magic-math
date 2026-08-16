@@ -8,7 +8,7 @@ voice-based: spoken instructions, pictograms instead of words, no reading needed
 | File | Game | What it is |
 |---|---|---|
 | [index.html](index.html) | Game menu | Landing page linking to all games |
-| [space-math.html](space-math.html) | **Space Math** | Counting, place value, add/subtract, column add, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
+| [space-math.html](space-math.html) | **Space Math** | Counting, place value, add/subtract, column add and column take away with carrying and borrowing, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
 | [unicorn-math.html](unicorn-math.html) | **Unicorn Math** | The same math games in a unicorn/princess theme. Correct answers grow a flower garden; full gardens become bouquets. |
 | [magic-spelling.html](magic-spelling.html) | **Magic Spelling** | Early spelling practice. |
 | [classical-music.html](classical-music.html) | **Classical Music** | Listen-and-guess music game. |
@@ -145,6 +145,44 @@ lands them straight on these tiles anyway. They also rarely finish a ladder, so 
 buys nothing and a longer one costs nothing. The pill in the top bar — "Count by 7" — reopens
 the same picker without leaving.
 
+## Carrying and borrowing — how it teaches
+
+Four cards now sit together under **Column Maths**: Column Add, Carry Add, Take Away and
+Borrow Take Away. The first two add, the last two take away; the second of each pair adds
+carrying or borrowing. Card colour tells you the operation and the star count tells you
+which of the pair is the hard one.
+
+On the two hard cards the child works **right to left**, the way the algorithm actually
+goes: the ones column first, then the tens. A small dashed box sits above the next column,
+and the child types the carried or borrowed **1** into it themselves — it is never filled
+in for them. The same box means the same thing in both operations: *the one that arrived
+into this column*, from the right when adding and from the left when taking away. It only
+ever holds a 1 or a 0, so "there was no carry" is one tap on a key the child already knows,
+with no new button and no new word.
+
+About half the problems on every level **do not** need a carry or a borrow. That is
+deliberate: if every problem needed one, the little box would always be a 1 and the child
+would learn to tap 1 without looking. Because the box is there either way, its presence
+gives nothing away — the child has to decide. (Measured across the shipped levels, 44–73 %
+of little boxes want a 0.)
+
+The app asks the question out loud when the glow lands on the box — *"Little box. Can you
+take 8 away from 4?"* — and never says which way to answer. While a little box is live, the
+keys 2 to 9 dim, because they cannot be right there; tapping one is not treated as a
+mistake, it just says the rule again.
+
+Every box is checked the instant it is typed, unlike the easy cards, which check the whole
+answer at the end. A wrong tap shows the digit in red, shakes, and takes it back, so a
+mistake can never be carried forward into the next column. After two tries on a little box,
+or three on an answer box, the answer ghosts into it and the reason is spoken: *"4 is too
+small. Take one from next door. Now it is 14."* After six misses anywhere in one problem
+the whole rest of it ghosts, so a stuck child is never trapped.
+
+When a borrow happens the app crosses out the digit next door and writes its new value
+beside it, so the one that moved is visible as a single movement. Borrowing across a zero
+(300 − 47) is not in any of the levels: it puts three marks on the page at once, which is a
+Year-3 shape, not a four-year-old's.
+
 ## Choosing the difficulty
 
 The child chooses, not the grown-up. Nothing is hidden behind a gesture: a single tap on
@@ -154,17 +192,23 @@ choice, and picking an option applies it immediately. There is no "Done" to find
 - **Count By** and **Times Tables** open on their picker, so the first thing a child does
   is name their number. Count By asks "Count by…" over tiles 1–20 and nothing else; Times
   Tables asks "How big?" and one tap sets both sides of the table (up to 20 × 20).
-- **What Number?**, **Fill the Right Block**, **Add & Subtract** and **Column Add** choose
-  from pictures instead of numbers. Tapping a picture picks it and returns to the game.
+- **What Number?**, **Fill the Right Block**, **Add & Subtract** and the four
+  **Column Maths** games choose from pictures instead of numbers. Tapping a picture picks
+  it and returns to the game.
 - Tapping **Play!** without choosing keeps whatever the game was already on.
 
 ## Notes for grown-ups
 
 - Sound/voice uses the browser's built-in speech (no internet voices needed).
 - The two picker games open pre-selected on 12, which was their old starting point, so the
-  previous default is still one tap away. The four picture games still **start on their
-  hardest setting** — What Number? and Fill the Right Block at Full 1–1000, Add & Subtract
-  at Full 1–30, Column Add at `>100 + <100`.
+  previous default is still one tap away. The picture games still **start on their hardest
+  setting** — What Number? and Fill the Right Block at Full 1–1000, Add & Subtract at
+  Full 1–30, Column Add at `>100 + <100`, Take Away at `>100 − <100`.
+- **Carry Add and Borrow Take Away are the exception: they open on their *first* setting,
+  not their hardest.** The little carry box is a notation that exists nowhere else in the
+  app, and 950 + 99 — four columns, seven taps — is not a first lesson in it. The first
+  rung is two columns and three taps and asks the yes/no question once. The hardest rung
+  is still one tap away on the level pill.
 - Add & Subtract keeps a typed custom range and a custom problem type further down its
   panel; those still need the **Apply** button, and a preset tap will not close the panel
   out from under them while they are open.

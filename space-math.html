@@ -66,6 +66,22 @@
     .gp-chip{padding:1px 5px;border-radius:999px;border:1.5px solid #93b7fb;background:#fff;font-size:.62rem;font-weight:900;color:#2f6df6;line-height:1.35}
     .gp-chip.q{border-style:dashed;color:#5a2ed6}
     .gp-arrow{font-size:.6rem;font-weight:900;color:#5a2ed6;opacity:.5}
+    /* ── COLUMN MATHS PREVIEWS (c1-c4) ──
+       Four column cards now sit side by side, so the picture has to carry both facts a
+       pre-reader needs: which operation, and how hard. Operation is the loud one — a
+       big plain glyph for adding, a filled coin for taking away — because the two are
+       genuinely different games and a 7px difference between + and − is not a
+       difference a four-year-old can use. Difficulty is the quiet one: the dashed box
+       (and, on c4, the crossed digit) appears only on the carry/borrow cards. Card
+       colour repeats the operation and the star count repeats the difficulty, so the
+       two redundant channels carry different axes instead of the same one. */
+    .gp-op.gp-big{font-size:1.45rem}
+    .gp-take{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:900;line-height:1;color:#fff;background:#c62828}
+    .gp-carry{width:12px;height:12px;border-radius:3px;border:1.5px dashed #ab97f5;background:#fff;font-size:.52rem;font-weight:900;color:#e65100;display:flex;align-items:center;justify-content:center;line-height:1}
+    .gp-carry-row{margin-right:19px}
+    .gp-small{font-size:.55rem;font-weight:900;color:#f4511e;line-height:1;align-self:flex-start}
+    .gp-strike{position:relative;color:#7b88a8}
+    .gp-strike::after{content:'';position:absolute;left:-2px;right:-2px;top:52%;height:2px;border-radius:1px;background:rgba(244,81,30,.85);transform:rotate(-15deg)}
     .mode-card-stars{height:24px;display:flex;align-items:center;justify-content:center;gap:2px}
     .mode-card-stars img{width:17px;height:17px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
     .mc-pink  {background:linear-gradient(160deg,#93b7fb,#2f6df6);box-shadow:0 7px 0 #1746b8,0 10px 20px rgba(47,109,246,.3)}
@@ -270,6 +286,71 @@
     .key-btn.clear{color:#2f6df6;grid-column:span 2;display:flex;align-items:center;justify-content:center}
     .key-btn.clear .btn-svg{width:26px;height:26px}
     .column-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+
+    /* ── COLUMN MATHS (modes c2, c3, c4) ──
+       Mode c1 above shares the .column-* classes and must come out of this change
+       pixel-identical, so nothing below edits a rule c1 reads — hence .cm-top rather
+       than adding position:relative to .column-digit, and .cm-mark rather than reusing
+       anything.
+
+       The mark is ONE widget with one meaning: "the one that arrived into this column",
+       from the right when adding and from the left when taking away. It holds a 1 or a
+       typed 0 and nothing else, which is why "there was no carry" needed no new button
+       and no new word. */
+    .cm-mark-gap{height:30px}
+    .cm-mark{justify-self:center;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:#fff;border:2.5px dashed #ab97f5;border-radius:9px;color:#e65100;font-size:1.1rem;font-weight:900;line-height:1}
+    .cm-mark.active{border-style:solid;border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.16);animation:cmPulse 1.1s ease-in-out infinite}
+    .cm-mark.wrong{animation:wrongShake .35s ease;border-color:#f44336}  /* must stay AFTER .active */
+    .cm-mark.nudge{animation:cmNudge .3s ease}      /* a dimmed key: not a mistake, so not a shake */
+    .cm-zero{opacity:.45}                            /* "nothing arrived" is quieter than a 1 */
+    .cm-bad{color:#f44336}                           /* the digit just refused, shown then withdrawn */
+    @keyframes cmPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+    @keyframes cmNudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+    /* Borrowing: the digit next door is crossed out and its new value written at its
+       LEFT shoulder — the far side from the little box that has just been filled in, so
+       the two small numerals are a whole cell apart and cannot be read as one two-digit
+       number. The strike is thin and the struck digit stays dark enough to read,
+       because "the 3 became a 2" is meaningless once the 3 has been destroyed. */
+    .cm-top{position:relative}
+    .cm-top.struck{color:#7b88a8}
+    .cm-top.struck::after{content:'';position:absolute;left:14%;right:14%;top:50%;height:3px;border-radius:2px;background:rgba(244,81,30,.85);transform:rotate(-13deg)}
+    .cm-new{position:absolute;top:1px;left:2px;font-size:.4em;color:#f4511e;font-weight:900;line-height:1;animation:cmPopIn .3s ease}
+    @keyframes cmPopIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+    .cm-minus{color:#c62828}
+
+    /* While a little box is live, 2-9 cannot be right. Dimming teaches the rule and
+       leaks nothing — the box is 0-or-1 whatever the problem is. The keys stay tappable
+       so nothing looks broken; a tap nudges the box and says the rule, and is NOT
+       counted as a wrong answer. Punishing a tap on a control the app has already
+       greyed out teaches a four-year-old only that the app is angry. */
+    .key-btn.dim{opacity:.38}
+
+    /* Four columns is a width c1 never renders — its widest no-carry sum is three — and
+       the fixed 34px + 4x54px + 4x7px = 278px does not fit inside .column-card below a
+       357px viewport: the card grows past the phone and .screen{overflow:hidden} clips
+       the outer digits rather than scrolling them. Measured at 320px: card 328px on a
+       320px screen. Fluid tracks instead, floored where a fingertip and a four-year-
+       old's eye can both still use them (196px total at 320, 230px at 375, 278px at
+       tablet width). */
+    .cm-grid.cm-4{grid-template-columns:clamp(22px,8vw,34px) repeat(4,clamp(38px,12vw,54px));gap:clamp(4px,1.3vw,7px)}
+    .cm-grid.cm-4 .column-answer-box{min-width:0}
+    .cm-grid.cm-4 .cm-mark{width:clamp(22px,7vw,30px);height:clamp(22px,7vw,30px);font-size:clamp(.85rem,3.4vw,1.1rem)}
+
+    /* Height budget, same idiom as .cb-ladder's clamp: spend the viewport, do not guess.
+       Measured at 375x667 (iPhone SE/8, the smallest device in the house): c1's page is
+       already 680px tall, and the mark row adds another 39, which puts the undo key
+       28px below the fold and forces a child to scroll mid-problem. With these six
+       rules the page comes back to exactly 667 with the keypad ending at 633. Scoped to
+       .cm-screen, so c1 keeps its current metrics. */
+    @media (max-height:740px){
+      .cm-screen .column-card{padding:10px 18px 12px}
+      .cm-screen .count-title{padding:5px 14px}
+      .cm-grid{gap:5px}
+      .cm-grid .column-digit,.cm-grid .column-plus,.cm-grid .column-answer-box,.cm-grid .column-blank{height:46px;font-size:clamp(1.5rem,7vw,2.4rem)}
+      .cm-grid .cm-mark-gap{height:26px}
+      .cm-grid .cm-mark{width:26px;height:26px;font-size:.95rem}
+    }
 
     /* Multiplication */
     .multiply-card{display:flex;flex-direction:column;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(232,240,255,.9));border:3px solid #93b7fb;border-radius:24px;padding:20px 24px;box-shadow:0 5px 0 #93b7fb,0 10px 24px rgba(91,140,248,.16);position:relative;z-index:1;min-width:min(92vw,430px)}
@@ -528,6 +609,21 @@ const Sound = (() => {
       tone(c, 880, 'sine', n, .08, .12);
       tone(c, 1320, 'sine', n + .04, .06, .08);
     },
+    /* The beat between two spoken lines. Beside tap() because it is punctuation, not
+       a reward: one triangle blip at 330 Hz gliding to 300, 45 ms, .05 gain, scheduled
+       .08 s ahead on the audio clock so it clears the tail of the word that just ended.
+       Every celebratory cue in this module RISES in pitch and runs 200 ms or more; this
+       one falls, is a twelfth of ding()'s length and under half a tap in volume, and
+       sits in an empty band between wrong()'s 220 Hz sweep and hop()'s 400 Hz floor. It
+       self-guards on _muted, which is what makes it safe to fire from a timer seconds
+       after its call site ran. */
+    seam() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 330, 'triangle', n + .08, .045, .05, 300);
+    },
     twinkle() {
       if (_muted) return;
       const c = ctx();
@@ -579,50 +675,193 @@ const Sound = (() => {
 /* ══ VOICE (Web Speech) ══ */
 const Voice = {
   muted: false,
-  /* Bumped by every new request. A queued `lines` chain checks it before speaking
-     the next part, so an interrupted sequence cannot finish talking over whatever
-     replaced it — cancel() alone does not stop a part that has not started yet. */
+  /* Bumped by every new request. Every callback in a running chain checks it before it
+     speaks, ticks or schedules, so an interrupted sequence cannot finish talking over
+     whatever replaced it — cancel() alone does not stop a part that has not started
+     yet. Bumped BEFORE cancel(), so the end/error events cancel() fires for the
+     outgoing chain already read as stale. Note: until this rewrite `gen` was written
+     and never read anywhere, so the guarantee the old comment described did not
+     actually exist. live() below is its first reader. */
   gen: 0,
+  /* The one pending timer of the active chain: either the safety net waiting on the
+     line being spoken, or the gap before the next line. Never both at once. */
+  _t: 0,
+  /* Handed to the next chain that starts, and called once that chain has finished
+     speaking. The space journey uses it: addProgress() runs one line before the
+     Voice.lines() that speaks the answer, so it arms this and the arrival overlay
+     appears the moment the explanation ends. The alternative — a fixed timer — has to
+     guess how long "nine hundred and fifty plus ninety nine is one thousand and forty
+     nine" takes, and guesses wrong on one answer in five.
+     Consumed unconditionally by the next say()/lines()/stop(), muted or not, so a
+     stale callback can never leak onto a later chain; the caller keeps its own ceiling
+     timer for the muted and cancelled cases.
+     unicorn-math has no journey and never arms it. That is deliberate: this object is
+     byte-identical in both files, and an unused hook is cheaper than a divergence. */
+  _pending: null,
+  notifyNextChain(fn) {
+    this._pending = fn;
+  },
+  RATE: .95,
+  /* The gap after the FIRST line is the long one: that line is the number the child
+     just typed, and it is the one the owner reported never lands. Later seams are
+     shorter so the praise does not feel like it arrives in the next post. Both sit
+     either side of the 426 ms that measured well in the probe. */
+  GAP_FIRST: 480,
+  GAP_REST: 380,
+  /* How many 250 ms beats to allow past the estimate while the engine still reports
+     itself speaking. Generous on purpose — see advance()'s `queued` path for what
+     giving up costs. */
+  POLL_MAX: 24,
   utterance(text) {
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = .95;
+    u.rate = this.RATE;
     u.pitch = 1.15;
     u.lang = 'en-US';
     return u;
   },
+  _reset() {
+    this.gen++;
+    if (this._t) {
+      clearTimeout(this._t);
+      this._t = 0;
+    }
+    try {
+      const s = window.speechSynthesis;
+      if (s) s.cancel();
+    } catch (e) {}
+  },
+  /* Back button, unmount and muting. Kills the chain, its pending timer, anything
+     mid-sentence, and any arrival waiting on the chain. Always call it as
+     Voice.stop() — it uses `this`. */
+  stop() {
+    this._pending = null;
+    this._reset();
+  },
   say(text) {
+    this._pending = null;
     if (this.muted) return;
     try {
       const s = window.speechSynthesis;
       if (!s) return;
-      this.gen++;
-      s.cancel();
+      this._reset();
       s.speak(this.utterance(text));
     } catch (e) {}
   },
-  /* Several short lines instead of one long string.
-     "26! 2 times 13 is 26. You did it!" as a single utterance comes out as one
-     breathless run — the child hears the answer, the explanation and the praise
-     with no seam, and the number they just typed never lands (owner, 2026-08-15).
-     One utterance per line gives a real break; punctuation inside a single string
-     does not.
-      All parts are queued at once, deliberately. Chaining each part off the
-     previous one's `onend` reads better but is not safe: `onend` is unreliable —
-     in testing here it never fired at all, which left the child hearing "26!" and
-     nothing else. speechSynthesis already queues utterances and speaks them in
-     order, so queueing cannot lose a line. The trailing period on each part is
-     what buys the pause, since the engine closes off the sentence. */
+  /* Rough spoken length, used only by the safety net below. Digits are read as whole
+     words — "26" is "twenty six" — so a character count badly under-counts these
+     lines, which are mostly numbers. One word per digit, one per ordinary word,
+     ~330 ms a word at rate 1. */
+  _estimate(text) {
+    let words = 0;
+    String(text).trim().split(/\s+/).forEach(w => {
+      if (!w) return;
+      const d = (w.match(/\d/g) || []).length;
+      words += d || 1;
+    });
+    return 350 + words * 330 / this.RATE;
+  },
+  /* Several short lines instead of one long string, spoken one at a time with a real
+     gap between them.
+      "26! 2 times 13 is 26. You did it!" as a single utterance comes out as one
+     breathless run — the number the child just typed never lands (owner, 2026-08-15).
+     Splitting into separate utterances is necessary but not sufficient: queueing them
+     all up front leaves a 4-5 ms seam, because the engine speaks its queue back to
+     back. A trailing full stop buys nothing either. Both measured in the in-app
+     Chromium, 2026-08-16.
+      So each line is spoken only once the one before it has finished. The chain advances
+     on whichever of onend or an estimated-duration safety net fires first, and a quiet
+     Sound.seam() tick marks the join. onend DOES fire reliably in Chromium — the old
+     comment here claiming it never fired was wrong — but that is not evidence about
+     iOS Safari, which is where these games are actually played. Hence the net, and
+     hence `settled`, which makes onend and the net mutually exclusive so a line can
+     never be advanced twice. */
   lines(parts) {
+    const done = this._pending;
+    this._pending = null;
     if (this.muted) return;
-    const list = parts.filter(Boolean);
+    const list = parts.filter(Boolean).map(t => String(t).trim()).filter(Boolean);
     if (!list.length) return;
+    let s;
     try {
-      const s = window.speechSynthesis;
-      if (!s) return;
-      this.gen++;
-      s.cancel();
-      list.forEach(text => s.speak(this.utterance(text)));
-    } catch (e) {}
+      s = window.speechSynthesis;
+    } catch (e) {
+      return;
+    }
+    if (!s) return;
+    this._reset();
+    const V = this,
+      gen = this.gen;
+    /* Re-read, never captured: the chain runs seconds after the call site, and the
+       child may have muted or walked away in between. */
+    const live = () => gen === V.gen && !V.muted;
+    const speakFrom = i => {
+      if (!live()) return;
+      let settled = false,
+        polls = 0;
+      /* queued=true means "the engine is still talking and we stopped waiting". The
+         next utterance will then be spoken back to back whatever we do, so: no tick
+         (it would land inside a word) and no gap (it would buy nothing). That path is
+         the graceful degradation to the old behaviour, not the design — which is why
+         POLL_MAX is generous rather than tight. */
+      const advance = queued => {
+        if (settled) return;
+        settled = true;
+        /* live() BEFORE touching _t: by now _t may belong to a newer chain, and
+           zeroing another chain's handle would make it uncancellable. */
+        if (!live()) return;
+        if (V._t) {
+          clearTimeout(V._t);
+          V._t = 0;
+        }
+        if (i + 1 >= list.length) {
+          if (done) done();
+          return;
+        } // the chain is finished
+        if (queued) {
+          speakFrom(i + 1);
+          return;
+        }
+        Sound.seam();
+        V._t = setTimeout(() => {
+          if (!live()) return;
+          V._t = 0;
+          speakFrom(i + 1);
+        }, i === 0 ? V.GAP_FIRST : V.GAP_REST);
+      };
+      const net = () => {
+        if (settled || !live()) return;
+        V._t = 0;
+        /* The estimate has run out. If the engine still says it is speaking, give it
+           another beat rather than ticking over the tail — but cap the waiting,
+           because iOS Safari can leave `speaking` true after the voice stops. */
+        let busy = false;
+        try {
+          busy = !!s.speaking;
+        } catch (e) {}
+        if (busy && polls < V.POLL_MAX) {
+          polls++;
+          V._t = setTimeout(net, 250);
+          return;
+        }
+        advance(busy);
+      };
+      let u;
+      try {
+        u = V.utterance(list[i]);
+      } catch (e) {
+        advance(false);
+        return;
+      }
+      u.onend = () => advance(false);
+      u.onerror = () => advance(false); // a dropped line must not stall the chain
+      V._t = setTimeout(net, V._estimate(list[i]) + 400);
+      try {
+        s.speak(u);
+      } catch (e) {
+        advance(false);
+      }
+    };
+    speakFrom(0);
   }
 };
 const PRAISE = ['Blast off!', 'Out of this world!', 'You did it!', 'Stellar!', 'Super nova!', 'Mission complete!'];
@@ -793,6 +1032,69 @@ const COLUMN_ADD_PRESETS = [{
   tag: '>100 + <100',
   desc: 'Big add'
 }];
+const COLUMN_ADD_HARD_PRESETS = [{
+  id: 'carryTiny',
+  icon: ICON_EARTH,
+  tag: '<100 + <10',
+  desc: 'Carry the one'
+}, {
+  id: 'carrySmall',
+  icon: ICON_ROCKET,
+  tag: '<100 + <100',
+  desc: 'Carrying'
+}, {
+  id: 'carryTwo',
+  icon: ICON_SATURN,
+  tag: '>100 + <100',
+  desc: 'Big carry'
+}, {
+  id: 'carryBig',
+  icon: ICON_GALAXY,
+  tag: '>100 + >100',
+  desc: 'Biggest carry'
+}];
+const COLUMN_SUB_PRESETS = [{
+  id: 'subTiny',
+  icon: ICON_EARTH,
+  tag: '<10 − <10',
+  desc: 'Tiny take away'
+}, {
+  id: 'subSmall',
+  icon: ICON_ROCKET,
+  tag: '<20 − <20',
+  desc: 'Small take away'
+}, {
+  id: 'subTwo',
+  icon: ICON_SATURN,
+  tag: '<100 − <100',
+  desc: 'No borrow'
+}, {
+  id: 'subBig',
+  icon: ICON_GALAXY,
+  tag: '>100 − <100',
+  desc: 'Big take away'
+}];
+const COLUMN_SUB_HARD_PRESETS = [{
+  id: 'borrowTiny',
+  icon: ICON_EARTH,
+  tag: '<100 − <10',
+  desc: 'Borrow one'
+}, {
+  id: 'borrowSmall',
+  icon: ICON_ROCKET,
+  tag: '<100 − <100',
+  desc: 'Borrowing'
+}, {
+  id: 'borrowTwo',
+  icon: ICON_SATURN,
+  tag: '>100 − <100',
+  desc: 'Big borrow'
+}, {
+  id: 'borrowBig',
+  icon: ICON_GALAXY,
+  tag: '>100 − >100',
+  desc: 'Biggest borrow'
+}];
 /* The number games let the child pick their own number, so these lists are what a
    child actually taps — 1 to 20 (owner request, 2026-08-14: "more than 12, maybe up to 20"). */
 const TIMES_MAX_OPTIONS = Array.from({
@@ -819,7 +1121,10 @@ const CARD_VOICE = {
   l2: 'Add and Subtract!',
   c1: 'Column Add!',
   m1: 'Times Tables!',
-  s1: 'Count By! Count in jumps!'
+  s1: 'Count By! Count in jumps!',
+  c2: 'Carry Add! Carry the one!',
+  c3: 'Take Away! Column style!',
+  c4: 'Borrow Take Away! Borrow one!'
 };
 
 /* ══ UTILITIES ══ */
@@ -1144,7 +1449,7 @@ function GamePreview({
   }, "24")), /*#__PURE__*/React.createElement("div", {
     className: "gp-row"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-op"
+    className: "gp-op gp-big"
   }, "+"), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "13")), /*#__PURE__*/React.createElement("span", {
@@ -1221,6 +1526,72 @@ function GamePreview({
   }, "2"), /*#__PURE__*/React.createElement("span", {
     className: "gp-op"
   }, "="), box));
+  if (id === 'c2') return /*#__PURE__*/ /* Carry Add — the little box is the signature */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row gp-carry-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-carry"
+  }, "1")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "27")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-op gp-big"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "15")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-line"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, box, box));
+  if (id === 'c3') return /*#__PURE__*/ /* Take Away — the same stack, the minus in a coin */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "47")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-take"
+  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "13")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-line"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, box, box));
+  if (id === 'c4') return /*#__PURE__*/ /* Borrow Take Away — a crossed digit, the one that moved, the coin */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row gp-carry-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-carry"
+  }, "1")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-small"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num gp-strike"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "4")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-take"
+  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "8")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-line"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, box, box));
   return null;
 }
 function Stars({
@@ -1748,6 +2119,10 @@ function TopBar({
   onToggleMute,
   label
 }) {
+  /* Speech belongs to the screen that started it. TopBar is on every game screen and
+     nowhere else, so its unmount is the one place that reliably means "the child has
+     left". Without this a three-line answer keeps talking over the home screen. */
+  useEffect(() => () => Voice.stop(), []);
   const open = () => {
     Sound.tap();
     onSettings();
@@ -1774,6 +2149,7 @@ function TopBar({
     className: "back-btn",
     "aria-label": "Back home",
     onClick: () => {
+      Voice.stop();
       Sound.tap();
       onBack();
     }
@@ -2536,6 +2912,376 @@ function toColumnDigits(n, colCount) {
   const chars = String(n).split('');
   return [...Array(Math.max(0, colCount - chars.length)).fill(''), ...chars];
 }
+
+/* ══ MODES c2 / c3 / c4: COLUMN MATHS WITH CARRY AND BORROW ══
+   c1 above is untouched: it fills left to right and checks the whole answer at the end.
+   These three fill RIGHT TO LEFT and check every box the instant it is typed, because
+   the point of a scaffold is that each small step is verifiable.
+   Carry and borrow are one widget — a little dashed box meaning "the one that arrived
+   into this column", from the right when adding, from the left when taking away. The
+   child types it; nothing is filled in for them. */
+
+/* How many carries a + b needs. NOT the negation of isNoCarry, which only looks at the
+   ones and tens because that is all c1's ranges can produce. */
+function carryCount(a, b) {
+  let n = 0,
+    carry = 0,
+    x = a,
+    y = b;
+  while (x > 0 || y > 0) {
+    const s = x % 10 + y % 10 + carry;
+    carry = s > 9 ? 1 : 0;
+    if (carry) n++;
+    x = Math.floor(x / 10);
+    y = Math.floor(y / 10);
+  }
+  return n;
+}
+
+/* One right-to-left pass over a - b.
+     count   how many columns need a borrow
+     cascade a borrow had to travel past a 0 (300-47, 102-99)
+     invalid the borrow ran off the left edge, i.e. a < b
+   Allocation-free on purpose: it is called on every rejection-sampling draw. Verified
+   equivalent to a digit-array implementation on all 498,501 pairs with a>b below 1000. */
+function subInfo(a, b) {
+  let count = 0,
+    cascade = false,
+    borrow = 0,
+    x = a,
+    y = b;
+  while (x > 0 || y > 0) {
+    const da = x % 10,
+      db = y % 10,
+      top = da - borrow;
+    if (top < 0) {
+      cascade = true;
+      borrow = 1;
+    } // empty column: passes the borrow on
+    else if (top < db) {
+      count++;
+      borrow = 1;
+    } else borrow = 0;
+    x = Math.floor(x / 10);
+    y = Math.floor(y / 10);
+  }
+  return {
+    count,
+    cascade,
+    invalid: borrow === 1
+  };
+}
+
+/* Which columns get a little box. Addition: a carry can arrive anywhere except the
+   ones. Subtraction: a borrow can arrive anywhere except the leftmost, and never into a
+   column with no answer box under it. buildSlots and the renderer both call this, so
+   the boxes on screen and the boxes the cursor visits cannot drift apart. */
+function hasMark(op, hard, colCount, ansCols, j) {
+  if (!hard || j < 0 || j >= colCount) return false;
+  return op === '+' ? j <= colCount - 2 : j >= 1 && j >= colCount - ansCols;
+}
+
+/* One flat, ordered list of everything the child must type, right to left. Walking this
+   list in order IS the column algorithm.
+   The carry-after / borrow-before asymmetry is not a special case: the carry INTO a
+   column is only known once the column to its right is done, and the borrow INTO a
+   column must be settled before that column can be done. Both are still a strict
+   right-to-left walk, so all the child ever sees is the glow moving left. */
+function buildSlots(op, hard, colCount, ansCols) {
+  const slots = [],
+    first = colCount - ansCols;
+  for (let j = colCount - 1; j >= 0; j--) {
+    if (op === '-' && hasMark(op, hard, colCount, ansCols, j)) slots.push({
+      kind: 'mark',
+      col: j
+    });
+    if (j >= first) slots.push({
+      kind: 'ans',
+      col: j
+    });
+    if (op === '+' && hasMark(op, hard, colCount, ansCols, j - 1)) slots.push({
+      kind: 'mark',
+      col: j - 1
+    });
+  }
+  return slots;
+}
+function columnCount(op, p) {
+  return op === '+' ? Math.max(String(p.a).length, String(p.b).length, String(p.answer).length) : String(p.a).length; // a > b always, so a is the widest row
+}
+
+/* Everything that belongs in every box for one problem, plus the words for it.
+     marks[j]    '0'|'1'  the little box above column j
+     ans[j]      '0'-'9'  the answer box under column j
+     askMark[j]           spoken when the cursor LANDS on that little box — a question,
+                          never the answer
+     sayMark[j]           spoken after the child correctly types a 1 there
+     hintMark[j] / hintAns[j]  spoken, and ghosted, once the child is stuck on that box
+   None of the strings is ever rendered — a pre-reader gets them by ear only. */
+function solveColumns(op, a, b, colCount) {
+  const A = String(a).padStart(colCount, '0').split('').map(Number);
+  const B = String(b).padStart(colCount, '0').split('').map(Number);
+  const marks = Array(colCount).fill('0'),
+    ans = Array(colCount).fill('0');
+  const askMark = Array(colCount).fill(null),
+    sayMark = Array(colCount).fill(null);
+  const hintMark = Array(colCount).fill(null),
+    hintAns = Array(colCount).fill(null);
+  if (op === '+') {
+    let carry = 0;
+    for (let j = colCount - 1; j >= 0; j--) {
+      const s = A[j] + B[j] + carry;
+      ans[j] = String(s % 10);
+      hintAns[j] = A[j] === 0 && B[j] === 0 && carry === 1 ? ['Just the one you carried.', 'Write the one.'] : [`${A[j]} and ${B[j]}${carry ? ` and ${carry} more` : ''} is ${s}.`, `Write the ${s % 10}.`];
+      const out = s > 9 ? 1 : 0;
+      if (j - 1 >= 0) {
+        marks[j - 1] = String(out);
+        /* The ask never names the sum, so it cannot give the answer away — "did you
+           make a ten" is the whole question, and it is the same question every time. */
+        askMark[j - 1] = ['Little box. Did you make a ten?', 'One for yes. Zero for no.'];
+        sayMark[j - 1] = out ? [`${s} is too big for one box.`, 'Carry the ten next door!'] : null;
+        hintMark[j - 1] = out ? [`${s} is too big for one box.`, 'Type one.'] : [`${s} fits in one box.`, 'Nothing to carry.', 'Type zero.'];
+      }
+      carry = out;
+    }
+  } else {
+    const T = [...A]; // the top row as it is worked
+    for (let j = colCount - 1; j >= 0; j--) {
+      /* Asked BEFORE this column is worked, and T[j] has already taken any decrement
+         from the column to its right, so the two numbers named are the two the child is
+         actually looking at. */
+      if (j >= 1) askMark[j] = [`Little box. Can you take ${B[j]} away from ${T[j]}?`, 'No is one. Yes is zero.'];
+      if (T[j] < B[j]) {
+        marks[j] = '1';
+        sayMark[j] = [`${T[j]} is too small.`, 'Take one from next door.', `Now it is ${T[j] + 10}.`];
+        hintMark[j] = [`${T[j]} is smaller than ${B[j]}.`, 'You need one from next door.', 'Type one.'];
+        let k = j - 1;
+        while (k >= 0 && T[k] === 0) {
+          T[k] = 9;
+          k--;
+        } // cascade: excluded by generation, correct anyway
+        if (k >= 0) T[k] -= 1;
+        T[j] += 10;
+      } else if (j >= 1) {
+        hintMark[j] = [`${B[j]} fits in ${T[j]}.`, 'You do not need one.', 'Type zero.'];
+      }
+      ans[j] = String(T[j] - B[j]);
+      hintAns[j] = [`${T[j]} take away ${B[j]} is ${T[j] - B[j]}.`];
+    }
+  }
+  return {
+    marks,
+    ans,
+    askMark,
+    sayMark,
+    hintMark,
+    hintAns
+  };
+}
+
+/* Which top digits are crossed out and what they became. Derived from what the CHILD
+   typed into the mark boxes, not from the solution, so nothing appears on screen until
+   the child has asked for it — and it disappears again if they undo the borrow. */
+function topStruck(op, hard, a, colCount, marks) {
+  const struck = Array(colCount).fill(null);
+  if (op !== '-' || !hard) return struck;
+  const T = String(a).padStart(colCount, '0').split('').map(Number);
+  for (let j = colCount - 1; j >= 1; j--) {
+    // right to left, the order it was typed
+    if (marks[j] !== '1') continue;
+    T[j] += 10;
+    let k = j - 1;
+    while (k >= 0 && T[k] === 0) {
+      struck[k] = '9';
+      T[k] = 9;
+      k--;
+    }
+    if (k >= 0) {
+      struck[k] = String(T[k] - 1);
+      T[k] -= 1;
+    }
+  }
+  return struck;
+}
+
+/* ── WHICH PROBLEMS EACH RUNG MAY ASK ──
+   Ranges are keyed by preset id and live here, not in the theme-specific preset arrays,
+   so the maths is one shared block that a parity diff can check. */
+const COLUMN_RANGES = {
+  /* c2. carryTiny caps the carries at one so it is always two columns and three taps:
+     the entire rung is "does a ten arrive — yes or no". */
+  carryTiny: {
+    aMin: 10,
+    aMax: 99,
+    bMin: 1,
+    bMax: 9,
+    maxCarry: 1
+  },
+  carrySmall: {
+    aMin: 10,
+    aMax: 99,
+    bMin: 10,
+    bMax: 99
+  },
+  carryTwo: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 10,
+    bMax: 99
+  },
+  carryBig: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 100,
+    bMax: 999
+  },
+  /* c3 — taking away, never a borrow. The same four rungs as c1, in the other
+     operation, which is why c3 also opens on the hardest of them. */
+  subTiny: {
+    aMin: 2,
+    aMax: 9,
+    bMin: 1,
+    bMax: 8
+  },
+  subSmall: {
+    aMin: 2,
+    aMax: 19,
+    bMin: 1,
+    bMax: 19
+  },
+  subTwo: {
+    aMin: 10,
+    aMax: 99,
+    bMin: 1,
+    bMax: 99
+  },
+  subBig: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 1,
+    bMax: 99
+  },
+  /* c4 — taking away with a borrow. */
+  borrowTiny: {
+    aMin: 10,
+    aMax: 99,
+    bMin: 1,
+    bMax: 9
+  },
+  borrowSmall: {
+    aMin: 10,
+    aMax: 99,
+    bMin: 10,
+    bMax: 99
+  },
+  borrowTwo: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 10,
+    bMax: 99
+  },
+  borrowBig: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 100,
+    bMax: 999
+  }
+};
+
+/* How often a hard rung asks a problem that actually needs the carry or the borrow.
+   NOT 100 %: if every problem needed it, the little box would always be a 1 and the
+   child would learn to tap 1 without looking — which is the opposite of the lesson.
+   Measured over the full enumeration, this leaves 45-72 % of little boxes answered
+   with a 0 on every rung, so the box is a real decision from the very first problem. */
+const HOT_SHARE = .55;
+
+/* Draw (a,b) at random and keep the first pair that fits the rung. Enumerating these
+   ranges would cost up to 810,000 pairs — several megabytes on the oldest iPad in the
+   house, rebuilt whenever the level changes — for a list we sample one item from.
+   Every bucket is at least 13.4 % of its range (measured over the full enumeration),
+   so a draw succeeds in about eight tries; 300 makes failure a 5-in-10^19 event.
+   The scan below it is unreachable today and exists so that a future range edit
+   degrades to a valid problem instead of an infinite loop. */
+function makeColumnProblem(cfg, preset, avoid) {
+  const r = COLUMN_RANGES[preset.id] || COLUMN_RANGES.carryTwo;
+  const hot = cfg.hard ? Math.random() < HOT_SHARE : true;
+  const make = (a, b) => ({
+    a,
+    b,
+    answer: cfg.op === '+' ? a + b : a - b
+  });
+  for (let i = 0; i < 300; i++) {
+    const a = rand(r.aMin, r.aMax),
+      b = rand(r.bMin, r.bMax);
+    if (!cfg.fits(a, b, hot, r)) continue;
+    if (avoid && avoid.a === a && avoid.b === b) continue; // never the same problem twice running
+    return make(a, b);
+  }
+  for (let a = r.aMin; a <= r.aMax; a++) for (let b = r.bMin; b <= r.bMax; b++) {
+    if (cfg.fits(a, b, true, r) || cfg.fits(a, b, false, r)) return make(a, b);
+  }
+  return make(r.aMax, Math.max(1, Math.min(r.bMin, r.aMax - 1)));
+}
+
+/* c2 and c4 open on their FIRST rung, unlike every other picture game, which opens on
+   its hardest. The start-on-hardest rule assumes a notation the child already knows;
+   the little box exists nowhere else in this app, and 950 + 99 — four columns, seven
+   taps — is not a first lesson in it. Rung 1 is two columns and three taps and asks the
+   yes/no question once. The level pill still reaches the hardest rung in one tap, and
+   c1 and c3 are unchanged: they still open on their hardest.
+   `fits` carries the whole difference between the three modes, which is why there is
+   one component below and not three. */
+const COLUMN_MODES = {
+  c2: {
+    key: 'c2',
+    op: '+',
+    hard: true,
+    startIdx: 0,
+    title: 'Carry Add',
+    sub: 'Carry the one!',
+    opWord: 'plus',
+    intro: 'Carry adding',
+    presets: COLUMN_ADD_HARD_PRESETS,
+    fits: (a, b, hot, r) => {
+      const n = carryCount(a, b);
+      return n <= (r.maxCarry || 9) && (hot ? n > 0 : n === 0);
+    }
+  },
+  c3: {
+    key: 'c3',
+    op: '-',
+    hard: false,
+    startIdx: 3,
+    title: 'Take Away',
+    sub: 'Tap the answer!',
+    opWord: 'take away',
+    intro: 'Taking away',
+    presets: COLUMN_SUB_PRESETS,
+    fits: (a, b) => b < a && subInfo(a, b).count === 0
+  },
+  c4: {
+    key: 'c4',
+    op: '-',
+    hard: true,
+    startIdx: 0,
+    title: 'Borrow Take Away',
+    sub: 'Borrow one!',
+    opWord: 'take away',
+    intro: 'Borrowing',
+    presets: COLUMN_SUB_HARD_PRESETS,
+    /* Exactly one borrow at most, and never across a zero. Two borrows can put a
+       cross-out AND a little 1 on the same column (312-29), and a cascade puts three
+       marks on the page at once (300-47). Both are Year-3 shapes. solveColumns and
+       topStruck implement the cascade correctly regardless, so a future "wizard" rung
+       is one edit here and no rendering work. */
+    fits: (a, b, hot) => {
+      if (b >= a) return false;
+      const w = subInfo(a, b);
+      if (w.cascade || w.count > 1) return false;
+      return hot ? w.count === 1 : w.count === 0;
+    }
+  }
+};
 function ColumnAddSettings({
   current,
   onChange,
@@ -2734,6 +3480,369 @@ function ColumnAdd({
     className: "key-btn clear",
     onClick: clear,
     "aria-label": "Clear"
+  }, /*#__PURE__*/React.createElement(BackspaceIcon, null))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* One modal for all three new modes; c1's ColumnAddSettings is untouched. */
+function ColumnMathSettings({
+  cfg,
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, cfg.title), cfg.presets.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+      onClose();
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function ColumnMath({
+  modeId,
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const cfg = COLUMN_MODES[modeId];
+  const [preset, setPreset] = useState(() => cfg.presets[cfg.startIdx]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeColumnProblem(cfg, cfg.presets[cfg.startIdx], null));
+  const colCount = useMemo(() => columnCount(cfg.op, problem), [cfg.op, problem]);
+  const ansCols = String(problem.answer).length;
+  const [ansDigits, setAns] = useState(() => Array(colCount).fill('')); // by COLUMN, '' until filled
+  const [marks, setMarks] = useState(() => Array(colCount).fill('')); // by COLUMN, ''|'0'|'1'
+  const [cursor, setCursor] = useState(0); // index into slots — the only pointer
+  const [slotMiss, setSlotMiss] = useState(0); // misses on the CURRENT box
+  const [problemMiss, setProblemMiss] = useState(0); // misses anywhere in this problem
+  const [bad, setBad] = useState(''); // the digit just refused
+  const [shake, setShake] = useState(false);
+  const [nudge, setNudge] = useState(false);
+  const [won, setWon] = useState(false);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const badT = useRef(null),
+    nudgeT = useRef(null);
+  useEffect(() => () => {
+    clearTimeout(badT.current);
+    clearTimeout(nudgeT.current);
+  }, []);
+  const solution = useMemo(() => solveColumns(cfg.op, problem.a, problem.b, colCount), [cfg.op, problem, colCount]);
+  const slots = useMemo(() => buildSlots(cfg.op, cfg.hard, colCount, ansCols), [cfg.op, cfg.hard, colCount, ansCols]);
+  const slot = cursor < slots.length ? slots[cursor] : null; // null once every box is filled
+  const struck = useMemo(() => topStruck(cfg.op, cfg.hard, problem.a, colCount, marks), [cfg.op, cfg.hard, problem.a, colCount, marks]);
+  const aDigits = toColumnDigits(problem.a, colCount);
+  const bDigits = toColumnDigits(problem.b, colCount);
+  const markLive = !!slot && slot.kind === 'mark' && !won;
+  /* Two escape hatches, not one. Three tries on THIS box ghosts THIS box, which is what
+     makes a seven-tap problem survivable. Six misses anywhere in the problem ghosts
+     everything that is left, which is c1's "the problem becomes copyable" behaviour
+     kept intact for a child who is simply stuck — without it a stuck child could absorb
+     twenty-one buzzes on one problem. */
+  const ghostAll = problemMiss >= 6;
+  const resetForProblem = useCallback(p => {
+    const n = columnCount(cfg.op, p);
+    setProblem(p);
+    setAns(Array(n).fill(''));
+    setMarks(Array(n).fill(''));
+    setCursor(0);
+    setSlotMiss(0);
+    setProblemMiss(0);
+    setBad('');
+    setShake(false);
+    setNudge(false);
+    setWon(false);
+  }, [cfg]);
+  const next = useCallback(() => {
+    resetForProblem(makeColumnProblem(cfg, preset, problem));
+  }, [cfg, preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeColumnProblem(cfg, p, null));
+    setShowSettings(false);
+  }, [cfg, resetForProblem]);
+
+  /* The one place the child is TOLD what a box is for. The glow alone is enough for an
+     answer box — every other game in this app works that way — but the little box is a
+     notation that exists nowhere else, and landing on it in silence leaves a pre-reader
+     a fifty-fifty guess with three wrong-answer buzzes as the only feedback. So it
+     announces itself, as a question, without hinting which way to answer. Runs on
+     cursor, so a wrong tap (which does not move the cursor) never re-triggers it, and
+     an undo does. */
+  useEffect(() => {
+    if (won || showSettings || cursor >= slots.length) return;
+    const s = slots[cursor];
+    const ask = s.kind === 'mark' ? solution.askMark[s.col] : null;
+    /* When the very first box is a little box (every c4 problem), the ask IS the
+       instruction, so "start with the glowing box" would only make the opening longer. */
+    const open = cursor === 0 ? [`${cfg.intro}! ${problem.a} ${cfg.opWord} ${problem.b}.`, ask ? null : 'Start with the glowing box.'] : [];
+    const list = [...open, ...(ask || [])].filter(Boolean);
+    if (list.length) Voice.lines(list);
+  }, [problem, cursor, won, showSettings, slots, solution, cfg]);
+  const tapDigit = useCallback(n => {
+    Sound.setMuted(muted);
+    if (won || !slot) {
+      Sound.tap();
+      return;
+    }
+    const typed = String(n),
+      isMark = slot.kind === 'mark';
+
+    /* A dimmed key is not a wrong answer, it is a key that cannot apply here. The box
+       hops, the rule is spoken, nothing is counted against the child, and the cursor
+       does not move. */
+    if (isMark && typed !== '0' && typed !== '1') {
+      Sound.tap();
+      setNudge(true);
+      clearTimeout(nudgeT.current);
+      nudgeT.current = setTimeout(() => setNudge(false), 320);
+      Voice.say('The little box holds one, or nothing.');
+      return;
+    }
+    Sound.tap();
+    const want = isMark ? solution.marks[slot.col] : solution.ans[slot.col];
+    if (typed !== want) {
+      Sound.wrong();
+      mascot.oops();
+      /* Show the digit, then take it back. Every other screen in this app writes the
+         child's number down before withdrawing it (c1 at 650 ms, m1, s1, l2), and a
+         number key that changes nothing on screen reads as a broken button, not as a
+         wrong answer. Nothing is committed, so a wrong digit still cannot be carried
+         forward into a later column. */
+      setBad(typed);
+      setShake(true);
+      clearTimeout(badT.current);
+      badT.current = setTimeout(() => {
+        setBad('');
+        setShake(false);
+      }, 650);
+      const nextMiss = slotMiss + 1,
+        tries = isMark ? 2 : 3; // a two-choice box should not take three
+      setSlotMiss(nextMiss);
+      setProblemMiss(m => m + 1);
+      /* Repeats every `tries` misses rather than firing once, so the fifth attempt is
+         not silent. */
+      if (nextMiss >= tries && (nextMiss - tries) % tries === 0) {
+        const h = isMark ? solution.hintMark[slot.col] : solution.hintAns[slot.col];
+        if (h && h.length) Voice.lines(h);
+      }
+      return;
+    }
+    clearTimeout(badT.current);
+    setBad('');
+    setShake(false);
+    if (isMark) {
+      setMarks(prev => {
+        const out = [...prev];
+        out[slot.col] = typed;
+        return out;
+      });
+      if (typed === '1') {
+        Sound.twinkle(); // "one arrived here" — its only meaning in the app
+        const say = solution.sayMark[slot.col];
+        if (say && say.length) Voice.lines(say);
+      }
+      /* Committing a 0 is silent on purpose. Nothing arrived, nothing happened, nothing
+         to say — and a reward for typing 0 would make 0 the guess. */
+    } else {
+      setAns(prev => {
+        const out = [...prev];
+        out[slot.col] = typed;
+        return out;
+      });
+    }
+    setSlotMiss(0);
+    setCursor(c => c + 1);
+  }, [muted, won, slot, slotMiss, solution]);
+
+  /* The Clear key becomes a real undo: step back one box and empty it. With per-slot
+     commit there is nothing to bulk-clear, wrong digits are never written down, so this
+     only ever un-does a correct one — which is exactly what a fidgety child wants, and
+     it keeps the keypad the same shape as every other game. */
+  const back = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won || cursor === 0) return;
+    const s = slots[cursor - 1];
+    if (s.kind === 'mark') setMarks(prev => {
+      const out = [...prev];
+      out[s.col] = '';
+      return out;
+    });else setAns(prev => {
+      const out = [...prev];
+      out[s.col] = '';
+      return out;
+    });
+    setCursor(cursor - 1);
+    setSlotMiss(0);
+    clearTimeout(badT.current);
+    setBad('');
+    setShake(false);
+  }, [muted, won, cursor, slots]);
+
+  /* No digit comparison at the end: every box was checked as it was typed, so "the
+     cursor ran off the right-hand end of the list" IS the win. */
+  useEffect(() => {
+    if (won || slots.length === 0 || cursor < slots.length) return;
+    setWon(true);
+    setConf(true);
+    Sound.setMuted(muted);
+    Sound.ding();
+    setTimeout(() => Sound.celebrate(), 200);
+    mascot.happy();
+    const arrived = addProgress();
+    Voice.lines([`${problem.answer}!`, `${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`, arrived ? null : praise()]);
+    setScore(s => s + 1);
+    setTimeout(() => setConf(false), 2500);
+  }, [cursor, slots.length, won, muted, problem, cfg, setScore, addProgress]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen column-screen cm-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(ColumnMathSettings, {
+    cfg: cfg,
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, cfg.title), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, cfg.sub)), /*#__PURE__*/React.createElement("div", {
+    className: "column-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `column-grid cm-grid ${colCount >= 4 ? 'cm-4' : ''}`,
+    style: {
+      '--col-count': colCount
+    }
+  }, cfg.hard && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "cm-mark-gap"
+  }), Array.from({
+    length: colCount
+  }, (_, j) => {
+    if (!hasMark(cfg.op, cfg.hard, colCount, ansCols, j)) return /*#__PURE__*/React.createElement("div", {
+      key: `m${j}`,
+      className: "cm-mark-gap"
+    });
+    const act = !!slot && slot.kind === 'mark' && slot.col === j && !won;
+    const v = marks[j];
+    const ghost = act ? ghostAll || slotMiss >= 2 : ghostAll;
+    return /*#__PURE__*/React.createElement("div", {
+      key: `m${j}`,
+      className: `cm-mark ${act ? 'active' : ''} ${act && shake ? 'wrong' : ''} ${act && nudge ? 'nudge' : ''}`
+    }, act && bad ? /*#__PURE__*/React.createElement("span", {
+      className: "cm-bad"
+    }, bad) : v === '0' ? /*#__PURE__*/React.createElement("span", {
+      className: "cm-zero"
+    }, "0") : v === '1' ? '1' : ghost ? /*#__PURE__*/React.createElement("span", {
+      className: "ghost-hint"
+    }, solution.marks[j]) : '');
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "column-blank"
+  }), aDigits.map((d, j) => /*#__PURE__*/React.createElement("div", {
+    key: `a${j}`,
+    className: `column-digit cm-top ${struck[j] ? 'struck' : ''}`
+  }, struck[j] && /*#__PURE__*/React.createElement("span", {
+    className: "cm-new"
+  }, struck[j]), d)), /*#__PURE__*/React.createElement("div", {
+    className: cfg.op === '+' ? 'column-plus' : 'column-plus cm-minus'
+  }, cfg.op === '+' ? '+' : '−'), bDigits.map((d, j) => /*#__PURE__*/React.createElement("div", {
+    key: `b${j}`,
+    className: "column-digit"
+  }, d)), /*#__PURE__*/React.createElement("div", {
+    className: "column-line"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "column-blank"
+  }), Array.from({
+    length: colCount
+  }, (_, j) => {
+    /* The answer can be narrower than the top row (15 − 8 = 7, 105 − 100 = 5).
+       Those columns get the same blank cell the padded operand rows already use;
+       no leading zero is ever demanded, and no box is shown that must be left
+       empty. A dimmed pre-filled 0 was the alternative and a four-year-old will
+       try to tap it. */
+    if (j < colCount - ansCols) return /*#__PURE__*/React.createElement("div", {
+      key: `n${j}`,
+      className: "column-blank"
+    });
+    const act = !!slot && slot.kind === 'ans' && slot.col === j && !won;
+    const ghost = act ? ghostAll || slotMiss >= 3 : ghostAll;
+    return /*#__PURE__*/React.createElement("div", {
+      key: `n${j}`,
+      className: `column-answer-box ${act ? 'active' : ''} ${act && shake ? 'wrong' : ''}`
+    }, act && bad ? /*#__PURE__*/React.createElement("span", {
+      className: "cm-bad"
+    }, bad) : ansDigits[j] ? ansDigits[j] : ghost ? /*#__PURE__*/React.createElement("span", {
+      className: "ghost-hint"
+    }, solution.ans[j]) : '_');
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "column-final-line"
+  }))), won && /*#__PURE__*/React.createElement("div", {
+    className: "column-celebrate"
+  }, problem.a, " ", cfg.op === '+' ? '+' : '−', " ", problem.b, " = ", problem.answer, "!"), !won && /*#__PURE__*/React.createElement("div", {
+    className: "keypad"
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    className: `key-btn ${markLive && n >= 2 ? 'dim' : ''}`,
+    onClick: () => tapDigit(n)
+  }, n)), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: back,
+    "aria-label": "Undo"
   }, /*#__PURE__*/React.createElement(BackspaceIcon, null))), won && /*#__PURE__*/React.createElement("button", {
     className: "next-btn",
     onClick: next,
@@ -3346,6 +4455,15 @@ function Home({
       objectFit: 'contain'
     }
   }), "Journeys completed: ", trophies), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '100%',
+      maxWidth: 420,
+      display: 'flex',
+      justifyContent: 'center'
+    }
+  }, /*#__PURE__*/React.createElement(JourneyTrack, {
+    progress: journey
+  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
     className: "home-section-heading"
@@ -3398,16 +4516,6 @@ function Home({
   })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
-    className: cardCls('c1', 'mc-rose'),
-    onClick: () => pick('c1'),
-    "aria-label": "Column Add"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "c1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Column Add"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
     className: cardCls('l2', 'mc-magic'),
     onClick: () => pick('l2'),
     "aria-label": "Add and Subtract"
@@ -3438,15 +4546,62 @@ function Home({
   }, "Count By"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '100%',
-      maxWidth: 420,
-      display: 'flex',
-      justifyContent: 'center'
-    }
-  }, /*#__PURE__*/React.createElement(JourneyTrack, {
-    progress: journey
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/satellite.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Column Maths"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/chest.webp",
+    alt: ""
   })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('c1', 'mc-rose'),
+    onClick: () => pick('c1'),
+    "aria-label": "Column Add"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Column Add"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('c2', 'mc-pink'),
+    onClick: () => pick('c2'),
+    "aria-label": "Carry Add. Carry the one"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Carry Add"), /*#__PURE__*/React.createElement(Stars, {
+    count: 3
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('c3', 'mc-purple'),
+    onClick: () => pick('c3'),
+    "aria-label": "Column Take Away"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c3"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Take Away"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('c4', 'mc-magic'),
+    onClick: () => pick('c4'),
+    "aria-label": "Borrow Take Away. Borrow one"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c4"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Borrow Take Away"), /*#__PURE__*/React.createElement(Stars, {
+    count: 3
+  })))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'center',
@@ -3493,6 +4648,9 @@ function App() {
     b2: 0,
     l2: 0,
     c1: 0,
+    c2: 0,
+    c3: 0,
+    c4: 0,
     m1: 0,
     s1: 0
   });
@@ -3524,6 +4682,7 @@ function App() {
     const n = !m;
     Sound.setMuted(n);
     Voice.muted = n;
+    if (n) Voice.stop();
     try {
       localStorage.setItem('sm_muted', n ? '1' : '0');
     } catch (e) {}
@@ -3555,13 +4714,31 @@ function App() {
           return n;
         });
       }
-      clearTimeout(arrivalT.current);
-      arrivalT.current = setTimeout(() => {
+      /* The arrival waits for the answer to finish being spoken; it does not race a
+         stopwatch. This used to be a flat 1700 ms, which was fine when every part of an
+         answer was queued back to back. With real gaps between the lines the longest
+         chains in the app — Count By's "you counted by 13 all the way to 260. That is
+         the 13 times table!" and Carry Add's "nine hundred and fifty plus ninety nine
+         is one thousand and forty nine." — run well past six seconds, and any fixed
+         number short enough to feel prompt would cut them in half. Voice calls back the
+         moment the chain ends. The 7000 ms timer is the backstop for the two cases
+         where no chain ever finishes: sound muted (Voice.lines returns immediately) and
+         cancelled (the child answered again, or went home). Whichever comes first wins,
+         once — `fired` is the latch. */
+      let fired = false;
+      const show = () => {
+        if (fired) return;
+        fired = true;
+        clearTimeout(arrivalT.current);
+        arrivalT.current = null;
         setArrivalIdx(stopIdx);
         Sound.arrive();
         const s = JOURNEY_STOPS[stopIdx];
         Voice.lines([`${nj === JOURNEY_TOTAL ? 'Journey complete! ' : ''}You reached ${s.name}!`, s.fact]);
-      }, 1700);
+      };
+      clearTimeout(arrivalT.current);
+      Voice.notifyNextChain(show);
+      arrivalT.current = setTimeout(show, 7000);
     }
     return arrived;
   }, [journey]);
@@ -3589,7 +4766,14 @@ function App() {
       im.src = next.bg;
     }
   }, [locIdx, journeyBg]);
-  const goHome = useCallback(() => setMode(null), []);
+  /* The arrival window is now up to 7 s rather than 1.7, so the chance of a child
+     leaving mid-chain and then being ambushed by a planet on the home screen is four
+     times wider. Leaving the game cancels both the speech and the pending arrival. */
+  const goHome = useCallback(() => {
+    Voice.stop();
+    clearTimeout(arrivalT.current);
+    setMode(null);
+  }, []);
   const shared = {
     onBack: goHome,
     journey,
@@ -3612,6 +4796,21 @@ function App() {
   }));else if (mode === 'c1') screen = /*#__PURE__*/React.createElement(ColumnAdd, _extends({}, shared, {
     score: scores.c1,
     setScore: setScore('c1')
+  }));else if (mode === 'c2') screen = /*#__PURE__*/React.createElement(ColumnMath, _extends({
+    modeId: "c2"
+  }, shared, {
+    score: scores.c2,
+    setScore: setScore('c2')
+  }));else if (mode === 'c3') screen = /*#__PURE__*/React.createElement(ColumnMath, _extends({
+    modeId: "c3"
+  }, shared, {
+    score: scores.c3,
+    setScore: setScore('c3')
+  }));else if (mode === 'c4') screen = /*#__PURE__*/React.createElement(ColumnMath, _extends({
+    modeId: "c4"
+  }, shared, {
+    score: scores.c4,
+    setScore: setScore('c4')
   }));else if (mode === 'm1') screen = /*#__PURE__*/React.createElement(MultiplicationGame, _extends({}, shared, {
     score: scores.m1,
     setScore: setScore('m1')

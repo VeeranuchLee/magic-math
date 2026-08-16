@@ -30,7 +30,10 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v4 -> v5  the unclosed @media brace fix, the JSX precompile (Babel stops shipping,
 //             so it also leaves SHELL), and game previews on the home cards.
 //   v5 -> v6  correct answers are spoken as separate lines instead of one run-on.
-const CACHE_NAME = "magic-math-v6";
+//   v6 -> v7  column take away, carry and borrow levels, and a real pause between
+//             spoken lines — v6 split them into separate utterances but the engine
+//             still ran them back to back with a 5 ms seam, so nothing was audible.
+const CACHE_NAME = "magic-math-v7";
 
 const SHELL = [
   "./",
