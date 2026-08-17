@@ -44,7 +44,8 @@ What works offline, and when:
   the JSX while you work locally, and the publish build strips it out.
 - `fonts/`, `fonts.css` – Nunito and Fredoka One, self-hosted for the same reason
 - `tools/` – deterministic generators: `build-runtime-assets.py` (the WebP runtime tree),
-  `build-icons.py` (app icons), `build-cache-list.py` (the offline warm list) and
+  `build-icons.py` (app icons), `build-cache-list.py` (the offline warm list),
+  `build-big-kid-badge.py` (the difficulty badge, from `shared-art/kid-characters/`) and
   `build-for-publish.js` (compiles the JSX out, for publishing only). After changing any
   art, re-run `build-runtime-assets.py` **then** `build-cache-list.py` and commit the
   result — otherwise the games keep serving the previous encode.
@@ -151,6 +152,28 @@ Four cards now sit together under **Column Maths**: Column Add, Carry Add, Take 
 Borrow Take Away. The first two add, the last two take away; the second of each pair adds
 carrying or borrowing. Card colour tells you the operation and the star count tells you
 which of the pair is the hard one.
+
+The two hard cards also wear a picture of **two big kids**, added 2026-08-17. Three stars
+means "hardest", but only to someone who has been taught that three beats two — it was the
+last place in the app where reading the screen needed prior knowledge. Children read age
+off a body instantly, and "am I big or little?" is a question they already care about, so
+the same fact is now said twice: once in stars and once in a language a four-year-old
+already speaks.
+
+Only the hard end is marked. There is deliberately no "little kids" badge on the easy
+games: the bottom rung is the game a struggling child needs most, and telling them it is
+for babies is the one thing the art must never say. Nothing is locked either — the badge
+says who you are growing into, not who is allowed to tap.
+
+The four cards stay in one row rather than splitting into a separate "big kids" section.
+They are two pairs, and the adjacency is the teaching: Carry Add sits beside Column Add so
+the hard one reads as *the same game with one new bit*, not as a different game.
+
+The badge is a boy and a girl in both themes — the boy leads in Space Math and the girl in
+Unicorn Math. Its two masters are composed by `tools/build-big-kid-badge.py` from the
+shared cast in `shared-art/kid-characters/`; change which children appear by editing the
+figure numbers there and re-running it, then `build-runtime-assets.py` and
+`build-cache-list.py`.
 
 On the two hard cards the child works **right to left**, the way the algorithm actually
 goes: the ones column first, then the tens. A small dashed box sits above the next column,

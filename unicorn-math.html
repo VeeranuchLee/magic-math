@@ -41,6 +41,21 @@
     .mode-section{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:640px}
     .mode-section-label{font-size:.95rem;font-weight:900;color:#7b1fa2;text-transform:uppercase;letter-spacing:2px;background:rgba(255,255,255,.75);border-radius:50px;padding:5px 18px}
     .mode-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;width:100%}
+    /* Only the row that holds a badged card opts out of stretch. Stretching it
+       left a badge-sized hole under Column Add and Take Away that read as
+       missing art; letting each card end where its content ends costs a ragged
+       bottom edge and buys the badged card literally standing taller, which is
+       the message. It stays scoped to this row because the others rely on
+       stretch — Add & Subtract carries no subtitle and is 15px shorter than
+       Times Tables beside it, so making this global went ragged where nothing
+       was being said. */
+    .mode-row.has-badge{align-items:flex-start}
+    /* "Borrow Take Away" wraps to two lines at some widths and "Carry Add" never
+       does, so without a reserved second line the two badges in this row sit at
+       different heights — 270px against 286px, measured at 768px. Stretch used to
+       hide that; opting out of stretch exposed it. Reserving the line costs the
+       one-line cards a few pixels nobody sees and keeps the badges level. */
+    .mode-row.has-badge .mode-card-label{min-height:2.4em;display:flex;align-items:center}
     .mode-card{flex:1;min-width:130px;max-width:185px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s}
     .mode-card:active{transform:translateY(5px) scale(.96)}
     .mode-card-label{font-size:.9rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
@@ -85,6 +100,18 @@
     .gp-strike::after{content:'';position:absolute;left:-2px;right:-2px;top:52%;height:2px;border-radius:1px;background:rgba(244,81,30,.85);transform:rotate(-15deg)}
     .mode-card-stars{height:24px;display:flex;align-items:center;justify-content:center;gap:2px}
     .mode-card-stars img{width:24px;height:24px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16))}
+    /* ── BIG-KID BADGE ──
+       Worn only by Carry Add and Borrow Take Away. Stars say "hardest" in a
+       convention a pre-reader has to be taught; two big children say it in a
+       language they already read fluently, because "am I big or little?" is a
+       question they think about daily. Both signals stay: same fact, two
+       languages, the way card colour and star count already split operation
+       from difficulty.
+       72px is a floor, not a preference. Measured smaller, the head-to-body
+       ratio that carries age collapses and it reads as two coloured smudges —
+       the badge stops meaning anything and becomes decoration. */
+    .mode-card-badge{height:72px;margin-top:-2px;display:flex;align-items:flex-end;justify-content:center}
+    .mode-card-badge img{height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}
     .mc-pink  {background:linear-gradient(160deg,#f48fb1,#e91e63);box-shadow:0 7px 0 #ad1457,0 10px 20px rgba(233,30,99,.3)}
     .mc-purple{background:linear-gradient(160deg,#ce93d8,#7b1fa2);box-shadow:0 7px 0 #4a148c,0 10px 20px rgba(123,31,162,.3)}
     .mc-rose  {background:linear-gradient(160deg,#f06292,#c2185b);box-shadow:0 7px 0 #880e4f,0 10px 20px rgba(194,24,91,.3)}
@@ -1367,6 +1394,26 @@ function Stars({
     src: "assets-runtime/unicorn/icons/star.webp",
     alt: ""
   })));
+}
+
+/* Only the two hardest games wear this. The absence of a badge is the other
+   half of the message, and it has to stay an absence: a "little kids" mark on
+   What Number? would land on the child who needs that game most. Nothing is
+   locked either — the badge says who you are growing into, not who may tap.
+   The girl leads here and the boy leads in Space Math. Both themes show both,
+   because a hard game does not belong to one of them; the lean follows who
+   actually reaches for a unicorn. The two are different children in each
+   theme, chosen for contrast against these pink and purple cards rather than
+   for matching them — see math-app/tools/build-big-kid-badge.py.
+   Unlike Space Math these cards carry no aria-label, so the alt text is what a
+   screen reader announces; do not blank it here to match the other theme. */
+function BigKidBadge() {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-badge"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets-runtime/unicorn/icons/big-kids.webp",
+    alt: "For big kids"
+  }));
 }
 
 /* ══ MASCOT ══ */
@@ -4253,7 +4300,7 @@ function Home({
       height: 26
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
+    className: "mode-row has-badge"
   }, /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-rose",
     onClick: () => onSelect('c1')
@@ -4276,7 +4323,7 @@ function Home({
     className: "mode-card-sub"
   }, "Carry the one!"), /*#__PURE__*/React.createElement(Stars, {
     count: 3
-  })), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement(BigKidBadge, null)), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-purple",
     onClick: () => onSelect('c3')
   }, /*#__PURE__*/React.createElement(GamePreview, {
@@ -4298,7 +4345,7 @@ function Home({
     className: "mode-card-sub"
   }, "Borrow one!"), /*#__PURE__*/React.createElement(Stars, {
     count: 3
-  })))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(BigKidBadge, null)))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'center',
