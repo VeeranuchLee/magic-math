@@ -148,10 +148,15 @@ the same picker without leaving.
 
 ## Carrying and borrowing — how it teaches
 
-Four cards now sit together under **Column Maths**: Column Add, Carry Add, Take Away and
-Borrow Take Away. The first two add, the last two take away; the second of each pair adds
-carrying or borrowing. Card colour tells you the operation and the star count tells you
-which of the pair is the hard one.
+Four cards sit together under **Column Maths**, in this order: Column Add, Take Away,
+Carry Add, Borrow Take Away — the two easy ones first, then the two that carry or borrow.
+Card colour tells you the operation and the star count tells you which is the hard one.
+
+The order is a 2×2 grid, not a list. On a phone the row wraps two-and-two, so the top row
+is both easy games and the bottom row is both hard ones, while the left column is always
+adding and the right is always taking away. **Difficulty runs down, operation runs across.**
+Each hard card sits directly under its easy twin, so "same game, one new bit" is still
+readable — and both big-kid badges now land side by side rather than one per row.
 
 The two hard cards also wear a picture of **two big kids**, added 2026-08-17. Three stars
 means "hardest", but only to someone who has been taught that three beats two — it was the

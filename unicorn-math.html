@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Magic Math v7</title>
+  <!-- Plain name, deliberately. This read "Magic Math v7" from 7343cc3 until
+       2026-08-17 — a version nobody maintained, which drifted out of step with
+       CACHE_NAME and then collided with it. No other page carries a version, and
+       a title that has to be edited on every publish will be wrong again by the
+       next one. -->
+  <title>Unicorn Math</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
@@ -4313,17 +4318,6 @@ function Home({
   }, "Big Add"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-pink",
-    onClick: () => onSelect('c2')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "c2"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Carry Add"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Carry the one!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 3
-  }), /*#__PURE__*/React.createElement(BigKidBadge, null)), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-purple",
     onClick: () => onSelect('c3')
   }, /*#__PURE__*/React.createElement(GamePreview, {
@@ -4335,6 +4329,17 @@ function Home({
   }, "Column style"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-pink",
+    onClick: () => onSelect('c2')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Carry Add"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Carry the one!"), /*#__PURE__*/React.createElement(Stars, {
+    count: 3
+  }), /*#__PURE__*/React.createElement(BigKidBadge, null)), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-magic",
     onClick: () => onSelect('c4')
   }, /*#__PURE__*/React.createElement(GamePreview, {

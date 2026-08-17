@@ -33,7 +33,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v6 -> v7  column take away, carry and borrow levels, and a real pause between
 //             spoken lines — v6 split them into separate utterances but the engine
 //             still ran them back to back with a 5 ms seam, so nothing was audible.
-const CACHE_NAME = "magic-math-v8";
+const CACHE_NAME = "magic-math-v9";
 
 const SHELL = [
   "./",
