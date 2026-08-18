@@ -38,7 +38,8 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v9 -> v10 Which is Bigger? (greater than, less than, equal to) goes public — it
 //             merged without a bump, so v9 devices never saw it — and Times Tables
 //             starts on 12 x 12 instead of on its picker.
-const CACHE_NAME = "magic-math-v10";
+//   v10 -> v11 Which is Bigger? opens on the 1 - 10 blocks rung instead of 1 - 1000.
+const CACHE_NAME = "magic-math-v11";
 
 const SHELL = [
   "./",

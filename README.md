@@ -172,6 +172,12 @@ two quantities are written does:
 | 1 – 100 | numerals only |
 | 1 – 1000 | numerals only |
 
+**The game opens on the first of those rungs** (owner, 2026-08-18), which makes it the one
+picture-preset game that does not start at its hardest. What the top rung skips is not
+difficulty so much as the *counting*: 855 against 736 is settled by reading the digits,
+while four blocks against ten has to be counted, and the counting is what this game is for.
+The other three rungs are one tap away on the level pill.
+
 The blocks are the same `pb-ten` and `pb-one` art the child already counts in What Number?,
 so the easy level is *"compare two of the thing you already know"* rather than a new set of
 pictures to learn. That is also why the card sits in **Counting Blocks** and not in Number
@@ -309,11 +315,14 @@ choice, and picking an option applies it immediately. There is no "Done" to find
 
 - Sound/voice uses the browser's built-in speech (no internet voices needed).
 - Both number games sit on 12 to begin with — Times Tables plays there straight away, Count
-  By offers it pre-selected. The picture games still **start on their hardest setting** — What Number? and Fill the Right Block at Full 1–1000, Which is Bigger? at
-  1–1000, Add & Subtract at Full 1–30, Column Add at `>100 + <100`, Take Away at
-  `>100 − <100`.
-- **Carry Add and Borrow Take Away are the exception: they open on their *first* setting,
-  not their hardest.** The little carry box is a notation that exists nowhere else in the
+  By offers it pre-selected. Most picture games still **start on their hardest setting** —
+  What Number? and Fill the Right Block at Full 1–1000, Add & Subtract at Full 1–30,
+  Column Add at `>100 + <100`, Take Away at `>100 − <100`.
+- **Which is Bigger? opens on its *first* setting, 1 – 10** (owner, 2026-08-18). What the
+  top rung skips is not difficulty so much as the counting: 855 against 736 is settled by
+  reading the digits, and counting is what the game is for.
+- **Carry Add and Borrow Take Away open on their first setting too, for a different
+  reason.** The little carry box is a notation that exists nowhere else in the
   app, and 950 + 99 — four columns, seven taps — is not a first lesson in it. The first
   rung is two columns and three taps and asks the yes/no question once. The hardest rung
   is still one tap away on the level pill.

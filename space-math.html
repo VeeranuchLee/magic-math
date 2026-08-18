@@ -4819,13 +4819,17 @@ function CompareGame({
   muted,
   onToggleMute
 }) {
-  /* Opens on the hardest rung, like the other four picture-preset games (owner rule,
-     2026-08-14). Carry Add's exception does not transfer: there the hard rung adds
-     taps and a new notation at once, whereas here every rung is the same single tap
-     on the same three buttons and only the numbers grow. */
-  const [preset, setPreset] = useState(COMPARE_PRESETS[3]);
+  /* Opens on the FIRST rung — two piles of ten or fewer blocks, no numerals (owner,
+     2026-08-18). This is the second exception to the 2026-08-14 "open on the hardest
+     setting" rule, and it is a different exception from Carry Add's: there the hard
+     rung adds taps and a new notation at once, whereas here every rung is one tap on
+     the same three buttons. What the top rung skips is the *counting*. 855 against 736
+     is read off the digits; four blocks against ten has to be counted, which is the
+     thing this game is for, so that is where it now starts. The other rungs are one
+     tap away on the level pill. */
+  const [preset, setPreset] = useState(COMPARE_PRESETS[0]);
   const [showSettings, setShowSettings] = useState(false);
-  const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[3]));
+  const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[0]));
   const [won, setWon] = useState(false);
   const [wrongSign, setWrongSign] = useState(null);
   const [misses, setMisses] = useState(0);
