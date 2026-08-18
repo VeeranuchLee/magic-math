@@ -33,7 +33,12 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v6 -> v7  column take away, carry and borrow levels, and a real pause between
 //             spoken lines — v6 split them into separate utterances but the engine
 //             still ran them back to back with a 5 ms seam, so nothing was audible.
-const CACHE_NAME = "magic-math-v9";
+//   v7 -> v8  the two big-kid badges on the hard column cards.
+//   v8 -> v9  the column cards reordered easy pair first, and no version in the title.
+//   v9 -> v10 Which is Bigger? (greater than, less than, equal to) goes public — it
+//             merged without a bump, so v9 devices never saw it — and Times Tables
+//             starts on 12 x 12 instead of on its picker.
+const CACHE_NAME = "magic-math-v10";
 
 const SHELL = [
   "./",

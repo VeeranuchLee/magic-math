@@ -8,7 +8,7 @@ voice-based: spoken instructions, pictograms instead of words, no reading needed
 | File | Game | What it is |
 |---|---|---|
 | [index.html](index.html) | Game menu | Landing page linking to all games |
-| [space-math.html](space-math.html) | **Space Math** | Counting, place value, add/subtract, column add and column take away with carrying and borrowing, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
+| [space-math.html](space-math.html) | **Space Math** | Counting, place value, greater/less/equal, add/subtract, column add and column take away with carrying and borrowing, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
 | [unicorn-math.html](unicorn-math.html) | **Unicorn Math** | The same math games in a unicorn/princess theme. Correct answers grow a flower garden; full gardens become bouquets. |
 | [magic-spelling.html](magic-spelling.html) | **Magic Spelling** | Early spelling practice. |
 | [classical-music.html](classical-music.html) | **Classical Music** | Listen-and-guess music game. |
@@ -146,6 +146,83 @@ lands them straight on these tiles anyway. They also rarely finish a ladder, so 
 buys nothing and a longer one costs nothing. The pill in the top bar — "Count by 7" — reopens
 the same picker without leaving.
 
+## Which is Bigger? — how it teaches
+
+Greater than, less than and equal to, added 2026-08-17. Two numbers sit either side of an
+empty dashed slot, and the child taps one of three buttons to fill it.
+
+**The sign is a mouth that opens towards the bigger number, and closes when they are the
+same.** That is the old hungry-alligator device, and the old objection to it is fair: on its
+own it teaches a trick rather than a relation. So it never travels alone here.
+
+- The real glyph is printed under every button from the very first tap, so a child meets
+  `>` and `<` without needing to read them yet.
+- Every correct answer is read back as the sentence — *"Seven is greater than four."*
+- The win line writes the notation out: **7 > 4**.
+
+The mouth is how a pre-reader gets in. The sentence and the glyph are what they leave with.
+
+**The four levels run from things to numbers.** The comparison never changes; only how the
+two quantities are written does:
+
+| Level | Left and right show |
+|---|---|
+| 1 – 10 | two piles of blocks, **and no numerals at all** |
+| 1 – 20 | blocks, with the numeral written under each pile |
+| 1 – 100 | numerals only |
+| 1 – 1000 | numerals only |
+
+The blocks are the same `pb-ten` and `pb-one` art the child already counts in What Number?,
+so the easy level is *"compare two of the thing you already know"* rather than a new set of
+pictures to learn. That is also why the card sits in **Counting Blocks** and not in Number
+Games — a child who can count those blocks can already play it.
+
+**The blocks are countable.** Tapping one marks it — it lifts and takes a white inner ring,
+the same `count-block` interaction as What Number? — and the app says the running total out
+loud: *"one", "two", "three"*. Added 2026-08-17, after watching eight blocks against ten on a
+real screen: a four-year-old cannot hold two piles that close in their head, and with nothing
+to tap there was no way to keep their place. The child performs the count and the app supplies
+the number word, which is one-to-one correspondence and the counting sequence at the same time.
+Each side counts independently, and counting is entirely optional — a child who can see which
+pile is bigger just answers.
+
+A tens rod is worth ten, so the running total is `tens × 10 + ones` and tapping a rod jumps
+straight to "ten", then the ones carry on *"eleven, twelve…"*. That is counting on from ten,
+and it is the same place-value arithmetic the counter in What Number? does.
+
+Two details there are deliberate and easy to undo by accident:
+
+- **The counted ring is drawn *inside* the block.** What Number?'s ring is outside, which is
+  fine at 38px with 10px gaps; at this size ten counted blocks merged into a single striped
+  mass with no countable units left in it.
+- **The tap target is padded well past the art** and does not shrink when a block is counted.
+  Measured before that padding: 17px for a rod. A miss costs a counting child their place.
+
+Two consequences worth keeping if this game is ever edited:
+
+- **At the 1 – 10 level the app must not say the two numbers when it asks the question.**
+  They are not on screen there, so speaking them would let the child win by listening
+  instead of by counting. It asks *"Which side has more?"* and names the numbers only after
+  the answer — which is the moment naming them teaches something. (Counting aloud is not an
+  exception to this: there the child taps first and the app only names what they touched.)
+- **On an equals, both sides light up.** "Neither side won" and "they are the same" look
+  identical if nothing lights up, and only one of those is true.
+
+Roughly one pair in four is equal. Much rarer and a child learns that "same" is never the
+answer and stops looking at it; at one in three the three buttons become equally likely and
+guessing pays. Half the unequal pairs are deliberately close together (18 versus 17), because
+pairs that are always far apart can be won off the shape of the piles, or off how many digits
+long the numbers are, without comparing anything.
+
+**Which side is bigger is a fair coin, and that took three attempts.** Both obvious ways to
+write the generator lean: drawing the second number anywhere in range and nudging it when it
+collides leans, because the nudge went upwards; drawing a gap and reflecting it when it
+overshoots also leans, because the case where the gap fits on neither side fell back to
+upwards too. Measured, those were 26–12 and 49–72. The shipped version chooses the direction
+first, among the sides that actually have room, and then draws the gap inside that room, so
+there is no overflow case left to patch. A leaning generator is not a cosmetic bug here: it
+teaches a child that one button is usually right.
+
 ## Carrying and borrowing — how it teaches
 
 Four cards sit together under **Column Maths**, in this order: Column Add, Take Away,
@@ -217,21 +294,24 @@ The child chooses, not the grown-up. Nothing is hidden behind a gesture: a singl
 the gear — or on the difficulty pill next to it, which is the bigger target — opens the
 choice, and picking an option applies it immediately. There is no "Done" to find.
 
-- **Count By** and **Times Tables** open on their picker, so the first thing a child does
-  is name their number. Count By asks "Count by…" over tiles 1–20 and nothing else; Times
-  Tables asks "How big?" and one tap sets both sides of the table (up to 20 × 20).
-- **What Number?**, **Fill the Right Block**, **Add & Subtract** and the four
-  **Column Maths** games choose from pictures instead of numbers. Tapping a picture picks
-  it and returns to the game.
+- **Count By** opens on its picker, so the first thing a child does is name their number:
+  "Count by…" over tiles 1–20, and nothing else. Its tiles *are* its question — there is no
+  sensible number to count by until the child names one.
+- **Times Tables** does not, since 2026-08-18. It starts on **12 × 12** and asks its first
+  question immediately; "How big?" opens from the gear or the `12 × 12` pill in the top bar,
+  and one tap there sets both sides of the table (up to 20 × 20).
+- **What Number?**, **Fill the Right Block**, **Which is Bigger?**, **Add & Subtract** and
+  the four **Column Maths** games choose from pictures instead of numbers. Tapping a picture
+  picks it and returns to the game.
 - Tapping **Play!** without choosing keeps whatever the game was already on.
 
 ## Notes for grown-ups
 
 - Sound/voice uses the browser's built-in speech (no internet voices needed).
-- The two picker games open pre-selected on 12, which was their old starting point, so the
-  previous default is still one tap away. The picture games still **start on their hardest
-  setting** — What Number? and Fill the Right Block at Full 1–1000, Add & Subtract at
-  Full 1–30, Column Add at `>100 + <100`, Take Away at `>100 − <100`.
+- Both number games sit on 12 to begin with — Times Tables plays there straight away, Count
+  By offers it pre-selected. The picture games still **start on their hardest setting** — What Number? and Fill the Right Block at Full 1–1000, Which is Bigger? at
+  1–1000, Add & Subtract at Full 1–30, Column Add at `>100 + <100`, Take Away at
+  `>100 − <100`.
 - **Carry Add and Borrow Take Away are the exception: they open on their *first* setting,
   not their hardest.** The little carry box is a notation that exists nowhere else in the
   app, and 950 + 99 — four columns, seven taps — is not a first lesson in it. The first

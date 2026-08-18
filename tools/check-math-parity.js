@@ -6,9 +6,14 @@
  * the other, or lands differently. This makes that mechanical instead of aspirational:
  *
  *   1. the blocks that must be byte-identical are diffed;
- *   2. ColumnMath, which legitimately differs, is checked by deriving unicorn's version
- *      from space's through exactly the seven permitted differences and comparing. Any
- *      eighth difference is a failure.
+ *   2. the games that legitimately differ — ColumnMath and CompareGame — are checked
+ *      by deriving unicorn's version from space's through a fixed list of permitted
+ *      differences and comparing. Any difference not on the list is a failure.
+ *
+ * The permitted differences are always the same thing: the theme's reward path (the
+ * space journey versus the flower garden), its preset chrome, its mascot, and text
+ * buttons where space uses an icon. If a substitution you are adding is not one of
+ * those, it probably wants to be fixed in the source rather than allowed here.
  *
  * Run it after touching either file. Exit code is non-zero on any divergence.
  */
@@ -43,6 +48,12 @@ const SHARED = [
      ColumnAdd. Anchoring on the wrong one silently swallows all of c1 into the diff. */
   ['column maths helpers', '/* ══ MODES c2 / c3 / c4', '\nfunction ColumnAddSettings'],
   ['new GamePreview branches', "  if(id==='c2')return(", '  return null;'],
+  /* g1's helpers — the problem generator, the mouth SVG and one side of the
+     comparison — carry the teaching decisions, so they are the half of the game that
+     must never drift. The generator especially: it took three attempts to stop it
+     favouring one answer, and a fix that landed in only one theme would leave half
+     the children playing the biased version. */
+  ['which is bigger helpers', '/* ══ MODE g1: WHICH IS BIGGER? ══', '\nfunction CompareSettings'],
 ];
 for (const [name, from, to] of SHARED) {
   try {
@@ -61,7 +72,24 @@ for (const [name, from, to] of SHARED) {
 const seam = s => (s.match(/^ *seam\(\).*$/m) || [null])[0];
 ok(seam(S) && seam(S) === seam(U), 'Sound.seam()');
 
-console.log('\n=== ColumnMath: exactly seven permitted differences, and no more ===');
+/* Both themes must offer the same games. A card added to one home screen and not the
+   other is the cheapest possible version of this whole failure mode, and none of the
+   region diffs above would see it. */
+/* space's cards go through pick(), which speaks the card name and plays the launch
+   animation before selecting; unicorn's call onSelect() directly. Both spellings count. */
+const modeIds = src => [...src.matchAll(/(?:pick|onSelect)\('([a-z]\d)'\)/g)].map(m => m[1]).sort().join(',');
+ok(modeIds(S) === modeIds(U), 'both home screens offer the same games',
+   `space: ${modeIds(S)}\n      unicorn: ${modeIds(U)}`);
+const routed = src => [...src.matchAll(/mode==='([a-z]\d)'/g)].map(m => m[1]).sort().join(',');
+ok(routed(S) === modeIds(S), 'space routes every game its home screen offers',
+   `routed: ${routed(S)}\n      offered: ${modeIds(S)}`);
+ok(routed(U) === modeIds(U), 'unicorn routes every game its home screen offers',
+   `routed: ${routed(U)}\n      offered: ${modeIds(U)}`);
+
+/* Each entry: the region both files hold, and every rewrite that turns space's copy
+   into unicorn's. Kept in the order the differences appear in the file. */
+const DERIVED = [];
+
 /* Kept in the same order as the parity contract in the task record. Each rewrites one
    space-ism into its unicorn equivalent; the result must then equal unicorn's file. */
 const SUBS = [
@@ -86,24 +114,59 @@ const SUBS = [
   ['      {won&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}',
    '      {won&&<button className="next-btn" onClick={next}>Next</button>}'],
 ];
+DERIVED.push({
+  name: 'ColumnMath', label: 'unicorn ColumnMath is space ColumnMath + the seven differences',
+  from: '/* One modal for all three new modes', to: '\n/* ══ MODE m1', subs: SUBS,
+});
 
-try {
-  const FROM = '/* One modal for all three new modes', TO = '\n/* ══ MODE m1';
-  let derived = region(S, 'space', FROM, TO);
-  const actual = region(U, 'unicorn', FROM, TO);
-  for (const [from, to] of SUBS) {
-    if (!derived.includes(from)) { ok(false, 'substitution anchor present', from.slice(0, 90)); continue; }
-    derived = derived.replace(from, to);
-  }
-  let detail = '';
-  if (derived !== actual) {
-    const la = derived.split('\n'), lb = actual.split('\n');
-    for (let i = 0; i < Math.max(la.length, lb.length); i++) {
-      if (la[i] !== lb[i]) { detail = `an EIGHTH difference at line ${i + 1} of ColumnMath:\n      derived: ${la[i]}\n      unicorn: ${lb[i]}`; break; }
+/* g1's settings modal and game screen. Same story as ColumnMath: everything that
+   differs is the theme's reward path and chrome, and nothing else may. */
+const COMPARE_SUBS = [
+  ['            <img className="preset-tag-img" src={p.icon} alt=""/>\n',
+   '            <span className="preset-tag">{p.emoji}</span>\n'],
+  ['function CompareGame({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){',
+   'function CompareGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, score, setScore, bouquets, addBouquet, muted, onToggleMute}){'],
+  ['  const mascot=useMascot();\n  const wrongT=useRef(null);',
+   '  const mascot=useMascot();\n  const addFlower=useFlowerReward(flowers,setFlowers,setGardenFull,muted,addBouquet);\n  const wrongT=useRef(null);'],
+  ['  const next=useCallback(()=>{\n    resetForProblem(makeCompareProblem(preset,problem));\n  },[preset,problem,resetForProblem]);',
+   '  const next=useCallback(()=>{\n    if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}\n    resetForProblem(makeCompareProblem(preset,problem));\n  },[flowers,setFlowers,setGardenFull,addBouquet,preset,problem,resetForProblem]);'],
+  ["      const arrived=addProgress();\n      Voice.lines([problem.sign==='='?'The same!':'Yum!',compareSentence(problem),arrived?null:praise()]);\n      setScore(s=>s+1);",
+   "      Voice.lines([problem.sign==='='?'The same!':'Yum!',compareSentence(problem),praise()]);\n      setScore(s=>s+1); addFlower();"],
+  ['  },[problem,won,muted,addProgress,setScore]);',
+   '  },[problem,won,muted,addFlower,setScore]);'],
+  ["    <div className=\"screen cmp-screen\" style={{'--game-bg':`url('${journeyBg}')`}}>",
+   '    <div className="screen cmp-screen">'],
+  ['      <ScoreRow score={score} journey={journey} trophies={trophies}/>',
+   '      <ScoreRow score={score} flowers={flowers} bouquets={bouquets}/>'],
+  ['      <Mascot kind="rocket" mood={mascot.mood} stamp={mascot.stamp}/>',
+   '      <Mascot kind="unicorn" mood={mascot.mood} stamp={mascot.stamp}/>'],
+  ['      {won&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}',
+   '      {won&&<button className="next-btn" onClick={next}>Next</button>}'],
+];
+DERIVED.push({
+  name: 'CompareGame', label: 'unicorn CompareGame is space CompareGame + the reward-path differences',
+  from: 'function CompareSettings({current,onChange,onClose}){', to: '\n/* ══ HOME ══', subs: COMPARE_SUBS,
+});
+
+for (const { name, label, from: FROM, to: TO, subs } of DERIVED) {
+  console.log(`\n=== ${name}: the listed differences, and no more ===`);
+  try {
+    let derived = region(S, 'space', FROM, TO);
+    const actual = region(U, 'unicorn', FROM, TO);
+    for (const [from, to] of subs) {
+      if (!derived.includes(from)) { ok(false, `${name}: substitution anchor present`, from.slice(0, 90)); continue; }
+      derived = derived.replace(from, to);
     }
-  }
-  ok(derived === actual, 'unicorn ColumnMath is space ColumnMath + the seven differences', detail);
-} catch (e) { ok(false, 'ColumnMath derivation', e.message); }
+    let detail = '';
+    if (derived !== actual) {
+      const la = derived.split('\n'), lb = actual.split('\n');
+      for (let i = 0; i < Math.max(la.length, lb.length); i++) {
+        if (la[i] !== lb[i]) { detail = `an UNLISTED difference at line ${i + 1} of ${name}:\n      derived: ${la[i]}\n      unicorn: ${lb[i]}`; break; }
+      }
+    }
+    ok(derived === actual, label, detail);
+  } catch (e) { ok(false, `${name} derivation`, e.message); }
+}
 
 console.log('\n=== theme palettes must not leak across ===');
 for (const [name, src, colours] of [['space', S, ['#ce93d8', '#a58bb8']], ['unicorn', U, ['#ab97f5', '#7b88a8']]]) {

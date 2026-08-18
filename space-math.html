@@ -294,6 +294,78 @@
     .count-block.on{opacity:1;transform:translateY(-3px);filter:drop-shadow(0 4px 8px rgba(90,46,214,.2))}
     .count-block.on .pb-hundred,.count-block.on .pb-ten,.count-block.on .pb-one{box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(91,140,248,.8)}
 
+    /* ── WHICH IS BIGGER? (g1) ──
+       Two panels with a slot between them, and the answer is a mouth that opens
+       towards the bigger side. The blocks in the panels are the SAME .pb-ten and
+       .pb-one art the child already counts in What Number?, deliberately: at the
+       easy end this game is "compare two of the thing you already know", not a
+       new set of pictures to learn. */
+    /* stretch, so the two panels are always the same height even when one pile of
+       blocks wraps onto an extra row. The blocks are what should say "this side has
+       more" — a taller box saying it as well is chrome doing the teaching. */
+    .cmp-row{display:flex;align-items:stretch;justify-content:center;gap:clamp(6px,2.5vw,18px);width:100%;max-width:740px;position:relative;z-index:1}
+    .cmp-side{flex:1;min-width:0;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:22px;padding:12px 8px;box-shadow:0 5px 18px rgba(90,46,214,.1);transition:transform .2s,border-color .2s,box-shadow .2s}
+    /* The winning side lifts and glows. On an equals the class goes on BOTH sides,
+       so "the same" is shown as sameness rather than as neither side winning. */
+    .cmp-side.chosen{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.22),0 8px 22px rgba(47,109,246,.25);transform:translateY(-4px)}
+    .cmp-blocks{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:flex-end}
+    /* Two panels of blocks side by side is half the width of one, so the block art is
+       scaled down here rather than allowed to wrap into an uncountable pile. */
+    .cmp-blocks .pb-ten{width:21px;height:50px;border-width:2px;border-radius:5px;padding:2px}
+    /* display:block is load-bearing, not tidying. .pb-one sets no display of its own,
+       and it used to be a direct flex child here, which blockified it. Wrapping it in
+       a tappable .count-block made it a plain inline span again, and width/height do
+       not apply to those — every block silently collapsed to 4px wide. */
+    .cmp-blocks .pb-one{display:block;width:26px;height:26px;border-width:2px;border-radius:6px}
+    /* The blocks are a control now, not a picture, so the tap target is padded out
+       well past the art. Measured before this: 17px for a rod, which is a decorative
+       size — a four-year-old counting ten of them cannot reliably hit it, and a miss
+       costs them their place in the count. The padding grows the target without
+       moving the art, and the flex gap shrinks by the same amount so the pile is no
+       wider than it was. */
+    .cmp-blocks .count-block{display:block;padding:4px}
+    /* Counting reuses What Number?'s .count-block wholesale, because it IS that
+       interaction — tap a block and it marks itself. Two things could not be reused.
+       Its ring is drawn OUTSIDE the block: 6px of ring each side of a 23px block, in a
+       6px gap, made ten counted blocks merge into one striped mass with no countable
+       units left in it — so this ring is inset instead. And its lift is on the wrapper,
+       which here would shrink the tap target every time a block was counted, so the
+       lift moves the art inside a target that never changes size. */
+    .cmp-blocks .count-block.on{transform:none}
+    .cmp-blocks .count-block .pb-ten,.cmp-blocks .count-block .pb-one{transition:transform .12s,box-shadow .12s}
+    .cmp-blocks .count-block.on .pb-ten,.cmp-blocks .count-block.on .pb-one{box-shadow:inset 0 0 0 3px rgba(255,255,255,.96);transform:translateY(-4px) scale(.9)}
+    .cmp-blocks .count-block.still{cursor:default}
+    .cmp-blocks .count-block.still:active{transform:none}
+    .cmp-num{font-size:clamp(1.9rem,9vw,3.4rem);font-weight:900;color:#5a2ed6;line-height:1}
+    .cmp-num.small{font-size:clamp(1.1rem,4.5vw,1.6rem);color:#1f54d6}
+    /* The empty slot is the same dashed box as the carry box in Carry Add: in this
+       app a dashed outline always means "you put something here". */
+    .cmp-slot{flex:0 0 auto;align-self:center;width:clamp(58px,17vw,86px);height:clamp(58px,17vw,86px);display:flex;align-items:center;justify-content:center;border-radius:20px;border:3px dashed #93b7fb;background:rgba(255,255,255,.55);color:#2f6df6}
+    .cmp-slot.filled{border-style:solid;border-color:#2f6df6;background:linear-gradient(160deg,#fff,#e8f0ff);box-shadow:0 4px 0 #93b7fb}
+    .cmp-slot-q{font-size:clamp(1.6rem,7vw,2.4rem);font-weight:900;color:#93b7fb}
+    .cmp-mouth-svg{width:78%;height:78%;display:block;overflow:visible}
+    /* The chomp. Squashing the whole <svg> closes the jaws and reopens them, which
+       is the one way to animate this that needs nothing from SVG transform-origin —
+       the app still supports Safari 14, where transform-box is not reliable. */
+    .cmp-slot.biting .cmp-mouth-svg{animation:cmpBite .5s ease-in-out}
+    .cmp-slot.biting.same .cmp-mouth-svg{animation:cmpNod .5s ease-in-out}
+    @keyframes cmpBite{0%,100%{transform:scaleY(1)}45%{transform:scaleY(.28)}70%{transform:scaleY(1.08)}}
+    @keyframes cmpNod{0%,100%{transform:translateY(0)}40%{transform:translateY(5px) scaleY(.9)}}
+    .cmp-keys{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;position:relative;z-index:1}
+    .cmp-key{width:clamp(78px,23vw,104px);height:clamp(78px,23vw,104px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px 5px;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    .cmp-key:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .cmp-key .cmp-mouth-svg{width:clamp(40px,12vw,54px);height:clamp(30px,9vw,40px)}
+    /* The real notation, printed under the picture. The mouth is how a pre-reader
+       gets in; this is the thing they are actually learning to read, so it is on
+       screen from the first tap rather than introduced later. */
+    .cmp-key-glyph{font-size:.95rem;font-weight:900;color:#5a2ed6;line-height:1}
+    .cmp-key.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .cmp-key.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    @media (max-width:430px){
+      .cmp-side{min-height:100px;padding:10px 4px}
+      .cmp-blocks{gap:0}
+    }
+
     /* Column Add */
     .column-card{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(232,240,255,.9));border:3px solid #93b7fb;border-radius:22px;padding:18px 22px 20px;box-shadow:0 5px 0 #93b7fb,0 10px 24px rgba(91,140,248,.16);position:relative;z-index:1;min-width:min(92vw,360px)}
     .column-grid{display:grid;grid-template-columns:34px repeat(var(--col-count,3),54px);gap:7px;align-items:center;justify-content:center;font-family:'Nunito',system-ui,sans-serif}
@@ -1121,6 +1193,46 @@ const COLUMN_SUB_HARD_PRESETS = [{
   tag: '>100 − >100',
   desc: 'Biggest borrow'
 }];
+/* ── WHICH IS BIGGER? (g1) ──
+   The ladder runs concrete → abstract, which is the owner's decision of 2026-08-17:
+   the easy end compares two piles of blocks with no numerals on screen at all, the
+   next rung writes the numeral beside the blocks so the two ways of saying "how many"
+   sit together, and the top two rungs are numerals alone.
+   `show` is the whole difference between the rungs — the comparison itself never
+   changes, only how the two quantities are written. */
+const COMPARE_PRESETS = [{
+  id: 'g10',
+  icon: ICON_EARTH,
+  tag: '1 – 10',
+  min: 1,
+  max: 10,
+  show: 'blocks',
+  desc: 'Count and compare'
+}, {
+  id: 'g20',
+  icon: ICON_ROCKET,
+  tag: '1 – 20',
+  min: 1,
+  max: 20,
+  show: 'both',
+  desc: 'Blocks and numbers'
+}, {
+  id: 'g100',
+  icon: ICON_SATURN,
+  tag: '1 – 100',
+  min: 1,
+  max: 100,
+  show: 'numbers',
+  desc: 'Numbers only'
+}, {
+  id: 'g1000',
+  icon: ICON_GALAXY,
+  tag: '1 – 1000',
+  min: 1,
+  max: 1000,
+  show: 'numbers',
+  desc: 'Big numbers'
+}];
 /* The number games let the child pick their own number, so these lists are what a
    child actually taps — 1 to 20 (owner request, 2026-08-14: "more than 12, maybe up to 20"). */
 const TIMES_MAX_OPTIONS = Array.from({
@@ -1150,7 +1262,8 @@ const CARD_VOICE = {
   s1: 'Count By! Count in jumps!',
   c2: 'Carry Add! Carry the one!',
   c3: 'Take Away! Column style!',
-  c4: 'Borrow Take Away! Borrow one!'
+  c4: 'Borrow Take Away! Borrow one!',
+  g1: 'Which is Bigger? Feed the hungry mouth!'
 };
 
 /* ══ UTILITIES ══ */
@@ -1618,6 +1731,34 @@ function GamePreview({
   }), /*#__PURE__*/React.createElement("div", {
     className: "gp-row"
   }, box, box));
+  if (id === 'g1') return /*#__PURE__*/ /* Which is Bigger? — two piles, and the sign that reads them */React.createElement("div", {
+    className: "gp",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-blocks"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op gp-big"
+  }, '>'), /*#__PURE__*/React.createElement("span", {
+    className: "gp-blocks"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, '>'), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "1")));
   return null;
 }
 function Stars({
@@ -3954,9 +4095,11 @@ function MultiplicationGame({
   onToggleMute
 }) {
   const [range, setRange] = useState(DEFAULT_TIMES_RANGE);
-  // Opens on the picker: the child chooses how big before the first question.
-  // Tapping "Play!" without choosing keeps the 12 × 12 default they arrived with.
-  const [showSettings, setShowSettings] = useState(true);
+  /* Starts playing straight away on 12 x 12 (owner, 2026-08-18). This game opened on
+     the picker for three days; unlike Count By, whose tiles *are* its question, Times
+     Tables has a working default, so the picker was a screen between a child and the
+     thing they came for. It is still one tap away on the gear or the "12 x 12" pill. */
+  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeMultiplicationProblem(DEFAULT_TIMES_RANGE));
   const answerLength = String(problem.answer).length;
   const mascot = useMascot();
@@ -4400,6 +4543,427 @@ function CountByGame({
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
 
+/* ══ MODE g1: WHICH IS BIGGER? ══
+   Greater than, less than, equal to. Two decisions from the owner (2026-08-17) are
+   the whole design:
+
+   1. The two sides run CONCRETE → ABSTRACT across the difficulty ladder. The easy
+      rung shows two piles of the very same place-value blocks the child counts in
+      What Number?, with no numerals on screen at all; the next writes the numeral
+      beside the blocks; the top two are numerals alone. Comparing is one idea, so
+      it is one game with four ways of writing the question, not four games.
+   2. The sign is a MOUTH that opens towards the bigger number, and it closes on an
+      equals. That is the classic hungry-mouth, and the classic objection to it is
+      fair: on its own it teaches a trick, not a relation. So it never travels
+      alone here — every correct answer is read back as the sentence ("six is
+      greater than four"), the real glyph is printed under every button from the
+      first tap, and the win line writes the notation out as 6 > 4. The mouth is
+      the way in for a child who cannot yet read the glyph; the sentence and the
+      glyph are what they leave with.
+
+   One consequence worth keeping: at the blocks rung the app must NOT say the two
+   numbers when it asks the question, or the game is solved by listening rather
+   than by counting. It asks "which side has more?" there, and only names the
+   numbers once the child has answered — which is the moment the naming teaches. */
+const SIGN_WORD = {
+  '>': 'is greater than',
+  '<': 'is less than',
+  '=': 'equals'
+};
+const compareSentence = p => p.sign === '=' ? `${p.a} equals ${p.b}. They are the same.` : `${p.a} ${SIGN_WORD[p.sign]} ${p.b}.`;
+function makeCompareProblem(preset, avoid) {
+  const {
+    min,
+    max
+  } = preset;
+  for (let tries = 0; tries < 40; tries++) {
+    const a = rand(min, max);
+    let b;
+    /* One pair in four is equal. Rarer than that and a child learns that "same" is
+       never the answer and stops considering it; at one in three the three buttons
+       become equally likely and the game rewards guessing. */
+    if (Math.random() < .25) {
+      b = a;
+    } else {
+      /* Half the unequal pairs are deliberately close together. If every pair were
+         far apart, the blocks rung could be won off the silhouette of the two piles
+         and the numeral rungs off the number of digits — in both cases without
+         comparing anything.
+          Which side is bigger has to be a fair coin, and getting there took three
+         goes, because both of the obvious ways to write this lean one way. Drawing
+         b anywhere in range and nudging it off a when they collide leans, because
+         the nudge went upwards (measured: 26 "less" to 12 "greater" in 60). Drawing
+         a gap and reflecting it when it overshoots leans too, because when the gap
+         fits on neither side the fallback also went upwards (measured: 49 to 72
+         across 180 problems on the 1–20 rung — small, and a child tapping the same
+         button all afternoon would still find it).
+         So the direction is chosen FIRST, among the sides that actually have room,
+         and the gap is then drawn inside that room. There is no overflow case left
+         to patch, which is why this one cannot lean. */
+      const span = Math.random() < .5 ? Math.max(1, Math.round((max - min) / 12)) : max - min;
+      const roomUp = Math.min(span, max - a),
+        roomDown = Math.min(span, a - min);
+      if (roomUp < 1 && roomDown < 1) {
+        b = a;
+      } // only reachable if a preset ever had max===min
+      else {
+        const up = roomUp > 0 && (roomDown < 1 || Math.random() < .5);
+        b = up ? a + rand(1, roomUp) : a - rand(1, roomDown);
+      }
+    }
+    if (avoid && avoid.a === a && avoid.b === b) continue;
+    return {
+      a,
+      b,
+      sign: a > b ? '>' : a < b ? '<' : '='
+    };
+  }
+  const a = rand(min, max),
+    b = rand(min, max);
+  return {
+    a,
+    b,
+    sign: a > b ? '>' : a < b ? '<' : '='
+  };
+}
+
+/* The sign drawn as a creature. Two things here are not decoration:
+
+   The eye is WHITE with a ringed outline and a pupil, not a filled dot in the jaw
+   colour. A same-coloured dot beside a same-coloured jaw reads as a bump on the
+   glyph — which is what the first version looked like — and the whole reason the
+   mouth exists is that it should not read as a glyph.
+
+   Mirroring is an SVG attribute transform on the inner <g>, NOT a CSS transform on
+   the <svg>: the chomp animation owns the element's CSS transform, so a CSS-mirrored
+   mouth would flip round to face the wrong way for the length of the bite. */
+function Eye({
+  cx,
+  cy
+}) {
+  return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("circle", {
+    cx: cx,
+    cy: cy,
+    r: "9.5",
+    fill: "#fff",
+    stroke: "currentColor",
+    strokeWidth: "4"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: cx + 1.8,
+    cy: cy - 1.4,
+    r: "4",
+    fill: "currentColor"
+  }));
+}
+function MouthIcon({
+  sign
+}) {
+  if (sign === '=') return /*#__PURE__*/React.createElement("svg", {
+    className: "cmp-mouth-svg",
+    viewBox: "0 0 100 100",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("g", {
+    fill: "currentColor"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "14",
+    y: "44",
+    width: "72",
+    height: "13",
+    rx: "6.5"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "14",
+    y: "64",
+    width: "72",
+    height: "13",
+    rx: "6.5"
+  })), /*#__PURE__*/React.createElement(Eye, {
+    cx: 68,
+    cy: 25
+  }));
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "cmp-mouth-svg",
+    viewBox: "0 0 100 100",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("g", {
+    transform: sign === '<' ? 'translate(100,0) scale(-1,1)' : undefined
+  }, /*#__PURE__*/React.createElement("g", {
+    stroke: "currentColor",
+    strokeWidth: "15",
+    strokeLinecap: "round",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M76 52 L22 18"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M76 52 L22 88"
+  })), /*#__PURE__*/React.createElement(Eye, {
+    cx: 62,
+    cy: 22
+  })));
+}
+
+/* One side of the comparison. `reveal` turns the numeral on at the blocks rung
+   after the answer: the child wins by counting, and then sees what the pile they
+   just counted is called. That hand-off is the point of the rung.
+
+   THE BLOCKS ARE COUNTABLE. Tapping one marks it — it lifts and wears a ring, the
+   same `count-block` interaction and the same art as What Number? — and the app
+   says the running total out loud: "one", "two", "three". Owner decision,
+   2026-08-17, after seeing 8 against 10 on screen: a four-year-old cannot hold two
+   piles that close in their head, and with nothing to tap there was no way to keep
+   their place. So the child performs the count and the app supplies the number
+   word, which is one-to-one correspondence and the counting sequence together.
+
+   This does NOT contradict the rule that the app must not speak the two numbers.
+   That rule is about the app volunteering them when it ASKS, which would let a
+   child win by listening. Here the child does the counting; the app only names
+   what they have already touched. Nothing is said until a block is tapped.
+
+   Counting is optional. A child who can see which pile is bigger just answers.
+
+   A tens rod is worth ten, so the running total is tens*10 + ones and tapping a rod
+   jumps to "ten" — the same place-value arithmetic the counter in What Number? does,
+   which is why a rod and a one cannot simply be counted as one thing each. */
+function CompareSide({
+  n,
+  show,
+  chosen,
+  reveal,
+  countable
+}) {
+  const p = show === 'numbers' ? null : decompose(n, show === 'blocks');
+  const showNum = show !== 'blocks' || reveal;
+  const [counted, setCounted] = useState({});
+  const tapBlock = key => {
+    if (!countable) return;
+    Sound.tap();
+    const next = {
+      ...counted,
+      [key]: !counted[key]
+    };
+    setCounted(next);
+    const marked = Object.keys(next).filter(k => next[k]);
+    const total = marked.filter(k => k[0] === 't').length * 10 + marked.filter(k => k[0] === 'o').length;
+    // Silent when they have just un-counted the last block: there is no number to say.
+    if (total > 0) Voice.say(String(total));
+  };
+  const block = (key, inner) => /*#__PURE__*/React.createElement("span", {
+    key: key,
+    className: `count-block ${counted[key] ? 'on' : 'off'} ${countable ? '' : 'still'}`,
+    onClick: () => tapBlock(key)
+  }, inner);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `cmp-side ${chosen ? 'chosen' : ''}`,
+    "aria-label": `${n}`
+  }, p && /*#__PURE__*/React.createElement("div", {
+    className: "cmp-blocks"
+  }, Array.from({
+    length: p.t
+  }, (_, i) => block(`t${i}`, /*#__PURE__*/React.createElement("span", {
+    className: "pb-ten"
+  }, Array.from({
+    length: 10
+  }, (_, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    className: "ic"
+  }))))), Array.from({
+    length: p.o
+  }, (_, i) => block(`o${i}`, /*#__PURE__*/React.createElement("span", {
+    className: "pb-one"
+  })))), showNum && /*#__PURE__*/React.createElement("div", {
+    className: `cmp-num ${show === 'numbers' ? '' : 'small'}`
+  }, n));
+}
+function CompareSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How big?"), COMPARE_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function CompareGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  /* Opens on the hardest rung, like the other four picture-preset games (owner rule,
+     2026-08-14). Carry Add's exception does not transfer: there the hard rung adds
+     taps and a new notation at once, whereas here every rung is the same single tap
+     on the same three buttons and only the numbers grow. */
+  const [preset, setPreset] = useState(COMPARE_PRESETS[3]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[3]));
+  const [won, setWon] = useState(false);
+  const [wrongSign, setWrongSign] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  /* Bumped for every new problem, and used as the key on both sides so they remount
+     with an empty count. Resetting by effect would need to watch the value, and two
+     problems running 6 against 6 then 6 against 9 share a value on the left. */
+  const [round, setRound] = useState(0);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setWon(false);
+    setWrongSign(null);
+    setMisses(0);
+    setRound(r => r + 1);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeCompareProblem(preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeCompareProblem(p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    // See the note above the mode: naming the numbers here would give the blocks
+    // rung away, because that rung is the one where they are not on screen.
+    Voice.say(preset.show === 'blocks' ? 'Which side has more?' : `${problem.a}, or ${problem.b}. Which is bigger?`);
+  }, [problem, showSettings, preset]);
+
+  /* The rule, said once, after the second miss — and it states both halves, because
+     a child who is stuck on an equals is not helped by being told about bigger. */
+  useEffect(() => {
+    if (misses === 2) Voice.say('The mouth opens towards the bigger number. If they are the same, it keeps its mouth shut.');
+  }, [misses]);
+  const tap = useCallback(sign => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (sign === problem.sign) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([problem.sign === '=' ? 'The same!' : 'Yum!', compareSentence(problem), arrived ? null : praise()]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongSign(sign);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongSign(null), 450);
+    }
+  }, [problem, won, muted, addProgress, setScore]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen cmp-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(CompareSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Which is Bigger?"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Feed the hungry mouth!")), preset.show !== 'numbers' && !won && /*#__PURE__*/React.createElement("div", {
+    className: "tap-hint"
+  }, "Tap the blocks to count them"), /*#__PURE__*/React.createElement("div", {
+    className: "cmp-row"
+  }, /*#__PURE__*/React.createElement(CompareSide, {
+    key: `a${round}`,
+    n: problem.a,
+    show: preset.show,
+    reveal: won,
+    countable: !won,
+    chosen: won && problem.sign !== '<'
+  }), /*#__PURE__*/React.createElement("div", {
+    className: `cmp-slot ${won ? 'filled biting' : ''} ${won && problem.sign === '=' ? 'same' : ''}`
+  }, won ? /*#__PURE__*/React.createElement(MouthIcon, {
+    sign: problem.sign
+  }) : /*#__PURE__*/React.createElement("span", {
+    className: "cmp-slot-q"
+  }, "?")), /*#__PURE__*/React.createElement(CompareSide, {
+    key: `b${round}`,
+    n: problem.b,
+    show: preset.show,
+    reveal: won,
+    countable: !won,
+    chosen: won && problem.sign !== '>'
+  })), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, problem.a, " ", problem.sign, " ", problem.b) : /*#__PURE__*/React.createElement("div", {
+    className: "cmp-keys"
+  }, ['>', '=', '<'].map(s => /*#__PURE__*/React.createElement("button", {
+    key: s,
+    className: `cmp-key ${wrongSign === s ? 'wrong' : ''} ${misses >= 2 && s === problem.sign ? 'hint-glow' : ''}`,
+    onClick: () => tap(s),
+    "aria-label": s === '>' ? 'Left is bigger' : s === '<' ? 'Right is bigger' : 'Both the same'
+  }, /*#__PURE__*/React.createElement(MouthIcon, {
+    sign: s
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "cmp-key-glyph"
+  }, s)))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -4539,6 +5103,16 @@ function Home({
     className: "mode-card-label"
   }, "Fill the Right Block"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('g1', 'mc-rose'),
+    onClick: () => pick('g1'),
+    "aria-label": "Which is Bigger? Greater than, less than or the same"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "g1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Which is Bigger?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4692,7 +5266,8 @@ function App() {
     c3: 0,
     c4: 0,
     m1: 0,
-    s1: 0
+    s1: 0,
+    g1: 0
   });
   const [muted, setMutedState] = useState(() => {
     try {
@@ -4857,6 +5432,9 @@ function App() {
   }));else if (mode === 's1') screen = /*#__PURE__*/React.createElement(CountByGame, _extends({}, shared, {
     score: scores.s1,
     setScore: setScore('s1')
+  }));else if (mode === 'g1') screen = /*#__PURE__*/React.createElement(CompareGame, _extends({}, shared, {
+    score: scores.g1,
+    setScore: setScore('g1')
   }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
