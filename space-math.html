@@ -3236,25 +3236,41 @@ function MissingSide({
   total,
   showNum,
   won,
-  onFill
+  onFill,
+  counting,
+  counted,
+  onCount,
+  given
 }) {
-  const [counted, setCounted] = useState({});
-  const tapGiven = key => {
+  /* COUNTING IS CUMULATIVE AND SNAPS TO ROWS, which is the whole of "count by rows"
+     (owner, 2026-08-19). The grid is already ten across, so a full row is a ten-frame:
+     tapping one counts to the end of it, and tapping the rows in order says "ten,
+     twenty, thirty" with no special voice logic — the running total does it. The
+     part-row at the bottom counts in ones, because that is what it is.
+      It also settles the tedium that made this stage look unaffordable: counting 47 is
+     five taps, not forty-seven. A child who wants to count every block still can, by
+     working along the ones in the last row; a child who reads rows gets there in five.
+     Tapping a row already counted takes it back, the same take-back the sockets have. */
+  const tapGiven = i => {
+    if (!counting || !onCount) return;
     Sound.tap();
-    const next = {
-      ...counted,
-      [key]: !counted[key]
-    };
-    setCounted(next);
-    const n = Object.keys(next).filter(k => next[k]).length;
+    const rowStart = Math.floor(i / 10) * 10;
+    const rowFull = rowStart + 10 <= given;
+    const up = rowFull ? rowStart + 10 : i + 1;
+    const down = rowFull ? rowStart : i;
+    const n = counted >= up ? down : up;
+    onCount(n);
     // Silent when they have just un-counted the last block: there is no number to say.
     if (n > 0) Voice.say(String(n));
   };
   const cells = [];
+  let gi0 = 0;
   groups.forEach((g, gi) => {
     if (g.kind === 'gap') {
       /* The trailing sockets go once the sides match, so a finished problem is two
-         identical grids and nothing else. */
+         identical grids and nothing else. They are absent entirely while counting:
+         the question in that stage is "how many are here", and a dashed box is an
+         invitation to answer a different one. */
       const n = won ? filled : filled + MISSING_AHEAD;
       for (let i = 0; i < n; i++) cells.push({
         key: `g${gi}_${i}`,
@@ -3262,18 +3278,23 @@ function MissingSide({
         idx: i
       });
     } else {
-      for (let i = 0; i < g.n; i++) cells.push({
-        key: `k${gi}_${i}`,
-        kind: g.kind
-      });
+      for (let i = 0; i < g.n; i++) {
+        cells.push({
+          key: `k${gi}_${i}`,
+          kind: g.kind,
+          gidx: gi0
+        });
+        gi0++;
+      }
     }
   });
+  const shown = counting ? cells.filter(c => c.idx === undefined) : cells;
   return /*#__PURE__*/React.createElement("div", {
-    className: `ms-side ${won ? 'balanced' : ''}`,
+    className: `ms-side ${won ? 'balanced' : ''} ${counting ? 'counting' : ''}`,
     "aria-label": `${total}`
   }, /*#__PURE__*/React.createElement("div", {
     className: "ms-grid"
-  }, cells.map(c => c.idx !== undefined ? /*#__PURE__*/React.createElement("span", {
+  }, shown.map(c => c.idx !== undefined ? /*#__PURE__*/React.createElement("span", {
     key: c.key,
     className: `ms-cell ${c.kind} ${won ? 'still' : ''}`,
     onClick: () => {
@@ -3281,9 +3302,9 @@ function MissingSide({
     }
   }) : /*#__PURE__*/React.createElement("span", {
     key: c.key,
-    className: `ms-cell ${c.kind} ${counted[c.key] ? 'on' : ''} ${won ? 'still' : ''}`,
+    className: `ms-cell ${c.kind} ${counting && c.gidx < counted ? 'on' : ''} ${counting ? '' : 'still'} ${won ? 'still' : ''}`,
     onClick: () => {
-      if (!won) tapGiven(c.key);
+      if (!won) tapGiven(c.gidx);
     }
   }))), showNum && /*#__PURE__*/React.createElement("div", {
     className: "ms-side-num"
@@ -3371,6 +3392,12 @@ function MissingGame({
   const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeMissingProblem(MISSING_PRESETS[0]));
   const [filled, setFilled] = useState(0);
+  /* How many given blocks the child has counted on each side. This is the counting
+     stage's whole state: while either side is short of its own total the sockets do not
+     exist yet. Owner, 2026-08-19: the game "lack the stage where children get to know
+     which side count to what". */
+  const [countL, setCountL] = useState(0);
+  const [countR, setCountR] = useState(0);
   const [won, setWon] = useState(false);
   const [confetti, setConf] = useState(false);
   /* Bumped for every new problem and used as the key on both sides, so they remount
@@ -3381,12 +3408,50 @@ function MissingGame({
   const overRef = useRef(false);
   const layout = useMemo(() => missingLayout(problem), [problem]);
   const gapOnLeft = msHasGap(layout.left);
+  const givenL = msGiven(layout.left),
+    givenR = msGiven(layout.right);
+  /* A side with nothing given is already counted — `? − 8 = 23` draws the whole starting
+     pile as the hidden one, so its side has no blocks to count and must not stall the
+     stage waiting for a tap that has nothing to land on. */
+  const doneL = countL >= givenL,
+    doneR = countR >= givenR;
+  const counting = !won && !(doneL && doneR);
   const leftTotal = msGiven(layout.left) + (gapOnLeft ? filled : 0);
   const rightTotal = msGiven(layout.right) + (gapOnLeft ? 0 : filled);
   const balanced = leftTotal === rightTotal;
   const over = !won && filled > problem.answer;
-  // Rung 1 writes no numerals at all until the answer is in. See missingQuestion.
-  const showNum = preset.show !== 'blocks' || won;
+  /* Rung 1 writes no numerals at all until the answer is in. See missingQuestion.
+     WHILE COUNTING, EVERY RUNG WITHHOLDS A SIDE'S NUMERAL UNTIL THAT SIDE IS COUNTED —
+     including the five rungs that print numerals during play. A printed number is read,
+     not counted, and reading it is the thing this stage exists to replace. It appears
+     the moment the child's own count reaches the total, so the numeral arrives as the
+     answer to what they just did. */
+  /* A COUNTED SIDE KEEPS ITS NUMERAL for the rest of the problem, including on rung 1,
+     which otherwise writes nothing until the answer is in. The first build of this stage
+     let both numerals vanish the moment the sockets opened — the child counted 17 and 20
+     and then had them taken away exactly when they were needed. What rung 1 was
+     protecting against is a number the child *reads* instead of counting; a number they
+     just produced themselves is the opposite of that, and it is the thing the owner
+     asked for them to come away with.
+      The gap side's numeral then climbs as they fill — 17, 18, 19, 20 — which is the
+     count-on already spoken aloud by tapCell, now also drawn. The notation strip stays
+     the reward: MissingEq is still gated on the rung's own setting. */
+  /* A SIDE'S NUMERAL IS EARNED BY COUNTING IT, and then it stays for the rest of the
+     problem. Both halves of that were bugs in the first build of this stage:
+      Earned — the five rungs that are `show:'both'` printed their totals during the
+     counting stage, so a child could read 37 off the screen instead of counting to it.
+     The stage cannot be gated on the rung's own setting; it has to be gated on the
+     child's count, on every rung.
+      Kept — the numerals then vanished the moment the sockets opened, taking away what
+     the child had just built exactly when they needed it. What rung 1 was protecting
+     against is a number that is *read* rather than counted; one they produced
+     themselves is the opposite of that.
+      The gap side's numeral then climbs as they fill — 24, 25 — which is the count-on
+     already spoken by tapCell, now also drawn. `showNumBase` still governs the notation
+     strip, so on rung 1 the written sentence stays the reward. */
+  const showNumBase = preset.show !== 'blocks' || won;
+  const showNumL = doneL;
+  const showNumR = doneR;
   /* Cells shrink when a pile runs to many rows. .screen does not scroll, so the tallest
      problem this game can draw — rung 3 at 99, plus the ten trailing sockets, 109 cells
      in eleven rows — has to leave the Next button on screen at 768px, which is a
@@ -3403,6 +3468,8 @@ function MissingGame({
   const resetForProblem = useCallback(p => {
     setProblem(p);
     setFilled(0);
+    setCountL(0);
+    setCountR(0);
     setWon(false);
     setRound(r => r + 1);
   }, []);
@@ -3414,10 +3481,18 @@ function MissingGame({
     resetForProblem(makeMissingProblem(p));
     setShowSettings(false);
   }, [resetForProblem]);
+
+  /* Two prompts, one per stage. The question the game is actually about is not asked
+     until the child knows what each side holds — asking it over two uncounted piles is
+     the version that produced shape-matching. */
   useEffect(() => {
     if (showSettings) return;
+    if (counting) {
+      Voice.say('Count each side. Tap a row to count ten!');
+      return;
+    }
     Voice.say(missingQuestion(problem, preset.show));
-  }, [problem, showSettings, preset]);
+  }, [problem, showSettings, preset, counting]);
 
   /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
      to the one touched, and tapping a filled box takes it and everything after it back.
@@ -3490,11 +3565,13 @@ function MissingGame({
     className: "count-title-main"
   }, "What's Missing?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Make both sides the same!")), showNum && /*#__PURE__*/React.createElement(MissingEq, {
+  }, "Make both sides the same!")), !counting && showNumBase && /*#__PURE__*/React.createElement(MissingEq, {
     p: problem,
     filled: filled,
     won: won
-  }), !won && /*#__PURE__*/React.createElement("div", {
+  }), counting && /*#__PURE__*/React.createElement("div", {
+    className: "tap-hint"
+  }, "Count each side \u2014 tap a row to count ten"), !counting && !won && /*#__PURE__*/React.createElement("div", {
     className: "tap-hint"
   }, "Fill the empty boxes until both sides match"), over && /*#__PURE__*/React.createElement("div", {
     className: "direct-too-many"
@@ -3505,9 +3582,13 @@ function MissingGame({
     groups: layout.left,
     filled: filled,
     total: leftTotal,
-    showNum: showNum,
+    showNum: showNumL,
     won: won,
-    onFill: gapOnLeft ? tapCell : null
+    onFill: gapOnLeft ? tapCell : null,
+    counting: counting,
+    counted: countL,
+    onCount: setCountL,
+    given: givenL
   }), /*#__PURE__*/React.createElement("div", {
     className: `ms-eq-sign ${won ? 'balanced' : ''}`
   }, "="), /*#__PURE__*/React.createElement(MissingSide, {
@@ -3515,9 +3596,13 @@ function MissingGame({
     groups: layout.right,
     filled: filled,
     total: rightTotal,
-    showNum: showNum,
+    showNum: showNumR,
     won: won,
-    onFill: gapOnLeft ? null : tapCell
+    onFill: gapOnLeft ? null : tapCell,
+    counting: counting,
+    counted: countR,
+    onCount: setCountR,
+    given: givenR
   })), won && /*#__PURE__*/React.createElement("div", {
     className: "celebrate-text"
   }, missingEquation(problem)), won && /*#__PURE__*/React.createElement("button", {
