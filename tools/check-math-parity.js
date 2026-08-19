@@ -54,6 +54,11 @@ const SHARED = [
      favouring one answer, and a fix that landed in only one theme would leave half
      the children playing the biased version. */
   ['which is bigger helpers', '/* ══ MODE g1: WHICH IS BIGGER? ══', '\nfunction CompareSettings'],
+  /* b3's helpers carry the same kind of decision g1's do: the layout of each rung, the
+     generator behind the first rung's bias to tens, the four sentences, and the grid that
+     makes "the same amount" visible as "the same shape". A fix that landed in one theme
+     would leave half the children playing a different game. */
+  ['what is missing helpers', "/* ══ MODE b3: WHAT'S MISSING? ══", '\nfunction MissingSettings'],
 ];
 for (const [name, from, to] of SHARED) {
   try {
@@ -146,6 +151,34 @@ const COMPARE_SUBS = [
 DERIVED.push({
   name: 'CompareGame', label: 'unicorn CompareGame is space CompareGame + the reward-path differences',
   from: 'function CompareSettings({current,onChange,onClose}){', to: '\n/* ══ HOME ══', subs: COMPARE_SUBS,
+});
+
+/* b3's settings modal and game screen. Same list as the two above, one item longer only
+   because this screen has no theme-neutral place to put the background: space paints it
+   from the journey stop the child has reached, unicorn from a CSS class. */
+const MISSING_SUBS = [
+  ['            <img className="preset-tag-img" src={p.icon} alt=""/>\n',
+   '            <span className="preset-tag">{p.emoji}</span>\n'],
+  ['function MissingGame({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){',
+   'function MissingGame({onBack, flowers, gardenFull, setFlowers, setGardenFull, score, setScore, bouquets, addBouquet, muted, onToggleMute}){'],
+  ['  const mascot=useMascot();\n  const overRef=useRef(false);',
+   '  const mascot=useMascot();\n  const addFlower=useFlowerReward(flowers,setFlowers,setGardenFull,muted,addBouquet);\n  const overRef=useRef(false);'],
+  ['  const next=useCallback(()=>{\n    resetForProblem(makeMissingProblem(preset,problem));\n  },[preset,problem,resetForProblem]);',
+   '  const next=useCallback(()=>{\n    if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}\n    resetForProblem(makeMissingProblem(preset,problem));\n  },[flowers,setFlowers,setGardenFull,addBouquet,preset,problem,resetForProblem]);'],
+  ['    const arrived=addProgress();\n    Voice.lines([`${problem.answer}!`,missingSentence(problem),arrived?null:praise()]);\n    setScore(s=>s+1);\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addProgress]);',
+   '    Voice.lines([`${problem.answer}!`,missingSentence(problem),praise()]);\n    setScore(s=>s+1); addFlower();\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addFlower]);'],
+  ["    <div className=\"screen ms-screen\" style={{'--game-bg':`url('${journeyBg}')`}}>",
+   '    <div className="screen ms-screen">'],
+  ['      <ScoreRow score={score} journey={journey} trophies={trophies}/>',
+   '      <ScoreRow score={score} flowers={flowers} bouquets={bouquets}/>'],
+  ['      <Mascot kind="rocket" mood={mascot.mood} stamp={mascot.stamp}/>',
+   '      <Mascot kind="unicorn" mood={mascot.mood} stamp={mascot.stamp}/>'],
+  ['      {won&&<button className="next-btn" onClick={next} aria-label="Next"><NextIcon/></button>}',
+   '      {won&&<button className="next-btn" onClick={next}>Next</button>}'],
+];
+DERIVED.push({
+  name: 'MissingGame', label: 'unicorn MissingGame is space MissingGame + the reward-path differences',
+  from: 'function MissingSettings({current,onChange,onClose}){', to: '\n/* ══ MODE l2', subs: MISSING_SUBS,
 });
 
 for (const { name, label, from: FROM, to: TO, subs } of DERIVED) {

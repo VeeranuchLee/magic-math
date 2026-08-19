@@ -8,7 +8,7 @@ voice-based: spoken instructions, pictograms instead of words, no reading needed
 | File | Game | What it is |
 |---|---|---|
 | [index.html](index.html) | Game menu | Landing page linking to all games |
-| [space-math.html](space-math.html) | **Space Math** | Counting, place value, greater/less/equal, add/subtract, column add and column take away with carrying and borrowing, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
+| [space-math.html](space-math.html) | **Space Math** | Counting, place value, greater/less/equal, the missing addend as a balance, add/subtract, column add and column take away with carrying and borrowing, times tables, count by. Every correct answer flies the rocket further: Earth → Moon → Mars → Asteroid Belt → Jupiter → Saturn → Milky Way. Each arrival teaches one spoken fact about that place. |
 | [unicorn-math.html](unicorn-math.html) | **Unicorn Math** | The same math games in a unicorn/princess theme. Correct answers grow a flower garden; full gardens become bouquets. |
 | [magic-spelling.html](magic-spelling.html) | **Magic Spelling** | Early spelling practice. |
 | [classical-music.html](classical-music.html) | **Classical Music** | Listen-and-guess music game. |
@@ -162,15 +162,43 @@ own it teaches a trick rather than a relation. So it never travels alone here.
 
 The mouth is how a pre-reader gets in. The sentence and the glyph are what they leave with.
 
-**The four levels run from things to numbers.** The comparison never changes; only how the
+**The five levels run from things to numbers.** The comparison never changes; only how the
 two quantities are written does:
 
 | Level | Left and right show |
 |---|---|
 | 1 – 10 | two piles of blocks, **and no numerals at all** |
 | 1 – 20 | blocks, with the numeral written under each pile |
-| 1 – 100 | numerals only |
+| 1 – 100 | tens rods and ones, with the numeral |
+| 1 – 999 | **hundred flats**, rods and ones, with the numeral |
 | 1 – 1000 | numerals only |
+
+The two middle rungs were numerals-only until 2026-08-18, which meant the concrete half of
+the ladder stopped at twenty — the owner asked for the blocks to go all the way up
+("I still want the 1000 version, my 4-year-old likes big numbers"). The last rung stays
+numerals-only on purpose: it is where the scaffolding comes off, and reading 855 against
+736 as digits is the skill all of this builds towards.
+
+**The blocks rung stops at 999, and the pill says so.** A thousand is ten flats — which is
+really one cube, a different lesson — and two tiles both reading "1 – 1000" would be
+unreadable in the top bar.
+
+**"They can just look at the hundreds" is not a shortcut, it is the algorithm.** Comparing
+multi-digit numbers means comparing the biggest place first and looking right only when it
+ties, and blocks are the one form where a child can *see* why: six flats out-bulk four
+whatever is scattered beside them. What would break the lesson is a generator where the top
+place always decides, so the two block rungs build their pair **place by place** and choose
+which place settles it — the hundreds in 45 % of unequal pairs, the tens in 33 %, the ones
+in 22 %. When the hundreds tie, the child has to look one place right; that is the case the
+rung exists for.
+
+The digits below the deciding place are left free, which produces the case worth catching:
+**18 % of unequal pairs put more *pieces* on the smaller side** — 405 against 620 is five
+blocks against eight, and 405 is smaller. A child counting objects rather than reading
+value gets that wrong on screen, where it can be seen.
+
+Which side is bigger is still a fair coin, checked the same way as the original generator:
+six batches of 200,000 problems landed between −1.0 and +1.2 sigma of even.
 
 **The game opens on the first of those rungs** (owner, 2026-08-18), which makes it the one
 picture-preset game that does not start at its hardest. What the top rung skips is not
@@ -192,9 +220,13 @@ the number word, which is one-to-one correspondence and the counting sequence at
 Each side counts independently, and counting is entirely optional — a child who can see which
 pile is bigger just answers.
 
-A tens rod is worth ten, so the running total is `tens × 10 + ones` and tapping a rod jumps
-straight to "ten", then the ones carry on *"eleven, twelve…"*. That is counting on from ten,
-and it is the same place-value arithmetic the counter in What Number? does.
+A tens rod is worth ten and a flat is worth a hundred, so the running total is
+`hundreds × 100 + tens × 10 + ones`. Tapping a rod jumps straight to "ten", then the ones
+carry on *"eleven, twelve…"*. On the hundreds rung this is the best thing in the game:
+flats count *"one hundred, two hundred, three hundred"*, and carrying on into the rods says
+*"three hundred and ten"*. Counting on across places is a harder spoken skill than one, two,
+three — and the child performs it while the app supplies only the word. It is the same
+place-value arithmetic the counter in What Number? does.
 
 Two details there are deliberate and easy to undo by accident:
 
@@ -228,6 +260,101 @@ upwards too. Measured, those were 26–12 and 49–72. The shipped version choos
 first, among the sides that actually have room, and then draws the gap inside that room, so
 there is no overflow case left to patch. A leaning generator is not a cosmetic bug here: it
 teaches a child that one button is usually right.
+
+## What's Missing? — how it teaches
+
+The missing addend — `23 + ? = 30` — added 2026-08-19, on owner request, and played
+entirely in blocks: *"I want blocks to count, not in number format, but two sides of blocks
+to count."*
+
+**The picture is two sides and an equals, and that is the teaching, not the framing.** `=`
+here means *the same amount on both sides*, which is the reading later algebra needs and the
+one children most often miss. Most of school arithmetic writes `=` as "and the answer comes
+next", so `23 + ? = 30` is the first sentence a child meets that is not read left to right.
+Two piles that have to match says it without a word of explanation.
+
+**One act on every rung: fill the hidden pile until the two sides hold the same amount.**
+What changes between rungs is where the hidden pile sits and how big the jump is, which is
+why this is one game and not four.
+
+| Rung | Pill | Looks like |
+|---|---|---|
+| 1 | Up to a ten | `23 + ? = 30`, targets ending in 0 or 5 |
+| 2 | Up to any | `23 + ? = 35` |
+| 3 | A big jump | `58 + ? = 73` — the answer has a ten inside it |
+| 4 | ? first | `? + 8 = 31` |
+| 5 | Took away | `31 − ? = 23` |
+| 6 | Started with | `? − 8 = 23` |
+
+**The subtraction rungs are balances too, not crossings-out.** `31 − ? = 23` is drawn as 31
+blocks against 23 blocks plus the hidden pile, so the child **counts up on all six rungs** —
+the owner's own point, that a child solves `23 + ? = 35` by counting on from 23 rather than
+by working out 35 − 23. It also puts the inverse relation on screen at once: the picture says
+"23 and 8 more", the notation strip says `31 − 8`, and the app reads both back.
+
+**Each side is one grid, ten cells wide.** Ten across makes every row a ten-frame, so on the
+first rung the answer blocks are seen *finishing* the row the given blocks left part-built —
+which is the entire reason that rung biases its targets to tens. One grid per side, rather
+than one per pile, is what turns "the same amount" into "the same shape": the columns of the
+two sides line up, so a full row facing a row with a hole in it is the question, drawn.
+
+**Rods and flats cannot be used here, and that is not a style choice.** Two rods and three
+ones is wider than three rods, so equal amounts would have unequal footprints and the balance
+would stop being readable — the one thing this game cannot afford to lose. Every cell is the
+same size and worth one.
+
+**The app speaks the running total of the side being built** — *"twenty-four, twenty-five,
+twenty-six"* — not the number of blocks added. Counting on from the amount already there is
+the whole strategy, and this is the one place the app can hand a child the number words for
+it while the child does the counting. The tap that lands the answer is silent; the number
+they added is named once afterwards, as the answer, and then read back as the sentence.
+
+**The first rung writes no numerals at all until the answer is in** — the same rule as Which
+is Bigger?'s blocks rung, for the same reason. It asks *"How many more do we need?"* and the
+notation strip appears only on the win. From rung 2 the strip is live, and the dashed box in
+it fills as the child taps, so the blocks and the numeral for them are never more than a
+glance apart.
+
+**Nothing here can be got wrong, only overshot.** A child who can see the gap taps once and
+is done; a child who cannot taps one block at a time and counts on out loud with the app.
+Both finish. That is deliberate: this card sits beside What Number? and Fill the Right Block,
+whose win is also "you did the counting".
+
+Four details are load-bearing and easy to undo by accident:
+
+- **The trailing sockets are a fixed ten, never "however many are still needed."** A pile
+  drawn ending would give the answer away by being countable instead of counted. Ten is one
+  full row, and a socket fills every box up to the one tapped, so any answer is still a
+  handful of taps.
+- **Given piles are always drawn before the hidden one**, which is why `23 + ? = 30` and
+  `? + 8 = 31` look like the same picture and differ only in the strip above it. That *is*
+  rung 4's lesson: the order you write it in does not change the amount. Drawing `? + 8` in
+  written order would also slide the given blocks across the screen every time the hidden
+  pile grew.
+- **The cell size is measured off the side *without* the hidden pile.** The two sides
+  balance, so the pile being built always ends at the other side's total: the tallest the
+  problem will ever be is known before the first tap. Sizing off the growing side instead
+  changed the blocks under a child's finger mid-count in **13 % of problems** (28.6 % of
+  rung 3), measured over 1.2 million.
+- **On the win the trailing sockets vanish**, so a finished problem is two identical grids
+  and nothing else, and the equals turns green the moment the sides match — the balance
+  reporting before any praise arrives.
+
+**Each rung has its own floor, so it stays the question its pill promises.** Without one,
+rung 2 handed out `3 + ? = 5` about one problem in seven and rung 3 could hand out
+`1 + ? = 12` — a big answer, but not the big two-digit total the pill shows. Rung 1's
+ten-or-five bias is drawn as two separate cases rather than by picking a step and
+multiplying, because half of every multiple of five is also a multiple of ten: the shortcut
+measured 86.8/13.2 where it claimed 72/28. It now measures 72.0/28.0 over 200,000 problems
+per rung, with no balance or range violation in 1.2 million.
+
+The ceiling is 99 on rung 3 and 60 elsewhere, because both sides have to stay countable —
+that is the whole game. The deepest thing it can draw is 109 cells against 99, eleven rows,
+which is 16px cells at 768px and still leaves the Next button on screen.
+
+**It opens on its first rung** (owner, 2026-08-19: "for now, let's just go with the easy
+one"), like Which is Bigger? and the two carrying games. The other five are one tap away on
+the level pill.
 
 ## Carrying and borrowing — how it teaches
 
@@ -306,9 +433,12 @@ choice, and picking an option applies it immediately. There is no "Done" to find
 - **Times Tables** does not, since 2026-08-18. It starts on **12 × 12** and asks its first
   question immediately; "How big?" opens from the gear or the `12 × 12` pill in the top bar,
   and one tap there sets both sides of the table (up to 20 × 20).
-- **What Number?**, **Fill the Right Block**, **Which is Bigger?**, **Add & Subtract** and
-  the four **Column Maths** games choose from pictures instead of numbers. Tapping a picture
-  picks it and returns to the game.
+- **What Number?**, **Fill the Right Block**, **Which is Bigger?**, **What's Missing?**,
+  **Add & Subtract** and the four **Column Maths** games choose from pictures instead of
+  numbers. Tapping a picture picks it and returns to the game.
+- **What's Missing?** writes the shape of each rung under its picture — `23 + ? = 30`,
+  `31 − ? = 23` — because its six rungs differ in *where the gap sits*, which a picture
+  alone cannot show.
 - Tapping **Play!** without choosing keeps whatever the game was already on.
 
 ## Notes for grown-ups
@@ -321,6 +451,16 @@ choice, and picking an option applies it immediately. There is no "Done" to find
 - **Which is Bigger? opens on its *first* setting, 1 – 10** (owner, 2026-08-18). What the
   top rung skips is not difficulty so much as the counting: 855 against 736 is settled by
   reading the digits, and counting is what the game is for.
+- **What's Missing? opens on its first rung too** (owner, 2026-08-19: "for now, let's just
+  go with the easy one"). Its first rung is the one that teaches complements to ten — the
+  answer blocks finish a row — so it is the rung worth meeting first, not the one to skip.
+  A mix-of-all opening is wanted eventually and is a one-line change.
+- **The design floor is a 9.7-inch iPad, not a phone** (owner, 2026-08-18: their children
+  play on 9.7 inches and up). Which is Bigger? used to cap its two panels at 740px on every
+  screen, so a tablet drew the phone layout with margins; above 768px each side is now
+  431px, which is eight hundred-flats to a line instead of five. A phone still gets the
+  same question with smaller art — never a different question, and never a card telling a
+  child the game is not for their device.
 - **Carry Add and Borrow Take Away open on their first setting too, for a different
   reason.** The little carry box is a notation that exists nowhere else in the
   app, and 950 + 99 — four columns, seven taps — is not a first lesson in it. The first

@@ -308,9 +308,14 @@
     /* The winning side lifts and glows. On an equals the class goes on BOTH sides,
        so "the same" is shown as sameness rather than as neither side winning. */
     .cmp-side.chosen{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.22),0 8px 22px rgba(47,109,246,.25);transform:translateY(-4px)}
-    .cmp-blocks{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:flex-end}
+    .cmp-blocks{display:flex;flex-wrap:wrap;gap:2px 9px;justify-content:center;align-items:flex-end}
+    /* One group per place value. The gap between groups is wider than the gap
+       inside one, so hundreds, rods and ones read as three piles to be counted
+       rather than one wrapped mass. */
+    .cmp-place{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:flex-end}
     /* Two panels of blocks side by side is half the width of one, so the block art is
        scaled down here rather than allowed to wrap into an uncountable pile. */
+    .cmp-blocks .pb-hundred{width:40px;height:40px;border-width:2px;border-radius:6px;padding:2px}
     .cmp-blocks .pb-ten{width:21px;height:50px;border-width:2px;border-radius:5px;padding:2px}
     /* display:block is load-bearing, not tidying. .pb-one sets no display of its own,
        and it used to be a direct flex child here, which blockified it. Wrapping it in
@@ -332,8 +337,8 @@
        which here would shrink the tap target every time a block was counted, so the
        lift moves the art inside a target that never changes size. */
     .cmp-blocks .count-block.on{transform:none}
-    .cmp-blocks .count-block .pb-ten,.cmp-blocks .count-block .pb-one{transition:transform .12s,box-shadow .12s}
-    .cmp-blocks .count-block.on .pb-ten,.cmp-blocks .count-block.on .pb-one{box-shadow:inset 0 0 0 3px rgba(255,255,255,.96);transform:translateY(-4px) scale(.9)}
+    .cmp-blocks .count-block .pb-hundred,.cmp-blocks .count-block .pb-ten,.cmp-blocks .count-block .pb-one{transition:transform .12s,box-shadow .12s}
+    .cmp-blocks .count-block.on .pb-hundred,.cmp-blocks .count-block.on .pb-ten,.cmp-blocks .count-block.on .pb-one{box-shadow:inset 0 0 0 3px rgba(255,255,255,.96);transform:translateY(-4px) scale(.9)}
     .cmp-blocks .count-block.still{cursor:default}
     .cmp-blocks .count-block.still:active{transform:none}
     .cmp-num{font-size:clamp(1.9rem,9vw,3.4rem);font-weight:900;color:#5a2ed6;line-height:1}
@@ -363,7 +368,108 @@
     .cmp-key.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
     @media (max-width:430px){
       .cmp-side{min-height:100px;padding:10px 4px}
-      .cmp-blocks{gap:0}
+      .cmp-blocks{gap:0 6px}
+    }
+    /* A phone is not the target device — the owner's children play on 9.7 inches and up
+       (2026-08-18) — but the hundreds rung must not be broken there, and it was:
+       measured at 375px, nine flats, nine rods and nine ones pushed the three answer
+       keys to 917px down an 812px screen, so the child could not reach the answer
+       without scrolling. The art shrinks; the question does not change, because a
+       game that asks something different depending on the device is a worse thing
+       than small blocks. The tap target keeps padding of its own at every size. */
+    @media (max-width:600px){
+      .cmp-blocks .pb-hundred{width:24px;height:24px;border-width:1.5px;border-radius:4px;padding:1px}
+      .cmp-blocks .pb-ten{width:13px;height:31px;border-width:1.5px;border-radius:4px;padding:1px}
+      .cmp-blocks .pb-one{width:16px;height:16px;border-width:1.5px;border-radius:4px}
+      .cmp-blocks .count-block{padding:3px}
+    }
+    /* The two panels were capped at 740px on every screen, so a 9.7-inch iPad drew the
+       phone layout with margins either side and the extra width was thrown away. The
+       owner's children play on 9.7 inches and up (2026-08-18), and the hundreds rung
+       wants that room: at 740px a side holds five flats to a line, at 1000px it holds
+       eight, which is one line for almost every pile. */
+    @media (min-width:768px){
+      .cmp-row{max-width:min(96vw,1000px)}
+    }
+
+    /* ── WHAT'S MISSING? (b3) ──
+       Two sides of blocks with an equals between them, and one pile on one side is
+       hidden. Each side is ONE grid, ten cells wide, and the ten is doing work: every
+       row is a ten-frame, so on the first rung the answer blocks are seen finishing a
+       row the given blocks left part-built. The columns of the two sides line up as a
+       consequence, which is what turns "the same amount" into "the same shape".
+       Every cell is the same size and worth one. Rods cannot appear in this game: two
+       rods and three ones is wider than three rods, so equal amounts would have unequal
+       footprints and the balance would stop being readable. */
+    .ms-screen .count-title-main{text-transform:none}
+    /* One knob for the art. --ms-base is the width tier, --ms-scale the row-count tier
+       set in JS (see `density` in MissingGame): a pile many rows deep has to keep the
+       Next button on screen, because .screen does not scroll. */
+    .ms-row{display:flex;align-items:flex-start;justify-content:center;gap:clamp(5px,2vw,14px);width:100%;position:relative;z-index:1;--ms-base:20px;--ms-gap:3px;--ms-scale:1;--ms-cell:calc(var(--ms-base)*var(--ms-scale))}
+    .ms-row.tight{--ms-scale:.8}
+    .ms-row.dense{--ms-scale:.62}
+    .ms-side{display:flex;flex-direction:column;align-items:center;gap:7px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:20px;padding:11px 9px;box-shadow:0 5px 18px rgba(90,46,214,.1);transition:border-color .2s,box-shadow .2s}
+    /* Both sides light up, never one: the statement being made is that they are equal. */
+    .ms-side.balanced{border-color:#00a05a;box-shadow:0 0 0 4px rgba(0,160,90,.2),0 8px 22px rgba(0,160,90,.25)}
+    .ms-grid{display:grid;grid-template-columns:repeat(10,var(--ms-cell));gap:calc(var(--ms-gap) + 1px) var(--ms-gap);justify-content:center}
+    .ms-cell{width:var(--ms-cell);height:var(--ms-cell);border-radius:5px;box-sizing:border-box;cursor:pointer;transition:box-shadow .12s,transform .12s}
+    /* A given amount, and BOTH sides draw it the same. Equal amounts have to look
+       equal, so nothing distinguishes "what we have" from "what we want" except which
+       side of the equals it stands on. It is the same yellow as the ones blocks the
+       child already counts in What Number?. */
+    .ms-cell.have{background:linear-gradient(135deg,#ffd54f,#f9a825);border:2px solid #e65100}
+    /* The pile that went away, on the "? − 8 = 23" rung. It still counts towards the
+       amount being built — what we started with is what went away plus what stayed,
+       which is that rung's whole idea — so it is a solid block that is marked, not a
+       gap where a block used to be. */
+    .ms-cell.gone{background:linear-gradient(135deg,#ffe0b2,#ffb74d);border:2px dashed #bf360c;position:relative;opacity:.9}
+    .ms-cell.gone::after{content:'';position:absolute;left:12%;right:12%;top:48%;height:2px;border-radius:2px;background:rgba(191,54,12,.8);transform:rotate(-32deg)}
+    /* What the child added: the answer. A colour belonging to neither given pile, so
+       the amount that was missing can be seen afterwards as a group. */
+    .ms-cell.add{background:linear-gradient(135deg,#69f0ae,#00a05a);border:2px solid #00713f}
+    /* Empty. Hollow and dashed so it reads as "nothing here yet" rather than as a pale
+       block — the child is comparing the solids on one side with the solids on the
+       other, and a socket that looked like a block would break that. */
+    .ms-cell.socket{background:rgba(255,255,255,.32);border:2px dashed #93b7fb}
+    .ms-cell:active{transform:scale(.88)}
+    .ms-cell.still{cursor:default}
+    .ms-cell.still:active{transform:none}
+    /* Counted. The ring is drawn INSIDE the block, which is the lesson Which is Bigger?
+       already paid for: at this size a ring outside merges neighbouring blocks into one
+       striped mass with no countable units left in it. */
+    .ms-cell.on{box-shadow:inset 0 0 0 3px rgba(255,255,255,.96);transform:translateY(-2px) scale(.88)}
+    .ms-side-num{font-size:clamp(1.1rem,4.5vw,1.7rem);font-weight:900;color:#1f54d6;line-height:1}
+    .ms-eq-sign{flex:0 0 auto;align-self:center;font-size:clamp(1.5rem,6vw,2.6rem);font-weight:900;color:#93b7fb;transition:color .2s,transform .2s}
+    .ms-eq-sign.balanced{color:#00a05a;transform:scale(1.3)}
+    /* The notation, above the picture. The box is the same dashed outline as Carry
+       Add's carry box and Which is Bigger?'s empty slot: a dashed edge in this app
+       always means "you put something here". */
+    .ms-eq{display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(255,255,255,.72);border:2px solid #c4d7fd;border-radius:18px;padding:7px 16px;position:relative;z-index:1;box-shadow:0 4px 14px rgba(90,46,214,.08)}
+    .ms-eq-num{font-size:clamp(1.3rem,5vw,1.9rem);font-weight:900;color:#5a2ed6;line-height:1}
+    .ms-eq-op{font-size:clamp(1.1rem,4vw,1.6rem);font-weight:900;color:#2f6df6;line-height:1}
+    .ms-eq-box{min-width:clamp(36px,9vw,50px);text-align:center;font-size:clamp(1.3rem,5vw,1.9rem);font-weight:900;line-height:1;padding:3px 7px;border-radius:12px;border:3px dashed #93b7fb;background:rgba(255,255,255,.55);color:#93b7fb}
+    .ms-eq-box.filled{color:#00a05a;border-color:#00a05a}
+    .ms-eq-box.won{border-style:solid;background:linear-gradient(160deg,#fff,#e6faf0);box-shadow:0 3px 0 #00a05a}
+    /* Ten cells twice over, plus the equals, has to fit the width — and a phone is not
+       the target device (the owner's children play on 9.7 inches and up, 2026-08-18) but
+       must not be broken either. Measured: two grids at the tier below plus the sign
+       need 440px, so 375px gets its own tier rather than a horizontal scrollbar. The art
+       shrinks; the question is the same one. */
+    @media (max-width:599px){
+      .ms-row{--ms-base:15px;--ms-gap:2px}
+      .ms-cell{border-radius:3px}
+      .ms-cell.have,.ms-cell.gone,.ms-cell.add,.ms-cell.socket{border-width:1.5px}
+      .ms-cell.on{box-shadow:inset 0 0 0 2px rgba(255,255,255,.96)}
+      .ms-side{padding:8px 5px;border-width:2px;border-radius:16px}
+    }
+    @media (max-width:430px){
+      .ms-row{--ms-base:13px;--ms-gap:1px}
+    }
+    /* The design floor is a 9.7-inch iPad, so the biggest tier is the normal one rather
+       than a bonus: 26px cells make a row of ten a hand's width, which is the size a
+       four-year-old actually counts at. */
+    @media (min-width:768px){
+      .ms-row{--ms-base:26px;--ms-gap:4px}
     }
 
     /* Column Add */
@@ -1035,6 +1141,8 @@ const DECO_IMGS = ['assets-runtime/space/icons/fourstar-gold.webp', 'assets-runt
 const ICON_EARTH = 'assets-runtime/space/icons/earth.webp';
 const ICON_ROCKET = 'assets-runtime/space/icons/rocket.webp';
 const ICON_SATURN = 'assets-runtime/space/icons/saturn.webp';
+const ICON_MARS = 'assets-runtime/space/icons/mars.webp';
+const ICON_JUPITER = 'assets-runtime/space/icons/jupiter.webp';
 const ICON_GALAXY = 'assets-runtime/space/icons/swirl-gold.webp';
 const ICON_CUSTOM = 'assets-runtime/space/icons/question-orb.webp';
 const BLOCKS_PRESETS = [{
@@ -1195,11 +1303,23 @@ const COLUMN_SUB_HARD_PRESETS = [{
 }];
 /* ── WHICH IS BIGGER? (g1) ──
    The ladder runs concrete → abstract, which is the owner's decision of 2026-08-17:
-   the easy end compares two piles of blocks with no numerals on screen at all, the
-   next rung writes the numeral beside the blocks so the two ways of saying "how many"
-   sit together, and the top two rungs are numerals alone.
+   the easy end compares two piles of blocks with no numerals on screen at all, then
+   the numeral is written beside the blocks so the two ways of saying "how many" sit
+   together, and the last rung is numerals alone.
    `show` is the whole difference between the rungs — the comparison itself never
-   changes, only how the two quantities are written. */
+   changes, only how the two quantities are written.
+
+   The middle rungs draw hundreds and rods (owner, 2026-08-18: "I still want the 1000
+   version, my 4-year-old likes big numbers"). `places:true` marks the rungs whose
+   pairs are built place by place — see makePlaceProblem — so that the top place is
+   not always what settles the question. Before this the 100s and 1000s rungs were
+   numerals only, which meant the whole concrete half of the ladder stopped at twenty.
+
+   The last rung is deliberately kept numerals-only: it is where the scaffolding comes
+   off, and reading 855 against 736 as digits is the skill all of this is building
+   towards. It is also why the blocks rung above it stops at 999 — a thousand is ten
+   flats, which is a different lesson (it is one cube) and not one to teach by
+   accident in a row that has run out of space. */
 const COMPARE_PRESETS = [{
   id: 'g10',
   icon: ICON_EARTH,
@@ -1218,12 +1338,22 @@ const COMPARE_PRESETS = [{
   desc: 'Blocks and numbers'
 }, {
   id: 'g100',
-  icon: ICON_SATURN,
+  icon: ICON_MARS,
   tag: '1 – 100',
   min: 1,
   max: 100,
-  show: 'numbers',
-  desc: 'Numbers only'
+  show: 'both',
+  desc: 'Rods and ones',
+  places: true
+}, {
+  id: 'g999',
+  icon: ICON_JUPITER,
+  tag: '1 – 999',
+  min: 1,
+  max: 1000,
+  show: 'both',
+  desc: 'Hundreds of blocks',
+  places: true
 }, {
   id: 'g1000',
   icon: ICON_GALAXY,
@@ -1231,8 +1361,114 @@ const COMPARE_PRESETS = [{
   min: 1,
   max: 1000,
   show: 'numbers',
-  desc: 'Big numbers'
+  desc: 'Numbers only'
 }];
+/* ── WHAT'S MISSING? (b3) ──
+   The missing addend, played as a balance. Owner request, 2026-08-19: "23 + ? = 30 …
+   I want blocks to count, not in number format, but two sides of blocks to count",
+   then the harder forms `? + 8 = 31`, `31 − ? = 23` and `? − 8 = 23`.
+
+   SIX RUNGS, ONE ACT. Every rung hides one pile and asks the child to fill it until
+   the two sides hold the same amount. What changes is where the hidden pile sits and
+   how far the jump is — which is why this is one game with six ways of writing the
+   question rather than four games. `form` picks the arrangement (see missingLayout),
+   and the three numbers are always the same three: `a` is the amount that is given,
+   `b` the amount on the other side, and `answer` what the child builds.
+
+   THE SUBTRACTION RUNGS ARE BALANCES TOO, not crossings-out. `31 − ? = 23` is drawn as
+   31 blocks against 23 blocks plus the hidden pile, so counting up is the same action
+   on every rung — which is the owner's own point: a child solves `23 + ? = 35` by
+   counting up, not by taking 23 away from 35. It also writes the inverse relation on
+   screen: the picture says 23 and 8 more, the notation strip says 31 − 8, and they are
+   the same fact.
+
+   Rung 1 shows no numerals at all, the same decision as Which is Bigger?'s first rung:
+   the numbers arrive once the child has counted, which is the moment naming them
+   teaches something. From rung 2 the notation strip is on screen live.
+
+   The ceiling is 99 on rung 3 and 60 elsewhere, because both sides must stay countable
+   — that is the whole game — and 60 unit cells is six rows of ten. */
+const MISSING_PRESETS = [
+/* Rung 1 is deliberately biased to targets ending in 0 or 5 (owner: "they're
+   satisfying and easy to see"), because those are the ones worth memorising: the
+   answer blocks finish a row of ten, and complements to ten are what mental
+   arithmetic is later built out of. */
+{
+  id: 'w10',
+  icon: ICON_EARTH,
+  tag: 'Up to a ten',
+  desc: '23 + ? = 30',
+  form: 'addEnd',
+  show: 'blocks',
+  bMax: 60,
+  ansMin: 1,
+  ansMax: 9,
+  round: true
+}, {
+  id: 'wany',
+  icon: ICON_ROCKET,
+  tag: 'Up to any',
+  desc: '23 + ? = 35',
+  form: 'addEnd',
+  show: 'both',
+  bMin: 12,
+  bMax: 60,
+  ansMin: 1,
+  ansMax: 10
+},
+/* The missing amount now has a ten inside it, so the child cannot reach it in one
+   row — this is the rung where counting up starts needing a strategy. */
+{
+  id: 'wbig',
+  icon: ICON_MARS,
+  tag: 'A big jump',
+  desc: '58 + ? = 73',
+  form: 'addEnd',
+  show: 'both',
+  bMin: 30,
+  bMax: 99,
+  ansMin: 11,
+  ansMax: 25
+},
+/* Same maths, hidden pile written first. The picture cannot tell the two apart —
+   given blocks are always drawn before the hidden ones — and that is the lesson:
+   the order you write it in does not change the amount. */
+{
+  id: 'wfirst',
+  icon: ICON_JUPITER,
+  tag: '? first',
+  desc: '? + 8 = 31',
+  form: 'addStart',
+  show: 'both',
+  bMax: 60,
+  ansMin: 8,
+  ansMax: 48
+}, {
+  id: 'wtook',
+  icon: ICON_SATURN,
+  tag: 'Took away',
+  desc: '31 − ? = 23',
+  form: 'subTake',
+  show: 'both',
+  bMax: 60,
+  ansMin: 1,
+  ansMax: 12
+}, {
+  id: 'wstart',
+  icon: ICON_GALAXY,
+  tag: 'Started with',
+  desc: '? − 8 = 23',
+  form: 'subStart',
+  show: 'both',
+  bMax: 60
+}];
+/* How many empty sockets trail the pile the child is building. It is a FIXED number,
+   never "however many are still needed", so it gives nothing away — and the pile is
+   never drawn ending, so there is no row of boxes to count instead of counting up.
+   Ten is one full row, which also means any answer is reachable in a handful of taps:
+   a socket fills every box up to the one tapped, so a child who already knows the
+   answer taps once and a child who is counting taps one at a time. */
+const MISSING_AHEAD = 10;
 /* The number games let the child pick their own number, so these lists are what a
    child actually taps — 1 to 20 (owner request, 2026-08-14: "more than 12, maybe up to 20"). */
 const TIMES_MAX_OPTIONS = Array.from({
@@ -1263,7 +1499,8 @@ const CARD_VOICE = {
   c2: 'Carry Add! Carry the one!',
   c3: 'Take Away! Column style!',
   c4: 'Borrow Take Away! Borrow one!',
-  g1: 'Which is Bigger? Feed the hungry mouth!'
+  g1: 'Which is Bigger? Feed the hungry mouth!',
+  b3: "What's Missing? Make both sides the same!"
 };
 
 /* ══ UTILITIES ══ */
@@ -1759,6 +1996,42 @@ function GamePreview({
   }, '>'), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "1")));
+  if (id === 'b3') return /*#__PURE__*/ /* What's Missing? — the two sides, and the pile that is missing from one */React.createElement("div", {
+    className: "gp",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-blocks"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o gp-empty"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op gp-big"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-blocks"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-o"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "?"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "3")));
   return null;
 }
 function Stars({
@@ -2776,6 +3049,482 @@ function BlocksFill({
     onClick: handleBottomTap,
     "aria-label": won ? 'Next number' : 'New number'
   }, won ? /*#__PURE__*/React.createElement(NextIcon, null) : /*#__PURE__*/React.createElement(RefreshIcon, null)));
+}
+
+/* ══ MODE b3: WHAT'S MISSING? ══
+   The missing addend — `23 + ? = 30` — asked as a balance. Owner request, 2026-08-19.
+
+   THE PICTURE IS TWO SIDES AND AN EQUALS, and that is the teaching, not the framing.
+   `=` here means "the same amount on both sides", which is the reading later algebra
+   needs and the one children most often miss: most of school arithmetic writes `=` as
+   "and the answer comes next", so `23 + ? = 30` is the first place a child meets a
+   sentence that is not read left to right. Two piles that must match says it without
+   a word of explanation.
+
+   ONE ACT ON EVERY RUNG: fill the hidden pile until the two sides hold the same
+   amount. The subtraction rungs are not crossings-out — `31 − ? = 23` is 31 blocks
+   against 23 blocks plus the hidden pile — so the child counts *up* on all six rungs.
+   That is the owner's own point: `23 + ? = 35` is solved by counting on from 23, not
+   by working out 35 − 23. It also puts the inverse relation on screen: the picture
+   says "23 and 8 more", the notation strip says `31 − 8`, and the child is told both.
+
+   WHAT THE APP SAYS WHILE THEY TAP is the running total of the side they are building
+   — "twenty-four, twenty-five, twenty-six" — not the number of blocks they have added.
+   Counting on from the amount already there is the whole strategy, and this is the one
+   place the app can hand a child the number words for it while the child does the
+   counting. The number they added is named afterwards, once, as the answer.
+
+   Nothing here can be got wrong, only overshot, and that is deliberate: this card sits
+   beside What Number? and Fill the Right Block, whose win is also "you did the
+   counting". A child who can already see the gap taps once and is done; a child who
+   cannot taps one block at a time and counts on, out loud, with the app. Both finish. */
+
+/* Where the hidden pile sits, per rung. Two things are load-bearing:
+
+   GIVEN PILES ARE ALWAYS DRAWN BEFORE THE HIDDEN ONE, which is why addEnd and addStart
+   return the same layout. `23 + ? = 30` and `? + 8 = 31` therefore look like the same
+   picture and differ only in the notation strip above it — and that IS rung 4's lesson:
+   the order you write it in does not change the amount. It also stops the given blocks
+   sliding across the screen every time the hidden pile grows, which is what drawing
+   `? + 8` in written order would do.
+
+   THE HIDDEN PILE CHANGES SIDES. It is on the left when the child is building a total
+   and on the right when they are building the part that was taken away, so "the
+   unknown can be anywhere" is something the game shows rather than states. */
+function missingLayout(p) {
+  if (p.form === 'subTake') return {
+    left: [{
+      kind: 'have',
+      n: p.a
+    }],
+    right: [{
+      kind: 'have',
+      n: p.b
+    }, {
+      kind: 'gap'
+    }]
+  };
+  /* `? − a = b`: the pile we started with is the pile that went away plus the pile
+     that stayed, so both are drawn and the child builds their sum on the other side. */
+  if (p.form === 'subStart') return {
+    left: [{
+      kind: 'gap'
+    }],
+    right: [{
+      kind: 'gone',
+      n: p.a
+    }, {
+      kind: 'have',
+      n: p.b
+    }]
+  };
+  return {
+    left: [{
+      kind: 'have',
+      n: p.a
+    }, {
+      kind: 'gap'
+    }],
+    right: [{
+      kind: 'have',
+      n: p.b
+    }]
+  };
+}
+const msGiven = groups => groups.reduce((s, g) => s + (g.kind === 'gap' ? 0 : g.n), 0);
+const msHasGap = groups => groups.some(g => g.kind === 'gap');
+function makeMissingProblem(preset, avoid) {
+  for (let tries = 0; tries < 40; tries++) {
+    let a, b, answer;
+    if (preset.form === 'subStart') {
+      a = rand(2, 12); // what went away
+      b = rand(10, preset.bMax - a); // what stayed
+      answer = a + b; // what we started with
+    } else if (preset.form === 'subTake') {
+      answer = rand(preset.ansMin, preset.ansMax); // what went away
+      a = rand(Math.max(answer + 5, 15), preset.bMax); // what we started with
+      b = a - answer; // what stayed
+    } else if (preset.form === 'addStart') {
+      answer = rand(preset.ansMin, preset.ansMax);
+      a = rand(2, 12);
+      b = a + answer;
+      if (b > preset.bMax) continue;
+    } else {
+      // addEnd
+      answer = rand(preset.ansMin, preset.ansMax);
+      if (preset.round) {
+        /* Targets ending in 0 or 5, ten-heavy — owner, 2026-08-19: "they're satisfying
+           and easy to see". They are also the ones worth knowing: with the piles drawn
+           ten to a row, a target ending in 0 is a row the answer blocks finish, which
+           is what makes this rung teach complements to ten rather than just practise
+           counting. Fives get the smaller share because a half-finished row is a
+           weaker picture than a whole one.
+            The two cases are drawn SEPARATELY rather than by picking a step of 10 or 5
+           and multiplying, because half of every multiple of 5 is also a multiple of
+           10: that shortcut measured 86.8/13.2, not the 72/28 written here. */
+        if (Math.random() < .72) {
+          const lo = Math.ceil(Math.max(answer + 1, 10) / 10),
+            hi = Math.floor(preset.bMax / 10);
+          if (hi < lo) continue;
+          b = rand(lo, hi) * 10;
+        } else {
+          const lo = Math.ceil((Math.max(answer + 1, 5) - 5) / 10),
+            hi = Math.floor((preset.bMax - 5) / 10);
+          if (hi < lo) continue;
+          b = rand(lo, hi) * 10 + 5;
+        }
+      } else {
+        /* Floored per rung so each one stays the question its pill promises. Without a
+           floor, rung 2 handed out 3 + ? = 5 about one problem in seven; without a
+           floor of its own, rung 3 could hand out 1 + ? = 12 — a big answer, but not
+           the big two-digit total the pill shows. */
+        b = rand(Math.max(answer + 1, preset.bMin), preset.bMax);
+      }
+      a = b - answer;
+    }
+    if (a < 1 || b < 1 || answer < 1) continue;
+    if (avoid && avoid.a === a && avoid.b === b) continue;
+    return {
+      form: preset.form,
+      a,
+      b,
+      answer
+    };
+  }
+  return {
+    form: 'addEnd',
+    a: 23,
+    b: 30,
+    answer: 7
+  };
+}
+
+/* Read back as the sentence, and it names the operation the NOTATION shows rather than
+   the addition the picture used. On the two subtraction rungs that pairing is the whole
+   point: the child counted up, and what they proved is a take-away. */
+const missingSentence = p => p.form === 'addEnd' ? `${p.a} plus ${p.answer} is ${p.b}.` : p.form === 'addStart' ? `${p.answer} plus ${p.a} is ${p.b}.` : p.form === 'subTake' ? `${p.a} take away ${p.answer} is ${p.b}.` : `${p.answer} take away ${p.a} is ${p.b}.`;
+const missingEquation = p => p.form === 'addEnd' ? `${p.a} + ${p.answer} = ${p.b}` : p.form === 'addStart' ? `${p.answer} + ${p.a} = ${p.b}` : p.form === 'subTake' ? `${p.a} − ${p.answer} = ${p.b}` : `${p.answer} − ${p.a} = ${p.b}`;
+/* Rung 1 must not hear the two numbers, exactly as Which is Bigger?'s blocks rung must
+   not: they are not written anywhere on that rung, so speaking them would let a child
+   win by listening instead of by counting. They arrive with the answer. */
+const missingQuestion = (p, show) => show === 'blocks' ? 'How many more do we need? Make both sides the same!' : p.form === 'addEnd' ? `${p.a} and how many more make ${p.b}?` : p.form === 'addStart' ? `How many, plus ${p.a}, makes ${p.b}?` : p.form === 'subTake' ? `${p.a}, take away how many, leaves ${p.b}?` : `Something, take away ${p.a}, leaves ${p.b}. What did we start with?`;
+
+/* One side of the balance, as a SINGLE grid ten cells wide. Three decisions:
+
+   TEN ACROSS makes every row a ten-frame, so on the first rung the answer blocks are
+   seen finishing a row the given blocks left part-built — which is the whole reason
+   that rung biases its targets to tens.
+
+   ONE GRID PER SIDE, not one per pile, is what makes "the same amount" visible as "the
+   same shape": the columns of the two sides line up, so a full row facing a row with a
+   hole in it is the question, drawn. Two grids side by side inside a panel would also
+   have been twice as wide as a 9.7-inch iPad can hold at a size worth counting.
+
+   EVERY CELL IS THE SAME SIZE AND WORTH ONE, so rods and flats cannot appear here.
+   Two rods and three ones is wider than three rods, so equal amounts would have
+   unequal footprints and the balance would stop being readable — which is the one
+   thing this game cannot afford to lose.
+
+   Given blocks are countable, the same interaction and the same reason as Which is
+   Bigger?: tapping one marks it and the app says the running total, so the child
+   performs the count and the app supplies the number word. On the side that holds the
+   hidden pile the empty boxes are a control instead — dashed and hollow, so the two
+   never look alike — and tapping one fills every box up to it. */
+function MissingSide({
+  groups,
+  filled,
+  total,
+  showNum,
+  won,
+  onFill
+}) {
+  const [counted, setCounted] = useState({});
+  const tapGiven = key => {
+    Sound.tap();
+    const next = {
+      ...counted,
+      [key]: !counted[key]
+    };
+    setCounted(next);
+    const n = Object.keys(next).filter(k => next[k]).length;
+    // Silent when they have just un-counted the last block: there is no number to say.
+    if (n > 0) Voice.say(String(n));
+  };
+  const cells = [];
+  groups.forEach((g, gi) => {
+    if (g.kind === 'gap') {
+      /* The trailing sockets go once the sides match, so a finished problem is two
+         identical grids and nothing else. */
+      const n = won ? filled : filled + MISSING_AHEAD;
+      for (let i = 0; i < n; i++) cells.push({
+        key: `g${gi}_${i}`,
+        kind: i < filled ? 'add' : 'socket',
+        idx: i
+      });
+    } else {
+      for (let i = 0; i < g.n; i++) cells.push({
+        key: `k${gi}_${i}`,
+        kind: g.kind
+      });
+    }
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: `ms-side ${won ? 'balanced' : ''}`,
+    "aria-label": `${total}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ms-grid"
+  }, cells.map(c => c.idx !== undefined ? /*#__PURE__*/React.createElement("span", {
+    key: c.key,
+    className: `ms-cell ${c.kind} ${won ? 'still' : ''}`,
+    onClick: () => {
+      if (!won && onFill) onFill(c.idx);
+    }
+  }) : /*#__PURE__*/React.createElement("span", {
+    key: c.key,
+    className: `ms-cell ${c.kind} ${counted[c.key] ? 'on' : ''} ${won ? 'still' : ''}`,
+    onClick: () => {
+      if (!won) tapGiven(c.key);
+    }
+  }))), showNum && /*#__PURE__*/React.createElement("div", {
+    className: "ms-side-num"
+  }, total));
+}
+
+/* The notation, above the picture. The box is the same dashed outline as Carry Add's
+   carry box and Which is Bigger?'s empty slot: in this app a dashed edge always means
+   "you put something here". It fills live as the child taps, so the blocks they are
+   stacking and the numeral for them are never more than a glance apart. */
+function MissingEq({
+  p,
+  filled,
+  won
+}) {
+  const box = /*#__PURE__*/React.createElement("span", {
+    className: `ms-eq-box ${filled ? 'filled' : ''} ${won ? 'won' : ''}`
+  }, filled || '?');
+  const num = /*#__PURE__*/React.createElement("span", {
+    className: "ms-eq-num"
+  }, p.a);
+  const unknownFirst = p.form === 'addStart' || p.form === 'subStart';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ms-eq",
+    "aria-label": `${p.a} ${p.form.slice(0, 3) === 'sub' ? 'minus' : 'plus'} what makes ${p.b}`
+  }, unknownFirst ? box : num, /*#__PURE__*/React.createElement("span", {
+    className: "ms-eq-op"
+  }, p.form.slice(0, 3) === 'sub' ? '−' : '+'), unknownFirst ? num : box, /*#__PURE__*/React.createElement("span", {
+    className: "ms-eq-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "ms-eq-num"
+  }, p.b));
+}
+function MissingSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "Which kind?"), MISSING_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function MissingGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  /* Opens on the first rung, and this one needs no argument from the 2026-08-14 "start
+     on the hardest setting" rule: the owner asked for it directly — "for now, let's
+     just go with the easy one" — and the mix-of-all opening they want eventually is a
+     later change to this one line. The other five rungs are one tap on the level pill. */
+  const [preset, setPreset] = useState(MISSING_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeMissingProblem(MISSING_PRESETS[0]));
+  const [filled, setFilled] = useState(0);
+  const [won, setWon] = useState(false);
+  const [confetti, setConf] = useState(false);
+  /* Bumped for every new problem and used as the key on both sides, so they remount
+     with an empty count. Resetting by effect would have to watch the value, and two
+     problems running 30 then 30 again share it. */
+  const [round, setRound] = useState(0);
+  const mascot = useMascot();
+  const overRef = useRef(false);
+  const layout = useMemo(() => missingLayout(problem), [problem]);
+  const gapOnLeft = msHasGap(layout.left);
+  const leftTotal = msGiven(layout.left) + (gapOnLeft ? filled : 0);
+  const rightTotal = msGiven(layout.right) + (gapOnLeft ? 0 : filled);
+  const balanced = leftTotal === rightTotal;
+  const over = !won && filled > problem.answer;
+  // Rung 1 writes no numerals at all until the answer is in. See missingQuestion.
+  const showNum = preset.show !== 'blocks' || won;
+  /* Cells shrink when a pile runs to many rows. .screen does not scroll, so the tallest
+     problem this game can draw — rung 3 at 99, plus the ten trailing sockets, 109 cells
+     in eleven rows — has to leave the Next button on screen at 768px, which is a
+     landscape 9.7-inch iPad. The question never changes with the device or the size of
+     the pile; only the art does.
+      MEASURED OFF THE SIDE WITHOUT THE HIDDEN PILE, so it does not depend on `filled`.
+     The two sides balance, so the pile being built always ends at the other side's
+     total: the tallest this problem will ever be is known before the first tap, and
+     that is the number to size the cells by. Measuring the growing side instead would
+     let a rung-3 problem cross from five rows to seven mid-count and resize every
+     block a child is in the middle of counting. */
+  const rows = Math.ceil(((gapOnLeft ? rightTotal : leftTotal) + MISSING_AHEAD) / 10);
+  const density = rows >= 10 ? 'dense' : rows >= 7 ? 'tight' : '';
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setFilled(0);
+    setWon(false);
+    setRound(r => r + 1);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeMissingProblem(preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeMissingProblem(p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    Voice.say(missingQuestion(problem, preset.show));
+  }, [problem, showSettings, preset]);
+
+  /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
+     to the one touched, and tapping a filled box takes it and everything after it back.
+     That is what lets one child tap once and another tap one at a time — and the one
+     tapping one at a time hears the count on, which is the lesson.
+     Nothing is spoken on the tap that lands the answer; the win chain names it. */
+  const tapCell = useCallback(i => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    const n = i < filled ? i : i + 1;
+    setFilled(n);
+    const building = (gapOnLeft ? msGiven(layout.left) : msGiven(layout.right)) + n;
+    const other = gapOnLeft ? rightTotal : leftTotal;
+    if (n > 0 && building !== other) Voice.say(String(building));
+  }, [won, muted, filled, layout, gapOnLeft, leftTotal, rightTotal]);
+  useEffect(() => {
+    if (won || filled === 0 || !balanced) return;
+    setWon(true);
+    setConf(true);
+    Sound.setMuted(muted);
+    Sound.ding();
+    setTimeout(() => Sound.celebrate(), 200);
+    mascot.happy();
+    const arrived = addProgress();
+    Voice.lines([`${problem.answer}!`, missingSentence(problem), arrived ? null : praise()]);
+    setScore(s => s + 1);
+    setTimeout(() => setConf(false), 2600);
+  }, [balanced, filled, won, muted, problem, setScore, addProgress]);
+
+  /* Overshooting is the only thing that can go wrong here, and it is said once rather
+     than on every extra block. */
+  useEffect(() => {
+    if (over) {
+      mascot.oops();
+      if (!overRef.current) Voice.say('Too many! Take one away.');
+    }
+    overRef.current = over;
+  }, [over]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen ms-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(MissingSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "What's Missing?"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Make both sides the same!")), showNum && /*#__PURE__*/React.createElement(MissingEq, {
+    p: problem,
+    filled: filled,
+    won: won
+  }), !won && /*#__PURE__*/React.createElement("div", {
+    className: "tap-hint"
+  }, "Fill the empty boxes until both sides match"), over && /*#__PURE__*/React.createElement("div", {
+    className: "direct-too-many"
+  }, "Too many! Tap one to take it back."), /*#__PURE__*/React.createElement("div", {
+    className: `ms-row ${density}`
+  }, /*#__PURE__*/React.createElement(MissingSide, {
+    key: `l${round}`,
+    groups: layout.left,
+    filled: filled,
+    total: leftTotal,
+    showNum: showNum,
+    won: won,
+    onFill: gapOnLeft ? tapCell : null
+  }), /*#__PURE__*/React.createElement("div", {
+    className: `ms-eq-sign ${won ? 'balanced' : ''}`
+  }, "="), /*#__PURE__*/React.createElement(MissingSide, {
+    key: `r${round}`,
+    groups: layout.right,
+    filled: filled,
+    total: rightTotal,
+    showNum: showNum,
+    won: won,
+    onFill: gapOnLeft ? null : tapCell
+  })), won && /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, missingEquation(problem)), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
 
 /* ══ MODE l2: ADD & SUBTRACT ══ */
@@ -4571,7 +5320,82 @@ const SIGN_WORD = {
   '=': 'equals'
 };
 const compareSentence = p => p.sign === '=' ? `${p.a} equals ${p.b}. They are the same.` : `${p.a} ${SIGN_WORD[p.sign]} ${p.b}.`;
+
+/* The two rungs that draw hundreds build their pair PLACE BY PLACE instead of as two
+   numbers with a gap between them, because at this size the gap is not what a child
+   reads. 620 against 405 is settled by the hundreds alone — and that is not a way
+   round the maths, it IS the maths: compare the biggest place, and look right only
+   when it ties. So the generator picks WHICH PLACE DECIDES and ties everything above
+   it:
+
+     hundreds differ           one look at the flats settles it
+     hundreds tie, tens differ the child has to look one place right
+     both tie, ones differ     two places right
+
+   The digits below the deciding place are left free, which is what produces the case
+   this game most needs: 405 against 620 puts *more pieces* on the smaller side, so a
+   child who is counting objects rather than reading value gets it wrong — on screen,
+   where it can be seen, rather than in a test.
+
+   Fairness is by construction, as in makeCompareProblem below: at the deciding place
+   the two digits are drawn independently and redrawn on a tie, so which side is
+   bigger is a coin toss with no overflow case to patch. */
+const PLACE_WEIGHTS = [['h', 45], ['t', 33], ['o', 22]];
+function makePlaceProblem(preset, avoid) {
+  const places = preset.max >= 1000 ? 3 : 2; // the 1 - 100 rung has no hundreds to tie
+  const opts = PLACE_WEIGHTS.slice(3 - places);
+  const weight = opts.reduce((s, o) => s + o[1], 0);
+  for (let tries = 0; tries < 40; tries++) {
+    /* One pair in four is equal, the same rule and the same reason as below. */
+    const same = Math.random() < .25;
+    let decide = 0;
+    if (!same) {
+      let r = rand(1, weight);
+      for (let i = 0; i < opts.length; i++) {
+        r -= opts[i][1];
+        if (r <= 0) {
+          decide = i;
+          break;
+        }
+      }
+    }
+    const A = [],
+      B = [];
+    for (let i = 0; i < places; i++) {
+      if (same || i < decide) {
+        const d = rand(0, 9);
+        A.push(d);
+        B.push(d);
+      } else if (i === decide) {
+        const x = rand(0, 9);
+        let y = rand(0, 9);
+        while (y === x) y = rand(0, 9);
+        A.push(x);
+        B.push(y);
+      } else {
+        A.push(rand(0, 9));
+        B.push(rand(0, 9));
+      }
+    }
+    const value = d => d.reduce((n, x) => n * 10 + x, 0);
+    const a = value(A),
+      b = value(B);
+    if (a < preset.min || b < preset.min) continue; // all-zero digits, and nothing else
+    if (avoid && avoid.a === a && avoid.b === b) continue;
+    return {
+      a,
+      b,
+      sign: a > b ? '>' : a < b ? '<' : '='
+    };
+  }
+  return {
+    a: preset.min,
+    b: preset.max,
+    sign: '<'
+  };
+}
 function makeCompareProblem(preset, avoid) {
+  if (preset.places) return makePlaceProblem(preset, avoid);
   const {
     min,
     max
@@ -4720,9 +5544,13 @@ function MouthIcon({
 
    Counting is optional. A child who can see which pile is bigger just answers.
 
-   A tens rod is worth ten, so the running total is tens*10 + ones and tapping a rod
-   jumps to "ten" — the same place-value arithmetic the counter in What Number? does,
-   which is why a rod and a one cannot simply be counted as one thing each. */
+   A tens rod is worth ten and a flat is worth a hundred, so the running total is
+   hundreds*100 + tens*10 + ones — the same place-value arithmetic the counter in What
+   Number? does, which is why a rod and a one cannot simply be counted as one thing
+   each. On the hundreds rung this is the best thing in the game: tapping flats counts
+   "one hundred, two hundred, three hundred", and carrying on into the rods says "three
+   hundred and ten". Counting on across places is a harder spoken skill than one, two,
+   three, and here the child performs it while the app supplies only the word. */
 function CompareSide({
   n,
   show,
@@ -4742,7 +5570,7 @@ function CompareSide({
     };
     setCounted(next);
     const marked = Object.keys(next).filter(k => next[k]);
-    const total = marked.filter(k => k[0] === 't').length * 10 + marked.filter(k => k[0] === 'o').length;
+    const total = marked.filter(k => k[0] === 'h').length * 100 + marked.filter(k => k[0] === 't').length * 10 + marked.filter(k => k[0] === 'o').length;
     // Silent when they have just un-counted the last block: there is no number to say.
     if (total > 0) Voice.say(String(total));
   };
@@ -4756,6 +5584,19 @@ function CompareSide({
     "aria-label": `${n}`
   }, p && /*#__PURE__*/React.createElement("div", {
     className: "cmp-blocks"
+  }, p.h > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "cmp-place"
+  }, Array.from({
+    length: p.h
+  }, (_, i) => block(`h${i}`, /*#__PURE__*/React.createElement("span", {
+    className: "pb-hundred"
+  }, Array.from({
+    length: 100
+  }, (_, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    className: "ic"
+  })))))), p.t > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "cmp-place"
   }, Array.from({
     length: p.t
   }, (_, i) => block(`t${i}`, /*#__PURE__*/React.createElement("span", {
@@ -4765,11 +5606,13 @@ function CompareSide({
   }, (_, j) => /*#__PURE__*/React.createElement("div", {
     key: j,
     className: "ic"
-  }))))), Array.from({
+  })))))), p.o > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "cmp-place"
+  }, Array.from({
     length: p.o
   }, (_, i) => block(`o${i}`, /*#__PURE__*/React.createElement("span", {
     className: "pb-one"
-  })))), showNum && /*#__PURE__*/React.createElement("div", {
+  }))))), showNum && /*#__PURE__*/React.createElement("div", {
     className: `cmp-num ${show === 'numbers' ? '' : 'small'}`
   }, n));
 }
@@ -5117,6 +5960,16 @@ function Home({
     className: "mode-card-label"
   }, "Which is Bigger?"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('b3', 'mc-magic'),
+    onClick: () => pick('b3'),
+    "aria-label": "What's Missing? Make both sides the same"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "b3"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "What's Missing?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5264,6 +6117,7 @@ function App() {
   const [scores, setScores] = useState({
     b1: 0,
     b2: 0,
+    b3: 0,
     l2: 0,
     c1: 0,
     c2: 0,
@@ -5409,6 +6263,9 @@ function App() {
   }));else if (mode === 'b2') screen = /*#__PURE__*/React.createElement(BlocksFill, _extends({}, shared, {
     score: scores.b2,
     setScore: setScore('b2')
+  }));else if (mode === 'b3') screen = /*#__PURE__*/React.createElement(MissingGame, _extends({}, shared, {
+    score: scores.b3,
+    setScore: setScore('b3')
   }));else if (mode === 'l2') screen = /*#__PURE__*/React.createElement(NumberLineAddSub, _extends({}, shared, {
     score: scores.l2,
     setScore: setScore('l2')
