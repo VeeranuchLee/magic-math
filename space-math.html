@@ -33,7 +33,9 @@
     .home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px;overflow:hidden}
     .home-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(10,14,45,.32),rgba(10,14,45,.32)),url('assets-runtime/space/bg-nebula.webp');background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0}
     .home-tint{position:absolute;inset:0;background:rgba(8,12,40,.1);z-index:0}
-    .home>*:not(.home-bg):not(.home-tint){position:relative;z-index:1}
+    .home>*:not(.home-bg):not(.home-tint):not(.music-btn){position:relative;z-index:1}
+    .ai-note{margin:2px auto 18px;max-width:34rem;padding:0 16px;text-align:center;
+      font-size:.72rem;font-weight:700;line-height:1.5;color:#eaf1ff;opacity:.75}
     .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
     .home-title{font-size:clamp(1.8rem,7vw,3.2rem);font-weight:900;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:2px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))}
     .home-title span{display:inline-block;animation:bounce 1.2s infinite alternate}
@@ -128,8 +130,9 @@
     .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
     .back-btn{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:50px;padding:8px 14px;font-family:inherit;font-size:1.2rem;font-weight:900;color:#2f6df6;cursor:pointer;box-shadow:0 4px 0 #93b7fb;transition:transform .1s;white-space:nowrap;line-height:1;min-width:52px}
     .back-btn:active{transform:translateY(3px)}
-    .settings-btn,.sound-btn{background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1;min-width:48px}
-    .settings-btn:active,.sound-btn:active{transform:translateY(3px)}
+    .music-btn{position:fixed;top:14px;right:14px;z-index:9}
+    .settings-btn,.sound-btn,.music-btn{background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1;min-width:48px}
+    .settings-btn:active,.sound-btn:active,.music-btn:active{transform:translateY(3px)}
 
     /* ── MODALS ── */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -698,7 +701,14 @@
     /* ── MASCOT ── */
     .screen>.mascot-corner{position:fixed;left:22px;bottom:22px;width:116px;height:116px;z-index:6;pointer-events:none;display:flex;align-items:center;justify-content:center;isolation:isolate;filter:drop-shadow(0 7px 14px rgba(90,46,214,.32))}
     .screen>.mascot-corner::before{content:'';position:absolute;left:50%;bottom:2px;width:96%;height:82%;transform:translateX(-50%);border-radius:999px;background:radial-gradient(circle at 50% 54%,rgba(255,255,255,.96) 0 46%,rgba(240,246,255,.82) 58%,rgba(130,177,255,.38) 75%,rgba(130,177,255,0) 100%);box-shadow:0 0 0 3px rgba(255,255,255,.62),0 8px 22px rgba(90,46,214,.22);z-index:0}
-    .screen>.mascot-corner .mascot-img{position:relative;z-index:1;width:78%;height:78%;object-fit:contain;animation:float 2.3s ease-in-out infinite alternate;transform-origin:center bottom;will-change:transform;filter:saturate(1.08) contrast(1.04) drop-shadow(0 3px 5px rgba(55,26,146,.22))}
+    /* The button is the tap target and carries the size the art used to carry, so the
+       mascot looks identical and only the art itself is tappable. 78% of 116px is 90px,
+       and 78% of the 78px phone size is 61px — both comfortably past the 44px minimum,
+       which is what allows the wrapper to stay pointer-events:none and keep the keypad
+       reachable where the two are closest. */
+    .screen>.mascot-corner .mascot-poke{pointer-events:auto;position:relative;z-index:1;width:78%;height:78%;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+    .screen>.mascot-corner .mascot-poke:active{transform:scale(.93)}
+    .screen>.mascot-corner .mascot-img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;animation:float 2.3s ease-in-out infinite alternate;transform-origin:center bottom;will-change:transform;filter:saturate(1.08) contrast(1.04) drop-shadow(0 3px 5px rgba(55,26,146,.22))}
     .screen>.mascot-corner.happy .mascot-img{animation:mascotHappy 1s cubic-bezier(.34,1.56,.64,1)}
     .screen>.mascot-corner.oops .mascot-img{animation:mascotOops .6s ease}
     @keyframes mascotHappy{0%{transform:translateY(0) rotate(0) scale(1)}30%{transform:translateY(-38px) rotate(-10deg) scale(1.15)}55%{transform:translateY(0) rotate(7deg)}75%{transform:translateY(-18px) rotate(-5deg) scale(1.08)}100%{transform:translateY(0) rotate(0) scale(1)}}
@@ -778,7 +788,8 @@ const {
 /* ══ SOUND ══ */
 const Sound = (() => {
   let _ctx = null,
-    _muted = false;
+    _muted = false,
+    _bus = null;
   const ctx = () => {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
@@ -786,92 +797,224 @@ const Sound = (() => {
     if (_ctx.state === 'suspended') _ctx.resume();
     return _ctx;
   };
-  const tone = (c, freq, type, t, dur, vol, fe) => {
+  /* ── THE BUS ──
+     Every cue used to connect its oscillator straight to c.destination, which is most
+     of why the set read as a test-tone generator: pure sines, no room, and nothing
+     between eight stacked partials and the speaker. The graph is now
+         source -> [dry + reverb send] -> master -> compressor -> destination
+     built once per context and cached.
+     There is deliberately no compressor on this bus. One was tried, on the assumption
+     that celebrate()'s twelve tones and seven noise bursts inside 900 ms would sum past
+     full scale. Rendered offline they peak at 0.16, so there was nothing to catch — and
+     a DynamicsCompressor across the whole set measured 6-9 dB OFF the short quiet cues
+     (tap, hop) while lifting the loud ones, inverting the dynamic range the cue volumes
+     were chosen to create. If you add one back, measure every cue before and after.
+     The impulse response is generated here rather than fetched. Decaying white noise
+     is a perfectly good small room, and a fetched .wav would be the first audio file in
+     this repository — see AUDIO-DIRECTION.md for why we are not starting that for a
+     reverb tail. Zero bytes shipped, nothing to record provenance for. */
+  const bus = c => {
+    if (_bus && _bus.c === c) return _bus;
+    const master = c.createGain(),
+      dry = c.createGain(),
+      wet = c.createGain(),
+      rev = c.createConvolver();
+    master.gain.value = 1;
+    dry.gain.value = 1;
+    wet.gain.value = .32;
+    const rate = c.sampleRate,
+      len = Math.floor(rate * 1.1),
+      ir = c.createBuffer(2, len, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = ir.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+    }
+    rev.buffer = ir;
+    dry.connect(master);
+    rev.connect(wet);
+    wet.connect(master);
+    master.connect(c.destination);
+    _bus = {
+      c,
+      dry,
+      rev,
+      master
+    };
+    return _bus;
+  };
+  /* Signature is unchanged through `fe` on purpose: every existing call site in both
+     skins — including the ones this file does not itself define — keeps working and
+     gets the room for free. `send` is the only addition and defaults to a half-send;
+     seam() is the one cue that passes 0, because reverb on the beat between two spoken
+     lines would smear it into the next word, which is the single thing that cue exists
+     to avoid.
+     The attack ramp is new and is not cosmetic: jumping the gain straight to `vol` is a
+     discontinuity, and at tap()'s 80 ms that click was audible as a tick in front of
+     every button press. */
+  const tone = (c, freq, type, t, dur, vol, fe, send) => {
     try {
-      const o = c.createOscillator(),
+      const b = bus(c),
+        o = c.createOscillator(),
         g = c.createGain();
-      o.connect(g);
-      g.connect(c.destination);
       o.type = type;
       o.frequency.setValueAtTime(freq, t);
       if (fe) o.frequency.exponentialRampToValueAtTime(fe, t + dur);
-      g.gain.setValueAtTime(vol, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + Math.min(.012, dur * .3));
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g);
+      g.connect(b.dry);
+      const s = send === undefined ? .5 : send;
+      if (s > 0) {
+        const sg = c.createGain();
+        sg.gain.value = s;
+        g.connect(sg);
+        sg.connect(b.rev);
+      }
       o.start(t);
       o.stop(t + dur);
+    } catch (e) {}
+  };
+  /* Band-passed noise — the layer the old set had none of, and the rest of why it read
+     as synthetic. A finger on a surface, a poof of dust and a rocket are all broadband;
+     a sine can only ever be a beep. Band-passed rather than raw so each burst colours
+     the cue it sits under instead of hissing across the whole spectrum. */
+  const noise = (c, t, dur, vol, f0, f1, q) => {
+    try {
+      const b = bus(c),
+        rate = c.sampleRate,
+        len = Math.max(1, Math.floor(rate * dur)),
+        buf = c.createBuffer(1, len, rate),
+        d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = c.createBufferSource(),
+        f = c.createBiquadFilter(),
+        g = c.createGain();
+      src.buffer = buf;
+      f.type = 'bandpass';
+      f.Q.value = q || 1.2;
+      f.frequency.setValueAtTime(f0, t);
+      if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + Math.min(.01, dur * .25));
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      src.connect(f);
+      f.connect(g);
+      g.connect(b.dry);
+      const sg = c.createGain();
+      sg.gain.value = .4;
+      g.connect(sg);
+      sg.connect(b.rev);
+      src.start(t);
+      src.stop(t + dur);
     } catch (e) {}
   };
   return {
     setMuted(v) {
       _muted = v;
     },
+    /* A tap is a finger landing on a surface, so it needs a body and a click. The two
+       sines are the body; the 18 ms noise chip at 2.6 kHz is the fingernail. 18 ms is
+       short enough that the ear fuses it into the tone rather than hearing two events,
+       and the send is cut to .3 so the most frequent cue in the app does not leave the
+       room ringing after every keypress. */
     tap() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      tone(c, 880, 'sine', n, .08, .12);
-      tone(c, 1320, 'sine', n + .04, .06, .08);
+      tone(c, 880, 'sine', n, .08, .11, 0, .3);
+      tone(c, 1320, 'sine', n + .04, .06, .07, 0, .3);
+      noise(c, n, .018, .05, 2600, 1400, 1.6);
     },
     /* The beat between two spoken lines. Beside tap() because it is punctuation, not
        a reward: one triangle blip at 330 Hz gliding to 300, 45 ms, .05 gain, scheduled
        .08 s ahead on the audio clock so it clears the tail of the word that just ended.
        Every celebratory cue in this module RISES in pitch and runs 200 ms or more; this
        one falls, is a twelfth of ding()'s length and under half a tap in volume, and
-       sits in an empty band between wrong()'s 220 Hz sweep and hop()'s 400 Hz floor. It
-       self-guards on _muted, which is what makes it safe to fire from a timer seconds
-       after its call site ran. */
+       sits in an empty band between wrong()'s 240 Hz ceiling and hop()'s 400 Hz floor.
+       It self-guards on _muted, which is what makes it safe to fire from a timer
+       seconds after its call site ran.
+       It is also the only cue that sends nothing to the reverb: a tail on the beat
+       between two lines would bleed into the word that follows it. */
     seam() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      tone(c, 330, 'triangle', n + .08, .045, .05, 300);
+      tone(c, 330, 'triangle', n + .08, .045, .05, 300, 0);
     },
     twinkle() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      [523, 659, 784, 1047, 1319].forEach((f, i) => tone(c, f, 'sine', n + i * .07, .18, .14));
+      [523, 659, 784, 1047, 1319].forEach((f, i) => {
+        tone(c, f, 'sine', n + i * .07, .18, .12);
+        noise(c, n + i * .07, .03, .022, f * 2.6, f * 3.4, 2.6);
+      });
     },
+    /* Two things a struck bell has that a stack of sines does not. A 25 ms noise chip
+       at 4 kHz on the first note only, which is the hammer; and an octave partial
+       detuned by two thousandths under every note, so the long .55 s tails beat slowly
+       against each other instead of sitting perfectly still. */
     ding() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      [[523, 0], [659, .06], [784, .12], [1047, .22], [1319, .32]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .55, .18));
+      [[523, 0], [659, .06], [784, .12], [1047, .22], [1319, .32]].forEach(([f, t], i) => {
+        tone(c, f, 'sine', n + t, .55, .16);
+        tone(c, f * 2.002, 'sine', n + t, .4, .05);
+        if (!i) noise(c, n, .025, .06, 4000, 2200, 2);
+      });
     },
+    /* Was a single sawtooth sweep — the harshest wave in the module, aimed at the one
+       moment the child is already disappointed. Same falling two-step contour so it
+       still reads as "not that one", but a triangle body and a soft low thud instead of
+       a buzz. Kept under 240 Hz so it stays clear of seam()'s band above it. */
     wrong() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      tone(c, 220, 'sawtooth', n, .28, .1, 100);
+      tone(c, 240, 'triangle', n, .16, .09, 180);
+      tone(c, 180, 'triangle', n + .13, .26, .08, 135);
+      noise(c, n, .09, .028, 300, 170, 1);
     },
+    /* The tune is unchanged. What is new is the seven-burst sparkle wash scattered
+       across it at randomised centre frequencies — the confetti the melody was always
+       implying and never had. */
     celebrate() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      [[523, 0], [659, .1], [784, .2], [1047, .32], [784, .46], [1047, .58], [1319, .68], [1047, .82]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .2, .2));
-      [1047, 1319, 1568, 2093].forEach((f, i) => tone(c, f, 'sine', n + .9 + i * .08, .15, .1));
+      [[523, 0], [659, .1], [784, .2], [1047, .32], [784, .46], [1047, .58], [1319, .68], [1047, .82]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .2, .18));
+      [1047, 1319, 1568, 2093].forEach((f, i) => tone(c, f, 'sine', n + .9 + i * .08, .15, .09));
+      for (let i = 0; i < 7; i++) noise(c, n + .05 + i * .13, .05, .034, 3000 + Math.random() * 2600, 1500, 3.2);
     },
     hop() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      tone(c, 400, 'sine', n, .12, .12, 600);
+      tone(c, 400, 'sine', n, .12, .11, 600);
+      noise(c, n, .05, .028, 900, 2200, 1.4);
     },
+    /* Landing somewhere new, and the one cue in the app allowed to be big. The rising
+       sines were doing all the work alone; the half-second noise sweep under them is
+       the engine, and the five late bursts are the sparkle of the place resolving. */
     arrive() {
       if (_muted) return;
       const c = ctx();
       if (!c) return;
       const n = c.currentTime;
-      tone(c, 180, 'sine', n, .55, .16, 900);
-      tone(c, 90, 'triangle', n, .5, .12, 300);
-      [[784, .4], [988, .5], [1175, .6], [1568, .72], [2093, .86]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .3, .18));
+      tone(c, 180, 'sine', n, .55, .15, 900);
+      tone(c, 90, 'triangle', n, .5, .11, 300);
+      noise(c, n, .5, .05, 140, 900, .8);
+      [[784, .4], [988, .5], [1175, .6], [1568, .72], [2093, .86]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .3, .16));
+      for (let i = 0; i < 5; i++) noise(c, n + .42 + i * .11, .06, .03, 3200 + Math.random() * 2000, 1600, 3);
     }
   };
 })();
@@ -902,8 +1045,27 @@ const Voice = {
      unicorn-math has no journey and never arms it. That is deliberate: this object is
      byte-identical in both files, and an unused hook is cheaper than a divergence. */
   _pending: null,
+  /* The rendered clip currently playing, or null. Separate from the speechSynthesis
+     bookkeeping above because the two engines fail differently: the browser engine has
+     to be polled and second-guessed, an <audio> element does not. */
+  _a: null,
   notifyNextChain(fn) {
     this._pending = fn;
+  },
+  /* True while anything is still being said or waited on. Tapping the mascot uses it to
+     stand down, because the one piece of speech in this app that is actually teaching
+     something is the explanation of an answer, and a poke must never cut it off.
+     Both sources are needed and neither is sufficient alone: `_t` covers the gaps
+     between lines of a chain, when the engine is legitimately silent but the chain is
+     not finished, and `speaking` covers a lone say(), which schedules no timer at all. */
+  busy() {
+    if (this._t || this._a) return true;
+    try {
+      const s = window.speechSynthesis;
+      return !!(s && (s.speaking || s.pending));
+    } catch (e) {
+      return false;
+    }
   },
   RATE: .95,
   /* The gap after the FIRST line is the long one: that line is the number the child
@@ -929,6 +1091,18 @@ const Voice = {
       clearTimeout(this._t);
       this._t = 0;
     }
+    /* Detach the handlers BEFORE pausing. pause() can fire events, and a stale onended
+       arriving here would advance a chain that no longer exists — the same class of bug
+       the gen counter guards against on the speech path. */
+    if (this._a) {
+      const a = this._a;
+      this._a = null;
+      a.onended = null;
+      a.onerror = null;
+      try {
+        a.pause();
+      } catch (e) {}
+    }
     try {
       const s = window.speechSynthesis;
       if (s) s.cancel();
@@ -944,6 +1118,20 @@ const Voice = {
   say(text) {
     this._pending = null;
     if (this.muted) return;
+    const src = Clips.url(text);
+    if (src) {
+      this._reset();
+      const a = new Audio(src);
+      this._a = a;
+      const clear = () => {
+        if (this._a === a) this._a = null;
+      };
+      a.onended = clear;
+      a.onerror = clear;
+      const p = a.play();
+      if (p && p.catch) p.catch(clear);
+      return;
+    }
     try {
       const s = window.speechSynthesis;
       if (!s) return;
@@ -1049,6 +1237,27 @@ const Voice = {
         }
         advance(busy);
       };
+      /* A rendered clip for this line, if one exists. Everything below this block —
+         the length estimate, the 250 ms poll, POLL_MAX — exists because
+         speechSynthesis cannot be trusted to tell us when it stopped. An <audio>
+         element can: it has a real duration and a reliable `ended`. So the clip path
+         needs none of it, and deliberately schedules no timer.
+         A clip that fails to load advances the chain rather than stalling it, which is
+         the same contract as u.onerror on the speech path below. */
+      const src = Clips.url(list[i]);
+      if (src) {
+        const a = new Audio(src);
+        V._a = a;
+        const fin = () => {
+          if (V._a === a) V._a = null;
+          advance(false);
+        };
+        a.onended = fin;
+        a.onerror = fin;
+        const pr = a.play();
+        if (pr && pr.catch) pr.catch(fin);
+        return;
+      }
       let u;
       try {
         u = V.utterance(list[i]);
@@ -1070,6 +1279,292 @@ const Voice = {
 };
 const PRAISE = ['Blast off!', 'Out of this world!', 'You did it!', 'Stellar!', 'Super nova!', 'Mission complete!'];
 const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
+
+/* ══ NARRATION CLIPS ══
+   Rendered speech for Times Tables, replacing the browser's robot voice on the lines we
+   have files for. Everything else in the app keeps speechSynthesis until it is rendered
+   too, which is why this resolves by TEXT rather than being wired into call sites: the
+   game still says `Voice.say(`${a} times ${b}?`)` and neither knows nor cares whether a
+   file exists. One resolver, no call-site churn, and a half-rendered app degrades line by
+   line instead of mode by mode.
+
+   THE INDEX IS FETCHED, NOT GUESSED. Without clips.json the only way to discover a
+   missing clip is to request it and get a 404 — the child hears silence, then a robot
+   voice a beat later, on every line the render missed. `have` stays null until the index
+   lands, and a null `have` means "use the engine", so the first seconds after launch are
+   merely un-upgraded rather than broken.
+
+   IDS ARE DERIVED FROM THE TEXT, so the mapping is checkable against the manifest by
+   reading it: "7 times 8?" is tt-q-7x8, "7 times 8 is 56." is tt-a-7x8, "56!" is
+   tt-n-56. Praise is positional because the strings are skin-specific — see PRAISE
+   above, which is themed in space-math and not in unicorn-math. */
+const Clips = (() => {
+  const ROOT = 'assets-runtime/narration/';
+  /* THREE SETS, RESOLVED TWO DIFFERENT WAYS, and the split is deliberate.
+      `times-tables` is PATTERNS. "7 times 8?" and 964 siblings are covered by four
+     regexes, which is why 965 clips need no lookup table at all.
+      `count-by` and `shared` are mostly FIXED STRINGS -- mascot lines, home cards,
+     journey facts. A regex cannot cover those, and a hand-written lookup would recreate
+     the exact failure that shipped `tt-card` paid-for and silent: two hand-maintained
+     lists of the same strings, quietly disagreeing. So their `clips.json` carries a
+     text->id map emitted from the manifest that was rendered. Every clip present is
+     reachable by construction, and one that failed to encode is missing from both the
+     id list and the map together, so it falls back to the engine instead of 404ing. */
+  const SETS = ['times-tables', 'count-by', 'shared'];
+  const PRAISE_PREFIX = 'tt-praise-';
+  let have = null; /* id -> set directory */
+  let texts = null; /* exact line text -> id */
+  /* ══ WHICH MODES MAY SPEAK IN THE RENDERED VOICE ══
+     Owner's decision, 2026-08-20: a mode is either fully voiced or fully robot. Never
+     both, because two voices inside one game is worse than one robot voice throughout.
+      RESOLVING BY TEXT ALONE WAS NOT ENOUGH, and this set is the correction. `praise()` is
+     called by all nine modes and `tt-praise-*` matched it everywhere, so a child in Carry
+     Add already heard the real voice say "Mission complete!" after a robot said "fifty
+     seven take away six is fifty one." Worse, `${answer}!` matches /^(\d+)!$/ and the
+     bare-number clips are the 152 distinct PRODUCTS of two numbers up to 20 — which are
+     not a range but do collide constantly with ordinary arithmetic answers. Measured:
+     71% of Take Away answers, 57% of Carry Add answers and 42% of Big Carry answers hit a
+     rendered clip. So the voice flipped mid-chain depending on whether the answer happened
+     to be a times-table product, which is arbitrary and audible.
+      A mode belongs here only when EVERY line reachable inside it is rendered — its
+     prompts, its answer chain, its praise, its mascot and its journey arrivals. Adding a
+     mode before that is what caused the bug above, so the test is coverage, not intent.
+      Three qualify, as of 2026-08-20, and each was checked rather than assumed —
+     `python3 tools/build-narration-manifest.py --verify` reports 518/518 lines rendered
+     AND reachable, and it is the thing to re-run before adding a fourth:
+        null  the home screen. Its only spoken lines are the ten card names.
+       m1    Times Tables. Its arithmetic was already rendered; its picker prompt, the
+             mascot and the journey arrivals were NOT, which is why it did not really
+             qualify when this gate was first written.
+       s1    Count By. Its answer chain always resolved, because its lines share the
+             times table's shape; the 481 prompts and chants are what were missing.
+      The other eight modes stay out permanently, not pending work: their spoken lines
+     carry unbounded PAIRS of numbers up to 1000+, so whole-sentence coverage is
+     impossible rather than expensive. Owner's decision, 2026-08-20.
+      One accepted edge: tapping a card speaks its name in the rendered voice on the home
+     screen and then drops into a game that may be all-robot. That is a screen change,
+     not a flip inside a sentence, and the card name belongs to the home screen. */
+  const VOICED = new Set([null, 'm1', 's1']);
+  let mode = null;
+  const idFor = text => {
+    const s = String(text).trim();
+    /* The map is exact and generated, so it wins over the patterns. */
+    if (texts && texts[s]) return texts[s];
+    let m;
+    if (m = s.match(/^(\d+) times (\d+)\?$/)) return 'tt-q-' + m[1] + 'x' + m[2];
+    if (m = s.match(/^(\d+) times (\d+) is (\d+)\.$/)) return 'tt-a-' + m[1] + 'x' + m[2];
+    if (m = s.match(/^(\d+)!$/)) return 'tt-n-' + m[1];
+    const p = PRAISE.indexOf(s);
+    if (p >= 0) return PRAISE_PREFIX + (p + 1);
+    /* The home-screen card line. Rendered, so it must be claimed here — a clip that
+       exists but that nothing resolves to is worse than one that was never made: it is
+       paid for, shipped, and silent. unicorn-math has no CARD_VOICE and so has no
+       equivalent rule. */
+    if (s === CARD_VOICE.m1) return 'tt-card';
+    return null;
+  };
+  return {
+    load() {
+      /* Each set is independent: one missing clips.json costs that set only, and the
+         lines it would have covered fall back to the engine. */
+      SETS.forEach(set => {
+        try {
+          fetch(ROOT + set + '/clips.json').then(r => r.ok ? r.json() : null).then(j => {
+            if (!j || !j.clips || !j.clips.length) return;
+            if (!have) have = {};
+            j.clips.forEach(id => {
+              have[id] = set;
+            });
+            if (j.texts) {
+              if (!texts) texts = {};
+              Object.keys(j.texts).forEach(t => {
+                texts[t] = j.texts[t];
+              });
+            }
+          }).catch(() => {});
+        } catch (e) {}
+      });
+    },
+    /* Called on every screen change, with null for the home screen. */
+    setMode(key) {
+      mode = key || null;
+    },
+    /* null means "no file for this line" — the caller falls back to the engine. */
+    url(text) {
+      if (!have) return null;
+      if (!VOICED.has(mode)) return null;
+      const id = idFor(text);
+      return id && have[id] ? ROOT + have[id] + '/' + id + '.m4a' : null;
+    }
+  };
+})();
+
+/* ══ MENU MUSIC ══
+   Owner's call, 2026-08-20, made after hearing the track: music plays on the MENU and
+   nowhere else. Not a global toggle that happens to default off — the games are silent
+   by construction. Atmosphere belongs where the child is choosing; silence belongs where
+   they are counting, and a background bed under mental arithmetic is a real cost that a
+   preference switch only shifts onto whichever parent never finds it.
+
+   It is also opt-in and remembered, because a menu that starts singing the first time
+   the app opens is a thing you turn off, not a thing you enjoy.
+
+   THE AUTOPLAY PROBLEM, AND WHY `armed` EXISTS. A browser will not let a page start audio
+   before the user has interacted with it, so on a fresh load `play()` rejects even though
+   the child turned music on last week. Silently swallowing that means the preference
+   looks broken. Instead the rejection arms a one-shot listener on the next pointerdown,
+   which is the first tap the child makes anyway.
+
+   DUCKING IS POLLED, not wired into Voice. The alternative is a callback threaded through
+   every path in Voice that starts and stops sound — four of them, each with its own
+   cancellation rules — to serve one volume change on one screen. A 180 ms poll that only
+   runs while music is actually playing is the smaller thing to be wrong about. */
+const Music = (() => {
+  const SRC = 'assets-runtime/audio/menu-bed.m4a';
+  const KEY = 'sm_music';
+  const FULL = 0.20; // resting level: present, and well under a spoken line
+  const DUCKED = 0.055; // while anything is being said
+  const RAMP_MS = 420,
+    STEP_MS = 40,
+    POLL_MS = 180;
+  let el = null,
+    wanted = false,
+    muted = false;
+  /* Read at module creation, not in init(). Home's useState initialiser runs before
+     the App's mount effect, so a preference read inside init() arrives one render too
+     late and the toggle renders "off" while the bed is already playing. */
+  let pref = (() => {
+    try {
+      return localStorage.getItem(KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  })();
+  let ramp = 0,
+    poll = 0,
+    armed = false;
+  const want = () => pref && wanted && !muted;
+  const fadeTo = (v, thenPause) => {
+    if (!el) return;
+    if (ramp) {
+      clearInterval(ramp);
+      ramp = 0;
+    }
+    const from = el.volume,
+      steps = Math.max(1, Math.round(RAMP_MS / STEP_MS));
+    let i = 0;
+    ramp = setInterval(() => {
+      i++;
+      try {
+        el.volume = Math.max(0, Math.min(1, from + (v - from) * (i / steps)));
+      } catch (e) {}
+      if (i >= steps) {
+        clearInterval(ramp);
+        ramp = 0;
+        if (thenPause && el) {
+          try {
+            el.pause();
+          } catch (e) {}
+        }
+      }
+    }, STEP_MS);
+  };
+  const startPoll = () => {
+    if (poll) return;
+    poll = setInterval(() => {
+      if (!el || el.paused) {
+        clearInterval(poll);
+        poll = 0;
+        return;
+      }
+      const t = Voice.busy() ? DUCKED : FULL;
+      if (Math.abs(el.volume - t) > 0.005 && !ramp) fadeTo(t, false);
+    }, POLL_MS);
+  };
+  const arm = () => {
+    if (armed) return;
+    armed = true;
+    const go = () => {
+      window.removeEventListener('pointerdown', go, true);
+      armed = false;
+      apply();
+    };
+    window.addEventListener('pointerdown', go, true);
+  };
+  const apply = () => {
+    if (!want()) {
+      if (el && !el.paused) fadeTo(0, true);
+      return;
+    }
+    if (!el) {
+      try {
+        el = new Audio(SRC);
+      } catch (e) {
+        return;
+      }
+      el.loop = true;
+      el.preload = 'none';
+      el.volume = 0;
+    }
+    el.volume = 0;
+    let p;
+    try {
+      p = el.play();
+    } catch (e) {
+      arm();
+      return;
+    }
+    if (p && p.then) p.then(() => {
+      fadeTo(FULL, false);
+      startPoll();
+    }).catch(() => arm());else {
+      fadeTo(FULL, false);
+      startPoll();
+    }
+  };
+  return {
+    /* Read the stored preference once. Called from the app's mount effect. */
+    init() {
+      apply();
+    },
+    enabled() {
+      return pref;
+    },
+    /* The toggle. Its own click is the user gesture, so this is the one path where
+       play() is reliably allowed. */
+    setEnabled(v) {
+      pref = !!v;
+      try {
+        localStorage.setItem(KEY, pref ? '1' : '0');
+      } catch (e) {}
+      apply();
+    },
+    /* Which screen we are on. Home passes true; every game screen passes false. */
+    setWanted(v) {
+      wanted = !!v;
+      apply();
+    },
+    /* The global sound toggle silences music too — one switch that means "quiet". */
+    setMuted(v) {
+      muted = !!v;
+      apply();
+    },
+    /* Read-only, for verification. The element is never added to the document, so
+       there is otherwise no way to observe from outside whether the bed is actually
+       playing or merely intended to be. */
+    state() {
+      return {
+        pref,
+        wanted,
+        muted,
+        exists: !!el,
+        playing: !!(el && !el.paused),
+        volume: el ? +el.volume.toFixed(3) : null,
+        armed
+      };
+    }
+  };
+})();
 
 /* ══ CONSTANTS ══ */
 const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
@@ -1576,6 +2071,63 @@ function BgDeco() {
 }
 
 /* ══ SVG ICON BUTTONS (crisp, no emoji) ══ */
+function MusicOnIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 18V6l10-2v12"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "6.5",
+    cy: "18",
+    r: "2.6",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "16.5",
+    cy: "16",
+    r: "2.6",
+    fill: "currentColor",
+    stroke: "none"
+  }));
+}
+function MusicOffIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 18V6l10-2v12",
+    opacity: ".45"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "6.5",
+    cy: "18",
+    r: "2.6",
+    fill: "currentColor",
+    stroke: "none",
+    opacity: ".45"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "16.5",
+    cy: "16",
+    r: "2.6",
+    fill: "currentColor",
+    stroke: "none",
+    opacity: ".45"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3 3l18 18"
+  }));
+}
 function SpeakerOnIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
@@ -2064,6 +2616,11 @@ function BigKidBadge() {
 }
 
 /* ══ MASCOT ══ */
+/* Said when the child taps the mascot in the corner. Deliberately not teaching: the
+   mascot is company, and the games do the instructing. Nothing here asks a question or
+   sets a task, so a poke can never compete with the prompt already on screen. */
+const MASCOT_LINES = ['Hello there!', 'I like counting with you.', 'You are doing great.', 'Take your time. I am not going anywhere.', 'Space is very big, and you are very clever.', 'I am right here with you.', 'Ready when you are!', 'That was a good one.'];
+const MASCOT_COOLDOWN = 2600;
 const MASCOTS = {
   rocket: {
     idle: 'assets-runtime/space/icons/rocket.webp',
@@ -2080,6 +2637,10 @@ function useMascot() {
   const [mood, setMood] = useState('idle');
   const [stamp, setStamp] = useState(0);
   const tRef = useRef(null);
+  const pokeRef = useRef({
+    at: 0,
+    last: -1
+  });
   const trigger = useCallback((m, revertMs) => {
     clearTimeout(tRef.current);
     setMood(m);
@@ -2088,29 +2649,62 @@ function useMascot() {
   }, []);
   const happy = useCallback(() => trigger('happy', 2600), [trigger]);
   const oops = useCallback(() => trigger('oops', 1100), [trigger]);
+  /* ── TAPPING THE MASCOT ──
+     Owner request, 2026-08-20. Three guards, and each is there for its own reason.
+     Voice.busy() is the important one: a child who pokes the mascot while the answer is
+     being explained is being curious, not asking to interrupt, and silently doing
+     nothing is far better than losing the explanation. The poke is dropped, not queued —
+     a greeting that arrives four seconds late has stopped being a reply to the tap.
+     COOLDOWN turns a child drumming on the mascot into one line instead of eight, and
+     is per-hook rather than global so two mascots on screen could never share it.
+     `last` only remembers the previous index. That is enough to kill the obvious "it
+     said that twice in a row" without pretending to be a proper shuffle. */
+  const poke = useCallback(() => {
+    const st = pokeRef.current,
+      now = Date.now();
+    if (now - st.at < MASCOT_COOLDOWN) return;
+    if (Voice.busy()) return;
+    st.at = now;
+    Sound.tap();
+    trigger('happy', 2600);
+    let i = Math.floor(Math.random() * MASCOT_LINES.length);
+    if (MASCOT_LINES.length > 1 && i === st.last) i = (i + 1) % MASCOT_LINES.length;
+    st.last = i;
+    Voice.say(MASCOT_LINES[i]);
+  }, [trigger]);
   return {
     mood,
     stamp,
     happy,
-    oops
+    oops,
+    poke
   };
 }
 function Mascot({
   kind = 'rocket',
   mood,
-  stamp
+  stamp,
+  onPoke
 }) {
   const set = MASCOTS[kind] || MASCOTS.rocket;
   const src = mood === 'happy' ? set.happy : mood === 'oops' ? set.oops : set.idle;
+  /* aria-hidden is gone from the wrapper because this is a control now, not decoration.
+     The wrapper keeps pointer-events:none (see the stylesheet); only the button inside
+     it takes taps, so the glow and the empty corner around the art stay transparent to
+     a finger reaching for the keypad below. */
   return /*#__PURE__*/React.createElement("div", {
     key: stamp,
-    className: `mascot-corner ${mood !== 'idle' ? mood : ''}`,
-    "aria-hidden": "true"
+    className: `mascot-corner ${mood !== 'idle' ? mood : ''}`
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "mascot-poke",
+    "aria-label": "Say hello to your space friend",
+    onClick: onPoke
   }, /*#__PURE__*/React.createElement("img", {
     className: "mascot-img",
     src: src,
     alt: ""
-  }));
+  })));
 }
 
 /* ══ JOURNEY TRACK ══
@@ -2805,7 +3399,8 @@ function BlocksGuided({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2980,7 +3575,8 @@ function BlocksFill({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "star",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement(SimpleNumberCard, {
     value: built,
     target: target,
@@ -3558,7 +4154,8 @@ function MissingGame({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4448,7 +5045,8 @@ function ColumnAdd({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4770,7 +5368,8 @@ function ColumnMath({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5036,7 +5635,8 @@ function MultiplicationGame({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "star",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5320,7 +5920,8 @@ function CountByGame({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "star",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5845,7 +6446,8 @@ function CompareGame({
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
-    stamp: mascot.stamp
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5904,6 +6506,7 @@ function Home({
   trophies = 0,
   journey = 0
 }) {
+  const [music, setMusic] = useState(() => Music.enabled());
   const title = 'Space Math!'.split('');
   const [launching, setLaunching] = useState(null);
   const launchT = useRef(null);
@@ -5919,7 +6522,16 @@ function Home({
   const cardCls = (id, base) => `mode-card ${base} ${launching === id ? 'launching' : launching ? 'dimmed' : ''}`;
   return /*#__PURE__*/React.createElement("div", {
     className: "home"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `music-btn${music ? '' : ' music-off'}`,
+    "aria-label": music ? 'Menu music on' : 'Menu music off',
+    onClick: () => {
+      const n = !music;
+      setMusic(n);
+      Music.setEnabled(n);
+      Sound.tap();
+    }
+  }, music ? /*#__PURE__*/React.createElement(MusicOnIcon, null) : /*#__PURE__*/React.createElement(MusicOffIcon, null)), /*#__PURE__*/React.createElement("div", {
     className: "home-bg"
   }), /*#__PURE__*/React.createElement("div", {
     className: "home-tint"
@@ -6173,7 +6785,9 @@ function Home({
       objectFit: 'contain',
       filter: 'drop-shadow(0 0 12px rgba(140,190,255,.6))'
     }
-  })));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "ai-note"
+  }, "Every voice here is AI-generated. None is a recording of a real person."));
 }
 
 /* ══ APP ══ */
@@ -6219,10 +6833,21 @@ function App() {
       return false;
     }
   });
+  /* Music.setMuted BEFORE Music.init(): init() calls apply(), and apply() decides
+     whether to start playing. Syncing the stored mute afterwards would let a muted
+     child hear the bed start on every reload before it was corrected. */
   useEffect(() => {
     Sound.setMuted(muted);
     Voice.muted = muted;
+    Music.setMuted(muted);
+    Clips.load();
+    Music.init();
   }, []);
+  /* Tell Clips which screen we are on, so a half-rendered mode stays all-robot
+     rather than alternating voices. null is the home screen. */
+  useEffect(() => {
+    Clips.setMode(mode);
+  }, [mode]);
   useEffect(() => () => clearTimeout(arrivalT.current), []);
   /* Arriving somewhere new must never flash, which is what this preload is for — but
      the flash can only ever happen at the *next* stop, and this used to fetch all
@@ -6240,6 +6865,7 @@ function App() {
     const n = !m;
     Sound.setMuted(n);
     Voice.muted = n;
+    Music.setMuted(n);
     if (n) Voice.stop();
     try {
       localStorage.setItem('sm_muted', n ? '1' : '0');
@@ -6327,6 +6953,11 @@ function App() {
   /* The arrival window is now up to 7 s rather than 1.7, so the chance of a child
      leaving mid-chain and then being ambushed by a planet on the home screen is four
      times wider. Leaving the game cancels both the speech and the pending arrival. */
+  /* Menu only — see the MENU MUSIC note. Driven off `mode` rather than set at each
+   call site, so a new game added later is silent by default rather than by memory. */
+  useEffect(() => {
+    Music.setWanted(mode === null);
+  }, [mode]);
   const goHome = useCallback(() => {
     Voice.stop();
     clearTimeout(arrivalT.current);

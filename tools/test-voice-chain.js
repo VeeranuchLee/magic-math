@@ -45,12 +45,43 @@ function makeEngine({ fireOnEnd = true, speakMs = 900, stuckSpeaking = false } =
   return { engine, log };
 }
 
+/* Voice now reaches for two more globals. The sandboxes below supply both.
+   `Clips.url` returning null is the "no rendered file for this line" case, which is the
+   world every test here was written in, so those tests are unchanged in meaning.
+   fakeAudio models the one property that made the clip path worth having: it reports
+   when it finished, without being polled. */
+function makeAudio(log, playMs = 700, { failPlay = false } = {}) {
+  const created = [];
+  class FakeAudio {
+    constructor(src) {
+      this.src = src; this.onended = null; this.onerror = null;
+      created.push(this);
+    }
+    play() {
+      log.push(['audio-start', now, this.src]);
+      if (failPlay) return Promise.reject(new Error('blocked'));
+      clock.setTimeout(() => {
+        log.push(['audio-end', now, this.src]);
+        if (this.onended) this.onended();
+      }, playMs);
+      return Promise.resolve();
+    }
+    pause() { log.push(['audio-pause', now, this.src]); }
+  }
+  return { FakeAudio, created };
+}
+function makeClips(map) {
+  // map: text -> url, or null for "no clip"
+  return { url(t) { return (map && map[t]) || null; } };
+}
+
 function run(opts, parts, { muteAt = null, stopAt = null, horizon = 40000 } = {}) {
   const { engine, log } = makeEngine(opts);
   const sandbox = {
     SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
     window: { speechSynthesis: engine },
     Sound: { seam() { log.push(['seam', now]); } },
+    Clips: makeClips(null), Audio: makeAudio(log).FakeAudio,
     setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout,
     console,
   };
@@ -140,6 +171,8 @@ console.log('\n=== 6. a second answer interrupts the first (gen guard) ===');
   const sandbox = {
     SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
     window: { speechSynthesis: engine }, Sound: { seam() { log.push(['seam', now]); } },
+    Clips: makeClips(null), Audio: makeAudio(log).FakeAudio,
+    Clips: makeClips(null), Audio: makeAudio(log).FakeAudio,
     setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console,
   };
   vm.createContext(sandbox);
@@ -162,6 +195,8 @@ console.log('\n=== 7. muted: lines() must return immediately so the 7s ceiling d
   const sandbox = {
     SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
     window: { speechSynthesis: engine }, Sound: { seam() { log.push(['seam', now]); } },
+    Clips: makeClips(null), Audio: makeAudio(log).FakeAudio,
+    Clips: makeClips(null), Audio: makeAudio(log).FakeAudio,
     setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console,
   };
   vm.createContext(sandbox);
@@ -174,6 +209,112 @@ console.log('\n=== 7. muted: lines() must return immediately so the 7s ceiling d
   clock.run(40000);
   check('nothing spoken while muted', log.filter(e => e[0] === 'start').length === 0);
   check('the stale callback is dropped, not leaked to a later chain', notified === false);
+  check('no timer leaked', timers.length === 0);
+}
+
+/* ── The clip path ──
+   These two exist because the rendered clips introduced a SECOND engine into a chain
+   whose every guarantee was written against the first. The risk is not that audio fails
+   to play; it is that the chain's ordering, its seam, its gaps and its completion
+   callback quietly stop applying the moment a line is a file instead of an utterance. */
+console.log('\n=== 8. a chain of rendered clips: order, seam, gaps, completion ===');
+{ now = 0; timers = [];
+  const log = [];
+  const { FakeAudio } = makeAudio(log, 700);
+  const engine = { speaking: false, cancel() {}, speak() { log.push(['SPEECH-USED', now]); } };
+  const sandbox = {
+    SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
+    window: { speechSynthesis: engine },
+    Sound: { seam() { log.push(['seam', now]); } },
+    Clips: makeClips({ '26!': 'a.m4a', '2 times 13 is 26.': 'b.m4a', 'You did it!': 'c.m4a' }),
+    Audio: FakeAudio,
+    setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console,
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(voiceSrc + '\nthis.Voice=Voice;', sandbox);
+  const V = sandbox.Voice;
+  let done = false;
+  V.notifyNextChain(() => { done = true; });
+  V.lines(['26!', '2 times 13 is 26.', 'You did it!']);
+  clock.run(200);
+  check('busy() is true while a clip is playing', V.busy() === true);
+  clock.run(40000);
+  const played = log.filter(e => e[0] === 'audio-start').map(e => e[2]);
+  check('every line played as a file, none fell through to speech',
+        log.every(e => e[0] !== 'SPEECH-USED') && played.length === 3);
+  check('clips played in manifest order  — ' + JSON.stringify(played),
+        JSON.stringify(played) === JSON.stringify(['a.m4a', 'b.m4a', 'c.m4a']));
+  check('the seam still sounds between clips', log.filter(e => e[0] === 'seam').length === 2);
+  const starts = log.filter(e => e[0] === 'audio-start').map(e => e[1]);
+  check(`the first gap is the long one (${starts[1] - starts[0]}ms vs ${starts[2] - starts[1]}ms)`,
+        starts[1] - starts[0] > starts[2] - starts[1]);
+  check('the chain reported completion', done === true);
+  check('no timer leaked', timers.length === 0);
+  check('busy() is false once the chain has finished', V.busy() === false);
+}
+
+console.log('\n=== 9. a half-rendered chain falls back line by line ===');
+{ now = 0; timers = [];
+  const log = [];
+  const { FakeAudio } = makeAudio(log, 700);
+  const engine = {
+    speaking: false,
+    cancel() { engine.speaking = false; },
+    speak(u) {
+      engine.speaking = true; log.push(['start', now, u.text]);
+      clock.setTimeout(() => { engine.speaking = false; if (u.onend) u.onend(); }, 900);
+    },
+  };
+  const sandbox = {
+    SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
+    window: { speechSynthesis: engine },
+    Sound: { seam() { log.push(['seam', now]); } },
+    // Only the middle line has been rendered.
+    Clips: makeClips({ '2 times 13 is 26.': 'b.m4a' }),
+    Audio: FakeAudio,
+    setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console,
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(voiceSrc + '\nthis.Voice=Voice;', sandbox);
+  const V = sandbox.Voice;
+  let done = false;
+  V.notifyNextChain(() => { done = true; });
+  V.lines(['26!', '2 times 13 is 26.', 'You did it!']);
+  clock.run(40000);
+  const order = log.filter(e => e[0] === 'start' || e[0] === 'audio-start').map(e => e[2]);
+  check('all three lines were delivered, mixing both engines — ' + JSON.stringify(order),
+        JSON.stringify(order) === JSON.stringify(['26!', 'b.m4a', 'You did it!']));
+  check('the chain still completed across the engine switch', done === true);
+  check('no timer leaked', timers.length === 0);
+}
+
+console.log('\n=== 10. stop() cuts a playing clip, not just a pending one ===');
+{ now = 0; timers = [];
+  const log = [];
+  const { FakeAudio } = makeAudio(log, 700);
+  const engine = { speaking: false, cancel() {}, speak() {} };
+  const sandbox = {
+    SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
+    window: { speechSynthesis: engine },
+    Sound: { seam() { log.push(['seam', now]); } },
+    Clips: makeClips({ '26!': 'a.m4a', '2 times 13 is 26.': 'b.m4a' }),
+    Audio: FakeAudio,
+    setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console,
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(voiceSrc + '\nthis.Voice=Voice;', sandbox);
+  const V = sandbox.Voice;
+  let done = false;
+  V.notifyNextChain(() => { done = true; });
+  V.lines(['26!', '2 times 13 is 26.']);
+  clock.run(200);
+  V.stop();
+  clock.run(40000);
+  check('the clip in flight was paused', log.some(e => e[0] === 'audio-pause'));
+  check('the second clip never started',
+        log.filter(e => e[0] === 'audio-start').length === 1);
+  check('the arrival callback did not fire on a stopped chain', done === false);
+  check('busy() is false after stop()', V.busy() === false);
   check('no timer leaked', timers.length === 0);
 }
 
