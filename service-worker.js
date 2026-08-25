@@ -39,7 +39,24 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //             merged without a bump, so v9 devices never saw it — and Times Tables
 //             starts on 12 x 12 instead of on its picker.
 //   v10 -> v11 Which is Bigger? opens on the 1 - 10 blocks rung instead of 1 - 1000.
-const CACHE_NAME = "magic-math-v14";
+//   v11 -> v12 What's Missing?, plus the hundreds-of-blocks rungs of Which is Bigger?,
+//              which had merged without a bump and so had reached nobody.
+//   v12 -> v13 the counting stage. Exactly one change, checked against origin/main
+//              rather than assumed, because the v12 assumption had been wrong.
+//   v13 -> v14 the sound publish: music, WebAudio cues and the first rendered narration.
+//              The ~24 MB of audio deliberately stayed OUT of SHELL and cache-list.js and
+//              joined tier 3, because precaching it would undo the launch-weight work.
+//   v14 -> v15 the voice splits by ROLE — the companion speaks words, the ship's computer
+//              reads numbers — four facts at every journey stop, and the column-maths
+//              opener in her voice.
+//              WHY THIS BUMP IS LOAD-BEARING EVEN THOUGH NARRATION IS TIER 3: the clip
+//              files are fetched on use, but `assets-runtime/narration/*/clips.json` is
+//              the index that decides whether a line resolves to a clip AT ALL. A device
+//              holding the old index never asks for the new files, so it would keep the
+//              engine voice on every line this publish rendered — while happily being
+//              able to download them. Observed locally: a stale cache served the previous
+//              index and answered 200 for a clip already deleted from disk.
+const CACHE_NAME = "magic-math-v15";
 
 const SHELL = [
   "./",

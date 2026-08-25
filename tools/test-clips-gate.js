@@ -87,66 +87,84 @@ const CLIPS = SETS['times-tables'].clips;
     Clips.load();
     await new Promise(r => setImmediate(r));   // let the stubbed fetch settle
 
+    /* TWO ROLES NOW, and the resolver's whole job is to treat them differently.
+       Owner decision, 2026-08-21. Every url() call below says which role is asking,
+       because that is what the app does — `num()` at the call site is the caller
+       declaring it is reading a value out. */
+    const asNum = (text) => Clips.url(text, 'robot');
+    const asComp = (text) => Clips.url(text, 'companion');
+    const inMode = (mode, fn, text) => { Clips.setMode(mode); return fn(text); };
+    const ROBOT_MODES = ['b1', 'b2', 'b3', 'l2', 'c1', 'c2', 'c3', 'c4', 'g1'];
+
     // Sanity: the clip set really did load, or every assertion below passes vacuously.
     Clips.setMode('m1');
-    check('the clip list loaded (else nothing below means anything)',
-          Clips.url('6 times 8?') !== null);
+    check('the clip list loaded (else nothing below means anything)', asNum('6 times 8?') !== null);
 
-    console.log('-- Times Tables is fully rendered, so it uses the files');
-    check('the question resolves',      /tt-q-6x8\.m4a$/.test(Clips.url('6 times 8?') || ''));
-    check('the answer resolves',        /tt-a-6x8\.m4a$/.test(Clips.url('6 times 8 is 48.') || ''));
-    check('the bare number resolves',   /tt-n-48\.m4a$/.test(Clips.url('48!') || ''));
-    check('praise resolves',            (Clips.url(PRAISE[0]) || '').includes('praise'));
+    console.log('-- Times Tables bought the whole number space, so it keeps using the files');
+    check('the question resolves',      /tt-q-6x8\.m4a$/.test(asNum('6 times 8?') || ''));
+    check('the answer resolves',        /tt-a-6x8\.m4a$/.test(asNum('6 times 8 is 48.') || ''));
+    check('the bare number resolves',   /tt-n-48\.m4a$/.test(asNum('48!') || ''));
+    check('praise resolves',            (asComp(PRAISE[0]) || '').includes('praise'));
 
-    /* Drive the real API — setMode is how the app switches screens. */
-    const inMode = (mode, text) => { Clips.setMode(mode); return Clips.url(text); };
+    /* ── THE REVERSAL, 2026-08-21 ──
+       These two assertions used to say the opposite, and the flip is the entire change,
+       so it is worth stating why it is not a regression to the bug of 2026-08-20.
 
-    console.log('-- THE BUG: an all-robot mode must never reach a clip');
-    for (const mode of ['b1', 'b2', 'b3', 'l2', 'c1', 'c2', 'c3', 'c4', 'g1']) {
-      check(`${mode}: praise stays on the engine`,  inMode(mode, PRAISE[0]) === null);
-      check(`${mode}: "48!" stays on the engine`,   inMode(mode, '48!') === null);
+       That bug was a seam that fell WHERE THE DATA HAPPENED TO LAND: `${answer}!` matched
+       the bare-number clips, those clips are 152 arbitrary products, and so Carry Add
+       spoke roughly half its answers in the rendered voice depending on whether the
+       child's answer happened to be one. Arbitrary, and audible.
+
+       What resolves in every mode now is only what is in the GENERATED text map — lines
+       we enumerated, chose, paid for and encoded. There is no unbounded space behind an
+       exact match and nothing to be surprised by. The patterns, which are the unbounded
+       part, are still gated. */
+    console.log('-- NEW: the companion keeps her own voice in an all-robot mode');
+    for (const mode of ROBOT_MODES) {
+      check(`${mode}: praise is the companion, so it plays her file`,
+            (inMode(mode, asComp, PRAISE[0]) || '').includes('praise'));
+      check(`${mode}: so does a mapped fixed line`,
+            /sh-mascot-s1\.m4a$/.test(inMode(mode, asComp, 'Hello there!') || ''));
     }
 
-    /* s1 and the home screen joined VOICED on 2026-08-20, once
-       `build-narration-manifest.py --verify` reported 518/518 lines rendered AND
-       reachable. Before that they were deliberately all-robot, and these two assertions
-       are the ones that flipped -- so they are worth reading as the record of why. */
-    console.log('-- Count By joined VOICED once its 481 prompts were rendered');
-    check('s1: its answer chain uses the files',
-          /tt-n-48\.m4a$/.test(inMode('s1', '48!') || ''));
+    console.log('-- STILL TRUE: a number in an all-robot mode never reaches a clip');
+    for (const mode of ROBOT_MODES) {
+      check(`${mode}: "48!" stays on the engine`, inMode(mode, asNum, '48!') === null);
+      check(`${mode}: and so does the sentence around it`,
+            inMode(mode, asNum, '6 times 8 is 48.') === null);
+    }
+
+    /* THE HOLE THIS CLOSES, and it is the one a future call site will actually fall
+       into: forgetting `num()` on a number line. If the companion path could reach the
+       pattern rules, an untagged "48!" in Carry Add would resolve to tt-n-48 and the
+       old bug would be back through the front door. It cannot — the companion path
+       consults the generated map and praise, and no regex at all. */
+    console.log('-- A number asked for as a COMPANION line still cannot reach a clip');
+    for (const mode of ROBOT_MODES.concat(['m1', 's1'])) {
+      check(`${mode}: an untagged "48!" resolves nothing`, inMode(mode, asComp, '48!') === null);
+    }
+    check('nor does an untagged times-table sentence',
+          inMode('m1', asComp, '6 times 8 is 48.') === null);
+
+    console.log('-- Count By and the home screen still resolve their numbers');
+    check('s1: its answer chain uses the files', /tt-n-48\.m4a$/.test(inMode('s1', asNum, '48!') || ''));
     check('s1: so does the times-table sentence it shares with m1',
-          /tt-a-6x8\.m4a$/.test(inMode('s1', '6 times 8 is 48.') || ''));
-
-    console.log('-- The home screen joined too: its only lines are the ten card names');
-    check('home: a rendered line resolves',
-          (inMode(null, PRAISE[0]) || '').includes('praise'));
-
-    console.log('-- The eight impossible modes are out PERMANENTLY, not pending work');
-    for (const mode of ['b1', 'b2', 'b3', 'l2', 'c1', 'c2', 'c3', 'c4', 'g1']) {
-      check(`${mode}: still all-robot`, inMode(mode, '48!') === null);
-    }
+          /tt-a-6x8\.m4a$/.test(inMode('s1', asNum, '6 times 8 is 48.') || ''));
+    check('home: praise resolves', (inMode(null, asComp, PRAISE[0]) || '').includes('praise'));
 
     console.log('-- The path is built from the set each id came from');
     Clips.setMode('m1');
-    check('a times-tables id resolves under times-tables/',
-          (Clips.url('6 times 8?') || '').includes('/times-tables/'));
-    check('a shared id resolves under shared/',
-          (Clips.url('Hello there!') || '').includes('/shared/'));
-
-    console.log('-- A fixed string resolves only through the generated text map');
-    check('the mascot line resolves',
-          /sh-mascot-s1\.m4a$/.test(Clips.url('Hello there!') || ''));
-    check('and it obeys the mode gate like everything else',
-          inMode('c4', 'Hello there!') === null);
+    check('a times-tables id resolves under times-tables/', (asNum('6 times 8?') || '').includes('/times-tables/'));
+    check('a shared id resolves under shared/', (asComp('Hello there!') || '').includes('/shared/'));
 
     console.log('-- A set whose clips.json is missing costs only its own lines');
     Clips.setMode('m1');
-    check('a count-by line falls back to the engine',
-          Clips.url('Count by 7!') === null);
+    check('a count-by line falls back to the engine', asNum('Count by 7!') === null);
 
-    console.log('-- An unrendered line is null even in a voiced mode');
-    check('an unrendered line falls back',  Clips.url('7 times 7?') === null);
-    check('gibberish falls back',           Clips.url('Off we go!') === null);
+    console.log('-- An unrendered line is null whoever asks for it');
+    check('an unrendered number falls back',   asNum('7 times 7?') === null);
+    check('an unrendered fact falls back',     asComp('Off we go!') === null);
+    check('and so does gibberish',             asComp('wombat') === null);
   }
 
   console.log(`\n${passed} passed, ${failed} failed`);

@@ -758,7 +758,18 @@
     @keyframes arrivalPlanet{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
     .arrival-title{color:#fff;font-size:clamp(1.25rem,5vw,1.7rem);font-weight:900;margin:2px 0 12px;text-shadow:0 3px 8px rgba(0,0,0,.4)}
     .arrival-fact-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.13);border:2px solid rgba(147,183,251,.4);border-radius:18px;padding:12px 14px;margin-bottom:16px}
-    .arrival-fact{flex:1;color:#eaf1ff;font-size:clamp(.95rem,3.6vw,1.08rem);font-weight:700;line-height:1.45;text-align:left}
+    .arrival-fact{flex:1;color:#eaf1ff;font-size:clamp(.95rem,3.6vw,1.08rem);font-weight:700;line-height:1.45;text-align:left;min-height:4.35em;animation:factIn .34s ease}
+    @keyframes factIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion: reduce){.arrival-fact{animation:none}}
+    .arrival-more-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+    /* Sized as a child's tap target first and a label second: 46px tall, which is why the
+       padding looks generous for the type size. */
+    .arrival-more{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;background:rgba(255,255,255,.16);border:2.5px solid rgba(147,183,251,.5);border-radius:50px;padding:10px 20px;font-family:inherit;font-size:.92rem;font-weight:900;color:#eaf1ff;cursor:pointer;box-shadow:0 4px 0 rgba(147,183,251,.32);transition:transform .1s}
+    .arrival-more:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(147,183,251,.32)}
+    .arrival-more img{width:21px;height:21px;object-fit:contain}
+    .arrival-fact-dots{display:flex;align-items:center;gap:6px}
+    .arrival-fact-dot{width:8px;height:8px;border-radius:50%;background:rgba(234,241,255,.26);transition:background .2s,transform .2s}
+    .arrival-fact-dot.on{background:#ffd54f;transform:scale(1.35)}
     .arrival-replay{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:50%;width:46px;height:46px;min-width:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 0 #93b7fb;color:#2f6df6;transition:transform .1s}
     .arrival-replay:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
     .arrival-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(160deg,#ffd54f,#f9a825);color:#5a2100;border:none;border-radius:50px;padding:13px 30px;font-family:inherit;font-size:1.15rem;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #c17900,0 10px 24px rgba(249,168,37,.35);transition:transform .1s}
@@ -1015,11 +1026,219 @@ const Sound = (() => {
       noise(c, n, .5, .05, 140, 900, .8);
       [[784, .4], [988, .5], [1175, .6], [1568, .72], [2093, .86]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .3, .16));
       for (let i = 0; i < 5; i++) noise(c, n + .42 + i * .11, .06, .03, 3200 + Math.random() * 2000, 1600, 3);
+    },
+    /* ── THE SHIP'S COMPUTER CLEARS ITS THROAT ──
+       Two 30 ms square blips a fifth apart, in front of every number the robot voice
+       reads. It is not decoration. Two voices in one game was rejected on 2026-08-20
+       because the seam was an accident — an answer that happened to be a times-table
+       product spoke in the rendered voice and its neighbour did not. The seam is now a
+       COSTUME: the companion talks, and the computer is heard switching on before it
+       reads a value out. Square, because the whole point is that it does not belong to
+       the same family as the eight musical cues above, and 50 ms apart so it reads as
+       data rather than as a chime. Alone in this module it sends nothing to the reverb
+       and no noise layer: a tail here would smear into the first digit, which is the one
+       word in the app that must arrive clean. */
+    readout() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 1568, 'square', n, .03, .032, 0, 0);
+      tone(c, 2093, 'square', n + .05, .03, .024, 0, 0);
+    },
+    /* A fact turning over, when the child taps for another one. Deliberately SMALLER
+       than ding() — three rising notes at half its gain and a third of its length —
+       because tapping to see more is curiosity, not achievement, and a cue as big as the
+       one for a correct answer would quietly tell the child that reading is worth as much
+       as counting. */
+    discover() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      [[1047, 0], [1319, .07], [1760, .15]].forEach(([f, t]) => tone(c, f, 'sine', n + t, .18, .075));
+      noise(c, n + .02, .05, .02, 4200, 2400, 3);
+    },
+    /* The gentlest thing in the module: one soft sine, no noise chip, a third of a tap.
+       It marks the fact panel changing under a finger and nothing more. */
+    reveal() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 1175, 'sine', n, .07, .04, 1480, .25);
+    },
+    /* ── ARRIVAL AMBIENCE ──
+       The one sustained sound in the app, and it exists only while the arrival card is
+       open. That boundary is the whole of why it is allowed: "silence belongs where they
+       are counting" (MENU MUSIC, 2026-08-20) is untouched, because this cannot sound on a
+       screen where anything is being counted.
+        Three detuned partials under a lowpass, plus a breath of band-passed noise, plus a
+       0.09 Hz LFO on the output gain so the bed moves instead of sitting perfectly still.
+       `root` and `cut` come from the stop, so Earth is warm and low and the Milky Way is
+       thin and high — the place is audible before the fact is read.
+        PEAK IS .03, and rendered offline it measures 0.033: a third of a tap (0.108) and an
+       eighth of ding() (0.263). It has to be that small, because the companion narrates
+       the fact over the top of it, and a bed loud enough to need ducking would need the
+       same polling machinery Music has, to serve a sound that lasts eight seconds.
+        The three stops measured, as zero crossings per second over the steady part: the
+       Moon 176, Earth 282, the Milky Way 543. A three-fold spread, which is the number
+       behind the claim that the place is audible.
+        Returns its own stop function rather than taking an id, because the caller is a
+       React effect and a cleanup closure is exactly what an effect wants. Calling it
+       twice is harmless — `stopped` latches. */
+    ambience(spec) {
+      if (_muted) return () => {};
+      const c = ctx();
+      if (!c) return () => {};
+      let b;
+      try {
+        b = bus(c);
+      } catch (e) {
+        return () => {};
+      }
+      const PEAK = .03,
+        FLOOR = .0001,
+        FADE = 1.2,
+        n = c.currentTime;
+      const root = spec && spec.root || 110,
+        cut = spec && spec.cut || 620;
+      const parts = [];
+      try {
+        const g = c.createGain();
+        g.gain.setValueAtTime(FLOOR, n);
+        g.gain.exponentialRampToValueAtTime(PEAK, n + FADE);
+        const lp = c.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = cut;
+        lp.Q.value = .7;
+        lp.connect(g);
+        g.connect(b.dry);
+        const sg = c.createGain();
+        sg.gain.value = .55;
+        g.connect(sg);
+        sg.connect(b.rev);
+        [[1, 'triangle', .5], [1.5, 'sine', .2], [2.005, 'sine', .13]].forEach(([mult, type, vol]) => {
+          const o = c.createOscillator();
+          o.type = type;
+          o.frequency.value = root * mult;
+          const og = c.createGain();
+          og.gain.value = vol;
+          o.connect(og);
+          og.connect(lp);
+          o.start(n);
+          parts.push(o);
+        });
+        /* Stardust. Two seconds of noise on loop is cheaper than scheduling bursts for a
+           sound whose length nobody knows in advance. */
+        const rate = c.sampleRate,
+          len = rate * 2,
+          buf = c.createBuffer(1, len, rate),
+          d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        const bf = c.createBiquadFilter();
+        bf.type = 'bandpass';
+        bf.frequency.value = cut * 3.2;
+        bf.Q.value = .9;
+        const ng = c.createGain();
+        ng.gain.value = .05;
+        src.connect(bf);
+        bf.connect(ng);
+        ng.connect(g);
+        src.start(n);
+        parts.push(src);
+        const lfo = c.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = .09;
+        const la = c.createGain();
+        la.gain.value = PEAK * .34;
+        lfo.connect(la);
+        la.connect(g.gain);
+        lfo.start(n);
+        parts.push(lfo);
+        let stopped = false;
+        return () => {
+          if (stopped) return;
+          stopped = true;
+          const t = c.currentTime;
+          /* FADE FROM A COMPUTED LEVEL, NEVER FROM g.gain.value — and this is the one
+             thing in the cue that was measurably wrong. cancelScheduledValues() drops the
+             ramps, and the getter then falls back to the param's INTRINSIC value, which is
+             1: this gain was only ever driven by scheduled events, so nothing ever set it.
+             So "fade from wherever we are" set it to full scale first. Rendered offline it
+             peaked at 0.68 — twenty times the bed's own level — a bang, in the exact case a
+             child hits by tapping Keep Flying the moment the card opens. Measured
+             2026-08-21.
+             The fade-in is an exponential from FLOOR to PEAK over FADE, so its value at
+             any instant is closed-form; computing it is exact and needs no getter. */
+          try {
+            const el = Math.max(0, Math.min(1, (t - n) / FADE));
+            const from = Math.max(FLOOR, FLOOR * Math.pow(PEAK / FLOOR, el));
+            g.gain.cancelScheduledValues(t);
+            g.gain.setValueAtTime(from, t);
+            g.gain.exponentialRampToValueAtTime(FLOOR, t + .7);
+          } catch (e) {}
+          parts.forEach(o => {
+            try {
+              o.stop(t + .8);
+            } catch (e) {}
+          });
+        };
+      } catch (e) {
+        parts.forEach(o => {
+          try {
+            o.stop();
+          } catch (e2) {}
+        });
+        return () => {};
+      }
     }
   };
 })();
 
-/* ══ VOICE (Web Speech) ══ */
+/* ══ VOICE ══
+   ── TWO ROLES, AND WHY THAT IS NOT THE THING WE REJECTED ──
+
+   Owner decision, 2026-08-21. It replaces the rule of 2026-08-20 — "a mode is either
+   fully voiced or fully robot, never both" — and it is worth being precise about what
+   changed, because the old conclusion is written down in three places and an agent who
+   reads only the conclusion will revert this.
+
+   What was rejected was a seam that fell WHERE THE DATA HAPPENED TO LAND. `${answer}!`
+   matched the bare-number clips, and those clips are the 152 distinct products of two
+   numbers up to 20 — so in Carry Add roughly half the answers spoke in the rendered
+   voice and half in the browser's, decided by whether the child's answer happened to be
+   a times-table product. That is not two voices; that is one voice with a fault.
+
+   What is here instead is a CAST. Two roles, assigned by what a line IS, never by which
+   clip we happen to own:
+
+     COMPANION  the character travelling with the child. Instructions, encouragement,
+                reactions, hints, arrival lines, planet facts, praise. Fixed strings, so
+                the whole set is enumerable and renderable, and it resolves to the
+                rendered voice IN EVERY MODE — which is the capability this unlocks.
+
+     ROBOT      the ship's computer reading a value out. Numbers and the sentences that
+                are nothing but arithmetic. Unbounded, so it can never be fully rendered,
+                and it does not need to be: flat, low, and announced by Sound.readout().
+
+   THE ONE HARD RULE: the seam only ever falls at a SENTENCE boundary. Never inside one.
+   Splicing a number clip onto the end of a rendered phrase was rejected on its own
+   merits — a number at the end of a spoken sentence falls in pitch and a standalone clip
+   is flat, so the join is audible — and nothing here does it. A mixed sentence such as
+   "Can you build 47?" stays whole and belongs to the companion; it is her line, with a
+   number in it, not two lines glued together.
+
+   Numbers still play in the rendered voice in the two modes where the entire number
+   space was bought and verified (see Clips's VOICED set), so the 965 clips already paid
+   for are not thrown away. A child in Times Tables therefore hears one voice and a child
+   in Carry Add hears two. That is a screen change, not a flip inside a sentence, and it
+   is the same accepted edge already documented for the home-screen card names. */
+const ROBOT = 'robot',
+  COMPANION = 'companion';
 const Voice = {
   muted: false,
   /* Bumped by every new request. Every callback in a running chain checks it before it
@@ -1068,6 +1287,13 @@ const Voice = {
     }
   },
   RATE: .95,
+  /* The robot is slower and much lower than the companion, and both numbers were chosen
+     to be unmistakable rather than subtle: a listener has to know within one syllable
+     which of the two is speaking, or the split reads as a glitch. Slower also genuinely
+     helps, because what this voice says is digits. */
+  RATE_ROBOT: .86,
+  PITCH: 1.15,
+  PITCH_ROBOT: .7,
   /* The gap after the FIRST line is the long one: that line is the number the child
      just typed, and it is the one the owner reported never lands. Later seams are
      shorter so the praise does not feel like it arrives in the next post. Both sit
@@ -1078,13 +1304,19 @@ const Voice = {
      itself speaking. Generous on purpose — see advance()'s `queued` path for what
      giving up costs. */
   POLL_MAX: 24,
-  utterance(text) {
+  utterance(text, role) {
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = this.RATE;
-    u.pitch = 1.15;
+    const robot = role === ROBOT;
+    u.rate = robot ? this.RATE_ROBOT : this.RATE;
+    u.pitch = robot ? this.PITCH_ROBOT : this.PITCH;
     u.lang = 'en-US';
     return u;
   },
+  /* The blip has to CLEAR before the first digit does, and on the opening line of a
+     chain there is no gap in front of it to hide in. 140 ms is the cue's 80 ms plus
+     room. Anywhere else in a chain the blip replaces the seam tick at the top of a
+     380 ms gap and costs nothing at all. */
+  LEAD_ROBOT: 140,
   _reset() {
     this.gen++;
     if (this._t) {
@@ -1115,10 +1347,19 @@ const Voice = {
     this._pending = null;
     this._reset();
   },
-  say(text) {
+  /* `role` defaults to COMPANION, and that default is the safe direction: a line nobody
+     tagged is spoken by the character in her own voice, exactly as every line was before
+     this change. Forgetting to tag a number costs the console blip, not a bug. */
+  say(part, role) {
     this._pending = null;
     if (this.muted) return;
-    const src = Clips.url(text);
+    /* Accepts either a bare string plus an optional role, or the tagged object `num()`
+       returns — so one spelling marks a robot line everywhere, whether it is a lone
+       readout or one line of a chain. */
+    const tagged = part && typeof part === 'object';
+    const text = tagged ? part.t : part;
+    const r = (tagged ? part.r : role) === ROBOT ? ROBOT : COMPANION;
+    const src = Clips.url(text, r);
     if (src) {
       this._reset();
       const a = new Audio(src);
@@ -1136,21 +1377,37 @@ const Voice = {
       const s = window.speechSynthesis;
       if (!s) return;
       this._reset();
-      s.speak(this.utterance(text));
+      if (r === ROBOT) {
+        /* `_t` is the chain's one timer slot and say() has no chain, so it is free — and
+           holding it also makes busy() true across the lead-in, which is correct:
+           something IS about to be said, and a mascot poke must not land on top of it. */
+        const V = this,
+          gen = this.gen;
+        Sound.readout();
+        this._t = setTimeout(() => {
+          if (gen !== V.gen || V.muted) return;
+          V._t = 0;
+          try {
+            window.speechSynthesis.speak(V.utterance(text, ROBOT));
+          } catch (e) {}
+        }, this.LEAD_ROBOT);
+        return;
+      }
+      s.speak(this.utterance(text, r));
     } catch (e) {}
   },
   /* Rough spoken length, used only by the safety net below. Digits are read as whole
      words — "26" is "twenty six" — so a character count badly under-counts these
      lines, which are mostly numbers. One word per digit, one per ordinary word,
      ~330 ms a word at rate 1. */
-  _estimate(text) {
+  _estimate(text, role) {
     let words = 0;
-    String(text).trim().split(/\s+/).forEach(w => {
+    String(text).trim().split(/\\s+/).forEach(w => {
       if (!w) return;
-      const d = (w.match(/\d/g) || []).length;
+      const d = (w.match(/\\d/g) || []).length;
       words += d || 1;
     });
-    return 350 + words * 330 / this.RATE;
+    return 350 + words * 330 / (role === ROBOT ? this.RATE_ROBOT : this.RATE);
   },
   /* Several short lines instead of one long string, spoken one at a time with a real
      gap between them.
@@ -1171,8 +1428,33 @@ const Voice = {
     const done = this._pending;
     this._pending = null;
     if (this.muted) return;
-    const list = parts.filter(Boolean).map(t => String(t).trim()).filter(Boolean);
+    /* A part is either a plain string — the companion, as every call site meant before
+       roles existed — or `num('47!')`, which tags it for the ship's computer. Nulls are
+       dropped first, because several call sites pass `arrived?null:praise()`. */
+    const list = parts.filter(Boolean).map(part => {
+      const o = typeof part === 'string' ? {
+        t: part,
+        r: COMPANION
+      } : part;
+      const t = String(o && o.t != null ? o.t : '').trim();
+      return t ? {
+        t,
+        r: o.r === ROBOT ? ROBOT : COMPANION
+      } : null;
+    }).filter(Boolean);
     if (!list.length) return;
+    /* Resolved once, up front, because two separate decisions need the answer: which
+       engine speaks the line, and which tick marks the join in front of it. Asking twice
+       invites the two to disagree. */
+    list.forEach(l => {
+      l.src = Clips.url(l.t, l.r);
+    });
+    /* The long gap goes after the line that has to LAND, and roles moved which line that
+       is. It used to be line one, because line one was always the number the child had
+       just typed. Line one is now usually the companion reacting and the number is line
+       two, so the rule follows the role instead of the position: a value read out gets
+       the long gap after it, and so does the opening line whatever it is. */
+    const gapAfter = i => i === 0 || list[i].r === ROBOT ? this.GAP_FIRST : this.GAP_REST;
     let s;
     try {
       s = window.speechSynthesis;
@@ -1213,12 +1495,17 @@ const Voice = {
           speakFrom(i + 1);
           return;
         }
-        Sound.seam();
+        /* WHICH tick, because the tick now announces who speaks next. A line the robot
+           will actually deliver gets the console blip; everything else — including a
+           number that resolved to a rendered clip, which is the companion's own voice —
+           gets the neutral seam. */
+        const nxt = list[i + 1];
+        if (nxt.r === ROBOT && !nxt.src) Sound.readout();else Sound.seam();
         V._t = setTimeout(() => {
           if (!live()) return;
           V._t = 0;
           speakFrom(i + 1);
-        }, i === 0 ? V.GAP_FIRST : V.GAP_REST);
+        }, gapAfter(i));
       };
       const net = () => {
         if (settled || !live()) return;
@@ -1244,7 +1531,7 @@ const Voice = {
          needs none of it, and deliberately schedules no timer.
          A clip that fails to load advances the chain rather than stalling it, which is
          the same contract as u.onerror on the speech path below. */
-      const src = Clips.url(list[i]);
+      const src = list[i].src;
       if (src) {
         const a = new Audio(src);
         V._a = a;
@@ -1260,23 +1547,45 @@ const Voice = {
       }
       let u;
       try {
-        u = V.utterance(list[i]);
+        u = V.utterance(list[i].t, list[i].r);
       } catch (e) {
         advance(false);
         return;
       }
-      u.onend = () => advance(false);
-      u.onerror = () => advance(false); // a dropped line must not stall the chain
-      V._t = setTimeout(net, V._estimate(list[i]) + 400);
-      try {
-        s.speak(u);
-      } catch (e) {
-        advance(false);
+      const go = () => {
+        u.onend = () => advance(false);
+        u.onerror = () => advance(false); // a dropped line must not stall the chain
+        V._t = setTimeout(net, V._estimate(list[i].t, list[i].r) + 400);
+        try {
+          s.speak(u);
+        } catch (e) {
+          advance(false);
+        }
+      };
+      /* Only the OPENING line needs its own lead-in; every later robot line already has
+         a 380 ms gap in front of it with the blip at the top of it. */
+      if (i === 0 && list[i].r === ROBOT) {
+        Sound.readout();
+        V._t = setTimeout(() => {
+          if (!live()) return;
+          V._t = 0;
+          go();
+        }, V.LEAD_ROBOT);
+        return;
       }
+      go();
     };
     speakFrom(0);
   }
 };
+/* Tag a line for the ship's computer. Deliberately three characters long and used at
+   every call site that speaks a value, because the alternative — sniffing the text for
+   digits — would guess wrong on "Can you build 47?" and split a sentence that must stay
+   whole. The role is a decision about the line, so it is stated where the line is written. */
+const num = t => ({
+  t,
+  r: ROBOT
+});
 const PRAISE = ['Blast off!', 'Out of this world!', 'You did it!', 'Stellar!', 'Super nova!', 'Mission complete!'];
 const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
 
@@ -1345,6 +1654,28 @@ const Clips = (() => {
      screen and then drops into a game that may be all-robot. That is a screen change,
      not a flip inside a sentence, and the card name belongs to the home screen. */
   const VOICED = new Set([null, 'm1', 's1']);
+  /* ══ WHAT THE MODE GATE ACTUALLY GUARDS — REVISED 2026-08-21 ══
+     The gate above used to apply to every line. It no longer does, and the distinction
+     it now draws is the entire safety argument for the two-voice split:
+        EXACT MATCHES resolve in EVERY mode. `texts` is emitted from the manifest that was
+       rendered, so an entry existing is proof that we chose that exact sentence, paid for
+       it, and encoded it. There is no unbounded space behind it and nothing to be
+       surprised by. This is what lets the companion keep her own voice in Carry Add.
+        PATTERN MATCHES stay behind the gate, unchanged. `tt-n-*` is 152 arbitrary
+       products, `tt-q/tt-a` are 400 facts, and outside m1 and s1 an ordinary arithmetic
+       answer hits one only by coincidence — which is exactly the bug of 2026-08-20.
+      So: the companion asks for a line by its text and gets it anywhere; the robot asks
+     for a number and gets a file only in the two modes where the whole number space was
+     bought and verified. */
+  const exactFor = text => {
+    const s = String(text).trim();
+    if (texts && texts[s]) return texts[s];
+    /* Praise is positional rather than mapped, because the strings are skin-specific —
+       see PRAISE above — and it is the companion's line in every mode that can say it. */
+    const p = PRAISE.indexOf(s);
+    if (p >= 0) return PRAISE_PREFIX + (p + 1);
+    return null;
+  };
   let mode = null;
   const idFor = text => {
     const s = String(text).trim();
@@ -1389,11 +1720,13 @@ const Clips = (() => {
     setMode(key) {
       mode = key || null;
     },
-    /* null means "no file for this line" — the caller falls back to the engine. */
-    url(text) {
+    /* null means "no file for this line" — the caller falls back to the engine.
+       `role` is COMPANION unless the caller says otherwise, and an unrecognised role is
+       treated as the companion: the failure mode of guessing wrong here is a fixed string
+       that stays on the engine, not a number that reaches for a clip it should not have. */
+    url(text, role) {
       if (!have) return null;
-      if (!VOICED.has(mode)) return null;
-      const id = idFor(text);
+      const id = role === 'robot' ? VOICED.has(mode) ? idFor(text) : null : exactFor(text);
       return id && have[id] ? ROOT + have[id] + '/' + id + '.m4a' : null;
     }
   };
@@ -1572,8 +1905,27 @@ const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 /* ── THE SPACE JOURNEY ──
    Every correct answer flies the rocket one step further.
    Every LEG_LEN steps the rocket arrives somewhere new: the game background
-   changes to that place and a one-sentence fact is read aloud (Usborne style).
-   Finishing the whole journey earns a trophy, then a new journey begins. */
+   changes to that place and a fact is read aloud (Usborne style).
+   Finishing the whole journey earns a trophy, then a new journey begins.
+
+   ── FACTS ARE A LIST, NOT A LINE — owner request, 2026-08-21 ──
+   A stop is meant to be a small reward, and a reward that says the same sentence every
+   time stops being one. Thirty correct answers is a long way for a five-year-old, and
+   the child who gets there four times has heard about Mars's rusty dust four times.
+
+   So each stop carries several, ONE IS SHOWN AT A TIME, and the arrival card offers a
+   tap for another. Showing all four at once would turn the reward into a page of text,
+   which is the opposite of the intent, and would also make the card unreadable to the
+   pre-reader it is aimed at — the facts are written to be HEARD.
+
+   THE FIRST FACT OF EACH STOP IS UNCHANGED, DOWN TO THE PUNCTUATION, and that is not
+   conservatism: `sh-fact-0` .. `sh-fact-6` are already rendered, and the resolver matches
+   on exact text. Reword one and its clip is orphaned — paid for, shipped, and silent —
+   and a replacement has to be bought. Only the new facts cost anything.
+
+   `amb` is the arrival ambience: a root frequency and a filter cutoff, low and warm at
+   Earth, thin and high out at the Milky Way, so the place is audible before the fact is
+   read. See Sound.ambience(). */
 const LEG_LEN = 5;
 const JOURNEY_STOPS = [{
   id: 'earth',
@@ -1581,50 +1933,106 @@ const JOURNEY_STOPS = [{
   title: 'Earth',
   icon: 'assets-runtime/space/icons/earth.webp',
   bg: 'assets-runtime/space/bg-earth.webp',
-  fact: 'Earth is our home planet — the only place we know with oceans, trees and you!'
+  amb: {
+    root: 96,
+    cut: 520
+  },
+  facts: ['Earth is our home planet — the only place we know with oceans, trees and you!', 'Earth spins all the way round once every day. That is what makes morning and night!', 'Water covers most of the Earth. From space, our planet looks blue!', 'Earth has a blanket of air all around it, and that air is what you breathe.']
 }, {
   id: 'moon',
   name: 'the Moon',
   title: 'The Moon',
   icon: 'assets-runtime/space/icons/moon.webp',
   bg: 'assets-runtime/space/bg-moon.webp',
-  fact: 'Footprints on the Moon never blow away, because the Moon has no wind at all!'
+  amb: {
+    root: 74,
+    cut: 380
+  },
+  facts: ['Footprints on the Moon never blow away, because the Moon has no wind at all!', 'The Moon has no light of its own. It shines because the Sun shines on it!', 'On the Moon you would weigh much less, so you could jump ever so high!', 'The Moon goes round and round the Earth, like a friend who never leaves.']
 }, {
   id: 'mars',
   name: 'Mars',
   title: 'Mars',
   icon: 'assets-runtime/space/icons/mars.webp',
   bg: 'assets-runtime/space/bg-mars.webp',
-  fact: 'Mars is called the Red Planet, because it is covered in rusty red dust!'
+  amb: {
+    root: 108,
+    cut: 460
+  },
+  facts: ['Mars is called the Red Planet, because it is covered in rusty red dust!', 'Mars has two little moons. They are called Phobos and Deimos!', 'The biggest volcano in the whole solar system is on Mars. Its name is Olympus Mons!', 'Robots from Earth are driving about on Mars, taking photographs of the dust.']
 }, {
   id: 'belt',
   name: 'the Asteroid Belt',
   title: 'The Asteroid Belt',
   icon: 'assets-runtime/space/icons/asteroid.webp',
   bg: 'assets-runtime/space/bg-asteroids.webp',
-  fact: 'The asteroid belt is full of giant space rocks, all tumbling around the Sun!'
+  amb: {
+    root: 82,
+    cut: 700
+  },
+  facts: ['The asteroid belt is full of giant space rocks, all tumbling around the Sun!', 'The asteroid belt sits between Mars and Jupiter, like a ring of rubble.', 'The biggest rock in the belt is called Ceres, and it is round like a little planet!', 'The rocks are so far apart that a spaceship flies straight through without bumping one!']
 }, {
   id: 'jupiter',
   name: 'Jupiter',
   title: 'Jupiter',
   icon: 'assets-runtime/space/icons/jupiter.webp',
   bg: 'assets-runtime/space/bg-jupiter.webp',
-  fact: 'Jupiter is the biggest planet of all — one thousand Earths could fit inside it!'
+  amb: {
+    root: 62,
+    cut: 340
+  },
+  facts: ['Jupiter is the biggest planet of all — one thousand Earths could fit inside it!', 'Jupiter has a storm called the Great Red Spot, and it is wider than the whole Earth!', 'Jupiter is not solid like Earth. It is an enormous ball of swirling gas!', 'Jupiter has a crowd of moons going round it — more than ninety of them!']
 }, {
   id: 'saturn',
   name: 'Saturn',
   title: 'Saturn',
   icon: 'assets-runtime/space/icons/saturn.webp',
   bg: 'assets-runtime/space/bg-saturn.webp',
-  fact: 'Saturn’s beautiful rings are made of billions of pieces of sparkling ice!'
+  amb: {
+    root: 128,
+    cut: 900
+  },
+  facts: ['Saturn’s beautiful rings are made of billions of pieces of sparkling ice!', 'Saturn is so light for its size that it would float in a giant bath of water!', 'A day on Saturn is short. It spins all the way round in about ten hours!', 'Saturn’s biggest moon is called Titan, and it has rivers — but not rivers of water!']
 }, {
   id: 'galaxy',
   name: 'the Milky Way',
   title: 'The Milky Way',
   icon: 'assets-runtime/space/icons/swirl-gold.webp',
   bg: 'assets-runtime/space/bg-galaxy.webp',
-  fact: 'Our galaxy is called the Milky Way — it has more stars than you could ever count!'
+  amb: {
+    root: 148,
+    cut: 1200
+  },
+  facts: ['Our galaxy is called the Milky Way — it has more stars than you could ever count!', 'Our Sun is just one star in the Milky Way, and there are billions more!', 'From far away, the Milky Way looks like an enormous spinning pinwheel of stars.', 'Earth, the Moon, Mars, Saturn — everywhere you have been today lives inside the Milky Way!']
 }];
+/* Which fact a stop shows first, remembered across sessions and advanced on every
+   arrival. In localStorage rather than in React state because the point is the SECOND
+   visit: a counter that resets when the app closes would show fact one every time, which
+   is the behaviour this replaces. A stored value out of range is clamped rather than
+   trusted — the facts list is allowed to get shorter. */
+const FactCursor = (() => {
+  const KEY = 'sm_facts';
+  const read = () => {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || '{}') || {};
+    } catch (e) {
+      return {};
+    }
+  };
+  return {
+    next(stop) {
+      const st = read(),
+        n = stop.facts.length;
+      let i = parseInt(st[stop.id], 10);
+      if (!(i >= 0 && i < n)) i = 0;
+      st[stop.id] = (i + 1) % n;
+      try {
+        localStorage.setItem(KEY, JSON.stringify(st));
+      } catch (e) {}
+      return i;
+    }
+  };
+})();
 const JOURNEY_LEGS = JOURNEY_STOPS.length - 1;
 const JOURNEY_TOTAL = LEG_LEN * JOURNEY_LEGS;
 const CONFETTI_C = ['#40c4ff', '#82b1ff', '#7c4dff', '#b388ff', '#ffd54f', '#fff176', '#4fc3f7', '#8c9eff', '#ff9e40', '#fff', '#80d8ff', '#c5cae9'];
@@ -2787,13 +3195,56 @@ function ScoreRow({
   }), /*#__PURE__*/React.createElement("span", null, trophies)));
 }
 
-/* ══ PLANET ARRIVAL (Usborne moment) ══ */
+/* ══ PLANET ARRIVAL (Usborne moment) ══
+   One fact at a time, and a tap for another. Everything about this card is aimed at a
+   child who cannot read it: the fact is spoken as it appears, the replay button is a
+   speaker rather than the word "again", and how many facts are left is a row of dots
+   rather than "2 of 4".
+
+   THE FACT PANEL RESERVES THREE LINES whether it needs them or not. Facts differ in
+   length, and without the reservation "Keep Flying!" walks up and down the card under a
+   finger that is tapping "Another fact!" — which is how a child ends the reward moment by
+   accident. A little empty space under a short fact is the cheaper mistake. */
 function ArrivalOverlay({
   stopIdx,
+  factIdx,
   complete,
+  muted,
   onClose
 }) {
   const stop = JOURNEY_STOPS[stopIdx];
+  const [i, setI] = useState(() => factIdx >= 0 && factIdx < stop.facts.length ? factIdx : 0);
+  const fact = stop.facts[i];
+  /* The ambience lives exactly as long as this card does, and that boundary is what keeps
+     it clear of "silence belongs where they are counting": it cannot sound on a screen
+     where anything is being counted. `muted` is in the deps because Sound's own guard only
+     stops cues that have not started — a drone already running has to be told. */
+  useEffect(() => {
+    if (muted) return;
+    return Sound.ambience(stop.amb);
+  }, [stopIdx, muted]);
+  /* The discovery cue belongs to the fact CHANGING, not to the button, so it fires here
+     rather than in the handler — and not on the first render, where Sound.arrive() has
+     just played and a second flourish on top of it would be clutter. */
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    Sound.discover();
+  }, [i]);
+  /* The next index comes from a ref, not from `i`, because two taps inside one frame
+     read the same `i` and compute the same next fact — so the panel advances once and the
+     companion says the same sentence twice. React batches; a ref does not. */
+  const shown = useRef(i);
+  const nextFact = () => {
+    Sound.reveal();
+    const n = (shown.current + 1) % stop.facts.length;
+    shown.current = n;
+    setI(n);
+    Voice.say(stop.facts[n]);
+  };
   return /*#__PURE__*/React.createElement("div", {
     className: "arrival-overlay"
   }, /*#__PURE__*/React.createElement(Confetti, {
@@ -2822,11 +3273,26 @@ function ArrivalOverlay({
     "aria-label": "Hear it again",
     onClick: () => {
       Sound.tap();
-      Voice.say(stop.fact);
+      Voice.say(fact);
     }
   }, /*#__PURE__*/React.createElement(SpeakerOnIcon, null)), /*#__PURE__*/React.createElement("div", {
-    className: "arrival-fact"
-  }, stop.fact)), /*#__PURE__*/React.createElement("button", {
+    className: "arrival-fact",
+    key: i
+  }, fact)), stop.facts.length > 1 && /*#__PURE__*/React.createElement("div", {
+    className: "arrival-more-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "arrival-more",
+    onClick: nextFact
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets-runtime/space/icons/sparkle-gold.webp",
+    alt: ""
+  }), "Another fact!"), /*#__PURE__*/React.createElement("div", {
+    className: "arrival-fact-dots",
+    "aria-hidden": "true"
+  }, stop.facts.map((f, k) => /*#__PURE__*/React.createElement("span", {
+    key: k,
+    className: `arrival-fact-dot${k === i ? ' on' : ''}`
+  })))), /*#__PURE__*/React.createElement("button", {
     className: "arrival-btn",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("img", {
@@ -3320,7 +3786,7 @@ function BlocksGuided({
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
       const arrived = addProgress();
-      Voice.lines([`You found it! ${correctNumber}!`, arrived ? null : praise()]);
+      Voice.lines([arrived ? null : praise(), 'You found it!', num(`${correctNumber}!`)]);
       setScore(s => s + 1);
       setTimeout(() => setConf(false), 2600);
     }
@@ -3507,7 +3973,7 @@ function BlocksFill({
     });
   }, [won]);
   useEffect(() => {
-    Voice.say(`Can you build ${target}?`);
+    Voice.say(num(`Can you build ${target}?`));
   }, [target]);
   const overRef = useRef(false);
   useEffect(() => {
@@ -3527,7 +3993,7 @@ function BlocksFill({
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
     const arrived = addProgress();
-    Voice.lines([`You built ${target}!`, arrived ? null : praise()]);
+    Voice.lines([arrived ? null : praise(), 'You built it!', num(`${target}!`)]);
     setScore(s => s + 1);
     setTimeout(() => setConf(false), 2600);
   }, [built, target, won, muted, setScore, addProgress]);
@@ -3857,7 +4323,7 @@ function MissingSide({
     const n = counted >= up ? down : up;
     onCount(n);
     // Silent when they have just un-counted the last block: there is no number to say.
-    if (n > 0) Voice.say(String(n));
+    if (n > 0) Voice.say(num(String(n)));
   };
   const cells = [];
   let gi0 = 0;
@@ -4087,7 +4553,10 @@ function MissingGame({
       Voice.say('Count each side. Tap a row to count ten!');
       return;
     }
-    Voice.say(missingQuestion(problem, preset.show));
+    /* The blocks rung's question names no numbers, so it stays the companion's; the
+       other four are nothing but numbers and belong to the console. */
+    const q = missingQuestion(problem, preset.show);
+    Voice.say(preset.show === 'blocks' ? q : num(q));
   }, [problem, showSettings, preset, counting]);
 
   /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
@@ -4103,7 +4572,7 @@ function MissingGame({
     setFilled(n);
     const building = (gapOnLeft ? msGiven(layout.left) : msGiven(layout.right)) + n;
     const other = gapOnLeft ? rightTotal : leftTotal;
-    if (n > 0 && building !== other) Voice.say(String(building));
+    if (n > 0 && building !== other) Voice.say(num(String(building)));
   }, [won, muted, filled, layout, gapOnLeft, leftTotal, rightTotal]);
   useEffect(() => {
     if (won || filled === 0 || !balanced) return;
@@ -4114,7 +4583,7 @@ function MissingGame({
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
     const arrived = addProgress();
-    Voice.lines([`${problem.answer}!`, missingSentence(problem), arrived ? null : praise()]);
+    Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(missingSentence(problem))]);
     setScore(s => s + 1);
     setTimeout(() => setConf(false), 2600);
   }, [balanced, filled, won, muted, problem, setScore, addProgress]);
@@ -4306,8 +4775,12 @@ function NumberLineAddSub({
   useEffect(() => {
     setMisses(0);
   }, [prob]);
+  /* Two sentences, two speakers: the console states the sum, the companion says what to
+     do about it. Said as one utterance it was one breathless run anyway — punctuation
+     inside an utterance buys almost no pause — so the split also gives the numbers the
+     same room the answer chain already gets. */
   useEffect(() => {
-    Voice.say(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount}. Hop to the answer!`);
+    Voice.lines([num(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount}.`), 'Hop to the answer!']);
   }, [prob]);
   const tap = useCallback(n => {
     Sound.setMuted(muted);
@@ -4318,7 +4791,7 @@ function NumberLineAddSub({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       const arrived = addProgress();
-      Voice.lines([`${prob.answer}!`, `${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}.`, arrived ? null : praise()]);
+      Voice.lines([arrived ? null : praise(), num(`${prob.answer}!`), num(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}.`)]);
       setScore(s => s + 1);
       setTimeout(() => setConf(false), 2500);
     } else {
@@ -4644,15 +5117,15 @@ function solveColumns(op, a, b, colCount) {
     for (let j = colCount - 1; j >= 0; j--) {
       const s = A[j] + B[j] + carry;
       ans[j] = String(s % 10);
-      hintAns[j] = A[j] === 0 && B[j] === 0 && carry === 1 ? ['Just the one you carried.', 'Write the one.'] : [`${A[j]} and ${B[j]}${carry ? ` and ${carry} more` : ''} is ${s}.`, `Write the ${s % 10}.`];
+      hintAns[j] = A[j] === 0 && B[j] === 0 && carry === 1 ? ['Just the one you carried.', 'Write the one.'] : [num(`${A[j]} and ${B[j]}${carry ? ` and ${carry} more` : ''} is ${s}.`), num(`Write the ${s % 10}.`)];
       const out = s > 9 ? 1 : 0;
       if (j - 1 >= 0) {
         marks[j - 1] = String(out);
         /* The ask never names the sum, so it cannot give the answer away — "did you
            make a ten" is the whole question, and it is the same question every time. */
         askMark[j - 1] = ['Little box. Did you make a ten?', 'One for yes. Zero for no.'];
-        sayMark[j - 1] = out ? [`${s} is too big for one box.`, 'Carry the ten next door!'] : null;
-        hintMark[j - 1] = out ? [`${s} is too big for one box.`, 'Type one.'] : [`${s} fits in one box.`, 'Nothing to carry.', 'Type zero.'];
+        sayMark[j - 1] = out ? [num(`${s} is too big for one box.`), 'Carry the ten next door!'] : null;
+        hintMark[j - 1] = out ? [num(`${s} is too big for one box.`), 'Type one.'] : [num(`${s} fits in one box.`), 'Nothing to carry.', 'Type zero.'];
       }
       carry = out;
     }
@@ -4662,11 +5135,11 @@ function solveColumns(op, a, b, colCount) {
       /* Asked BEFORE this column is worked, and T[j] has already taken any decrement
          from the column to its right, so the two numbers named are the two the child is
          actually looking at. */
-      if (j >= 1) askMark[j] = [`Little box. Can you take ${B[j]} away from ${T[j]}?`, 'No is one. Yes is zero.'];
+      if (j >= 1) askMark[j] = [num(`Little box. Can you take ${B[j]} away from ${T[j]}?`), 'No is one. Yes is zero.'];
       if (T[j] < B[j]) {
         marks[j] = '1';
-        sayMark[j] = [`${T[j]} is too small.`, 'Take one from next door.', `Now it is ${T[j] + 10}.`];
-        hintMark[j] = [`${T[j]} is smaller than ${B[j]}.`, 'You need one from next door.', 'Type one.'];
+        sayMark[j] = [num(`${T[j]} is too small.`), 'Take one from next door.', num(`Now it is ${T[j] + 10}.`)];
+        hintMark[j] = [num(`${T[j]} is smaller than ${B[j]}.`), 'You need one from next door.', 'Type one.'];
         let k = j - 1;
         while (k >= 0 && T[k] === 0) {
           T[k] = 9;
@@ -4675,10 +5148,10 @@ function solveColumns(op, a, b, colCount) {
         if (k >= 0) T[k] -= 1;
         T[j] += 10;
       } else if (j >= 1) {
-        hintMark[j] = [`${B[j]} fits in ${T[j]}.`, 'You do not need one.', 'Type zero.'];
+        hintMark[j] = [num(`${B[j]} fits in ${T[j]}.`), 'You do not need one.', 'Type zero.'];
       }
       ans[j] = String(T[j] - B[j]);
-      hintAns[j] = [`${T[j]} take away ${B[j]} is ${T[j] - B[j]}.`];
+      hintAns[j] = [num(`${T[j]} take away ${B[j]} is ${T[j] - B[j]}.`)];
     }
   }
   return {
@@ -4852,7 +5325,7 @@ const COLUMN_MODES = {
     title: 'Carry Add',
     sub: 'Carry the one!',
     opWord: 'plus',
-    intro: 'Carry adding',
+    intro: 'Carry adding!',
     presets: COLUMN_ADD_HARD_PRESETS,
     fits: (a, b, hot, r) => {
       const n = carryCount(a, b);
@@ -4867,7 +5340,7 @@ const COLUMN_MODES = {
     title: 'Take Away',
     sub: 'Tap the answer!',
     opWord: 'take away',
-    intro: 'Taking away',
+    intro: 'Taking away!',
     presets: COLUMN_SUB_PRESETS,
     fits: (a, b) => b < a && subInfo(a, b).count === 0
   },
@@ -4879,7 +5352,7 @@ const COLUMN_MODES = {
     title: 'Borrow Take Away',
     sub: 'Borrow one!',
     opWord: 'take away',
-    intro: 'Borrowing',
+    intro: 'Borrowing!',
     presets: COLUMN_SUB_HARD_PRESETS,
     /* Exactly one borrow at most, and never across a zero. Two borrows can put a
        cross-out AND a little 1 on the same column (312-29), and a cascade puts three
@@ -4963,7 +5436,7 @@ function ColumnAdd({
     setMisses(0);
   }, []);
   useEffect(() => {
-    Voice.say(`${problem.a} plus ${problem.b}. Tap the answer!`);
+    Voice.lines([num(`${problem.a} plus ${problem.b}.`), 'Tap the answer!']);
   }, [problem]);
   const next = useCallback(() => {
     resetForProblem(makeColumnAddProblem(preset));
@@ -5004,7 +5477,7 @@ function ColumnAdd({
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
       const arrived = addProgress();
-      Voice.lines([`${problem.answer}!`, `${problem.a} plus ${problem.b} is ${problem.answer}.`, arrived ? null : praise()]);
+      Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.a} plus ${problem.b} is ${problem.answer}.`)]);
       setScore(s => s + 1);
       setTimeout(() => setConf(false), 2500);
     } else {
@@ -5221,7 +5694,7 @@ function ColumnMath({
     const ask = s.kind === 'mark' ? solution.askMark[s.col] : null;
     /* When the very first box is a little box (every c4 problem), the ask IS the
        instruction, so "start with the glowing box" would only make the opening longer. */
-    const open = cursor === 0 ? [`${cfg.intro}! ${problem.a} ${cfg.opWord} ${problem.b}.`, ask ? null : 'Start with the glowing box.'] : [];
+    const open = cursor === 0 ? [cfg.intro, num(`${problem.a} ${cfg.opWord} ${problem.b}.`), ask ? null : 'Start with the glowing box.'] : [];
     const list = [...open, ...(ask || [])].filter(Boolean);
     if (list.length) Voice.lines(list);
   }, [problem, cursor, won, showSettings, slots, solution, cfg]);
@@ -5337,7 +5810,7 @@ function ColumnMath({
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
     const arrived = addProgress();
-    Voice.lines([`${problem.answer}!`, `${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`, arrived ? null : praise()]);
+    Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`)]);
     setScore(s => s + 1);
     setTimeout(() => setConf(false), 2500);
   }, [cursor, slots.length, won, muted, problem, cfg, setScore, addProgress]);
@@ -5553,7 +6026,7 @@ function MultiplicationGame({
   // Silent while the picker is up, so it does not talk over "How big shall we go?".
   useEffect(() => {
     if (showSettings) return;
-    Voice.say(`${problem.a} times ${problem.b}?`);
+    Voice.say(num(`${problem.a} times ${problem.b}?`));
   }, [problem, showSettings]);
   const next = useCallback(() => {
     resetForProblem(makeMultiplicationProblem(range));
@@ -5594,7 +6067,7 @@ function MultiplicationGame({
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
       const arrived = addProgress();
-      Voice.lines([`${problem.answer}!`, `${problem.a} times ${problem.b} is ${problem.answer}.`, arrived ? null : praise()]);
+      Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.a} times ${problem.b} is ${problem.answer}.`)]);
       setScore(s => s + 1);
       setTimeout(() => setConf(false), 2500);
     } else {
@@ -5717,7 +6190,7 @@ function CountByPicker({
     className: `pick-btn ${config.step === n ? 'active' : ''}`,
     onClick: () => {
       Sound.tap();
-      Voice.say(`Count by ${n}!`);
+      Voice.say(num(`Count by ${n}!`));
       onChange({
         step: n,
         upTo: config.upTo
@@ -5807,14 +6280,14 @@ function CountByGame({
   useEffect(() => {
     if (showSettings) return;
     if (filled === 0) {
-      Voice.say(`Let's count by ${cfg.step}. What number comes first?`);
+      Voice.say(num(`Let's count by ${cfg.step}. What number comes first?`));
       return;
     }
     const back = Math.min(3, filled);
     const tail = Array.from({
       length: back
     }, (_, i) => (filled - back + 1 + i) * cfg.step);
-    Voice.say(`${tail.join(', ')}. What comes next?`);
+    Voice.say(num(`${tail.join(', ')}. What comes next?`));
   }, [filled, cfg, showSettings]);
   useEffect(() => {
     if (won || digits.some(d => d === '')) return;
@@ -5830,10 +6303,10 @@ function CountByGame({
       if (k >= cfg.upTo) {
         setConf(true);
         setTimeout(() => setConf(false), 2500);
-        Voice.lines([`${target}!`, `You counted by ${cfg.step} all the way to ${target}.`, `That is the ${cfg.step} times table!`]);
+        Voice.lines([num(`${target}!`), num(`You counted by ${cfg.step} all the way to ${target}.`), num(`That is the ${cfg.step} times table!`)]);
       } else {
         // The bridge sentence: the number they just counted to, named as a times fact.
-        Voice.lines([`${target}!`, `${k} times ${cfg.step} is ${target}.`, arrived ? null : praise()]);
+        Voice.lines([arrived ? null : praise(), num(`${target}!`), num(`${k} times ${cfg.step} is ${target}.`)]);
       }
     } else {
       setWrong(true);
@@ -6258,7 +6731,7 @@ function CompareSide({
     const marked = Object.keys(next).filter(k => next[k]);
     const total = marked.filter(k => k[0] === 'h').length * 100 + marked.filter(k => k[0] === 't').length * 10 + marked.filter(k => k[0] === 'o').length;
     // Silent when they have just un-counted the last block: there is no number to say.
-    if (total > 0) Voice.say(String(total));
+    if (total > 0) Voice.say(num(String(total)));
   };
   const block = (key, inner) => /*#__PURE__*/React.createElement("span", {
     key: key,
@@ -6389,7 +6862,11 @@ function CompareGame({
     if (showSettings) return;
     // See the note above the mode: naming the numbers here would give the blocks
     // rung away, because that rung is the one where they are not on screen.
-    Voice.say(preset.show === 'blocks' ? 'Which side has more?' : `${problem.a}, or ${problem.b}. Which is bigger?`);
+    if (preset.show === 'blocks') {
+      Voice.say('Which side has more?');
+      return;
+    }
+    Voice.lines([num(`${problem.a}, or ${problem.b}.`), 'Which is bigger?']);
   }, [problem, showSettings, preset]);
 
   /* The rule, said once, after the second miss — and it states both halves, because
@@ -6408,7 +6885,7 @@ function CompareGame({
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
       const arrived = addProgress();
-      Voice.lines([problem.sign === '=' ? 'The same!' : 'Yum!', compareSentence(problem), arrived ? null : praise()]);
+      Voice.lines([arrived ? null : praise(), problem.sign === '=' ? 'The same!' : 'Yum!', num(compareSentence(problem))]);
       setScore(s => s + 1);
       setTimeout(() => setConf(false), 2500);
     } else {
@@ -6812,6 +7289,10 @@ function App() {
     }
   });
   const [arrivalIdx, setArrivalIdx] = useState(null);
+  /* Which of the stop's facts this arrival opens on. Chosen in addProgress rather than in
+     the overlay, because the companion speaks it as part of the arrival chain and the
+     card has to open on the same one she just read. */
+  const [arrivalFact, setArrivalFact] = useState(0);
   const arrivalT = useRef(null);
   const [scores, setScores] = useState({
     b1: 0,
@@ -6915,10 +7396,12 @@ function App() {
         fired = true;
         clearTimeout(arrivalT.current);
         arrivalT.current = null;
+        const s = JOURNEY_STOPS[stopIdx];
+        const fi = FactCursor.next(s);
+        setArrivalFact(fi);
         setArrivalIdx(stopIdx);
         Sound.arrive();
-        const s = JOURNEY_STOPS[stopIdx];
-        Voice.lines([`${nj === JOURNEY_TOTAL ? 'Journey complete! ' : ''}You reached ${s.name}!`, s.fact]);
+        Voice.lines([`${nj === JOURNEY_TOTAL ? 'Journey complete! ' : ''}You reached ${s.name}!`, s.facts[fi]]);
       };
       clearTimeout(arrivalT.current);
       Voice.notifyNextChain(show);
@@ -7019,7 +7502,9 @@ function App() {
   });
   return /*#__PURE__*/React.createElement(React.Fragment, null, screen, arrivalIdx != null && /*#__PURE__*/React.createElement(ArrivalOverlay, {
     stopIdx: arrivalIdx,
+    factIdx: arrivalFact,
     complete: journeyComplete,
+    muted: muted,
     onClose: closeArrival
   }));
 }

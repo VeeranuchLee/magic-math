@@ -42,7 +42,10 @@ function region(src, name, from, to) {
 
 console.log('=== blocks that must be byte-identical in both themes ===');
 const SHARED = [
-  ['Voice object', '/* ══ VOICE (Web Speech) ══ */', '\nconst PRAISE=['],
+  /* The block now ends at `num()` rather than at the Voice object's closing brace: the
+     role tag is part of the same contract and both themes have to agree on it, or a
+     tagged call site in one file means something different in the other. */
+  ['Voice object and the num() tag', '/* ══ VOICE ══', '\nconst PRAISE=['],
   /* The helpers are inserted after toColumnDigits, so the next thing in the file is c1's
      own settings modal — NOT ColumnMathSettings, which sits much further down after
      ColumnAdd. Anchoring on the wrong one silently swallows all of c1 into the diff. */
@@ -106,8 +109,8 @@ const SUBS = [
    '  const mascot=useMascot();\n  const addFlower=useFlowerReward(flowers,setFlowers,setGardenFull,muted,addBouquet);\n  const badT=useRef(null), nudgeT=useRef(null);'],
   ['  const next=useCallback(()=>{\n    resetForProblem(makeColumnProblem(cfg,preset,problem));\n  },[cfg,preset,problem,resetForProblem]);',
    '  const next=useCallback(()=>{\n    if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}\n    resetForProblem(makeColumnProblem(cfg,preset,problem));\n  },[flowers,setFlowers,setGardenFull,addBouquet,cfg,preset,problem,resetForProblem]);'],
-  ['    const arrived=addProgress();\n    Voice.lines([`${problem.answer}!`,`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`,arrived?null:praise()]);\n    setScore(s=>s+1);\n    setTimeout(()=>setConf(false),2500);\n  },[cursor,slots.length,won,muted,problem,cfg,setScore,addProgress]);',
-   '    Voice.lines([`${problem.answer}!`,`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`,praise()]);\n    setScore(s=>s+1); addFlower();\n    setTimeout(()=>setConf(false),2500);\n  },[cursor,slots.length,won,muted,problem,cfg,setScore,addFlower]);'],
+  ['    const arrived=addProgress();\n    Voice.lines([arrived?null:praise(),num(`${problem.answer}!`),num(`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`)]);\n    setScore(s=>s+1);\n    setTimeout(()=>setConf(false),2500);\n  },[cursor,slots.length,won,muted,problem,cfg,setScore,addProgress]);',
+   '    Voice.lines([praise(),num(`${problem.answer}!`),num(`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`)]);\n    setScore(s=>s+1); addFlower();\n    setTimeout(()=>setConf(false),2500);\n  },[cursor,slots.length,won,muted,problem,cfg,setScore,addFlower]);'],
   ["    <div className=\"screen column-screen cm-screen\" style={{'--game-bg':`url('${journeyBg}')`}}>",
    '    <div className="screen column-screen cm-screen">'],
   ['      <ScoreRow score={score} journey={journey} trophies={trophies}/>',
@@ -135,8 +138,8 @@ const COMPARE_SUBS = [
    '  const mascot=useMascot();\n  const addFlower=useFlowerReward(flowers,setFlowers,setGardenFull,muted,addBouquet);\n  const wrongT=useRef(null);'],
   ['  const next=useCallback(()=>{\n    resetForProblem(makeCompareProblem(preset,problem));\n  },[preset,problem,resetForProblem]);',
    '  const next=useCallback(()=>{\n    if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}\n    resetForProblem(makeCompareProblem(preset,problem));\n  },[flowers,setFlowers,setGardenFull,addBouquet,preset,problem,resetForProblem]);'],
-  ["      const arrived=addProgress();\n      Voice.lines([problem.sign==='='?'The same!':'Yum!',compareSentence(problem),arrived?null:praise()]);\n      setScore(s=>s+1);",
-   "      Voice.lines([problem.sign==='='?'The same!':'Yum!',compareSentence(problem),praise()]);\n      setScore(s=>s+1); addFlower();"],
+  ["      const arrived=addProgress();\n      Voice.lines([arrived?null:praise(),problem.sign==='='?'The same!':'Yum!',num(compareSentence(problem))]);\n      setScore(s=>s+1);",
+   "      Voice.lines([praise(),problem.sign==='='?'The same!':'Yum!',num(compareSentence(problem))]);\n      setScore(s=>s+1); addFlower();"],
   ['  },[problem,won,muted,addProgress,setScore]);',
    '  },[problem,won,muted,addFlower,setScore]);'],
   ["    <div className=\"screen cmp-screen\" style={{'--game-bg':`url('${journeyBg}')`}}>",
@@ -165,8 +168,8 @@ const MISSING_SUBS = [
    '  const mascot=useMascot();\n  const addFlower=useFlowerReward(flowers,setFlowers,setGardenFull,muted,addBouquet);\n  const overRef=useRef(false);'],
   ['  const next=useCallback(()=>{\n    resetForProblem(makeMissingProblem(preset,problem));\n  },[preset,problem,resetForProblem]);',
    '  const next=useCallback(()=>{\n    if(flowers===MAX_FLOWERS){setFlowers(0);setGardenFull(false);addBouquet();}\n    resetForProblem(makeMissingProblem(preset,problem));\n  },[flowers,setFlowers,setGardenFull,addBouquet,preset,problem,resetForProblem]);'],
-  ['    const arrived=addProgress();\n    Voice.lines([`${problem.answer}!`,missingSentence(problem),arrived?null:praise()]);\n    setScore(s=>s+1);\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addProgress]);',
-   '    Voice.lines([`${problem.answer}!`,missingSentence(problem),praise()]);\n    setScore(s=>s+1); addFlower();\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addFlower]);'],
+  ['    const arrived=addProgress();\n    Voice.lines([arrived?null:praise(),num(`${problem.answer}!`),num(missingSentence(problem))]);\n    setScore(s=>s+1);\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addProgress]);',
+   '    Voice.lines([praise(),num(`${problem.answer}!`),num(missingSentence(problem))]);\n    setScore(s=>s+1); addFlower();\n    setTimeout(()=>setConf(false),2600);\n  },[balanced,filled,won,muted,problem,setScore,addFlower]);'],
   ["    <div className=\"screen ms-screen\" style={{'--game-bg':`url('${journeyBg}')`}}>",
    '    <div className="screen ms-screen">'],
   ['      <ScoreRow score={score} journey={journey} trophies={trophies}/>',

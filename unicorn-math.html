@@ -992,11 +992,67 @@ const Sound = (() => {
         tone(c, f * 2.002, 'sine', n + t, .2, .045);
       });
       noise(c, n, .02, .045, 3600, 2000, 2.2);
+    },
+    /* ── THE HELPER'S HORN CLEARS ITS THROAT ──
+       Two 30 ms square blips a fifth apart, in front of every number the robot voice
+       reads. Owner decision, 2026-08-21: the voice is split by ROLE rather than by mode —
+       the companion talks, and a separate system voice reads values out. This cue is what
+       makes that seam read as deliberate rather than as the narrator having an off day.
+       Square, because the point is that it does not belong to the same family as the
+       musical cues above, and alone in this module it sends nothing to the reverb: a tail
+       here would smear into the first digit, which is the one word that must arrive clean.
+       Byte-identical to space-math's, because `Voice` is shared and calls it. */
+    readout() {
+      if (_muted) return;
+      const c = ctx();
+      if (!c) return;
+      const n = c.currentTime;
+      tone(c, 1568, 'square', n, .03, .032, 0, 0);
+      tone(c, 2093, 'square', n + .05, .03, .024, 0, 0);
     }
   };
 })();
 
-/* ══ VOICE (Web Speech) ══ */
+/* ══ VOICE ══
+   ── TWO ROLES, AND WHY THAT IS NOT THE THING WE REJECTED ──
+
+   Owner decision, 2026-08-21. It replaces the rule of 2026-08-20 — "a mode is either
+   fully voiced or fully robot, never both" — and it is worth being precise about what
+   changed, because the old conclusion is written down in three places and an agent who
+   reads only the conclusion will revert this.
+
+   What was rejected was a seam that fell WHERE THE DATA HAPPENED TO LAND. `${answer}!`
+   matched the bare-number clips, and those clips are the 152 distinct products of two
+   numbers up to 20 — so in Carry Add roughly half the answers spoke in the rendered
+   voice and half in the browser's, decided by whether the child's answer happened to be
+   a times-table product. That is not two voices; that is one voice with a fault.
+
+   What is here instead is a CAST. Two roles, assigned by what a line IS, never by which
+   clip we happen to own:
+
+     COMPANION  the character travelling with the child. Instructions, encouragement,
+                reactions, hints, arrival lines, planet facts, praise. Fixed strings, so
+                the whole set is enumerable and renderable, and it resolves to the
+                rendered voice IN EVERY MODE — which is the capability this unlocks.
+
+     ROBOT      the ship's computer reading a value out. Numbers and the sentences that
+                are nothing but arithmetic. Unbounded, so it can never be fully rendered,
+                and it does not need to be: flat, low, and announced by Sound.readout().
+
+   THE ONE HARD RULE: the seam only ever falls at a SENTENCE boundary. Never inside one.
+   Splicing a number clip onto the end of a rendered phrase was rejected on its own
+   merits — a number at the end of a spoken sentence falls in pitch and a standalone clip
+   is flat, so the join is audible — and nothing here does it. A mixed sentence such as
+   "Can you build 47?" stays whole and belongs to the companion; it is her line, with a
+   number in it, not two lines glued together.
+
+   Numbers still play in the rendered voice in the two modes where the entire number
+   space was bought and verified (see Clips's VOICED set), so the 965 clips already paid
+   for are not thrown away. A child in Times Tables therefore hears one voice and a child
+   in Carry Add hears two. That is a screen change, not a flip inside a sentence, and it
+   is the same accepted edge already documented for the home-screen card names. */
+const ROBOT = 'robot',
+  COMPANION = 'companion';
 const Voice = {
   muted: false,
   /* Bumped by every new request. Every callback in a running chain checks it before it
@@ -1045,6 +1101,13 @@ const Voice = {
     }
   },
   RATE: .95,
+  /* The robot is slower and much lower than the companion, and both numbers were chosen
+     to be unmistakable rather than subtle: a listener has to know within one syllable
+     which of the two is speaking, or the split reads as a glitch. Slower also genuinely
+     helps, because what this voice says is digits. */
+  RATE_ROBOT: .86,
+  PITCH: 1.15,
+  PITCH_ROBOT: .7,
   /* The gap after the FIRST line is the long one: that line is the number the child
      just typed, and it is the one the owner reported never lands. Later seams are
      shorter so the praise does not feel like it arrives in the next post. Both sit
@@ -1055,13 +1118,19 @@ const Voice = {
      itself speaking. Generous on purpose — see advance()'s `queued` path for what
      giving up costs. */
   POLL_MAX: 24,
-  utterance(text) {
+  utterance(text, role) {
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = this.RATE;
-    u.pitch = 1.15;
+    const robot = role === ROBOT;
+    u.rate = robot ? this.RATE_ROBOT : this.RATE;
+    u.pitch = robot ? this.PITCH_ROBOT : this.PITCH;
     u.lang = 'en-US';
     return u;
   },
+  /* The blip has to CLEAR before the first digit does, and on the opening line of a
+     chain there is no gap in front of it to hide in. 140 ms is the cue's 80 ms plus
+     room. Anywhere else in a chain the blip replaces the seam tick at the top of a
+     380 ms gap and costs nothing at all. */
+  LEAD_ROBOT: 140,
   _reset() {
     this.gen++;
     if (this._t) {
@@ -1092,10 +1161,19 @@ const Voice = {
     this._pending = null;
     this._reset();
   },
-  say(text) {
+  /* `role` defaults to COMPANION, and that default is the safe direction: a line nobody
+     tagged is spoken by the character in her own voice, exactly as every line was before
+     this change. Forgetting to tag a number costs the console blip, not a bug. */
+  say(part, role) {
     this._pending = null;
     if (this.muted) return;
-    const src = Clips.url(text);
+    /* Accepts either a bare string plus an optional role, or the tagged object `num()`
+       returns — so one spelling marks a robot line everywhere, whether it is a lone
+       readout or one line of a chain. */
+    const tagged = part && typeof part === 'object';
+    const text = tagged ? part.t : part;
+    const r = (tagged ? part.r : role) === ROBOT ? ROBOT : COMPANION;
+    const src = Clips.url(text, r);
     if (src) {
       this._reset();
       const a = new Audio(src);
@@ -1113,21 +1191,37 @@ const Voice = {
       const s = window.speechSynthesis;
       if (!s) return;
       this._reset();
-      s.speak(this.utterance(text));
+      if (r === ROBOT) {
+        /* `_t` is the chain's one timer slot and say() has no chain, so it is free — and
+           holding it also makes busy() true across the lead-in, which is correct:
+           something IS about to be said, and a mascot poke must not land on top of it. */
+        const V = this,
+          gen = this.gen;
+        Sound.readout();
+        this._t = setTimeout(() => {
+          if (gen !== V.gen || V.muted) return;
+          V._t = 0;
+          try {
+            window.speechSynthesis.speak(V.utterance(text, ROBOT));
+          } catch (e) {}
+        }, this.LEAD_ROBOT);
+        return;
+      }
+      s.speak(this.utterance(text, r));
     } catch (e) {}
   },
   /* Rough spoken length, used only by the safety net below. Digits are read as whole
      words — "26" is "twenty six" — so a character count badly under-counts these
      lines, which are mostly numbers. One word per digit, one per ordinary word,
      ~330 ms a word at rate 1. */
-  _estimate(text) {
+  _estimate(text, role) {
     let words = 0;
-    String(text).trim().split(/\s+/).forEach(w => {
+    String(text).trim().split(/\\s+/).forEach(w => {
       if (!w) return;
-      const d = (w.match(/\d/g) || []).length;
+      const d = (w.match(/\\d/g) || []).length;
       words += d || 1;
     });
-    return 350 + words * 330 / this.RATE;
+    return 350 + words * 330 / (role === ROBOT ? this.RATE_ROBOT : this.RATE);
   },
   /* Several short lines instead of one long string, spoken one at a time with a real
      gap between them.
@@ -1148,8 +1242,33 @@ const Voice = {
     const done = this._pending;
     this._pending = null;
     if (this.muted) return;
-    const list = parts.filter(Boolean).map(t => String(t).trim()).filter(Boolean);
+    /* A part is either a plain string — the companion, as every call site meant before
+       roles existed — or `num('47!')`, which tags it for the ship's computer. Nulls are
+       dropped first, because several call sites pass `arrived?null:praise()`. */
+    const list = parts.filter(Boolean).map(part => {
+      const o = typeof part === 'string' ? {
+        t: part,
+        r: COMPANION
+      } : part;
+      const t = String(o && o.t != null ? o.t : '').trim();
+      return t ? {
+        t,
+        r: o.r === ROBOT ? ROBOT : COMPANION
+      } : null;
+    }).filter(Boolean);
     if (!list.length) return;
+    /* Resolved once, up front, because two separate decisions need the answer: which
+       engine speaks the line, and which tick marks the join in front of it. Asking twice
+       invites the two to disagree. */
+    list.forEach(l => {
+      l.src = Clips.url(l.t, l.r);
+    });
+    /* The long gap goes after the line that has to LAND, and roles moved which line that
+       is. It used to be line one, because line one was always the number the child had
+       just typed. Line one is now usually the companion reacting and the number is line
+       two, so the rule follows the role instead of the position: a value read out gets
+       the long gap after it, and so does the opening line whatever it is. */
+    const gapAfter = i => i === 0 || list[i].r === ROBOT ? this.GAP_FIRST : this.GAP_REST;
     let s;
     try {
       s = window.speechSynthesis;
@@ -1190,12 +1309,17 @@ const Voice = {
           speakFrom(i + 1);
           return;
         }
-        Sound.seam();
+        /* WHICH tick, because the tick now announces who speaks next. A line the robot
+           will actually deliver gets the console blip; everything else — including a
+           number that resolved to a rendered clip, which is the companion's own voice —
+           gets the neutral seam. */
+        const nxt = list[i + 1];
+        if (nxt.r === ROBOT && !nxt.src) Sound.readout();else Sound.seam();
         V._t = setTimeout(() => {
           if (!live()) return;
           V._t = 0;
           speakFrom(i + 1);
-        }, i === 0 ? V.GAP_FIRST : V.GAP_REST);
+        }, gapAfter(i));
       };
       const net = () => {
         if (settled || !live()) return;
@@ -1221,7 +1345,7 @@ const Voice = {
          needs none of it, and deliberately schedules no timer.
          A clip that fails to load advances the chain rather than stalling it, which is
          the same contract as u.onerror on the speech path below. */
-      const src = Clips.url(list[i]);
+      const src = list[i].src;
       if (src) {
         const a = new Audio(src);
         V._a = a;
@@ -1237,23 +1361,45 @@ const Voice = {
       }
       let u;
       try {
-        u = V.utterance(list[i]);
+        u = V.utterance(list[i].t, list[i].r);
       } catch (e) {
         advance(false);
         return;
       }
-      u.onend = () => advance(false);
-      u.onerror = () => advance(false); // a dropped line must not stall the chain
-      V._t = setTimeout(net, V._estimate(list[i]) + 400);
-      try {
-        s.speak(u);
-      } catch (e) {
-        advance(false);
+      const go = () => {
+        u.onend = () => advance(false);
+        u.onerror = () => advance(false); // a dropped line must not stall the chain
+        V._t = setTimeout(net, V._estimate(list[i].t, list[i].r) + 400);
+        try {
+          s.speak(u);
+        } catch (e) {
+          advance(false);
+        }
+      };
+      /* Only the OPENING line needs its own lead-in; every later robot line already has
+         a 380 ms gap in front of it with the blip at the top of it. */
+      if (i === 0 && list[i].r === ROBOT) {
+        Sound.readout();
+        V._t = setTimeout(() => {
+          if (!live()) return;
+          V._t = 0;
+          go();
+        }, V.LEAD_ROBOT);
+        return;
       }
+      go();
     };
     speakFrom(0);
   }
 };
+/* Tag a line for the ship's computer. Deliberately three characters long and used at
+   every call site that speaks a value, because the alternative — sniffing the text for
+   digits — would guess wrong on "Can you build 47?" and split a sentence that must stay
+   whole. The role is a decision about the line, so it is stated where the line is written. */
+const num = t => ({
+  t,
+  r: ROBOT
+});
 const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Super!', 'Fantastic!'];
 const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
 
@@ -1322,6 +1468,28 @@ const Clips = (() => {
      screen and then drops into a game that may be all-robot. That is a screen change,
      not a flip inside a sentence, and the card name belongs to the home screen. */
   const VOICED = new Set([null, 'm1', 's1']);
+  /* ══ WHAT THE MODE GATE ACTUALLY GUARDS — REVISED 2026-08-21 ══
+     The gate above used to apply to every line. It no longer does, and the distinction
+     it now draws is the entire safety argument for the two-voice split:
+        EXACT MATCHES resolve in EVERY mode. `texts` is emitted from the manifest that was
+       rendered, so an entry existing is proof that we chose that exact sentence, paid for
+       it, and encoded it. There is no unbounded space behind it and nothing to be
+       surprised by. This is what lets the companion keep her own voice in Carry Add.
+        PATTERN MATCHES stay behind the gate, unchanged. `tt-n-*` is 152 arbitrary
+       products, `tt-q/tt-a` are 400 facts, and outside m1 and s1 an ordinary arithmetic
+       answer hits one only by coincidence — which is exactly the bug of 2026-08-20.
+      So: the companion asks for a line by its text and gets it anywhere; the robot asks
+     for a number and gets a file only in the two modes where the whole number space was
+     bought and verified. */
+  const exactFor = text => {
+    const s = String(text).trim();
+    if (texts && texts[s]) return texts[s];
+    /* Praise is positional rather than mapped, because the strings are skin-specific —
+       see PRAISE above — and it is the companion's line in every mode that can say it. */
+    const p = PRAISE.indexOf(s);
+    if (p >= 0) return PRAISE_PREFIX + (p + 1);
+    return null;
+  };
   let mode = null;
   const idFor = text => {
     const s = String(text).trim();
@@ -1361,11 +1529,13 @@ const Clips = (() => {
     setMode(key) {
       mode = key || null;
     },
-    /* null means "no file for this line" — the caller falls back to the engine. */
-    url(text) {
+    /* null means "no file for this line" — the caller falls back to the engine.
+       `role` is COMPANION unless the caller says otherwise, and an unrecognised role is
+       treated as the companion: the failure mode of guessing wrong here is a fixed string
+       that stays on the engine, not a number that reaches for a clip it should not have. */
+    url(text, role) {
       if (!have) return null;
-      if (!VOICED.has(mode)) return null;
-      const id = idFor(text);
+      const id = role === 'robot' ? VOICED.has(mode) ? idFor(text) : null : exactFor(text);
       return id && have[id] ? ROOT + have[id] + '/' + id + '.m4a' : null;
     }
   };
@@ -2966,7 +3136,7 @@ function BlocksGuided({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.lines([`You found it! ${correctNumber}!`, praise()]);
+      Voice.lines([praise(), 'You found it!', num(`${correctNumber}!`)]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2600);
@@ -3157,7 +3327,7 @@ function BlocksFill({
     });
   }, [won]);
   useEffect(() => {
-    Voice.say(`Can you build ${target}?`);
+    Voice.say(num(`Can you build ${target}?`));
   }, [target]);
   useEffect(() => {
     if (!won && built > target) mascot.oops();
@@ -3170,7 +3340,7 @@ function BlocksFill({
     Sound.ding();
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
-    Voice.lines([`You built ${target}!`, praise()]);
+    Voice.lines([praise(), 'You built it!', num(`${target}!`)]);
     setScore(s => s + 1);
     addFlower();
     setTimeout(() => setConf(false), 2600);
@@ -3496,7 +3666,7 @@ function MissingSide({
     const n = counted >= up ? down : up;
     onCount(n);
     // Silent when they have just un-counted the last block: there is no number to say.
-    if (n > 0) Voice.say(String(n));
+    if (n > 0) Voice.say(num(String(n)));
   };
   const cells = [];
   let gi0 = 0;
@@ -3732,7 +3902,10 @@ function MissingGame({
       Voice.say('Count each side. Tap a row to count ten!');
       return;
     }
-    Voice.say(missingQuestion(problem, preset.show));
+    /* The blocks rung's question names no numbers, so it stays the companion's; the
+       other four are nothing but numbers and belong to the console. */
+    const q = missingQuestion(problem, preset.show);
+    Voice.say(preset.show === 'blocks' ? q : num(q));
   }, [problem, showSettings, preset, counting]);
 
   /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
@@ -3748,7 +3921,7 @@ function MissingGame({
     setFilled(n);
     const building = (gapOnLeft ? msGiven(layout.left) : msGiven(layout.right)) + n;
     const other = gapOnLeft ? rightTotal : leftTotal;
-    if (n > 0 && building !== other) Voice.say(String(building));
+    if (n > 0 && building !== other) Voice.say(num(String(building)));
   }, [won, muted, filled, layout, gapOnLeft, leftTotal, rightTotal]);
   useEffect(() => {
     if (won || filled === 0 || !balanced) return;
@@ -3758,7 +3931,7 @@ function MissingGame({
     Sound.ding();
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
-    Voice.lines([`${problem.answer}!`, missingSentence(problem), praise()]);
+    Voice.lines([praise(), num(`${problem.answer}!`), num(missingSentence(problem))]);
     setScore(s => s + 1);
     addFlower();
     setTimeout(() => setConf(false), 2600);
@@ -3955,8 +4128,12 @@ function NumberLineAddSub({
   useEffect(() => {
     setMisses(0);
   }, [prob]);
+  /* Two sentences, two speakers: the console states the sum, the companion says what to
+     do about it. Said as one utterance it was one breathless run anyway — punctuation
+     inside an utterance buys almost no pause — so the split also gives the numbers the
+     same room the answer chain already gets. */
   useEffect(() => {
-    Voice.say(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount}. Hop to the answer!`);
+    Voice.lines([num(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount}.`), 'Hop to the answer!']);
   }, [prob]);
   const tap = useCallback(n => {
     Sound.setMuted(muted);
@@ -3966,7 +4143,7 @@ function NumberLineAddSub({
       setConf(true);
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
-      Voice.lines([`${prob.answer}!`, `${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}.`, praise()]);
+      Voice.lines([praise(), num(`${prob.answer}!`), num(`${prob.start} ${prob.op === '+' ? 'plus' : 'minus'} ${prob.amount} is ${prob.answer}.`)]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -4287,15 +4464,15 @@ function solveColumns(op, a, b, colCount) {
     for (let j = colCount - 1; j >= 0; j--) {
       const s = A[j] + B[j] + carry;
       ans[j] = String(s % 10);
-      hintAns[j] = A[j] === 0 && B[j] === 0 && carry === 1 ? ['Just the one you carried.', 'Write the one.'] : [`${A[j]} and ${B[j]}${carry ? ` and ${carry} more` : ''} is ${s}.`, `Write the ${s % 10}.`];
+      hintAns[j] = A[j] === 0 && B[j] === 0 && carry === 1 ? ['Just the one you carried.', 'Write the one.'] : [num(`${A[j]} and ${B[j]}${carry ? ` and ${carry} more` : ''} is ${s}.`), num(`Write the ${s % 10}.`)];
       const out = s > 9 ? 1 : 0;
       if (j - 1 >= 0) {
         marks[j - 1] = String(out);
         /* The ask never names the sum, so it cannot give the answer away — "did you
            make a ten" is the whole question, and it is the same question every time. */
         askMark[j - 1] = ['Little box. Did you make a ten?', 'One for yes. Zero for no.'];
-        sayMark[j - 1] = out ? [`${s} is too big for one box.`, 'Carry the ten next door!'] : null;
-        hintMark[j - 1] = out ? [`${s} is too big for one box.`, 'Type one.'] : [`${s} fits in one box.`, 'Nothing to carry.', 'Type zero.'];
+        sayMark[j - 1] = out ? [num(`${s} is too big for one box.`), 'Carry the ten next door!'] : null;
+        hintMark[j - 1] = out ? [num(`${s} is too big for one box.`), 'Type one.'] : [num(`${s} fits in one box.`), 'Nothing to carry.', 'Type zero.'];
       }
       carry = out;
     }
@@ -4305,11 +4482,11 @@ function solveColumns(op, a, b, colCount) {
       /* Asked BEFORE this column is worked, and T[j] has already taken any decrement
          from the column to its right, so the two numbers named are the two the child is
          actually looking at. */
-      if (j >= 1) askMark[j] = [`Little box. Can you take ${B[j]} away from ${T[j]}?`, 'No is one. Yes is zero.'];
+      if (j >= 1) askMark[j] = [num(`Little box. Can you take ${B[j]} away from ${T[j]}?`), 'No is one. Yes is zero.'];
       if (T[j] < B[j]) {
         marks[j] = '1';
-        sayMark[j] = [`${T[j]} is too small.`, 'Take one from next door.', `Now it is ${T[j] + 10}.`];
-        hintMark[j] = [`${T[j]} is smaller than ${B[j]}.`, 'You need one from next door.', 'Type one.'];
+        sayMark[j] = [num(`${T[j]} is too small.`), 'Take one from next door.', num(`Now it is ${T[j] + 10}.`)];
+        hintMark[j] = [num(`${T[j]} is smaller than ${B[j]}.`), 'You need one from next door.', 'Type one.'];
         let k = j - 1;
         while (k >= 0 && T[k] === 0) {
           T[k] = 9;
@@ -4318,10 +4495,10 @@ function solveColumns(op, a, b, colCount) {
         if (k >= 0) T[k] -= 1;
         T[j] += 10;
       } else if (j >= 1) {
-        hintMark[j] = [`${B[j]} fits in ${T[j]}.`, 'You do not need one.', 'Type zero.'];
+        hintMark[j] = [num(`${B[j]} fits in ${T[j]}.`), 'You do not need one.', 'Type zero.'];
       }
       ans[j] = String(T[j] - B[j]);
-      hintAns[j] = [`${T[j]} take away ${B[j]} is ${T[j] - B[j]}.`];
+      hintAns[j] = [num(`${T[j]} take away ${B[j]} is ${T[j] - B[j]}.`)];
     }
   }
   return {
@@ -4495,7 +4672,7 @@ const COLUMN_MODES = {
     title: 'Carry Add',
     sub: 'Carry the one!',
     opWord: 'plus',
-    intro: 'Carry adding',
+    intro: 'Carry adding!',
     presets: COLUMN_ADD_HARD_PRESETS,
     fits: (a, b, hot, r) => {
       const n = carryCount(a, b);
@@ -4510,7 +4687,7 @@ const COLUMN_MODES = {
     title: 'Take Away',
     sub: 'Tap the answer!',
     opWord: 'take away',
-    intro: 'Taking away',
+    intro: 'Taking away!',
     presets: COLUMN_SUB_PRESETS,
     fits: (a, b) => b < a && subInfo(a, b).count === 0
   },
@@ -4522,7 +4699,7 @@ const COLUMN_MODES = {
     title: 'Borrow Take Away',
     sub: 'Borrow one!',
     opWord: 'take away',
-    intro: 'Borrowing',
+    intro: 'Borrowing!',
     presets: COLUMN_SUB_HARD_PRESETS,
     /* Exactly one borrow at most, and never across a zero. Two borrows can put a
        cross-out AND a little 1 on the same column (312-29), and a cascade puts three
@@ -4607,7 +4784,7 @@ function ColumnAdd({
     setMisses(0);
   }, []);
   useEffect(() => {
-    Voice.say(`${problem.a} plus ${problem.b}. Tap the answer!`);
+    Voice.lines([num(`${problem.a} plus ${problem.b}.`), 'Tap the answer!']);
   }, [problem]);
   const next = useCallback(() => {
     if (flowers === MAX_FLOWERS) {
@@ -4652,7 +4829,7 @@ function ColumnAdd({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.lines([`${problem.answer}!`, `${problem.a} plus ${problem.b} is ${problem.answer}.`, praise()]);
+      Voice.lines([praise(), num(`${problem.answer}!`), num(`${problem.a} plus ${problem.b} is ${problem.answer}.`)]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -4871,7 +5048,7 @@ function ColumnMath({
     const ask = s.kind === 'mark' ? solution.askMark[s.col] : null;
     /* When the very first box is a little box (every c4 problem), the ask IS the
        instruction, so "start with the glowing box" would only make the opening longer. */
-    const open = cursor === 0 ? [`${cfg.intro}! ${problem.a} ${cfg.opWord} ${problem.b}.`, ask ? null : 'Start with the glowing box.'] : [];
+    const open = cursor === 0 ? [cfg.intro, num(`${problem.a} ${cfg.opWord} ${problem.b}.`), ask ? null : 'Start with the glowing box.'] : [];
     const list = [...open, ...(ask || [])].filter(Boolean);
     if (list.length) Voice.lines(list);
   }, [problem, cursor, won, showSettings, slots, solution, cfg]);
@@ -4986,7 +5163,7 @@ function ColumnMath({
     Sound.ding();
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
-    Voice.lines([`${problem.answer}!`, `${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`, praise()]);
+    Voice.lines([praise(), num(`${problem.answer}!`), num(`${problem.a} ${cfg.opWord} ${problem.b} is ${problem.answer}.`)]);
     setScore(s => s + 1);
     addFlower();
     setTimeout(() => setConf(false), 2500);
@@ -5201,7 +5378,7 @@ function MultiplicationGame({
   // Silent while the picker is up, so it does not talk over "How big shall we go?".
   useEffect(() => {
     if (showSettings) return;
-    Voice.say(`${problem.a} times ${problem.b}?`);
+    Voice.say(num(`${problem.a} times ${problem.b}?`));
   }, [problem, showSettings]);
   const next = useCallback(() => {
     if (flowers === MAX_FLOWERS) {
@@ -5246,7 +5423,7 @@ function MultiplicationGame({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.lines([`${problem.answer}!`, `${problem.a} times ${problem.b} is ${problem.answer}.`, praise()]);
+      Voice.lines([praise(), num(`${problem.answer}!`), num(`${problem.a} times ${problem.b} is ${problem.answer}.`)]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);
@@ -5365,7 +5542,7 @@ function CountByPicker({
     className: `pick-btn ${config.step === n ? 'active' : ''}`,
     onClick: () => {
       Sound.tap();
-      Voice.say(`Count by ${n}!`);
+      Voice.say(num(`Count by ${n}!`));
       onChange({
         step: n,
         upTo: config.upTo
@@ -5463,14 +5640,14 @@ function CountByGame({
   useEffect(() => {
     if (showSettings) return;
     if (filled === 0) {
-      Voice.say(`Let's count by ${cfg.step}. What number comes first?`);
+      Voice.say(num(`Let's count by ${cfg.step}. What number comes first?`));
       return;
     }
     const back = Math.min(3, filled);
     const tail = Array.from({
       length: back
     }, (_, i) => (filled - back + 1 + i) * cfg.step);
-    Voice.say(`${tail.join(', ')}. What comes next?`);
+    Voice.say(num(`${tail.join(', ')}. What comes next?`));
   }, [filled, cfg, showSettings]);
   useEffect(() => {
     if (won || digits.some(d => d === '')) return;
@@ -5486,10 +5663,10 @@ function CountByGame({
       if (k >= cfg.upTo) {
         setConf(true);
         setTimeout(() => setConf(false), 2500);
-        Voice.lines([`${target}!`, `You counted by ${cfg.step} all the way to ${target}.`, `That is the ${cfg.step} times table!`]);
+        Voice.lines([num(`${target}!`), num(`You counted by ${cfg.step} all the way to ${target}.`), num(`That is the ${cfg.step} times table!`)]);
       } else {
         // The bridge sentence: the number they just counted to, named as a times fact.
-        Voice.lines([`${target}!`, `${k} times ${cfg.step} is ${target}.`, praise()]);
+        Voice.lines([praise(), num(`${target}!`), num(`${k} times ${cfg.step} is ${target}.`)]);
       }
     } else {
       setWrong(true);
@@ -5909,7 +6086,7 @@ function CompareSide({
     const marked = Object.keys(next).filter(k => next[k]);
     const total = marked.filter(k => k[0] === 'h').length * 100 + marked.filter(k => k[0] === 't').length * 10 + marked.filter(k => k[0] === 'o').length;
     // Silent when they have just un-counted the last block: there is no number to say.
-    if (total > 0) Voice.say(String(total));
+    if (total > 0) Voice.say(num(String(total)));
   };
   const block = (key, inner) => /*#__PURE__*/React.createElement("span", {
     key: key,
@@ -6046,7 +6223,11 @@ function CompareGame({
     if (showSettings) return;
     // See the note above the mode: naming the numbers here would give the blocks
     // rung away, because that rung is the one where they are not on screen.
-    Voice.say(preset.show === 'blocks' ? 'Which side has more?' : `${problem.a}, or ${problem.b}. Which is bigger?`);
+    if (preset.show === 'blocks') {
+      Voice.say('Which side has more?');
+      return;
+    }
+    Voice.lines([num(`${problem.a}, or ${problem.b}.`), 'Which is bigger?']);
   }, [problem, showSettings, preset]);
 
   /* The rule, said once, after the second miss — and it states both halves, because
@@ -6064,7 +6245,7 @@ function CompareGame({
       Sound.ding();
       setTimeout(() => Sound.celebrate(), 200);
       mascot.happy();
-      Voice.lines([problem.sign === '=' ? 'The same!' : 'Yum!', compareSentence(problem), praise()]);
+      Voice.lines([praise(), problem.sign === '=' ? 'The same!' : 'Yum!', num(compareSentence(problem))]);
       setScore(s => s + 1);
       addFlower();
       setTimeout(() => setConf(false), 2500);

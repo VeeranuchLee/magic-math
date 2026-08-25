@@ -69,18 +69,162 @@ def unescape(s):
 
 
 def journey_stops(src):
-    """name and fact for each stop. Space only -- unicorn grows a garden and speaks no
-    arrival lines, which is why it contributes none."""
+    """(name, [facts]) for each stop. Space only -- unicorn grows a garden and speaks no
+    arrival lines, which is why it contributes none.
+
+    THE ROWS ARE SPLIT ON `{id:`, not by matching braces. Each stop now carries an `amb`
+    object and a multi-line `facts` array, so the old `\{(.*?)\}` -- which stopped at the
+    first closing brace it found -- would end each row inside `amb` and see no facts at
+    all. It would have reported seven stops with nothing to say and written a manifest
+    that quietly dropped every fact."""
     m = re.search(r"const JOURNEY_STOPS\s*=\s*\[(.*?)\n\];", src, re.S)
     if not m:
         return []
+    body = m.group(1)
     out = []
-    for row in re.findall(r"\{(.*?)\}", m.group(1), re.S):
+    rows = re.split(r"\n\s*\{(?=id:)", body)[1:]
+    for row in rows:
         name = re.search(r"name:\s*'((?:[^'\\]|\\.)*)'", row)
-        fact = re.search(r"fact:\s*'((?:[^'\\]|\\.)*)'", row)
-        if name and fact:
-            out.append((unescape(name.group(1)), unescape(fact.group(1))))
+        facts_block = re.search(r"facts:\s*\[(.*?)\]", row, re.S)
+        if not (name and facts_block):
+            continue
+        facts = [unescape(a or b) for a, b in re.findall(
+            r"'((?:[^'\\]|\\.)*)'|\"((?:[^\"\\]|\\.)*)\"", facts_block.group(1))]
+        if facts:
+            out.append((unescape(name.group(1)), facts))
     return out
+
+
+BACKTICK = re.compile(r"`(?:[^`\\]|\\.)*`", re.S)
+
+
+def literals(text):
+    """Quoted string literals in a slice of JS, TEMPLATE LITERALS REMOVED FIRST.
+
+    Removed rather than skipped, because a template contains quoted literals of its own:
+    `${p.op==='+'?'plus':'minus'}` would otherwise contribute "plus" and "minus" as lines
+    the app says, and a manifest line the app never utters is money spent on silence.
+
+    COMMENTS GO FIRST, for the same reason and it is not hypothetical: solveColumns's
+    comment quotes the question it is describing, and that quotation was being harvested as
+    something the app says."""
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", " ", text)
+    text = BACKTICK.sub("``", text)
+    return [unescape(a or b) for a, b in re.findall(
+        r"'((?:[^'\\]|\\.)*)'|\"((?:[^\"\\]|\\.)*)\"", text)]
+
+
+def call_args(src, name):
+    """The argument text of every `name(...)` call, bracket-balanced and quote-aware."""
+    out, needle = [], name + "("
+    i = src.find(needle)
+    while i >= 0:
+        j, depth = i + len(needle), 1
+        while j < len(src) and depth:
+            ch = src[j]
+            if ch in "'\"`":                    # skip the whole string, brackets and all
+                q, j = ch, j + 1
+                while j < len(src) and src[j] != q:
+                    j += 2 if src[j] == "\\" else 1
+            elif ch in "([{":
+                depth += 1
+            elif ch in ")]}":
+                depth -= 1
+            j += 1
+        out.append(src[i + len(needle):j - 1])
+        i = src.find(needle, j)
+    return out
+
+
+def spoken_fixed(src):
+    """Every FIXED string the app speaks, harvested from the calls that speak it.
+
+    WHY FROM THE CALL SITES AND NOT FROM A DATA BLOCK. The companion's lines are written
+    where the moment happens -- "Too many! Take one away." belongs next to the code that
+    notices there are too many -- and moving thirty of them into a table to make them
+    findable would trade readable code for a second list to keep in step, which is the
+    exact failure that shipped `tt-card` paid-for and silent.
+
+    So the page stays the source of truth and this walks it: the arguments of every
+    Voice.say / Voice.lines call, plus solveColumns, whose hint arrays are built for
+    Voice.lines a few screens later.
+
+    THE FILTER, and what it is protecting against. A call argument contains literals that
+    are not lines -- `preset.show==='blocks'`, `s.kind==='mark'`, `typed!=='0'`. A spoken
+    line begins with a capital and either contains a space or ends in sentence
+    punctuation; a comparison operand does neither. Anything rejected is printed by
+    --report, because a line silently dropped here is a line nobody renders."""
+    chunks = call_args(src, "Voice.say") + call_args(src, "Voice.lines")
+
+    # THE ANCHORED CHUNKS, AND WHY THEY ARE ANCHORED HARD.
+    #
+    # Not every companion line reaches Voice.lines as a literal argument. c2-c4 build
+    # their chains into arrays first -- solveColumns fills askMark/sayMark/hintMark and
+    # the cursor effect builds `open` -- and Voice.lines(list) then takes an identifier,
+    # so the harvest above sees nothing. The first version of this shipped without the
+    # second anchor and "Start with the glowing box." was silently absent: no error, no
+    # clip, and one line of Borrow Take Away answering in the wrong voice.
+    #
+    # So a missing anchor now EXITS. A silent gap here is indistinguishable from a game
+    # that has no companion lines, and that is the one failure mode this whole generator
+    # exists to make impossible.
+    for what, pattern in (
+            ("solveColumns's hint arrays", r"function solveColumns\(.*?\n\}"),
+            ("the c2-c4 opening chain",    r"const open=cursor===0.*?\n.*?\n.*?\];"),
+    ):
+        m = re.search(pattern, src, re.S)
+        if not m:
+            sys.exit(f"spoken_fixed: could not find {what} -- the anchor has drifted, and "
+                     f"guessing would ship unrendered companion lines")
+        chunks.append(m.group(0))
+
+    # THE COLUMN OPENER'S FIRST LINE IS DATA, NOT A LITERAL AT THE CALL SITE. The opening
+    # chain anchored above reads `cfg.intro`, an identifier, so the announcement the
+    # companion now makes -- "Carry adding!" -- is invisible to the harvest even though
+    # the call site is anchored. The exclamation lives in COLUMN_MODES rather than in the
+    # template BECAUSE of this: a line assembled from `${cfg.intro}!` could never be
+    # harvested, and an unharvested companion line is one that answers in the engine
+    # voice.
+    #
+    # ANCHORED ON THE FIELD, NOT ON THE BLOCK. COLUMN_MODES also carries `title` and
+    # `sub` -- "Carry Add", "Carry the one!" -- which are printed on the mode card and
+    # never spoken. Harvesting the block would pass the filter (capitalised, punctuated)
+    # and buy six clips nobody can ever play.
+    intros = re.findall(r"\bintro:\s*('(?:[^'\\]|\\.)*')",
+                        re.sub(r"/\*.*?\*/", " ", src, flags=re.S))
+    if not intros:
+        sys.exit("spoken_fixed: no column-mode `intro:` lines -- the anchor has drifted, "
+                 "and the companion's opening announcement would ship unrendered")
+    chunks.append(" ".join(intros))
+
+    keep, drop = [], []
+    for chunk in chunks:
+        for t in literals(chunk):
+            t = t.strip()
+            if not t or "${" in t:
+                continue
+            spoken = bool(re.match(r"[A-Z]", t)) and (" " in t or t[-1] in "!?.")
+            (keep if spoken else drop).append(t)
+    # dict.fromkeys: first-seen order, deduplicated
+    return list(dict.fromkeys(keep)), sorted(set(drop))
+
+
+def report_rejects():
+    """What the filter threw away, so a real line dropped by it is visible rather than
+    merely absent. Almost all of these are comparison operands."""
+    for skin in ("space", "unicorn"):
+        _, drop = spoken_fixed(read(skin))
+        print(f"{skin:10} filter rejected {len(drop)}: {drop}")
+
+
+def slug(text):
+    """A stable id from the text. Positional ids would re-number every clip after any
+    line that is added or removed, orphaning files that are already rendered and paid
+    for; a slug only changes when the line itself changes, which is exactly when a new
+    recording is genuinely needed."""
+    t = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return t[:44].rstrip("-")
 
 
 def card_voice(src):
@@ -157,15 +301,32 @@ def build_shared():
     for key, text in card_voice(src).items():
         add(f"sh-card-{key}", text, f"home screen card {key}")
     stops = journey_stops(src)
-    for i, (name, fact) in enumerate(stops):
+    for i, (name, facts) in enumerate(stops):
         add(f"sh-arrive-{i}", f"You reached {name}!", f"journey arrival at {name}")
-        add(f"sh-fact-{i}", fact, f"journey fact at {name}")
+        # THE FIRST FACT KEEPS THE BARE ID. sh-fact-0 .. sh-fact-6 are already rendered
+        # and the resolver matches on text, so renumbering them would orphan seven paid
+        # clips and buy seven identical replacements.
+        for j, fact in enumerate(facts):
+            add(f"sh-fact-{i}" if j == 0 else f"sh-fact-{i}-{j+1}", fact,
+                f"journey fact {j+1} at {name}")
     if stops:
         last = stops[-1][0]
         add("sh-arrive-final", f"Journey complete! You reached {last}!",
             "the last stop, which prefixes the arrival line")
     add("sh-journey-new", "A brand new journey begins. Blast off!", "journey reset")
     add("sh-journey-go", "Off we go!", "closing the arrival overlay")
+
+    # The companion's own lines, from the call sites that speak them. Both skins, because
+    # a line shared between them renders once -- add() folds identical text together.
+    for skin in ("space", "unicorn"):
+        keep, _ = spoken_fixed(read(skin))
+        for t in keep:
+            add(f"sh-l-{slug(t)}", t, f"{skin} companion line")
+
+    ids = [l["id"] for l in lines]
+    dupes = sorted({i for i in ids if ids.count(i) > 1})
+    if dupes:
+        sys.exit(f"slug collision -- two different lines want the same id: {dupes}")
     return lines
 
 
@@ -228,12 +389,17 @@ def app_coverage():
             expected[unescape(t)] = f"{skin} MASCOT_LINES"
         for t in js_array(src, "PRAISE"):
             expected[unescape(t)] = f"{skin} PRAISE"
+    for skin in ("space", "unicorn"):
+        keep, _ = spoken_fixed(read(skin))
+        for t in keep:
+            expected.setdefault(t, f"{skin} companion line")
     src = read("space")
     for k, v in card_voice(src).items():
         expected[v] = f"CARD_VOICE.{k}"
-    for name, fact in journey_stops(src):
+    for name, facts in journey_stops(src):
         expected[f"You reached {name}!"] = f"journey arrival ({name})"
-        expected[fact] = f"journey fact ({name})"
+        for j, fact in enumerate(facts):
+            expected[fact] = f"journey fact {j+1} ({name})"
 
     gaps = sorted((w, t) for t, w in expected.items() if t not in covered)
     print(f"app lines   {len(expected) - len(gaps):4}/{len(expected)} enumerable fixed "
@@ -244,18 +410,23 @@ def app_coverage():
 
 
 def verify():
-    """The VOICED set in `Clips` is a promise: every line reachable in these modes speaks
-    in the rendered voice. This makes the promise checkable instead of a judgement call.
+    """Every line the app can say either has a file or is named here as not having one.
 
-    Two distinct failures, and the second is the one that has actually bitten:
+    WHAT THE TWO FAILURES COST CHANGED ON 2026-08-21, when the voice split by role rather
+    than by mode, and the difference matters when you are deciding whether to spend:
 
-      NOT RENDERED  -- the clip does not exist, so the line falls back mid-game and the
-                       mode is half-voiced. This is what held s1 out of VOICED.
+      NOT RENDERED  -- the clip does not exist, so that ONE LINE speaks in the companion's
+                       engine voice instead of her recorded one. Under the old rule this
+                       disqualified the whole mode, because the fallback landed inside a
+                       sentence next to a rendered number. It no longer does: numbers have
+                       their own voice now, so a missing companion clip is one line that
+                       sounds thinner, not a seam mid-sentence. Still work to do; no
+                       longer a reason to make a mode all-robot.
 
-      NOT REACHABLE -- the clip exists and was paid for, but no rule and no map entry
-                       resolves to it, so it is shipped and silent. `tt-card` was exactly
-                       this, and no test caught it; it was found by instrumenting Audio in
-                       a browser.
+      NOT REACHABLE -- unchanged, and still the expensive one: the clip exists and was
+                       paid for, but nothing resolves to it, so it is shipped and silent.
+                       `tt-card` was exactly this and no test caught it; it was found by
+                       instrumenting Audio in a browser.
     """
     bad = app_coverage()
     for name in ("count-by", "shared"):
@@ -266,7 +437,7 @@ def verify():
         lines = json.loads(man.read_text(encoding="utf-8"))["lines"]
         if not idx.exists():
             print(f"{name:10} NOT RENDERED at all ({len(lines)} lines); "
-                  f"the set must stay out of VOICED"); bad = 1; continue
+                  f"every one of them falls back to the engine"); bad = 1; continue
         j = json.loads(idx.read_text(encoding="utf-8"))
         have, texts = set(j.get("clips", [])), j.get("texts", {})
 
@@ -283,7 +454,8 @@ def verify():
                   f"  <- paid for and silent")
             bad = 1
 
-    print("\nVERIFY " + ("FAILED - do not add these modes to VOICED" if bad else
+    print("\nVERIFY " + ("INCOMPLETE - the lines above fall back to the engine until "
+                          "they are rendered" if bad else
                           "OK - every line rendered and reachable"))
     return 1 if bad else 0
 
@@ -298,6 +470,9 @@ def main():
     if a.verify:
         return verify()
 
+    if a.report:
+        report_rejects()
+
     cb = build_count_by()
     sh = build_shared()
 
@@ -307,6 +482,14 @@ def main():
     have_ids = set(existing["clips"])
     done = json.loads((ROOT / "narration" / "times-tables.json").read_text(encoding="utf-8"))
     have_text = {l["text"] for l in done["lines"]}
+    # AND the sets built in THIS run must be checked against each other, not only against
+    # times-tables. That gap cost 39 credits on 2026-08-21: the harvest enumerated "Which
+    # number shall we count by? Tap it!" into `shared` when count-by/cb-pick had said it
+    # since the day before, both were written, and both were rendered. The loser is not
+    # merely wasted -- `Clips.url` answers a fixed string from whichever set's text map
+    # matches first, so one of the two can never be reached, and verify() cannot see it
+    # because each set's own map is self-consistent. `have_text` now grows as the loop
+    # goes, which makes the FIRST set to claim a line the one that keeps it.
 
     total = 0
     for name, lines, mode, sets, why in (
@@ -335,6 +518,8 @@ def main():
         ids = [l["id"] for l in lines]
         if len(set(ids)) != len(ids):
             sys.exit(f"{name}: duplicate ids")
+
+        have_text |= {l["text"] for l in lines}
 
         m = manifest(mode, sets, lines, why)
         chars = m["counts"]["characters"]
