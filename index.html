@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Children Games</title>
+  <title>Magic Math</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
@@ -26,15 +26,13 @@
     .card small{font-weight:700;font-size:.8rem;opacity:.9}
     .c-space  {background:linear-gradient(160deg,#5b8cf8,#1f54d6);box-shadow:0 8px 0 #0f2e86,0 14px 28px rgba(31,84,214,.35)}
     .c-unicorn{background:linear-gradient(160deg,#f48fb1,#c2185b);box-shadow:0 8px 0 #880e4f,0 14px 28px rgba(194,24,91,.35)}
-    .c-spell  {background:linear-gradient(160deg,#ab97f5,#5a2ed6);box-shadow:0 8px 0 #371a92,0 14px 28px rgba(90,46,214,.35)}
-    .c-music  {background:linear-gradient(160deg,#4dd0e1,#00838f);box-shadow:0 8px 0 #005662,0 14px 28px rgba(0,131,143,.35)}
     footer{font-size:.8rem;font-weight:700;opacity:.75}
   </style>
 </head>
 <body>
 <div class="bg"></div>
 <div class="wrap">
-  <h1>Children <span>Games</span></h1>
+  <h1>Magic <span>Math</span></h1>
   <div class="cards">
     <a class="card c-space" href="space-math.html">
       <img src="assets-runtime/space/icons/rocket.webp" alt=""/>
@@ -46,16 +44,12 @@
       Unicorn Math
       <small>Grow a flower garden with every answer</small>
     </a>
-    <a class="card c-spell" href="magic-spelling.html">
-      <img src="assets-runtime/unicorn/icons/star.webp" alt=""/>
-      Magic Spelling
-      <small>Letters and words</small>
-    </a>
-    <a class="card c-music" href="classical-music.html">
-      <img src="assets-runtime/unicorn/icons/rainbow.webp" alt=""/>
-      Classical Music
-      <small>Listen and guess</small>
-    </a>
+    <!-- Owner, 2026-08-26: "the url say math app, so we only should list math there. we
+         shouldn't have the spelling and music there". Magic Spelling and Classical Music
+         are NOT deleted -- the pages are still here, still cached by the service worker,
+         and Children Games still links straight to them
+         (site/children-apps/index.html -> ../magic-math/magic-spelling.html). They are
+         simply not listed on a front door that says Magic Math. -->
   </div>
   <footer>Made with love for little learners</footer>
 </div>

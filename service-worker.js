@@ -56,7 +56,15 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              engine voice on every line this publish rendered — while happily being
 //              able to download them. Observed locally: a stale cache served the previous
 //              index and answered 200 for a clip already deleted from disk.
-const CACHE_NAME = "magic-math-v17";
+//   v15 -> v16 the tables reach 30 x 30, the times table chart, Read Big Numbers, and the
+//              companion's stuck line. (Recorded late: v16 and v17 shipped without
+//              extending this list, which is how a history stops being one.)
+//   v16 -> v17 the home shelves split -- Number Games and Times Tables -- so no row wraps
+//              4 + 1, published alongside the hub's own first push in weeks.
+//   v17 -> v18 four things a child can see: the start-over key stops saying "C", the math
+//              front door lists only math, a journey stop is ten answers rather than five,
+//              and both game home screens get a back arrow out to Children Games.
+const CACHE_NAME = "magic-math-v18";
 
 const SHELL = [
   "./",

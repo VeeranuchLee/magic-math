@@ -33,7 +33,7 @@
     .home{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px;overflow:hidden}
     .home-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(10,14,45,.32),rgba(10,14,45,.32)),url('assets-runtime/space/bg-nebula.webp');background-size:cover,cover;background-position:center,center;background-color:#0a0e2d;z-index:0}
     .home-tint{position:absolute;inset:0;background:rgba(8,12,40,.1);z-index:0}
-    .home>*:not(.home-bg):not(.home-tint):not(.music-btn){position:relative;z-index:1}
+    .home>*:not(.home-bg):not(.home-tint):not(.music-btn):not(.hub-btn){position:relative;z-index:1}
     .ai-note{margin:2px auto 18px;max-width:34rem;padding:0 16px;text-align:center;
       font-size:.72rem;font-weight:700;line-height:1.5;color:#eaf1ff;opacity:.75}
     .home-rainbow{font-size:clamp(.9rem,3vw,1.4rem);letter-spacing:4px;animation:bounce 1.4s ease-in-out infinite alternate}
@@ -131,6 +131,7 @@
     .back-btn{background:linear-gradient(135deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:50px;padding:8px 14px;font-family:inherit;font-size:1.2rem;font-weight:900;color:#2f6df6;cursor:pointer;box-shadow:0 4px 0 #93b7fb;transition:transform .1s;white-space:nowrap;line-height:1;min-width:52px}
     .back-btn:active{transform:translateY(3px)}
     .music-btn{position:fixed;top:14px;right:14px;z-index:9}
+    .hub-btn{position:fixed;top:14px;left:14px;z-index:9;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
     .settings-btn,.sound-btn,.music-btn{background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1;min-width:48px}
     .settings-btn:active,.sound-btn:active,.music-btn:active{transform:translateY(3px)}
 
@@ -662,7 +663,6 @@
     .rb-read:active{transform:translateY(3px);box-shadow:0 1px 0 #5a2ed6}
     .rb-read.off{opacity:.4;box-shadow:0 4px 0 #c4d7fd;cursor:default}
     .rb-pad{margin-top:2px}
-    .rb-clear{font-size:1.4rem}
 
     /* ── TIMES TABLE CHART (m2): the whole field at once, one cell explained ──
        A chart, not a quiz. Every product is printed, because the patterns a child
@@ -2011,7 +2011,7 @@ const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
    ── FACTS ARE A LIST, NOT A LINE — owner request, 2026-08-21 ──
    A stop is meant to be a small reward, and a reward that says the same sentence every
-   time stops being one. Thirty correct answers is a long way for a five-year-old, and
+   time stops being one. Sixty correct answers is a long way for a five-year-old, and
    the child who gets there four times has heard about Mars's rusty dust four times.
 
    So each stop carries several, ONE IS SHOWN AT A TIME, and the arrival card offers a
@@ -2027,7 +2027,13 @@ const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
    `amb` is the arrival ambience: a root frequency and a filter cutoff, low and warm at
    Earth, thin and high out at the Milky Way, so the place is audible before the fact is
    read. See Sound.ambience(). */
-const LEG_LEN = 5;
+/* ── TEN ANSWERS PER STOP — owner request, 2026-08-26 ──
+   Looking at the track on the home screen: "i think each stop on space math is too close
+   together, let's make like 10 per each stop." So a leg is ten answers, not five, and a
+   whole journey -- Earth out to the Milky Way -- is 60 correct answers rather than 30.
+   The seven stops and their facts are untouched; what changed is the distance between
+   them, which also doubles what the trophy at the end is worth. */
+const LEG_LEN = 10;
 const JOURNEY_STOPS = [{
   id: 'earth',
   name: 'Earth',
@@ -7076,10 +7082,10 @@ function ReadBigNumbers({
     onClick: rub,
     "aria-label": "Rub one out"
   }, /*#__PURE__*/React.createElement(BackspaceIcon, null)), /*#__PURE__*/React.createElement("button", {
-    className: "key-btn clear rb-clear",
+    className: "key-btn clear",
     onClick: clear,
-    "aria-label": "Start again"
-  }, "C")), /*#__PURE__*/React.createElement(Mascot, {
+    "aria-label": "Start over"
+  }, /*#__PURE__*/React.createElement(RefreshIcon, null))), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
     stamp: mascot.stamp,
@@ -7644,7 +7650,11 @@ function Home({
       Music.setEnabled(n);
       Sound.tap();
     }
-  }, music ? /*#__PURE__*/React.createElement(MusicOnIcon, null) : /*#__PURE__*/React.createElement(MusicOffIcon, null)), /*#__PURE__*/React.createElement("div", {
+  }, music ? /*#__PURE__*/React.createElement(MusicOnIcon, null) : /*#__PURE__*/React.createElement(MusicOffIcon, null)), /*#__PURE__*/React.createElement("a", {
+    className: "back-btn hub-btn",
+    href: "https://veeranuchlee.github.io/children-apps/",
+    "aria-label": "Back to Children Games"
+  }, /*#__PURE__*/React.createElement(BackIcon, null)), /*#__PURE__*/React.createElement("div", {
     className: "home-bg"
   }), /*#__PURE__*/React.createElement("div", {
     className: "home-tint"
@@ -8005,7 +8015,7 @@ function App() {
   /* Arriving somewhere new must never flash, which is what this preload is for — but
      the flash can only ever happen at the *next* stop, and this used to fetch all
      eight backgrounds on mount to prevent it. That was 14.13 MB spent up front to
-     cover a place the child reaches after 30 correct answers. Only the next one is
+     cover a place the child reaches after 60 correct answers. Only the next one is
      fetched now, re-run as the journey advances, so the guarantee is unchanged.
      Stop icons stay eager: they are small, and the whole set is on the home screen. */
   useEffect(() => {
