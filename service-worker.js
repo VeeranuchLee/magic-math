@@ -66,7 +66,10 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              and both game home screens get a back arrow out to Children Games.
 //   v18 -> v19 Read Big Numbers: start over leaves the keypad for the title row, half a
 //              screen from the backspace, and the backspace centres itself alone.
-const CACHE_NAME = "magic-math-v19";
+//   v19 -> v20 the AI-voice line stops speaking for voices we did not make: this app
+//              falls back to the device's own speech, and some OS voices are built from
+//              a real speaker's recordings.
+const CACHE_NAME = "magic-math-v20";
 
 const SHELL = [
   "./",
