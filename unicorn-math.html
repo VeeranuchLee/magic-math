@@ -728,6 +728,33 @@
     .tc-sq{width:var(--sq);height:var(--sq);border-radius:3px;background:linear-gradient(160deg,#e91e63,#7b1fa2);animation:correctPop .35s ease}
     .tc-done{display:block;margin:14px auto 0;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;border:none;border-radius:50px;padding:11px 40px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7b1fa2}
     .tc-done:active{transform:translateY(3px);box-shadow:0 1px 0 #7b1fa2}
+    /* ── READ FRACTIONS (f1): the wall ──
+       Sized so the whole wall is on screen at once on a 9.7" iPad without scrolling,
+       because a wall you scroll is not a wall. Twelfths land at roughly 40px a piece,
+       under the usual tap minimum -- which is safe here and nowhere else: the pieces
+       touch, and ANY piece is the right piece, so a tap that lands between two of them
+       still takes one. */
+    .fw-card{gap:6px;padding:14px 16px;min-width:min(96vw,760px);max-width:min(96vw,760px)}
+    .fw-wall{display:flex;flex-direction:column;gap:7px;width:100%}
+    .fw-row{display:grid;grid-template-columns:76px 1fr 88px;align-items:center;gap:9px}
+    .fw-name{font-size:.68rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#e91e63;opacity:.65;text-align:right}
+    .fw-row.full .fw-name{opacity:1;color:#7b1fa2}
+    .fw-bar{display:grid;grid-template-columns:repeat(var(--d),1fr);gap:3px;height:40px}
+    .fw-piece{border:2px solid #f48fb1;border-radius:7px;background:#fce4ec;cursor:pointer;padding:0;font-family:inherit}
+    .fw-piece:active{transform:scale(.94)}
+    .fw-piece.on{background:linear-gradient(160deg,#e91e63,#7b1fa2);border-color:#7b1fa2;animation:correctPop .3s ease}
+    .fw-read{display:flex;align-items:center;gap:6px;font-weight:900}
+    .fw-frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1}
+    /* The numerator wears the colour of a TAKEN piece and the denominator the colour of an
+       EMPTY one. That is the whole explanation of which number means what, and it needs no
+       words -- which matters on a screen aimed at a child who cannot read a caption. */
+    .fw-top{font-size:1.05rem;color:#e91e63}
+    .fw-rule{width:19px;height:2px;background:#f48fb1;margin:2px 0;border-radius:2px}
+    .fw-bot{font-size:1.05rem;color:#f48fb1}
+    .fw-one{font-size:1.2rem;color:#e91e63}
+    .fw-eq{font-size:.92rem;color:#7b1fa2}
+    .gp-piece{width:13px;height:16px;border-radius:3px;border:1.5px solid #f48fb1;background:#fce4ec}
+    .gp-piece.on{background:linear-gradient(160deg,#e91e63,#7b1fa2);border-color:#7b1fa2}
 
     /* ── SCORE ROW: VISIBLE FLOWER GARDEN ── */
     .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
@@ -2495,6 +2522,31 @@ function GamePreview({
   }, "2"), /*#__PURE__*/React.createElement("span", {
     className: "gp-op"
   }, "="), box));
+  if (id === 'f1') return /*#__PURE__*/ /* Read Fractions — a bar cut in four, three taken */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-piece on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-piece on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-piece on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-piece"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "/"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "4")));
   if (id === 'c2') return /*#__PURE__*/ /* Carry Add — the little box is the signature */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -6447,6 +6499,211 @@ function ReadBigNumbers({
   }));
 }
 
+/* ══ MODE f1: READ FRACTIONS ══
+   Owner, 2026-08-26: *"adopt similar style of teaching to the times table, make 'how to
+   read (and understand) fraction'"*.
+
+   SO IT IS THE CHART'S STYLE, NOT THE QUIZ'S. Nothing is marked right or wrong, there is
+   no score row and no journey progress -- m2 set that rule and it holds here: tapping to
+   learn is not an achievement, and paying the reward path for it would devalue what the
+   nine quiz games earn. This is the tap-to-learn half of the app.
+
+   THE WALL IS THE CHART. The whole field is visible at once, for the same reason every
+   product is printed on the times table: what a fraction wall teaches only exists when you
+   can see all of it. A quarter piece is visibly half a half piece. The more pieces the
+   whole is cut into, the SMALLER each piece is -- which is the one thing about fractions a
+   child reliably gets backwards, because 10 looks bigger than 4. Revealing rows one at a
+   time would destroy the comparison that is the entire point of the screen.
+
+   THE PIECES ARE COUNTED BY TAPPING, which is m2's best idea carried across. The child does
+   not read "three quarters" off a label; they take pieces one at a time and hear where they
+   have got to -- one quarter, two quarters, three quarters. ANY PIECE, IN ANY ORDER: the
+   running fraction is HOW MANY have been taken, not which. Requiring left to right would
+   turn a counting lesson into a game about finding the next box.
+
+   THE TAPPED PIECE IS THE ONE THAT FILLS, and filling left to right instead was rejected:
+   a child who taps the last piece and watches the first one light has been told something
+   false about their own tap. Scattered fills cost nothing here, because the size lesson
+   lives in the WIDTH of the pieces, which is there whether they are filled or not. It also
+   makes the row forgiving -- the pieces touch, so a tap that lands between two of them
+   takes the neighbour instead, and any piece is the right piece.
+
+   READING AND UNDERSTANDING ARE THE SAME TAP. The row prints the symbol -- 3 over 4 -- at
+   the moment the voice says "three quarters", so the written form and the spoken name
+   arrive together, which is what "how to read a fraction" actually means. The numerator is
+   drawn in the colour of a TAKEN piece and the denominator in the colour of an EMPTY one,
+   so which number means what is SHOWN rather than explained. Nothing here asks a
+   pre-reader to read a sentence about it.
+
+   FILLING A ROW SAYS THE BIG THING. Take the last piece and the row prints "= 1" while the
+   computer says "four quarters is one whole." That is the sentence the wall exists to earn,
+   and it lands at the one moment it can be felt rather than asserted.
+
+   TAPPING A FULL ROW STARTS IT AGAIN. A child who has just heard one, two, three, four
+   quarters wants to do it again, and the only thing a full row can usefully mean on the
+   next tap is "again". The alternative -- making them find Start Over to repeat one row --
+   punishes the child who liked it most.
+
+   THE DENOMINATORS ARE THE FRIENDLY ONES: 1, 2, 3, 4, 5, 6, 8, 10, 12. Sevenths, ninths and
+   elevenths are names before they are ideas, and they buy nothing a wall can show. Twelfths
+   stay because twelve is the table this app already teaches, and because the row is where a
+   child sees that 12 pieces are tiny.
+
+   ITS VOICE IS THE ENGINE, LIKE r1's ROBOT. f1 is deliberately NOT in Clips's VOICED set:
+   none of these lines have ever been rendered, and adding f1 to VOICED would promise the
+   coverage test files that do not exist. THE WORDS ARE BUILT IN JS rather than handed over
+   as "3/4", because an engine given that may say "three slash four", "three fourths", or
+   three over four -- and the whole point of the screen is hearing it said correctly.
+   British usage throughout: QUARTERS, not fourths. */
+const FRACTION_ROWS = [1, 2, 3, 4, 5, 6, 8, 10, 12];
+const PART_NAMES = {
+  1: ['whole', 'wholes'],
+  2: ['half', 'halves'],
+  3: ['third', 'thirds'],
+  4: ['quarter', 'quarters'],
+  5: ['fifth', 'fifths'],
+  6: ['sixth', 'sixths'],
+  8: ['eighth', 'eighths'],
+  10: ['tenth', 'tenths'],
+  12: ['twelfth', 'twelfths']
+};
+const PART_COUNT = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+
+/* A whole row is "one whole", never "one whole one" -- and a full row of anything is one
+   whole too, which is the equivalence the screen is for. */
+function fractionWords(n, d) {
+  if (n >= d) return 'one whole';
+  return PART_COUNT[n] + ' ' + PART_NAMES[d][n === 1 ? 0 : 1];
+}
+function FractionRow({
+  d,
+  taken,
+  onTake
+}) {
+  const n = taken.length,
+    full = n === d;
+  const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fw-row ${full ? 'full' : ''}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-name"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "fw-bar",
+    style: {
+      '--d': d
+    }
+  }, Array.from({
+    length: d
+  }, (_, i) => {
+    const on = taken.includes(i);
+    return /*#__PURE__*/React.createElement("button", {
+      key: i,
+      className: `fw-piece ${on ? 'on' : ''}`,
+      "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
+      onClick: () => onTake(d, i)
+    });
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fw-read",
+    "aria-hidden": "true"
+  }, n > 0 && (d === 1 ? /*#__PURE__*/React.createElement("span", {
+    className: "fw-one"
+  }, "1") : /*#__PURE__*/React.createElement("span", {
+    className: "fw-frac"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fw-top"
+  }, n), /*#__PURE__*/React.createElement("span", {
+    className: "fw-rule"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fw-bot"
+  }, d))), full && d > 1 && /*#__PURE__*/React.createElement("span", {
+    className: "fw-eq"
+  }, "= 1")));
+}
+function FractionWall({
+  onBack,
+  journeyBg,
+  muted,
+  onToggleMute
+}) {
+  const [taken, setTaken] = useState({});
+  const mascot = useMascot();
+  useEffect(() => {
+    Voice.say('Tap the pieces to make a fraction!');
+  }, []);
+  const any = FRACTION_ROWS.some(d => (taken[d] || []).length > 0);
+  const take = useCallback((d, i) => {
+    setTaken(prev => {
+      const cur = prev[d] || [];
+      /* A full row starts again from the piece just tapped; a piece already taken is not
+         another quarter, exactly as a counted group on the chart is not another seven. */
+      const next = cur.length === d ? [i] : cur.includes(i) ? cur : [...cur, i];
+      if (next === cur) return prev;
+      const n = next.length;
+      Sound.tap();
+      if (n === d && d > 1) {
+        Sound.ding();
+        setTimeout(() => Sound.celebrate(), 200);
+        /* The count lands first and the whole follows it, so the sentence explains the
+           number the child just reached instead of talking over it. */
+        Voice.lines([num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + '.'), num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + ' is one whole.')]);
+      } else if (d === 1) {
+        Sound.ding();
+        Voice.lines([num('One whole.')]);
+      } else {
+        Voice.say(num(fractionWords(n, d) + '.'));
+      }
+      return {
+        ...prev,
+        [d]: next
+      };
+    });
+  }, []);
+  const clear = useCallback(() => {
+    Sound.tap();
+    setTaken({});
+  }, []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen fraction-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: "Fractions"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "rb-titlerow"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Read Fractions"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Tap the pieces!")), /*#__PURE__*/React.createElement("button", {
+    className: `rb-restart ${any ? '' : 'off'}`,
+    onClick: clear,
+    disabled: !any,
+    "aria-label": "Start over"
+  }, "Start Over")), /*#__PURE__*/React.createElement("div", {
+    className: "multiply-card fw-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-wall"
+  }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionRow, {
+    key: d,
+    d: d,
+    taken: taken[d] || [],
+    onTake: take
+  })))), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "unicorn",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }));
+}
+
 /* ══ MODE g1: WHICH IS BIGGER? ══
    Greater than, less than, equal to. Two decisions from the owner (2026-08-17) are
    the whole design:
@@ -7167,6 +7424,17 @@ function Home({
     className: "mode-card-sub"
   }, "Hear it read"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic",
+    onClick: () => onSelect('f1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "f1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Fractions"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Tap the pieces"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -7449,6 +7717,7 @@ function App() {
   }));
   if (mode === 'm2') return /*#__PURE__*/React.createElement(TimesChart, shared);
   if (mode === 'r1') return /*#__PURE__*/React.createElement(ReadBigNumbers, shared);
+  if (mode === 'f1') return /*#__PURE__*/React.createElement(FractionWall, shared);
   if (mode === 's1') return /*#__PURE__*/React.createElement(CountByGame, _extends({}, shared, {
     score: scores.s1,
     setScore: setScore('s1')

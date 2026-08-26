@@ -69,7 +69,9 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v19 -> v20 the AI-voice line stops speaking for voices we did not make: this app
 //              falls back to the device's own speech, and some OS voices are built from
 //              a real speaker's recordings.
-const CACHE_NAME = "magic-math-v20";
+//   v20 -> v21 Read Fractions: a wall of bars the child taps to build a fraction and hear
+//              it named, in the times table chart's teaching style.
+const CACHE_NAME = "magic-math-v21";
 
 const SHELL = [
   "./",
