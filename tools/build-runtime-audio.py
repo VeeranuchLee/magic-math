@@ -103,10 +103,33 @@ def main():
     # the very manifest that was rendered, and only for ids that actually encoded. So
     # every clip present is reachable BY CONSTRUCTION, and one that failed to encode is
     # absent from both lists together and falls back to the engine.
+    # ══ THE BILLING LEDGER IS A SEPARATE KEY, AND IT MUST STAY SEPARATE ══
+    #
+    # Added 2026-08-26, after a dry run at the new 30x30 ceiling offered to re-buy all
+    # 965 already-paid times-tables clips. The cause: render-narration.py decides what is
+    # already shipped by reading `texts`, and times-tables has no `texts` -- correctly, it
+    # is resolved by regex. So the renderer's guard was blind for exactly the largest and
+    # most expensive set. Nothing was wrong with the audio; the ledger simply did not exist.
+    #
+    # THE OBVIOUS FIX IS WRONG. Emitting `texts` for times-tables would fix the billing and
+    # break the game: Clips resolves a `texts` entry as an EXACT match, and exact matches
+    # are deliberately NOT behind the VOICED mode gate -- that is what lets the companion
+    # keep her voice in Carry Add. Feeding it 308 bare products ("56!") and 1,800 arithmetic
+    # sentences would make an ordinary Take Away answer resolve to a times-table clip again,
+    # which is precisely the 2026-08-20 bug the gate was built to end.
+    #
+    # So the ledger is emitted under a key the app does not read. Clips.load() takes
+    # `j.clips` and `j.texts` and nothing else, so this is inert at runtime and exact at
+    # render time -- which is the split that was missing.
     if a.manifest:
         m = json.loads(a.manifest.read_text(encoding="utf-8"))
         have = {f.stem for f in outs}
-        index["texts"] = {l["text"]: l["id"] for l in m["lines"] if l["id"] in have}
+        ledger = {l["text"]: l["id"] for l in m["lines"] if l["id"] in have}
+        index["renderedTexts"] = ledger
+        # `texts` is the RUNTIME resolver map and stays opt-in per set: only the sets the
+        # app resolves by string get one. times-tables resolves by regex and must not.
+        if a.set != "times-tables":
+            index["texts"] = ledger
         missing = [l["id"] for l in m["lines"] if l["id"] not in have]
         if missing:
             print(f"NOT ENCODED, so absent from the map too ({len(missing)}): "

@@ -47,8 +47,33 @@ import argparse, json, pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SKINS = {"space": "space-math.html", "unicorn": "unicorn-math.html"}
-RUNGS = 20   # every ladder is fixed at 20 rungs; upTo stopped being a control 2026-08-15
-STEPS = range(1, 21)
+# ══ THE CEILINGS ARE READ OUT OF THE PAGE, NOT RESTATED HERE ══
+# They were two literals (20, range(1,21)) copied from space-math.html. That is the same
+# shape as the bug this file's docstring opens with: a hand-kept second copy of something
+# the page already states. The cost of drift here is not a wrong number in a report, it is
+# a MANIFEST THAT DOES NOT COVER THE GAME -- the child raises the ceiling, the mode is
+# still in Clips's VOICED set, and the uncovered lines fall through to the engine voice.
+# Raising the ceiling is now one edit, in the page, where the child's tiles are defined.
+def _array_from_length(src, name):
+    """The N of a top-level `const NAME=Array.from({length:N},...)`."""
+    m = re.search(r"const %s\s*=\s*Array\.from\(\{length:(\d+)\}" % re.escape(name), src)
+    if not m:
+        sys.exit(f"build-narration-manifest: cannot find {name} in space-math.html")
+    return int(m.group(1))
+
+
+def _obj_number(src, name, key):
+    """The `key:N` of a top-level `const NAME={...}`."""
+    m = re.search(r"const %s\s*=\s*\{[^}]*\b%s\s*:\s*(\d+)" % (re.escape(name), re.escape(key)), src)
+    if not m:
+        sys.exit(f"build-narration-manifest: cannot find {name}.{key} in space-math.html")
+    return int(m.group(1))
+
+
+_PAGE  = (ROOT / SKINS["space"]).read_text(encoding="utf-8")
+RUNGS  = _obj_number(_PAGE, "DEFAULT_COUNT_BY", "upTo")        # every ladder is this many rungs
+STEPS  = range(1, _array_from_length(_PAGE, "COUNT_BY_STEP_OPTIONS") + 1)
+TIMES  = range(1, _array_from_length(_PAGE, "TIMES_MAX_OPTIONS") + 1)
 
 
 def read(skin):
@@ -247,6 +272,51 @@ def card_voice(src):
     return out
 
 
+def build_times_tables():
+    """m1, complete -- and generated as of 2026-08-26, when the grid went from 20 to 30.
+
+    THIS WAS THE LAST HAND-WRITTEN MANIFEST, which made it the last place the bug in this
+    file's docstring could still happen. It survived hand-written only because a 20x20
+    grid is mechanical enough to type once. Raising the ceiling to 30 is what made that
+    untenable: 1,156 new lines is not a thing a person types, and the ONE line that gets
+    mistyped is not a typo -- it is a clip the resolver never asks for (paid for, shipped,
+    silent) or a line nobody rendered (the engine voice, mid-game).
+
+    ORDER IS PRESERVED FROM THE HAND-WRITTEN FILE and is not cosmetic: tt-n-<product> is
+    emitted the first time a product is seen, walking a before b. Regenerating at the old
+    ceiling reproduces the committed 965 lines exactly, which is what proves this builder
+    is a faithful replacement rather than a second opinion.
+
+    The bare products are the reason the mode gate exists. They are not a range -- they
+    are the 308 DISTINCT products of two numbers up to 30 -- so outside m1 and s1 an
+    ordinary arithmetic answer hits one only by coincidence. See Clips's VOICED set."""
+    lines, seen = [], set()
+    for a in TIMES:
+        for b in TIMES:
+            lines.append({"id": f"tt-q-{a}x{b}", "text": f"{a} times {b}?",
+                          "role": "narrator", "note": "asked when the problem appears"})
+            lines.append({"id": f"tt-a-{a}x{b}", "text": f"{a} times {b} is {a * b}.",
+                          "role": "narrator",
+                          "note": "the explanation, second line of the correct chain"})
+            if a * b not in seen:
+                seen.add(a * b)
+                lines.append({"id": f"tt-n-{a * b}", "text": f"{a * b}!", "role": "narrator",
+                              "note": "the answer alone, first line of the correct chain"})
+    # Praise is POSITIONAL, not text-mapped -- the strings are skin-specific, so the
+    # resolver indexes into PRAISE. Order here is array order in each page, and the
+    # interleaved tt-card between the two blocks is the hand-written file's order, kept
+    # so a regeneration at the old ceiling diffs clean.
+    for i, t in enumerate(js_array(read("space"), "PRAISE"), 1):
+        lines.append({"id": f"tt-praise-{i}", "text": unescape(t), "role": "narrator",
+                      "note": "third line of the correct chain, chosen at random"})
+    lines.append({"id": "tt-card", "text": card_voice(read("space"))["m1"], "role": "narrator",
+                  "note": "spoken when the Times Tables card is tapped on the home screen"})
+    for i, t in enumerate(js_array(read("unicorn"), "PRAISE"), 1):
+        lines.append({"id": f"tt-praise-u{i}", "text": unescape(t), "role": "narrator",
+                      "note": "unicorn-math praise, third line of the correct chain"})
+    return lines
+
+
 def build_count_by():
     """s1, complete. Every line the mode can utter that is not already rendered."""
     lines = [{"id": "cb-pick", "text": "Which number shall we count by? Tap it!",
@@ -296,6 +366,18 @@ def build_shared():
             add(f"sh-mascot-{pre}{i}", unescape(t), f"{skin} mascot, tapped")
         add(f"sh-pick-times-{pre}", "How big shall we go? Tap a number!",
             f"{skin} Times Tables picker")
+
+    # ══ THE STUCK LINE ══ Added 2026-08-26. It belongs in `shared` and not beside the
+    # praise in times-tables, and the difference is the whole point: `shared` carries a
+    # text map, so an exact match resolves OUTSIDE the VOICED mode gate -- which is what
+    # gets the companion's real voice into Column Add and the number line, the two modes
+    # that were silent on a stuck child. Emitted from space only: the array is identical
+    # in both skins by design (being stuck is not themed), and add() would fold it anyway.
+    # Invisible to spoken_fixed() because the call site is `Voice.say(missHint())`, not a
+    # literal -- the same reason PRAISE is enumerated by hand.
+    for i, t in enumerate(js_array(read("space"), "MISS_HINT"), 1):
+        add(f"sh-miss-{i}", unescape(t),
+            "spoken at every third miss, as the faint ghost answer appears")
 
     src = read("space")
     for key, text in card_voice(src).items():
@@ -389,6 +471,8 @@ def app_coverage():
             expected[unescape(t)] = f"{skin} MASCOT_LINES"
         for t in js_array(src, "PRAISE"):
             expected[unescape(t)] = f"{skin} PRAISE"
+        for t in js_array(src, "MISS_HINT"):
+            expected[unescape(t)] = f"{skin} MISS_HINT"
     for skin in ("space", "unicorn"):
         keep, _ = spoken_fixed(read(skin))
         for t in keep:
@@ -429,6 +513,53 @@ def verify():
                        instrumenting Audio in a browser.
     """
     bad = app_coverage()
+
+    # ══ TIMES-TABLES IS CHECKED AGAINST THE RESOLVER'S RULES, NOT AGAINST A TEXT MAP ══
+    # It has no `texts` (see build-runtime-audio.py: an entry there resolves ungated in
+    # every mode, and this set is 308 bare products). So "reachable" here means what it
+    # means in the app: Clips.idFor's four rules, plus the positional praise and the home
+    # card, arrive back at this id from this text. That is a real mirror of the resolver
+    # rather than a restatement of the manifest -- which is why it is the check that would
+    # have caught `tt-card`, the clip that was paid for, shipped and silent.
+    def tt_reachable_id(text):
+        m = re.match(r"^(\d+) times (\d+)\?$", text)
+        if m: return f"tt-q-{m.group(1)}x{m.group(2)}"
+        m = re.match(r"^(\d+) times (\d+) is (\d+)\.$", text)
+        if m: return f"tt-a-{m.group(1)}x{m.group(2)}"
+        m = re.match(r"^(\d+)!$", text)
+        if m: return f"tt-n-{m.group(1)}"
+        # Praise is positional and skin-specific: space indexes tt-praise-N, unicorn
+        # tt-praise-uN, and a text in both arrays is reachable as either.
+        for skin, pre in (("space", ""), ("unicorn", "u")):
+            arr = [unescape(t) for t in js_array(read(skin), "PRAISE")]
+            if text in arr: return f"tt-praise-{pre}{arr.index(text) + 1}"
+        if text == card_voice(read("space")).get("m1"): return "tt-card"
+        return None
+
+    for name in ("times-tables",):
+        man = ROOT / "narration" / f"{name}.json"
+        idx = ROOT / "assets-runtime" / "narration" / name / "clips.json"
+        lines = json.loads(man.read_text(encoding="utf-8"))["lines"]
+        have = set(json.loads(idx.read_text(encoding="utf-8")).get("clips", [])) \
+               if idx.exists() else set()
+        missing = [l["id"] for l in lines if l["id"] not in have]
+        # A text in BOTH praise arrays resolves to whichever id the skin in front asks
+        # for, so accept either rather than calling one of them silent.
+        dupes = {}
+        for l in lines:
+            dupes.setdefault(l["text"], []).append(l["id"])
+        unreachable = [l["id"] for l in lines if l["id"] in have
+                       and tt_reachable_id(l["text"]) not in dupes[l["text"]]]
+        print(f"{name:10} {len(lines) - len(missing):4}/{len(lines)} rendered, "
+              f"{len(lines) - len(unreachable) - len(missing):4} reachable")
+        if missing:
+            print(f"           NOT RENDERED  ({len(missing)}): {missing[:6]}")
+            bad = 1
+        if unreachable:
+            print(f"           NOT REACHABLE ({len(unreachable)}): {unreachable[:6]}"
+                  f"  <- paid for and silent")
+            bad = 1
+
     for name in ("count-by", "shared"):
         man = ROOT / "narration" / f"{name}.json"
         idx = ROOT / "assets-runtime" / "narration" / name / "clips.json"
@@ -473,15 +604,47 @@ def main():
     if a.report:
         report_rejects()
 
+    tt = build_times_tables()
     cb = build_count_by()
     sh = build_shared()
+
+    # ══ TIMES-TABLES IS WRITTEN FIRST, AND ON ITS OWN, because everything below reads it.
+    # It is the authority the other two sets de-duplicate against (`have_text`), so it has
+    # to be on disk and current before that seed is taken -- otherwise a line the grid
+    # gained at a higher ceiling would be claimed by `shared` as well and bought twice.
+    # It is also the one set whose ids legitimately collide with already-rendered clips:
+    # they ARE those clips. So it skips the collision check the loop applies, and relies
+    # instead on render-narration.py's text->id map to bill only what actually changed.
+    tt_m = manifest("Times Tables (m1)", ["space-math.html", "unicorn-math.html"], tt,
+                    "The grid the child can reach from the picker, in full. m1 is in "
+                    "Clips's VOICED set only because this set is CLOSED -- every product "
+                    "the mode can utter is bought -- so the ceiling in the page and the "
+                    "ceiling here are one decision, not two.")
+    tt_m["coverage"] = {
+        "grid": f"1x1 to {TIMES[-1]}x{TIMES[-1]}",
+        "why": "TIMES_MAX_OPTIONS lets the child pick any ceiling up to "
+               f"{TIMES[-1]}. Rendering only the 12x12 default would leave every table "
+               "above 12 falling back to speechSynthesis, so the mode would be half "
+               "converted and the child would hear the voice change when they raised "
+               "the ceiling.",
+        "skinPraise": "space-math and unicorn-math have different PRAISE arrays (space is "
+                      "themed: 'Blast off!', 'Stellar!'). tt-praise-1..6 are space's in "
+                      "array order; tt-praise-u1..u6 are unicorn's. The maths lines "
+                      "themselves are identical in both skins and are rendered once.",
+    }
+    tt_chars = tt_m["counts"]["characters"]
+    print(f"{'times-tables':10} {len(tt):5} clips  {tt_chars:7,} characters  "
+          f"(most already rendered; render-narration.py bills only the new ones)")
+    if not a.report:
+        out = ROOT / "narration" / "times-tables.json"
+        out.write_text(json.dumps(tt_m, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"           -> {out.relative_to(ROOT.parent)}")
 
     # Nothing here may duplicate an already-rendered clip, or it is paid for twice.
     existing = json.loads((ROOT / "assets-runtime" / "narration" / "times-tables"
                            / "clips.json").read_text(encoding="utf-8"))
     have_ids = set(existing["clips"])
-    done = json.loads((ROOT / "narration" / "times-tables.json").read_text(encoding="utf-8"))
-    have_text = {l["text"] for l in done["lines"]}
+    have_text = {l["text"] for l in tt}
     # AND the sets built in THIS run must be checked against each other, not only against
     # times-tables. That gap cost 39 credits on 2026-08-21: the harvest enumerated "Which
     # number shall we count by? Tap it!" into `shared` when count-by/cb-pick had said it
@@ -530,7 +693,8 @@ def main():
             out.write_text(json.dumps(m, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             print(f"           -> {out.relative_to(ROOT.parent)}")
 
-    print(f"{'TOTAL':10} {len(cb) + len(sh):5} clips  {total:7,} characters  ~{total:,} credits")
+    print(f"{'TOTAL':10} {len(cb) + len(sh):5} clips  {total:7,} characters  ~{total:,} credits"
+          "   (count-by + shared only; times-tables is billed by the renderer's diff)")
     print(f"\nalready rendered and reused for free: {len(have_ids)} clips "
           f"(Count By's whole answer chain is 552 of them)")
 

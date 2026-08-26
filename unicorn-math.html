@@ -131,7 +131,7 @@
        any child. The settings overlay is a child of .screen and must stay position:fixed
        to cover the viewport — without this exclusion it lays out inline in the column,
        squeezed to the flex width instead of centred over the game. */
-    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.modal-overlay){position:relative;z-index:1}
+    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.modal-overlay):not(.tc-panel){position:relative;z-index:1}
     .blocks-screen {--game-bg:url('assets-runtime/unicorn/bg-what-number.webp');--screen-fallback:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
     .choose-screen {--game-bg:url('assets-runtime/unicorn/bg-fill-right-block.webp');--screen-fallback:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
     .addsub-screen {--game-bg:url('assets-runtime/unicorn/bg-add-subtract.webp');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
@@ -639,6 +639,90 @@
     .cb-box{width:34px;height:40px;display:flex;align-items:center;justify-content:center;background:#fff;border:2.5px solid #ce93d8;border-radius:11px;color:#e91e63;font-size:1.3rem;font-weight:900;box-shadow:0 2px 0 #ce93d8}
     .cb-box.active{border-color:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.18),0 2px 0 #ad1457}
     @keyframes cbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.09);opacity:.72}}
+
+
+    .gp-cellx{width:11px;height:11px;border-radius:2px;border:1.5px solid #f48fb1;background:#fff}
+    .gp-cellx.on{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63}
+
+    .gp-gap{width:7px}
+    .gp-speak{font-size:.95rem;line-height:1}
+    /* ── READ BIG NUMBERS (r1) ── */
+    .rb-card{gap:10px;padding:14px 16px 16px;min-width:min(94vw,700px);max-width:min(94vw,700px)}
+    .rb-robot{width:104px;flex:0 0 auto}
+    .rb-robot svg{width:100%;height:auto;overflow:visible}
+    .rb-ant{stroke:#f48fb1;stroke-width:4;stroke-linecap:round}
+    .rb-bulb{fill:#fce4ec}
+    .rb-head,.rb-base{fill:#fff;stroke:#f48fb1;stroke-width:3.5}
+    .rb-eye{fill:#e91e63}
+    .rb-mouth{fill:#7b1fa2;transform-origin:60px 66px}
+    /* Talking is a mouth that moves and a lamp that answers it. Both are cheap, and
+       together they say "this one is speaking" without a word of explanation. */
+    .rb-robot.talking .rb-mouth{animation:rbTalk .34s ease-in-out infinite}
+    .rb-robot.talking .rb-bulb{animation:rbBlink .34s ease-in-out infinite}
+    .rb-robot.talking .rb-eye{animation:rbLook 1.6s ease-in-out infinite}
+    @keyframes rbTalk{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1.5)}}
+    @keyframes rbBlink{0%,100%{fill:#fce4ec}50%{fill:#e91e63}}
+    @keyframes rbLook{0%,100%{opacity:1}45%{opacity:.55}}
+
+    /* The gaps between groups ARE the lesson -- they are where the child sees thousands
+       part from hundreds -- so the grouping is drawn in space, not with a comma glyph
+       a pre-reader cannot decode. */
+    .rb-number{display:flex;align-items:flex-end;justify-content:center;gap:14px;flex-wrap:nowrap;width:100%;min-height:74px}
+    .rb-group{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .rb-scale{font-size:.6rem;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:#e91e63;opacity:.65}
+    .rb-digits{display:flex;gap:4px}
+    .rb-slot{width:var(--box);height:calc(var(--box) * 1.18);display:flex;align-items:center;justify-content:center;background:#fff;border:2.5px solid #f8bbd0;border-radius:11px;color:#e91e63;font-size:calc(var(--box) * .62);font-weight:900;box-shadow:0 2px 0 #f8bbd0}
+    .rb-slot.next{border-style:dashed;border-color:#e91e63;animation:cbPulse 1.2s ease-in-out infinite}
+    .rb-read{background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;border:none;border-radius:50px;padding:11px 38px;font-family:inherit;font-size:1.15rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7b1fa2}
+    .rb-read:active{transform:translateY(3px);box-shadow:0 1px 0 #7b1fa2}
+    .rb-read.off{opacity:.4;box-shadow:0 4px 0 #f8bbd0;cursor:default}
+    .rb-pad{margin-top:2px}
+    .rb-clear{font-size:1.4rem}
+
+    /* ── TIMES TABLE CHART (m2): the whole field at once, one cell explained ──
+       A chart, not a quiz. Every product is printed, because the patterns a child
+       actually learns from a times table -- the square numbers running down the
+       diagonal, the 5s column ending in 0 and 5 -- exist only when the whole field is
+       visible. Tapping does not test anything; it explains one cell.
+       Sized so 15 x 15 plus its two header strips fits a 9.7" iPad without scrolling:
+       16 tracks in a 760px card is ~45px a cell. */
+    .tc-card{gap:8px;padding:12px;min-width:min(96vw,760px);max-width:min(96vw,760px)}
+    .tc-grid{display:grid;grid-template-columns:repeat(calc(var(--n) + 1),1fr);gap:2px;width:100%}
+    .tc-corner{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:1rem;font-weight:900;color:#e91e63;opacity:.55}
+    .tc-head{display:flex;align-items:center;justify-content:center;aspect-ratio:1;border-radius:6px;background:linear-gradient(160deg,#fff,#fce4ec);border:1.5px solid #f48fb1;color:#e91e63;font-weight:900;font-size:clamp(.6rem,1.55vw,1rem)}
+    /* The lit header strips are how a four-year-old keeps their place: the row and the
+       column leading to the tapped cell stay marked while the panel is open. */
+    .tc-head.lit{background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff}
+    .tc-cell{display:flex;align-items:center;justify-content:center;aspect-ratio:1;border-radius:6px;border:1.5px solid #f8bbd0;background:#fff;color:#7b1fa2;font-family:inherit;font-weight:900;font-size:clamp(.5rem,1.35vw,.9rem);cursor:pointer;padding:0;line-height:1}
+    .tc-cell.lead{background:#fce4ec}
+    .tc-cell.sel{background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;box-shadow:0 0 0 3px rgba(233,30,99,.22);position:relative;z-index:1}
+    .tc-cell:active{transform:scale(.92)}
+
+    /* A group is a button now. Uncounted ones breathe, which is how a child finds out
+       they are tappable without anyone reading them an instruction. */
+    .tc-group{position:relative;cursor:pointer;font-family:inherit;animation:tcBreathe 2.2s ease-in-out infinite}
+    .tc-group.counted{animation:none;border-style:solid;background:linear-gradient(160deg,#fff,#fce4ec);box-shadow:0 3px 0 #f48fb1}
+    .tc-group .tc-sq{background:#f8bbd0}
+    .tc-group.counted .tc-sq{background:linear-gradient(160deg,#e91e63,#7b1fa2)}
+    /* The running total sits ON the group that reached it, so the child can read the
+       count back along the row afterwards -- 7, 14, 21 stays on screen. */
+    .tc-tally{position:absolute;top:-9px;right:-7px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;font-size:.72rem;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(20,30,90,.3)}
+    .tc-done.lit{animation:hintGlow 1.1s ease-in-out infinite}
+    @keyframes tcBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+    /* The panel covers the lower grid rather than shrinking it. The chart is the home
+       surface of this screen and is never rebuilt underneath the child -- the same
+       reason What's Missing? sizes its blocks off the side that cannot change. */
+    .tc-panel{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:3px solid #f48fb1;border-radius:26px 26px 0 0;padding:14px 16px 20px;box-shadow:0 -12px 34px rgba(20,30,90,.28);z-index:6;max-height:54vh;overflow-y:auto;animation:tcUp .24s ease}
+    @keyframes tcUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .tc-fact{font-size:1.5rem;font-weight:900;color:#7b1fa2;text-align:center;line-height:1.1}
+    .tc-fact b{color:#e91e63}
+    .tc-sub{font-size:1rem;font-weight:900;color:#e91e63;text-align:center;margin-top:3px;opacity:.85}
+    .tc-groups{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:12px}
+    .tc-group{display:grid;grid-template-columns:repeat(var(--cols),var(--sq));gap:3px;padding:5px;border:2px dashed #f48fb1;border-radius:10px;background:#fce4ec}
+    .tc-sq{width:var(--sq);height:var(--sq);border-radius:3px;background:linear-gradient(160deg,#e91e63,#7b1fa2);animation:correctPop .35s ease}
+    .tc-done{display:block;margin:14px auto 0;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;border:none;border-radius:50px;padding:11px 40px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7b1fa2}
+    .tc-done:active{transform:translateY(3px);box-shadow:0 1px 0 #7b1fa2}
 
     /* ── SCORE ROW: VISIBLE FLOWER GARDEN ── */
     .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
@@ -1400,8 +1484,25 @@ const num = t => ({
   t,
   r: ROBOT
 });
-const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Super!', 'Fantastic!'];
+const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Super!', 'Fantastic!', 'Magical!', 'Sparkling!', 'Beautiful work!', 'You are a star!', 'Lovely!', 'Like magic!'];
 const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
+
+/* ══ THE STUCK LINE ══
+   Owner's call, 2026-08-26: *"no need for sound on miss until 3 times."* A child who has
+   just got it wrong is still trying; talking at them on the first miss interrupts the
+   retry rather than helping it. So nothing is said until the THIRD miss — which is
+   already the moment the faint ghost answer appears, and until now it appeared in
+   silence.
+
+   REPEATS EVERY THIRD MISS rather than firing once, copying ColumnMath's hint schedule
+   (`nextMiss>=tries&&(nextMiss-tries)%tries===0`) so a child on their sixth attempt is
+   not left in silence either.
+
+   SHARED BETWEEN THE SKINS, unlike PRAISE. Praise is themed because arriving somewhere
+   is themed; being stuck is not, and a warm line does not get warmer for being about
+   space. Identical text in both pages renders once. */
+const MISS_HINT = ['Here is a little help.', 'Look. I will show you this one.', 'That one is tricky. Here is a peek.', 'Nearly! Here is a hint.', 'Let me help you with this one.', 'You are close. Look here.'];
+const missHint = () => MISS_HINT[Math.floor(Math.random() * MISS_HINT.length)];
 
 /* ══ NARRATION CLIPS ══
    Rendered speech for Times Tables, replacing the browser's robot voice on the lines we
@@ -1467,7 +1568,7 @@ const Clips = (() => {
       One accepted edge: tapping a card speaks its name in the rendered voice on the home
      screen and then drops into a game that may be all-robot. That is a screen change,
      not a flip inside a sentence, and the card name belongs to the home screen. */
-  const VOICED = new Set([null, 'm1', 's1']);
+  const VOICED = new Set([null, 'm1', 'm2', 's1']);
   /* ══ WHAT THE MODE GATE ACTUALLY GUARDS — REVISED 2026-08-21 ══
      The gate above used to apply to every line. It no longer does, and the distinction
      it now draws is the entire safety argument for the two-voice split:
@@ -2041,9 +2142,16 @@ const MISSING_PRESETS = [
    a socket fills every box up to the one tapped, so a child who already knows the
    answer taps once and a child who is counting taps one at a time. */
 const MISSING_AHEAD = 10; /* The number games let the child pick their own number, so these lists are what a
-                          child actually taps — 1 to 20 (owner request, 2026-08-14: "more than 12, maybe up to 20"). */
+                          child actually taps — 1 to 30 (owner request, 2026-08-26: "time table and count by
+                          until 30 * 30"; was 1 to 20 from 2026-08-14, and 1 to 12 before that).
+                          THIS CEILING IS NOT A FREE CONSTANT. It is the size of the number space the recorded
+                          voice was bought for. Times Tables and Count By are in Clips's VOICED set only because
+                          their spoken numbers are a CLOSED set — see the gate above — and raising the ceiling
+                          here without rendering the new lines is what would put the ship's computer's real voice
+                          on 7×8 and the browser engine on 23×17, inside one sitting. Raise it in
+                          tools/build-narration-manifest.py at the same time, re-render, and re-verify. */
 const TIMES_MAX_OPTIONS = Array.from({
-  length: 20
+  length: 30
 }, (_, i) => i + 1);
 const DEFAULT_TIMES_RANGE = {
   rowMax: 12,
@@ -2052,13 +2160,17 @@ const DEFAULT_TIMES_RANGE = {
 /* Count By: the skip-counting chant and the times table are the same list of numbers,
    so this game writes both at once. step = what we count by, upTo = how many jumps. */
 const COUNT_BY_STEP_OPTIONS = Array.from({
-  length: 20
+  length: 30
 }, (_, i) => i + 1);
-/* upTo is no longer a control — every ladder is 20 rungs. Kept as a named value
-   rather than a 20 sprinkled through the ladder logic, so the length is one edit. */
+/* upTo is no longer a control — every ladder is 30 rungs. Kept as a named value
+   rather than a 30 sprinkled through the ladder logic, so the length is one edit.
+
+   30 rungs × step 30 lands the last rung on 900, which is why the times-table grid and
+   this ladder had to move together: the ladder's own answer chain speaks
+   "k times step is target" and resolves against the times-tables set. */
 const DEFAULT_COUNT_BY = {
   step: 12,
-  upTo: 20
+  upTo: 30
 };
 const GAME_BACKGROUNDS = {
   whatNumber: 'assets-runtime/unicorn/bg-what-number.webp',
@@ -2298,6 +2410,57 @@ function GamePreview({
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-op"
   }, "="), box, box));
+  if (id === 'm2') return /*#__PURE__*/ /* Times Table chart — the field, and one cell lit */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx on"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-cellx"
+  })));
+  if (id === 'r1') return /*#__PURE__*/ /* Read Big Numbers — grouped slots and a reader */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "1"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-gap"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "5"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "0")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-speak"
+  }, "\uD83D\uDD0A")));
   if (id === 's1') return /*#__PURE__*/ /* Count By — the chant above, the ladder rung below */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -2497,7 +2660,7 @@ function BigKidBadge() {
 /* Said when the child taps the mascot in the corner. Deliberately not teaching: the
    mascot is company, and the games do the instructing. Nothing here asks a question or
    sets a task, so a poke can never compete with the prompt already on screen. */
-const MASCOT_LINES = ['Hello there!', 'I like counting with you.', 'You are doing beautifully.', 'Take your time. I am not going anywhere.', 'You are so clever.', 'I am right here with you.', 'Ready when you are!', 'That was a good one.'];
+const MASCOT_LINES = ['Hello there!', 'I like counting with you.', 'You are doing beautifully.', 'Take your time. I am not going anywhere.', 'You are so clever.', 'I am right here with you.', 'Ready when you are!', 'That was a good one.', 'Shall we do another?', 'You are getting quicker.', 'I like how you keep trying.'];
 const MASCOT_COOLDOWN = 2600;
 const MASCOTS = {
   unicorn: {
@@ -4100,6 +4263,11 @@ function NumberLineAddSub({
   const [celebrating, setCel] = useState(false);
   const [wrongId, setWrong] = useState(null);
   const [misses, setMisses] = useState(0);
+  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
+     that same beat and used to appear in silence; this is the line that belongs under it. */
+  useEffect(() => {
+    if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses]);
   const scrollRef = useRef(null);
   const [confetti, setConf] = useState(false);
   const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
@@ -4772,6 +4940,11 @@ function ColumnAdd({
   const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
   const mascot = useMascot();
   const [misses, setMisses] = useState(0);
+  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
+     that same beat and used to appear in silence; this is the line that belongs under it. */
+  useEffect(() => {
+    if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses]);
   const aDigits = toColumnDigits(problem.a, colCount);
   const bDigits = toColumnDigits(problem.b, colCount);
   const nextIndex = digits.findIndex(d => d === '');
@@ -5361,6 +5534,11 @@ function MultiplicationGame({
   const answerLength = String(problem.answer).length;
   const mascot = useMascot();
   const [misses, setMisses] = useState(0);
+  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
+     that same beat and used to appear in silence; this is the line that belongs under it. */
+  useEffect(() => {
+    if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses]);
   const [digits, setDigits] = useState(() => Array(answerLength).fill(''));
   const [won, setWon] = useState(false);
   const [wrong, setWrong] = useState(false);
@@ -5573,6 +5751,11 @@ function CountByGame({
   const [won, setWon] = useState(false); // current rung solved, waiting for Next
   const [digits, setDigits] = useState(() => Array(String(DEFAULT_COUNT_BY.step).length).fill(''));
   const [misses, setMisses] = useState(0);
+  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
+     that same beat and used to appear in silence; this is the line that belongs under it. */
+  useEffect(() => {
+    if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses]);
   const [wrong, setWrong] = useState(false);
   const [confetti, setConf] = useState(false);
   const mascot = useMascot();
@@ -5804,6 +5987,456 @@ function CountByGame({
     className: "next-btn",
     onClick: next
   }, "Next"));
+}
+
+/* ══ MODE m2: THE TIMES TABLE CHART ══
+   Owner, 2026-08-26: *"need to add more math stuff like ... interactive times table"*.
+   Built at 15 x 15 first -- *"just make what able to fit on screen for now"* -- then cut
+   to 12 x 12 the same day, having seen it: *"let's change to only 12 x 12."* 15 fitted,
+   but 12 is the table children are actually taught and it gives every cell 58px instead
+   of 45. It is not the 30 the pickers now offer, and that is deliberate: 30 x 30 is 900
+   cells, which on a 9.7" iPad is 22px a side and neither readable nor tappable.
+
+   IT IS A TEACHING SCREEN, NOT A QUIZ. Nothing is marked right or wrong, there is no
+   score row and no journey progress: tapping a square is not an achievement, and paying
+   the journey for it would devalue the rocket that the nine quiz games move. This is the
+   'tap-to-learn' half of the roadmap -- see the app's own README and the 2026-08-23 entry.
+
+   WHY THE BLOCKS ARE THE POINT. The grid teaches the shape of the field; the blocks teach
+   what a product IS. 3 x 4 is drawn as three fenced groups of four, so 'three groups of
+   four' and 'twelve' are the same picture. That is the whole reason the panel exists
+   rather than just printing the answer bigger.
+
+   ITS VOICE COST NOTHING. Every line it speaks is `${a} times ${b} is ${a*b}.` for a and b
+   up to 15, which is a subset of the 30 x 30 set bought on 2026-08-26 -- so m2 joins
+   Clips's VOICED set on the coverage test rather than on a promise. */
+const CHART_MAX = 12;
+
+/* Squares shrink as the product grows, because 12 x 12 is 144 of them and a fixed size
+   would either overflow the panel or waste it on 2 x 3. Groups never exceed five across,
+   so a group stays a shape a child can subitise rather than a long line.
+
+   ══ THE GROUPS ARE COUNTED BY TAPPING ══ Owner, 2026-08-26: *"add ability to click the
+   group of blocks, for example. 6 x 7 = 42 and we have 6 groups of 7, in this case if tap
+   on the group of seven, it read 7, tap another group, it read 14, ..."*
+
+   That is skip counting, made physical: the child does not read the times table off a
+   chart, they build it one group at a time and hear where they have got to. It is the same
+   lesson Count By teaches with a ladder, except here the groups are the actual objects
+   being counted, which is the part a ladder cannot show.
+
+   ANY GROUP, IN ANY ORDER. The running total is the COUNT of groups already taken, not
+   which ones, so a child tapping about the panel still counts 7, 14, 21. Requiring
+   left-to-right would turn a counting lesson into a game about finding the next box.
+   A group is counted once; tapping it again is not another seven.
+
+   IT COST NO NEW AUDIO. Every running total is k x b with both k and b no bigger than the
+   chart, so each one is already in the 30 x 30 set -- `tt-n-14` and its siblings were
+   bought on 2026-08-26 and m2 is in VOICED, so they resolve here.
+
+   THE ANSWER IS NOT HIDDEN while they count. The chart behind the panel already prints 42
+   in the cell, so blanking it here would be a pretence, and this screen teaches rather
+   than tests. Counting is the demonstration of why it is 42, not a quiz about it. */
+function GroupsPanel({
+  a,
+  b,
+  onClose
+}) {
+  const total = a * b;
+  const sq = total <= 24 ? '26px' : total <= 60 ? '20px' : total <= 120 ? '15px' : '11px';
+  const cols = Math.min(b, 5);
+  const [counted, setCounted] = useState([]);
+  const take = useCallback(g => {
+    setCounted(prev => {
+      if (prev.includes(g)) return prev;
+      const next = [...prev, g];
+      const running = next.length * b;
+      Sound.tap();
+      if (next.length === a) {
+        Sound.ding();
+        setTimeout(() => Sound.celebrate(), 200);
+        /* The last group lands on the product, so the fact follows the number it just
+           reached rather than being announced over it. */
+        Voice.lines([num(`${running}!`), num(`${a} times ${b} is ${running}.`)]);
+      } else {
+        Voice.say(num(`${running}!`));
+      }
+      return next;
+    });
+  }, [a, b]);
+  const done = counted.length === a;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "tc-panel",
+    role: "dialog",
+    "aria-label": `${a} times ${b} is ${a * b}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "tc-fact"
+  }, a, " \xD7 ", b, " = ", /*#__PURE__*/React.createElement("b", null, a * b)), /*#__PURE__*/React.createElement("div", {
+    className: "tc-sub"
+  }, a, " ", a === 1 ? 'group' : 'groups', " of ", b), /*#__PURE__*/React.createElement("div", {
+    className: "tc-groups"
+  }, Array.from({
+    length: a
+  }, (_, g) => {
+    const on = counted.includes(g);
+    return /*#__PURE__*/React.createElement("button", {
+      key: g,
+      className: `tc-group ${on ? 'counted' : ''}`,
+      style: {
+        '--cols': cols,
+        '--sq': sq
+      },
+      "aria-label": on ? `counted, ${(counted.indexOf(g) + 1) * b}` : `count this group of ${b}`,
+      onClick: () => take(g)
+    }, Array.from({
+      length: b
+    }, (_, i) => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: "tc-sq"
+    })), on && /*#__PURE__*/React.createElement("span", {
+      className: "tc-tally"
+    }, (counted.indexOf(g) + 1) * b));
+  })), /*#__PURE__*/React.createElement("button", {
+    className: `tc-done ${done ? 'lit' : ''}`,
+    onClick: () => {
+      Sound.tap();
+      onClose();
+    }
+  }, "Done!"));
+}
+function TimesChart({
+  onBack,
+  journeyBg,
+  muted,
+  onToggleMute
+}) {
+  const [sel, setSel] = useState(null);
+  const mascot = useMascot();
+  useEffect(() => {
+    Voice.say('Tap any square to see what it makes!');
+  }, []);
+  const tap = useCallback((a, b) => {
+    Sound.tap();
+    setSel({
+      a,
+      b
+    });
+    mascot.happy();
+    /* The computer states the fact and the companion stays out of it. She has nothing to
+       add to a number being read, and a cheer on every tap would make the chart chatter. */
+    Voice.lines([num(`${a} times ${b} is ${a * b}.`)]);
+  }, [mascot]);
+  const ns = Array.from({
+    length: CHART_MAX
+  }, (_, i) => i + 1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen chart-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: `${CHART_MAX} × ${CHART_MAX}`
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Times Table"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Tap a square!")), /*#__PURE__*/React.createElement("div", {
+    className: "multiply-card tc-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "tc-grid",
+    style: {
+      '--n': CHART_MAX
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "tc-corner"
+  }, "\xD7"), ns.map(b => /*#__PURE__*/React.createElement("div", {
+    key: 'h' + b,
+    className: `tc-head ${sel && sel.b === b ? 'lit' : ''}`
+  }, b)), ns.map(a => [/*#__PURE__*/React.createElement("div", {
+    key: 'rh' + a,
+    className: `tc-head ${sel && sel.a === a ? 'lit' : ''}`
+  }, a), ...ns.map(b => {
+    const on = sel && sel.a === a && sel.b === b;
+    /* `lead` is the row and column BEFORE the cell, so the tint reads as a path
+       to it rather than as a full cross through the whole chart. */
+    const lead = sel && !on && (sel.a === a && b <= sel.b || sel.b === b && a <= sel.a);
+    return /*#__PURE__*/React.createElement("button", {
+      key: a + 'x' + b,
+      className: `tc-cell ${on ? 'sel' : ''} ${lead ? 'lead' : ''}`,
+      "aria-label": `${a} times ${b}`,
+      onClick: () => tap(a, b)
+    }, a * b);
+  })]))), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "unicorn",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), sel && /*#__PURE__*/React.createElement(GroupsPanel, {
+    a: sel.a,
+    b: sel.b,
+    onClose: () => setSel(null)
+  }));
+}
+
+/* ══ MODE r1: READ BIG NUMBERS ══
+   Owner, 2026-08-26: *"need to add more math stuff like read numbers"*, and on how the
+   number is built: **tap a digit and it fills the next box**, not drag. Dragging was the
+   roadmap's first sketch and the roadmap itself hedged it ("if drag proves too hard,
+   limit selectable digits instead"). Tapping is what every other game here already does,
+   so there is no new skill to learn, and it is the standing rule that a child answers
+   with one tap and is never made to drag.
+
+   THE ROBOT READS, THE COMPANION ENCOURAGES, and they are separate on purpose -- that is
+   the 2026-08-21 role split with a face on it. She says "Let's hear the robot read it!";
+   he says the number. The seam falls between two sentences, never inside one.
+
+   WHY THE ROBOT'S VOICE IS THE ENGINE, AND WHY THAT IS NOT A COMPROMISE. A number up to
+   ten trillion cannot be pre-rendered -- the space is unbounded, which is the same wall
+   that keeps the eight column modes robot. Everywhere else that is a limitation we live
+   with. Here it is the design: the reader IS a robot, and a synthesised voice is what a
+   robot should sound like. r1 is deliberately NOT in Clips's VOICED set, so `num()`
+   resolves nothing and falls through to the ship's computer.
+
+   THE WORDS ARE BUILT IN JS, not handed to the engine as digits. Given "1234" a speech
+   engine may say "one thousand two hundred thirty four", or read it digit by digit, or
+   do something else again on another OS -- and the whole point of this screen is hearing
+   the number said correctly. So numberToWords() decides, and the engine only pronounces.
+   British usage, including the "and": "one thousand and five", not "one thousand five". */
+const READ_MAX_DIGITS = 13; // 9,999,999,999,999 -- just under ten trillion
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+const SCALES = ['', 'thousand', 'million', 'billion', 'trillion'];
+function threeToWords(n) {
+  const out = [];
+  if (n >= 100) {
+    out.push(ONES[Math.floor(n / 100)], 'hundred');
+    n %= 100;
+    if (n) out.push('and');
+  }
+  if (n >= 20) {
+    const t = TENS[Math.floor(n / 10)];
+    out.push(n % 10 ? t + ' ' + ONES[n % 10] : t);
+  } else if (n > 0) out.push(ONES[n]);
+  return out.join(' ');
+}
+function digitGroups(digits) {
+  // ['1','2','3','4'] -> [['1'],['2','3','4']]
+  const out = [];
+  for (let i = digits.length; i > 0; i -= 3) out.unshift(digits.slice(Math.max(0, i - 3), i));
+  return out;
+}
+function numberToWords(s) {
+  const clean = String(s).replace(/^0+(?=\d)/, '');
+  if (clean === '' || /^0+$/.test(clean)) return 'zero';
+  const groups = digitGroups(clean.split(''));
+  const named = [];
+  groups.forEach((g, idx) => {
+    const v = parseInt(g.join(''), 10);
+    if (!v) return;
+    const scale = SCALES[groups.length - 1 - idx];
+    named.push({
+      v,
+      words: threeToWords(v) + (scale ? ' ' + scale : ''),
+      last: idx === groups.length - 1
+    });
+  });
+  let out = '';
+  named.forEach((p, i) => {
+    /* The "and" belongs before a FINAL part under a hundred and nowhere else, which is
+       what makes 1005 "one thousand and five" but 1500 "one thousand five hundred". */
+    out = i === 0 ? p.words : out + (p.last && p.v < 100 ? ' and ' : ' ') + p.words;
+  });
+  return out;
+}
+
+/* Drawn rather than generated, and that is a design choice not a shortcut: a robot is
+   geometric, so SVG costs nothing to ship and carries no licence -- and unlike a picture
+   it can MOVE while it is reading. A child needs to see which character is talking, and
+   the mouth and the lamp do that better than any static portrait would. */
+function RobotReader({
+  speaking
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: `rb-robot ${speaking ? 'talking' : ''}`,
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 120 112"
+  }, /*#__PURE__*/React.createElement("line", {
+    className: "rb-ant",
+    x1: "60",
+    y1: "20",
+    x2: "60",
+    y2: "9"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "rb-bulb",
+    cx: "60",
+    cy: "6",
+    r: "5.5"
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "rb-head",
+    x: "17",
+    y: "20",
+    width: "86",
+    height: "64",
+    rx: "19"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "rb-eye",
+    cx: "42",
+    cy: "45",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "rb-eye",
+    cx: "78",
+    cy: "45",
+    r: "8"
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "rb-mouth",
+    x: "42",
+    y: "62",
+    width: "36",
+    height: "9",
+    rx: "4.5"
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "rb-base",
+    x: "34",
+    y: "88",
+    width: "52",
+    height: "12",
+    rx: "6"
+  })));
+}
+function ReadBigNumbers({
+  onBack,
+  journeyBg,
+  muted,
+  onToggleMute
+}) {
+  const [ds, setDs] = useState([]);
+  const [speaking, setSpeaking] = useState(false);
+  const mascot = useMascot();
+  const talkT = useRef(0);
+  useEffect(() => {
+    Voice.say('Tap the numbers to build a big one!');
+  }, []);
+  useEffect(() => () => clearTimeout(talkT.current), []);
+  const tapDigit = useCallback(d => {
+    Sound.tap();
+    setDs(prev => {
+      if (prev.length >= READ_MAX_DIGITS) return prev;
+      /* A leading zero is REPLACED, not kept. "007" is not a number anyone is learning to
+         read, and refusing the tap outright would make the 0 key read as broken -- the
+         same objection ColumnMath records about a key that changes nothing on screen. */
+      if (prev.length === 1 && prev[0] === '0') return [d];
+      return [...prev, d];
+    });
+  }, []);
+  const rub = useCallback(() => {
+    Sound.tap();
+    setDs(prev => prev.slice(0, -1));
+  }, []);
+  const clear = useCallback(() => {
+    Sound.tap();
+    setDs([]);
+  }, []);
+  const stopTalking = useCallback(() => {
+    clearTimeout(talkT.current);
+    setSpeaking(false);
+  }, []);
+  const read = useCallback(() => {
+    if (!ds.length) return;
+    const words = numberToWords(ds.join(''));
+    Sound.tap();
+    mascot.happy();
+    /* Two chains rather than one, so the robot animates for HIS line only. If he mouthed
+       along to hers the screen would be teaching the wrong thing about who is speaking. */
+    Voice.notifyNextChain(() => {
+      setSpeaking(true);
+      /* The engine can go quiet without ever firing onend -- iOS Safari drops utterances,
+         and muting mid-line returns early -- and a robot left mouthing at silence is
+         worse than one that stops a beat early. Same reasoning as Voice's own net. */
+      clearTimeout(talkT.current);
+      talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
+      Voice.notifyNextChain(stopTalking);
+      Voice.lines([num(words)]);
+    });
+    Voice.lines(["Let's hear the robot read it!"]);
+  }, [ds, mascot, stopTalking]);
+  const groups = digitGroups(ds);
+  /* Boxes shrink as the number grows so thirteen digits still fit a 768px iPad without
+     the row scrolling -- a number you have to scroll to see is not one you can read. */
+  const box = ds.length <= 7 ? 46 : ds.length <= 10 ? 38 : 31;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen read-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: "Big Numbers"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Read Big Numbers"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Build a number!")), /*#__PURE__*/React.createElement("div", {
+    className: "multiply-card rb-card"
+  }, /*#__PURE__*/React.createElement(RobotReader, {
+    speaking: speaking
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "rb-number",
+    style: {
+      '--box': box + 'px'
+    }
+  }, ds.length === 0 ? /*#__PURE__*/React.createElement("span", {
+    className: "rb-slot next"
+  }) : groups.map((g, gi) => /*#__PURE__*/React.createElement("div", {
+    key: gi,
+    className: "rb-group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rb-scale"
+  }, SCALES[groups.length - 1 - gi] || ' '), /*#__PURE__*/React.createElement("div", {
+    className: "rb-digits"
+  }, g.map((d, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "rb-slot"
+  }, d)), gi === groups.length - 1 && ds.length < READ_MAX_DIGITS && /*#__PURE__*/React.createElement("span", {
+    className: "rb-slot next"
+  }))))), /*#__PURE__*/React.createElement("button", {
+    className: `rb-read ${ds.length ? '' : 'off'}`,
+    onClick: read,
+    disabled: !ds.length
+  }, "Read it!")), /*#__PURE__*/React.createElement("div", {
+    className: "keypad rb-pad"
+  }, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(d => /*#__PURE__*/React.createElement("button", {
+    key: d,
+    className: "key-btn",
+    onClick: () => tapDigit(d)
+  }, d)), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: rub,
+    "aria-label": "Rub one out"
+  }, "Undo"), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: clear,
+    "aria-label": "Start again"
+  }, "Clear")), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "unicorn",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }));
 }
 
 /* ══ MODE g1: WHICH IS BIGGER? ══
@@ -6523,6 +7156,28 @@ function Home({
   }, "You pick how big"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-pink",
+    onClick: () => onSelect('m2')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "m2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Table Chart"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Tap a square"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic",
+    onClick: () => onSelect('r1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "r1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Big Numbers"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Hear it read"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-rose",
     onClick: () => onSelect('s1')
   }, /*#__PURE__*/React.createElement(GamePreview, {
@@ -6756,6 +7411,8 @@ function App() {
     score: scores.m1,
     setScore: setScore('m1')
   }));
+  if (mode === 'm2') return /*#__PURE__*/React.createElement(TimesChart, shared);
+  if (mode === 'r1') return /*#__PURE__*/React.createElement(ReadBigNumbers, shared);
   if (mode === 's1') return /*#__PURE__*/React.createElement(CountByGame, _extends({}, shared, {
     score: scores.s1,
     setScore: setScore('s1')

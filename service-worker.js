@@ -56,7 +56,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              engine voice on every line this publish rendered — while happily being
 //              able to download them. Observed locally: a stale cache served the previous
 //              index and answered 200 for a clip already deleted from disk.
-const CACHE_NAME = "magic-math-v15";
+const CACHE_NAME = "magic-math-v16";
 
 const SHELL = [
   "./",

@@ -144,7 +144,14 @@ def main():
         except (ValueError, OSError):
             return {}
         have = set(j.get("clips", []))
-        return {t: i for t, i in j.get("texts", {}).items() if i in have}
+        # `renderedTexts` is the BILLING ledger and `texts` is the RUNTIME resolver map.
+        # They are the same content wherever both exist, but times-tables has only the
+        # former -- deliberately, because a `texts` entry resolves ungated in every mode
+        # and that set is 308 bare products. Reading only `texts` is what made this guard
+        # blind to the 965 clips it was most important to protect (2026-08-26). Prefer the
+        # ledger; fall back to the resolver map for sets encoded before it existed.
+        m = j.get("renderedTexts") or j.get("texts") or {}
+        return {t: i for t, i in m.items() if i in have}
 
     already = {} if (a.ids or a.ignore_shipped) else shipped_texts(a.outdir.name)
 
