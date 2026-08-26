@@ -678,7 +678,11 @@
     .rb-read:active{transform:translateY(3px);box-shadow:0 1px 0 #7b1fa2}
     .rb-read.off{opacity:.4;box-shadow:0 4px 0 #f8bbd0;cursor:default}
     .rb-pad{margin-top:2px}
-    .rb-clear{font-size:1.02rem;line-height:1.1}
+    .rb-titlerow{display:flex;align-items:center;justify-content:center;gap:12px;position:relative;z-index:1}
+    .rb-restart{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:10px 16px;font-family:inherit;font-size:1rem;font-weight:900;color:#7b1fa2;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1;white-space:nowrap}
+    .rb-restart:active{transform:translateY(3px);box-shadow:0 1px 0 #ce93d8}
+    .rb-restart.off{opacity:.35;box-shadow:0 4px 0 #e8d3ec;cursor:default}
+    .rb-pad .key-btn.clear{grid-column:2/span 3}
 
     /* ── TIMES TABLE CHART (m2): the whole field at once, one cell explained ──
        A chart, not a quiz. Every product is printed, because the patterns a child
@@ -6386,12 +6390,19 @@ function ReadBigNumbers({
     onToggleMute: onToggleMute,
     label: "Big Numbers"
   }), /*#__PURE__*/React.createElement("div", {
+    className: "rb-titlerow"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
     className: "count-title-main"
   }, "Read Big Numbers"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Build a number!")), /*#__PURE__*/React.createElement("div", {
+  }, "Build a number!")), /*#__PURE__*/React.createElement("button", {
+    className: `rb-restart ${ds.length ? '' : 'off'}`,
+    onClick: clear,
+    disabled: !ds.length,
+    "aria-label": "Start over"
+  }, "Start Over")), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card rb-card"
   }, /*#__PURE__*/React.createElement(RobotReader, {
     speaking: speaking
@@ -6428,11 +6439,7 @@ function ReadBigNumbers({
     className: "key-btn clear",
     onClick: rub,
     "aria-label": "Rub one out"
-  }, "Undo"), /*#__PURE__*/React.createElement("button", {
-    className: "key-btn clear rb-clear",
-    onClick: clear,
-    "aria-label": "Start over"
-  }, "Start Over")), /*#__PURE__*/React.createElement(Mascot, {
+  }, "Undo")), /*#__PURE__*/React.createElement(Mascot, {
     kind: "unicorn",
     mood: mascot.mood,
     stamp: mascot.stamp,

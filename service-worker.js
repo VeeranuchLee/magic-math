@@ -64,7 +64,9 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v17 -> v18 four things a child can see: the start-over key stops saying "C", the math
 //              front door lists only math, a journey stop is ten answers rather than five,
 //              and both game home screens get a back arrow out to Children Games.
-const CACHE_NAME = "magic-math-v18";
+//   v18 -> v19 Read Big Numbers: start over leaves the keypad for the title row, half a
+//              screen from the backspace, and the backspace centres itself alone.
+const CACHE_NAME = "magic-math-v19";
 
 const SHELL = [
   "./",

@@ -663,6 +663,12 @@
     .rb-read:active{transform:translateY(3px);box-shadow:0 1px 0 #5a2ed6}
     .rb-read.off{opacity:.4;box-shadow:0 4px 0 #c4d7fd;cursor:default}
     .rb-pad{margin-top:2px}
+    .rb-titlerow{display:flex;align-items:center;justify-content:center;gap:12px;position:relative;z-index:1}
+    .rb-restart{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:10px 16px;font-family:inherit;font-size:1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1}
+    .rb-restart:active{transform:translateY(3px);box-shadow:0 1px 0 #ab97f5}
+    .rb-restart.off{opacity:.35;box-shadow:0 4px 0 #d6cdf7;cursor:default}
+    .rb-restart .btn-svg{width:23px;height:23px}
+    .rb-pad .key-btn.clear{grid-column:2/span 3}
 
     /* ── TIMES TABLE CHART (m2): the whole field at once, one cell explained ──
        A chart, not a quiz. Every product is printed, because the patterns a child
@@ -7039,12 +7045,19 @@ function ReadBigNumbers({
     onToggleMute: onToggleMute,
     label: "Big Numbers"
   }), /*#__PURE__*/React.createElement("div", {
+    className: "rb-titlerow"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
     className: "count-title-main"
   }, "Read Big Numbers"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Build a number!")), /*#__PURE__*/React.createElement("div", {
+  }, "Build a number!")), /*#__PURE__*/React.createElement("button", {
+    className: `rb-restart ${ds.length ? '' : 'off'}`,
+    onClick: clear,
+    disabled: !ds.length,
+    "aria-label": "Start over"
+  }, /*#__PURE__*/React.createElement(RefreshIcon, null))), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card rb-card"
   }, /*#__PURE__*/React.createElement(RobotReader, {
     speaking: speaking
@@ -7081,11 +7094,7 @@ function ReadBigNumbers({
     className: "key-btn clear",
     onClick: rub,
     "aria-label": "Rub one out"
-  }, /*#__PURE__*/React.createElement(BackspaceIcon, null)), /*#__PURE__*/React.createElement("button", {
-    className: "key-btn clear",
-    onClick: clear,
-    "aria-label": "Start over"
-  }, /*#__PURE__*/React.createElement(RefreshIcon, null))), /*#__PURE__*/React.createElement(Mascot, {
+  }, /*#__PURE__*/React.createElement(BackspaceIcon, null))), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
     stamp: mascot.stamp,
