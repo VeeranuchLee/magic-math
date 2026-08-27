@@ -71,7 +71,14 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              a real speaker's recordings.
 //   v20 -> v21 Read Fractions: a wall of bars the child taps to build a fraction and hear
 //              it named, in the times table chart's teaching style.
-const CACHE_NAME = "magic-math-v21";
+//   v21 -> v22 the robot reader is drawn rather than implied -- a talking head for Read Big
+//              Numbers and Magic Spelling -- and every app grew a way back out.
+//   v22 -> v23 Read Big Numbers reaches nineteen digits, so the robot names quadrillions and
+//              quintillions, and Read Fractions opens as a grid of pies with the bar wall one
+//              tap away.
+//   NOTE: v22 was never published. v21 is what devices are running, so the publish that
+//              ships v23 delivers both of the entries above in one release.
+const CACHE_NAME = "magic-math-v23";
 
 const SHELL = [
   "./",

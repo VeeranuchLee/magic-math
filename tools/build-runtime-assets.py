@@ -9,6 +9,12 @@ are 130 KB.
 
 Design decisions worth knowing before you change anything here:
 
+  * PNG masters are re-encoded; WEBP masters are COPIED. An animated WebP (the
+    talking robots) cannot be generated from a still, so those live under assets/
+    already in their delivery format and pass through untouched. They must be
+    declared as masters, not hand-placed in the output, or the stale-prune below
+    deletes them on the next run.
+
   * Masters are READ-ONLY. `math-app/assets/` is a protected directory_prefix.
     Everything this script writes goes to the parallel `assets-runtime/` tree, so
     a bad run can never damage a source file -- delete the output tree and re-run.
@@ -71,6 +77,22 @@ def main() -> int:
             continue
         sources.append((png, rel))
 
+    # ANIMATED MASTERS ARE COPIED, NOT ENCODED (2026-08-27). The talking robots are
+    # animated WebP, and there is no PNG that can produce one -- a still master would
+    # lose every frame but one. So .webp under assets/ is treated as a master that is
+    # ALREADY in the delivery format and passed through byte for byte.
+    #
+    # It has to be listed here rather than dropped straight into assets-runtime/,
+    # because the prune below deletes any runtime .webp without a master. A hand-placed
+    # animation would survive until the next run of this script and then vanish, which
+    # is the sort of breakage nobody notices until an offline iPad shows a blank robot.
+    passthrough = []
+    for src in sorted(SRC_ROOT.rglob("*.webp")):
+        rel = src.relative_to(SRC_ROOT)
+        if rel.parts[0] in SKIP_DIRS:
+            continue
+        passthrough.append((src, rel))
+
     src_bytes = out_bytes = 0
     written = 0
     for png, rel in sources:
@@ -85,9 +107,18 @@ def main() -> int:
         out_bytes += out.stat().st_size
         written += 1
 
+    for src, rel in passthrough:
+        out = OUT_ROOT / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(src.read_bytes())
+        src_bytes += src.stat().st_size
+        out_bytes += out.stat().st_size
+        written += 1
+
     # A master that was deleted must not leave a stale runtime file behind, or the
     # cache list will happily keep shipping art the app no longer references.
     expected = {(OUT_ROOT / rel).with_suffix(".webp") for _, rel in sources}
+    expected |= {OUT_ROOT / rel for _, rel in passthrough}
     for stale in sorted(OUT_ROOT.rglob("*.webp")):
         if stale not in expected:
             stale.unlink()

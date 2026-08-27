@@ -30,7 +30,12 @@ from __future__ import annotations
 import pathlib
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
-ICON_DIRS = ["assets-runtime/space/icons", "assets-runtime/unicorn/icons"]
+# Magic Spelling joined on 2026-08-27 with the ABC head. This list is HAND-KEPT, so a
+# new theme directory is built by build-runtime-assets.py (which walks the tree) and
+# then silently left out of the offline cache unless it is added here -- the app works
+# online and shows a blank robot on an iPad in aeroplane mode.
+ICON_DIRS = ["assets-runtime/space/icons", "assets-runtime/unicorn/icons",
+             "assets-runtime/spelling/icons"]
 # Referenced by menus or mascots. `bg-nebula.webp` is the one background included:
 # it is the menu's own backdrop, and the menu is the screen every session opens on,
 # so leaving it out is the difference between the app looking finished offline and

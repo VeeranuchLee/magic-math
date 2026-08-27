@@ -67,6 +67,11 @@
     .top-bar{width:100%;max-width:640px;display:flex;align-items:center;justify-content:space-between;gap:8px}
     .round-btn{width:46px;height:46px;border-radius:50%;border:none;background:#fff;color:#e91e63;font-size:1.3rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #f48fb1;display:flex;align-items:center;justify-content:center;font-family:inherit}
     .round-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
+    /* Owner, 2026-08-27: *"need to make sure ALL games has back icon to the hub"* --
+       a 4-year-old could not get out of this app. Fixed rather than in the top bar,
+       because Home has no top bar to sit in, and top-left is where the same arrow
+       lives in Space Math and Unicorn Math. z-index clears the drifting petals. */
+    .hub-btn{position:fixed;top:12px;left:12px;z-index:20;text-decoration:none}
     .bar-label{font-size:.8rem;font-weight:900;color:#9c27b0;background:rgba(255,255,255,.7);border-radius:50px;padding:4px 12px}
     .chip-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
     .chip{border:none;border-radius:50px;padding:7px 14px;font-family:inherit;font-weight:900;font-size:.78rem;cursor:pointer;background:rgba(255,255,255,.75);color:#ad1457;box-shadow:0 3px 0 rgba(173,20,87,.25)}
@@ -76,8 +81,41 @@
     /* ── GAME AREA ── */
     .word-pic{font-size:clamp(64px,18vw,104px);line-height:1;filter:drop-shadow(0 6px 12px rgba(173,20,87,.25));animation:bounce 1.6s ease-in-out infinite alternate}
     .prompt-bubble{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 18px;box-shadow:0 4px 0 #f48fb1;font-size:clamp(1rem,4vw,1.4rem);font-weight:900;color:#333;text-align:center;display:flex;align-items:center;gap:10px}
-    .speak-btn{border:none;background:linear-gradient(160deg,#ce93d8,#8e24aa);color:#fff;border-radius:50px;width:42px;height:42px;font-size:1.15rem;cursor:pointer;box-shadow:0 3px 0 #4a148c;flex-shrink:0}
-    .speak-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #4a148c}
+    /* THE ROBOT IS THE BUTTON. This was a bare 🔊 on a purple pill, and the emoji is drawn
+       by the operating system -- a grey metal speaker on macOS, something else again on
+       the iPad -- so it was chrome pretending to be art. It also asked a pre-reader to
+       know that a speaker glyph means "press me and I will say it", which is exactly the
+       kind of reading this game exists to teach. A face that opens its mouth when you tap
+       it needs no such decoding. Sized well past the 44px tap minimum, both because the
+       target must stay generous and because the ABC on his chin has to read at all. */
+    /* THE ROBOT STANDS OUTSIDE THE BUBBLE, and the bubble points at him. Inside it he was
+       58px of button glyph -- at that size the ABC on his chin is a smudge and he reads as
+       decoration on a control. Out here at 88px he is a character who is saying the thing
+       in the bubble, which is what a speech bubble has always meant. */
+    .read-row{display:flex;align-items:center;gap:12px;max-width:min(94vw,640px)}
+    .speak-btn{border:none;background:none;padding:0;width:88px;height:88px;cursor:pointer;flex-shrink:0;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+    .speak-btn:active{transform:translateY(2px)}
+    .read-row .prompt-bubble{position:relative}
+    .read-row .prompt-bubble::before{content:'';position:absolute;left:-11px;top:50%;transform:translateY(-50%);border:9px solid transparent;border-right-color:#f48fb1;border-left:0}
+    .read-row .prompt-bubble::after{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);border:8px solid transparent;border-right-color:#fff;border-left:0}
+    .rb-robot{width:88px;display:grid;place-items:center}
+    /* Both frames share one grid cell so the swap cannot shift the bubble by a pixel, and
+       both are in the DOM from the start so the first word never waits for a decode. An
+       animated WebP cannot be paused, so the idle robot is simply the still one with the
+       animation running unseen underneath. At 58px that costs nothing. */
+    .rb-robot img{width:100%;height:auto;display:block;grid-area:1/1;transition:opacity .18s linear}
+    .rb-robot .rb-talk{opacity:0}
+    .rb-robot.talking .rb-still{opacity:0}
+    .rb-robot.talking .rb-talk{opacity:1}
+    @media (prefers-reduced-motion: reduce){
+      .rb-robot .rb-talk{display:none}
+      .rb-robot .rb-still{opacity:1 !important}
+      /* Movement is refused, so "who is speaking" falls back to light on the still face --
+         the child still has to know the robot is the one talking. */
+      .rb-robot.talking{animation:rbPulse 1.4s ease-in-out infinite}
+    }
+    @keyframes rbPulse{0%,100%{filter:none}50%{filter:brightness(1.12) drop-shadow(0 0 9px rgba(233,30,99,.7))}}
+    .icon-svg{width:22px;height:22px;display:block}
 
     .slot-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
     .slot{width:52px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;background:rgba(255,255,255,.55);border:3px dashed #f06292;color:#ad1457}
@@ -218,18 +256,42 @@ const Voice = {
     _voiceMuted = m;
     if (m && window.speechSynthesis) window.speechSynthesis.cancel();
   },
-  say(text, rate = 0.85) {
-    if (_voiceMuted) return;
+  /* `on(true)` / `on(false)` report when the voice actually starts and stops, so the
+     robot's mouth is driven by the engine rather than by a guess at how long a word takes.
+     EVERY early return reports false: a robot mouthing at a voice that never started is
+     worse than one that never moved, and muting mid-word returns early here. */
+  say(text, rate = 0.85, on) {
+    const off = () => {
+      try {
+        on && on(false);
+      } catch (e) {}
+    };
+    if (_voiceMuted) {
+      off();
+      return;
+    }
     try {
       const s = window.speechSynthesis;
-      if (!s) return;
+      if (!s) {
+        off();
+        return;
+      }
       s.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.rate = rate;
       u.pitch = 1.15;
       u.lang = 'en-US';
+      u.onstart = () => {
+        try {
+          on && on(true);
+        } catch (e) {}
+      };
+      u.onend = off;
+      u.onerror = off;
       s.speak(u);
-    } catch (e) {}
+    } catch (e) {
+      off();
+    }
   }
 };
 const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Beautiful!', 'Magical!'];
@@ -419,6 +481,124 @@ function useFlowerReward(setFlowers, setGardenFull, addBouquet) {
     });
   }, [setFlowers, setGardenFull, addBouquet]);
 }
+
+/* Painted chrome, not emoji. A bare 🔊/🔇 is drawn by the operating system -- grey metal
+   on macOS, a different shape again on the iPad -- so it never matched the app it sat in
+   and never looked the same twice. These inherit `currentColor`, so they take the button's
+   own pink without a second asset. Same two icons Space Math already uses. */
+function SpeakerOnIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5 6 9H3v6h3l5 4V5z",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M15.5 8.5a5 5 0 0 1 0 7"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M18.5 6a9 9 0 0 1 0 12"
+  }));
+}
+function SpeakerOffIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5 6 9H3v6h3l5 4V5z",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "16",
+    y1: "9",
+    x2: "22",
+    y2: "15"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "22",
+    y1: "9",
+    x2: "16",
+    y2: "15"
+  }));
+}
+
+/* THE ABC HEAD. The third of the five talking heads, and the one whose face is literally
+   the subject of this game -- an A on his crown and ABC on his chin. Built by
+   `tools/make-talking-robot.py` from the same intake as the maths robots, so he is the
+   same character family in the same light; the sources and recipe are in the sidecar at
+   art-source/math-app/talking-robots-2026-08-27.
+
+   He is blue and white in a pink app, deliberately: he is a visitor who reads to you, not
+   part of the furniture, and the two maths apps each keep their own head for the same
+   reason. */
+function RobotReader({
+  speaking
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    className: `rb-robot ${speaking ? 'talking' : ''}`,
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "rb-still",
+    src: "assets-runtime/spelling/icons/robot-reader.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "rb-talk",
+    src: "assets-runtime/spelling/icons/robot-reader-talk.webp",
+    alt: ""
+  }));
+}
+
+/* One reader for all three games: they ask the same question -- "say this word" -- and a
+   child who learns to tap the robot in one should not have to learn it again in the next. */
+function useReader() {
+  const [speaking, setSpeaking] = useState(false);
+  const t = useRef(0);
+  /* ONE TOKEN PER TAP, and only the current tap may stop the mouth. `speechSynthesis.cancel()`
+     fires `end` on the utterance it is cancelling, so without this the SECOND tap starts the
+     animation and is then killed a tick later by the FIRST tap's end event -- the robot moved
+     once per session and never again, which is the opposite of how a child uses him. */
+  const gen = useRef(0);
+  useEffect(() => () => clearTimeout(t.current), []);
+  const stop = useCallback(() => {
+    clearTimeout(t.current);
+    setSpeaking(false);
+  }, []);
+  const say = useCallback(word => {
+    const mine = ++gen.current;
+    Sound.tap();
+    clearTimeout(t.current);
+    /* THE MOUTH STARTS ON THE TAP, NOT ON THE ENGINE'S `onstart`. Driving it from onstart
+       reads better on paper and fails in practice: Chrome never fires it while the document
+       is hidden (the utterance sits queued with speaking===true), and iOS Safari drops
+       utterances outright. A robot that stays still when a child taps him reads as broken,
+       which is far worse than one that mouths a beat past the voice. `onend` still stops him
+       early whenever the engine does report it, and the timeout is the net under that.
+       Muting is safe: Voice.say reports false synchronously, so the two state writes batch in
+       this same handler and the robot never moves. */
+    setSpeaking(true);
+    t.current = setTimeout(() => {
+      if (gen.current === mine) stop();
+    }, Math.max(1800, word.length * 280 + 1000));
+    Voice.say(word, 0.85, on => {
+      if (!on && gen.current === mine) stop();
+    });
+  }, [stop]);
+  return {
+    speaking,
+    say
+  };
+}
 function TopBar({
   onBack,
   label,
@@ -452,7 +632,7 @@ function TopBar({
     className: "round-btn",
     "aria-label": muted ? 'Unmute' : 'Mute',
     onClick: onToggleMute
-  }, muted ? '🔇' : '🔊'));
+  }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)));
 }
 function PresetChips({
   preset,
@@ -521,6 +701,7 @@ function FirstLetter({
   const [prob, setProb] = useState(null);
   const [fx, setFx] = useState({});
   const prevRef = useRef(null);
+  const reader = useReader();
   const mascot = useMascot();
   const newProblem = useCallback(() => {
     const [w, e] = pickWord(preset.bank, prevRef.current);
@@ -575,16 +756,20 @@ function FirstLetter({
     role: "img",
     "aria-label": prob.w.toLowerCase()
   }, prob.e), /*#__PURE__*/React.createElement("div", {
+    className: "read-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word",
+    onClick: () => reader.say(prob.w)
+  }, /*#__PURE__*/React.createElement(RobotReader, {
+    speaking: reader.speaking
+  })), /*#__PURE__*/React.createElement("div", {
     className: "prompt-bubble"
   }, "What letter does ", /*#__PURE__*/React.createElement("b", {
     style: {
       color: '#e91e63'
     }
-  }, prob.w.toLowerCase()), " start with?", /*#__PURE__*/React.createElement("button", {
-    className: "speak-btn",
-    "aria-label": "Say the word",
-    onClick: () => Voice.say(prob.w)
-  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+  }, prob.w.toLowerCase()), " start with?")), /*#__PURE__*/React.createElement("div", {
     className: "praise-banner"
   }, core.banner), /*#__PURE__*/React.createElement("div", {
     className: "tile-row"
@@ -611,6 +796,7 @@ function BuildWord({
   const [used, setUsed] = useState([]);
   const [fx, setFx] = useState({});
   const prevRef = useRef(null);
+  const reader = useReader();
   const mascot = useMascot();
   const newProblem = useCallback(() => {
     const [w, e] = pickWord(preset.bank, prevRef.current);
@@ -676,16 +862,20 @@ function BuildWord({
     role: "img",
     "aria-label": prob.w.toLowerCase()
   }, prob.e), /*#__PURE__*/React.createElement("div", {
+    className: "read-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word",
+    onClick: () => reader.say(prob.w)
+  }, /*#__PURE__*/React.createElement(RobotReader, {
+    speaking: reader.speaking
+  })), /*#__PURE__*/React.createElement("div", {
     className: "prompt-bubble"
   }, "Spell ", /*#__PURE__*/React.createElement("b", {
     style: {
       color: '#e91e63'
     }
-  }, prob.w.toLowerCase()), "!", /*#__PURE__*/React.createElement("button", {
-    className: "speak-btn",
-    "aria-label": "Say the word",
-    onClick: () => Voice.say(prob.w)
-  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+  }, prob.w.toLowerCase()), "!")), /*#__PURE__*/React.createElement("div", {
     className: "slot-row",
     "aria-label": "Word so far"
   }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
@@ -717,6 +907,7 @@ function MissingLetter({
   const [solved, setSolved] = useState(false);
   const [fx, setFx] = useState({});
   const prevRef = useRef(null);
+  const reader = useReader();
   const mascot = useMascot();
   const newProblem = useCallback(() => {
     const [w, e] = pickWord(preset.bank, prevRef.current);
@@ -775,12 +966,16 @@ function MissingLetter({
     role: "img",
     "aria-label": prob.w.toLowerCase()
   }, prob.e), /*#__PURE__*/React.createElement("div", {
-    className: "prompt-bubble"
-  }, "Which letter is missing?", /*#__PURE__*/React.createElement("button", {
+    className: "read-row"
+  }, /*#__PURE__*/React.createElement("button", {
     className: "speak-btn",
     "aria-label": "Say the word",
-    onClick: () => Voice.say(prob.w)
-  }, "\uD83D\uDD0A")), /*#__PURE__*/React.createElement("div", {
+    onClick: () => reader.say(prob.w)
+  }, /*#__PURE__*/React.createElement(RobotReader, {
+    speaking: reader.speaking
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "prompt-bubble"
+  }, "Which letter is missing?")), /*#__PURE__*/React.createElement("div", {
     className: "slot-row",
     "aria-label": "Word with a missing letter"
   }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
@@ -810,7 +1005,11 @@ function Home({
   const title = 'Magic Spelling!'.split('');
   return /*#__PURE__*/React.createElement("div", {
     className: "screen"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("a", {
+    className: "round-btn hub-btn",
+    href: "https://veeranuchlee.github.io/children-apps/",
+    "aria-label": "Back to Children Games"
+  }, "\u2190"), /*#__PURE__*/React.createElement("div", {
     className: "home-crown-row"
   }, /*#__PURE__*/React.createElement("span", {
     className: "home-crown",

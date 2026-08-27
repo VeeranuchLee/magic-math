@@ -145,6 +145,7 @@
     .music-btn.music-off{opacity:.45;filter:grayscale(1)}
     .settings-btn,.sound-btn,.music-btn{background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#7b1fa2;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1;min-width:48px}
     .settings-btn:active,.sound-btn:active,.music-btn:active{transform:translateY(3px)}
+    .icon-svg{width:22px;height:22px;display:block}
 
     /* ── MODALS ── */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -646,24 +647,26 @@
     .gp-cellx.on{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63}
 
     .gp-gap{width:7px}
-    .gp-speak{font-size:.95rem;line-height:1}
+    .gp-speak{width:18px;height:18px;display:block}
     /* ── READ BIG NUMBERS (r1) ── */
     .rb-card{gap:10px;padding:14px 16px 16px;min-width:min(94vw,700px);max-width:min(94vw,700px)}
-    .rb-robot{width:104px;flex:0 0 auto}
-    .rb-robot svg{width:100%;height:auto;overflow:visible}
-    .rb-ant{stroke:#f48fb1;stroke-width:4;stroke-linecap:round}
-    .rb-bulb{fill:#fce4ec}
-    .rb-head,.rb-base{fill:#fff;stroke:#f48fb1;stroke-width:3.5}
-    .rb-eye{fill:#e91e63}
-    .rb-mouth{fill:#7b1fa2;transform-origin:60px 66px}
-    /* Talking is a mouth that moves and a lamp that answers it. Both are cheap, and
-       together they say "this one is speaking" without a word of explanation. */
-    .rb-robot.talking .rb-mouth{animation:rbTalk .34s ease-in-out infinite}
-    .rb-robot.talking .rb-bulb{animation:rbBlink .34s ease-in-out infinite}
-    .rb-robot.talking .rb-eye{animation:rbLook 1.6s ease-in-out infinite}
-    @keyframes rbTalk{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1.5)}}
-    @keyframes rbBlink{0%,100%{fill:#fce4ec}50%{fill:#e91e63}}
-    @keyframes rbLook{0%,100%{opacity:1}45%{opacity:.55}}
+    .rb-robot{width:104px;flex:0 0 auto;position:relative;display:grid;place-items:center}
+    /* Both frames occupy the same cell so the swap cannot shift the layout by a pixel. */
+    .rb-robot img{width:100%;height:auto;display:block;grid-area:1/1;transition:opacity .18s linear}
+    .rb-robot .rb-talk{opacity:0}
+    .rb-robot.talking .rb-still{opacity:0}
+    .rb-robot.talking .rb-talk{opacity:1}
+    /* An animated WebP cannot be paused, so the idle robot is the still one and the
+       animation simply runs unseen underneath. At 104px that costs nothing, and it means
+       the first word never waits for a decode. */
+    @media (prefers-reduced-motion: reduce){
+      .rb-robot .rb-talk{display:none}
+      .rb-robot .rb-still{opacity:1 !important}
+      /* Movement is refused, so the "who is speaking" cue falls back to light on the
+         still face -- the child still needs to know he is the one talking. */
+      .rb-robot.talking{animation:rbPulse 1.4s ease-in-out infinite}
+    }
+    @keyframes rbPulse{0%,100%{filter:none}50%{filter:brightness(1.14) drop-shadow(0 0 9px rgba(233,30,99,.7))}}
 
     /* The gaps between groups ARE the lesson -- they are where the child sees thousands
        part from hundreds -- so the grouping is drawn in space, not with a comma glyph
@@ -734,6 +737,32 @@
        under the usual tap minimum -- which is safe here and nowhere else: the pieces
        touch, and ANY piece is the right piece, so a tap that lands between two of them
        still takes one. */
+    /* ── FRACTIONS, PIE VIEW (f1) — the default since 2026-08-27 ──
+       auto-fit rather than a fixed column count: nine pies land 3-across on a 768px iPad
+       and reflow to 2 on a phone without a media query. minmax's floor is what keeps a
+       twelfth wide enough to hit. */
+    .fp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));
+      gap:10px 12px;width:100%;justify-items:center}
+    .fp-cell{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
+    .fp-pie{width:min(100%,132px);height:auto;display:block;overflow:hidden}
+    /* Each sector is its own hit area, so the stroke is what separates them -- drawn in the
+       card colour rather than a line, which keeps the circle reading as one whole thing. */
+    .fp-piece{fill:#fce4ec;stroke:#ce93d8;stroke-width:1.6;cursor:pointer;
+      transition:fill .14s ease}
+    .fp-piece.on{fill:#e91e63;animation:fpFlash .34s ease}
+    @keyframes fpFlash{0%{filter:brightness(1.75)}100%{filter:none}}
+    .fp-piece:active{fill:#e9a8d4}
+    .fp-piece:focus-visible{outline:none;stroke:#7b1fa2;stroke-width:3}
+    /* A completed circle is the equivalence the screen exists for, so it says so out loud. */
+    .fp-cell.full .fp-piece.on{fill:#7b1fa2}
+    .fp-foot{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px}
+    /* Reserved, not grown: the second row must not jump down when a fraction appears
+       in the first. 56px is measured, not guessed -- a stacked fraction renders 39.6px
+       and the name 14px, so the tallest foot is 54.6px. */
+    .fp-foot .fw-read{min-height:40px;justify-content:center}
+    .fp-name{font-size:.66rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
+      color:#7b1fa2;opacity:.7}
+    .fp-toggle{padding:10px 12px}
     .fw-card{gap:6px;padding:14px 16px;min-width:min(96vw,760px);max-width:min(96vw,760px)}
     .fw-wall{display:flex;flex-direction:column;gap:7px;width:100%}
     .fw-row{display:grid;grid-template-columns:76px 1fr 88px;align-items:center;gap:9px}
@@ -2490,9 +2519,11 @@ function GamePreview({
     style: {
       marginTop: 4
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-speak"
-  }, "\uD83D\uDD0A")));
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "gp-speak",
+    src: "assets-runtime/unicorn/icons/read-out.webp",
+    alt: ""
+  })));
   if (id === 's1') return /*#__PURE__*/ /* Count By — the chant above, the ladder rung below */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -3190,6 +3221,113 @@ function LineSettings({
    the difficulty. The owner reversed that (2026-08-14): the child is meant to choose.
    So one tap opens the panel, and the difficulty pill opens it too — a much bigger
    target than the gear, and the one place a child is already looking. */
+/* Owner, 2026-08-27: the last 🔊 in this app's chrome. An emoji is drawn by the operating
+   system -- grey metal on macOS, a different shape again on the iPad -- so it never matched
+   the button it sat in and never looked the same twice. These take `currentColor`, so they
+   pick up the button's own purple with no second asset. Same two Space Math already uses;
+   this app simply never got them. */
+function PieIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "9",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12 12 L12 3 A9 9 0 0 1 21 12 Z",
+    fill: "currentColor"
+  }));
+}
+function BarsIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "6",
+    width: "18",
+    height: "5",
+    rx: "1.6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "6",
+    width: "9",
+    height: "5",
+    rx: "1.6",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "14",
+    width: "18",
+    height: "5",
+    rx: "1.6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "14",
+    width: "6",
+    height: "5",
+    rx: "1.6",
+    fill: "currentColor"
+  }));
+}
+function SpeakerOnIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5 6 9H3v6h3l5 4V5z",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M15.5 8.5a5 5 0 0 1 0 7"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M18.5 6a9 9 0 0 1 0 12"
+  }));
+}
+function SpeakerOffIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5 6 9H3v6h3l5 4V5z",
+    fill: "currentColor",
+    stroke: "none"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "16",
+    y1: "9",
+    x2: "22",
+    y2: "15"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "22",
+    y1: "9",
+    x2: "16",
+    y2: "15"
+  }));
+}
 function TopBar({
   onBack,
   onSettings,
@@ -3251,7 +3389,7 @@ function TopBar({
       onToggleMute();
       Sound.tap();
     }
-  }, muted ? '🔇' : '🔊'), onSettings && /*#__PURE__*/React.createElement("button", {
+  }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)), onSettings && /*#__PURE__*/React.createElement("button", {
     className: "settings-btn",
     "aria-label": "Change the numbers",
     onClick: open
@@ -6255,7 +6393,7 @@ function TimesChart({
    he says the number. The seam falls between two sentences, never inside one.
 
    WHY THE ROBOT'S VOICE IS THE ENGINE, AND WHY THAT IS NOT A COMPROMISE. A number up to
-   ten trillion cannot be pre-rendered -- the space is unbounded, which is the same wall
+   ten quintillion cannot be pre-rendered -- the space is unbounded, which is the same wall
    that keeps the eight column modes robot. Everywhere else that is a limitation we live
    with. Here it is the design: the reader IS a robot, and a synthesised voice is what a
    robot should sound like. r1 is deliberately NOT in Clips's VOICED set, so `num()`
@@ -6266,10 +6404,20 @@ function TimesChart({
    do something else again on another OS -- and the whole point of this screen is hearing
    the number said correctly. So numberToWords() decides, and the engine only pronounces.
    British usage, including the "and": "one thousand and five", not "one thousand five". */
-const READ_MAX_DIGITS = 13; // 9,999,999,999,999 -- just under ten trillion
+/* Owner, 2026-08-27: *"can we add until. Quadrillion or Quintillion"*. Nineteen digits, so
+   9,999,999,999,999,999,999 -- just under ten quintillion, which is as far as the short-scale
+   names most children meet go before they stop being words anyone says.
+
+   NINETEEN DIGITS IS PAST Number.MAX_SAFE_INTEGER (9,007,199,254,740,991) AND THAT IS FINE.
+   Nothing here ever parses the whole number: `digitGroups` splits the digit STRING into
+   threes and `threeToWords` parses only a group, so the largest integer that reaches
+   parseInt is 999. A version of this that read the number as one value would have started
+   lying silently somewhere in the quadrillions -- worse than a crash, because it would still
+   speak, just wrongly. */
+const READ_MAX_DIGITS = 19; // 9,999,999,999,999,999,999 -- just under ten quintillion
 const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-const SCALES = ['', 'thousand', 'million', 'billion', 'trillion'];
+const SCALES = ['', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion'];
 function threeToWords(n) {
   const out = [];
   if (n >= 100) {
@@ -6317,57 +6465,48 @@ function numberToWords(s) {
    geometric, so SVG costs nothing to ship and carries no licence -- and unlike a picture
    it can MOVE while it is reading. A child needs to see which character is talking, and
    the mouth and the lamp do that better than any static portrait would. */
+/* Owner, 2026-08-27, with a folder of generated robots: *"I want to use one of these to
+   replace this"*, and then, with five talking clips: *"can we use this?"* -- yes, and it
+   settles the one thing the still version gave up.
+
+   THE DRAWN SVG WENT FIRST, then the still picture that replaced it. The SVG was argued
+   for on the grounds that "unlike a picture it can MOVE while it is reading"; the still
+   met that with a rock and a glow, which was a real loss -- the mouth no longer formed
+   words. These clips put the mouth back. He now genuinely talks while he reads.
+
+   TWO IMAGES, NOT ONE, AND BOTH ALWAYS IN THE DOM. Swapping one `src` between still and
+   animation costs a decode on the first word, which is exactly when the child is looking.
+   Stacking them and crossing the opacity means both are decoded before he is ever asked
+   to speak, and the change is a fade rather than a flash. Cheap: they are 104px.
+
+   AN ANIMATED WEBP RATHER THAN A VIDEO, and the reason is the iPad. The clips are
+   green-screen H.264, which has no alpha, and a `<video>` would need the green keyed out
+   on every frame in a canvas. Animated WebP carries real transparency, is decoded by
+   Safari and Chrome alike, sits in the offline cache like any other image, and needs no
+   script at all. HEVC-with-alpha would also work on the iPad and would break Chrome;
+   VP9-alpha in WebM is the other way round. This is the one both agree on.
+
+   THE LOOP IS BUILT, NOT CUT. Six seconds of talking has no natural loop point, so
+   `tools/make-talking-robot.py` scores every start/end pair for how alike the two end
+   frames look, takes the best, and then cross-fades the last frames into the first so the
+   wrap is a dissolve instead of a jump. The still is drawn from the SAME clip -- the frame
+   closest to the loop average, so a resting face rather than a mid-word one -- which is
+   why the idle robot and the talking one are recognisably one robot in one light. */
 function RobotReader({
   speaking
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: `rb-robot ${speaking ? 'talking' : ''}`,
     "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 120 112"
-  }, /*#__PURE__*/React.createElement("line", {
-    className: "rb-ant",
-    x1: "60",
-    y1: "20",
-    x2: "60",
-    y2: "9"
-  }), /*#__PURE__*/React.createElement("circle", {
-    className: "rb-bulb",
-    cx: "60",
-    cy: "6",
-    r: "5.5"
-  }), /*#__PURE__*/React.createElement("rect", {
-    className: "rb-head",
-    x: "17",
-    y: "20",
-    width: "86",
-    height: "64",
-    rx: "19"
-  }), /*#__PURE__*/React.createElement("circle", {
-    className: "rb-eye",
-    cx: "42",
-    cy: "45",
-    r: "8"
-  }), /*#__PURE__*/React.createElement("circle", {
-    className: "rb-eye",
-    cx: "78",
-    cy: "45",
-    r: "8"
-  }), /*#__PURE__*/React.createElement("rect", {
-    className: "rb-mouth",
-    x: "42",
-    y: "62",
-    width: "36",
-    height: "9",
-    rx: "4.5"
-  }), /*#__PURE__*/React.createElement("rect", {
-    className: "rb-base",
-    x: "34",
-    y: "88",
-    width: "52",
-    height: "12",
-    rx: "6"
-  })));
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "rb-still",
+    src: "assets-runtime/unicorn/icons/robot-reader.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "rb-talk",
+    src: "assets-runtime/unicorn/icons/robot-reader-talk.webp",
+    alt: ""
+  }));
 }
 function ReadBigNumbers({
   onBack,
@@ -6426,9 +6565,12 @@ function ReadBigNumbers({
     Voice.lines(["Let's hear the robot read it!"]);
   }, [ds, mascot, stopTalking]);
   const groups = digitGroups(ds);
-  /* Boxes shrink as the number grows so thirteen digits still fit a 768px iPad without
-     the row scrolling -- a number you have to scroll to see is not one you can read. */
-  const box = ds.length <= 7 ? 46 : ds.length <= 10 ? 38 : 31;
+  /* Boxes shrink as the number grows so the row never scrolls -- a number you have to
+     scroll to see is not one you can read. Two steps were added on 2026-08-27 when the
+     ceiling went from thirteen digits to nineteen; the numbers are measured on a 768px
+     iPad, not guessed. The boxes are DISPLAY, not tap targets -- the keypad is what a
+     finger aims at -- so they are allowed smaller than a fingertip. */
+  const box = ds.length <= 7 ? 46 : ds.length <= 10 ? 38 : ds.length <= 13 ? 31 : ds.length <= 16 ? 26 : 22;
   return /*#__PURE__*/React.createElement("div", {
     className: "screen read-screen",
     style: {
@@ -6575,6 +6717,99 @@ function fractionWords(n, d) {
   if (n >= d) return 'one whole';
   return PART_COUNT[n] + ' ' + PART_NAMES[d][n === 1 ? 0 : 1];
 }
+
+/* ══ THE PIE VIEW ══
+   Owner, 2026-08-27: *"read fraction: i want default view to be 'pie shape' and optional
+   view to be current view."*
+
+   WHY A PIE IS THE BETTER DEFAULT, and it is not just familiarity. A bar shows a fraction as
+   a LENGTH, which a child has to know to read left-to-right before the picture means
+   anything. A circle shows it as a SHARE OF ONE THING -- the cake, the pizza -- and the whole
+   is visible even when no piece has been taken, because the outline is still a full circle.
+   Halves and quarters are the two a four-year-old already owns, and they own them round.
+
+   THE BAR WALL IS KEPT, NOT REPLACED. It does one thing the pie cannot: nine bars of equal
+   length stacked up let you see, down the column, that twelfths are tiny -- an equal-length
+   comparison the eye makes for free. So it stays one tap away, which is what the owner
+   asked for.
+
+   THE GEOMETRY IS DRAWN, NOT IMAGED. `d` sectors from a shared centre, first piece starting
+   at twelve o'clock so "one half" is the right-hand side a child expects. d = 1 is a plain
+   circle rather than a 360-degree arc: an arc that returns to its own start point draws
+   nothing at all in SVG, which is a silent blank, not an error.
+
+   IT SHARES THE GAME'S STATE. Same `taken`, same `onTake(d, i)` -- the view is a skin over
+   one model, so switching cannot lose a piece a child has already taken, and neither view
+   needs to know the other exists. */
+const PIE_R = 46,
+  PIE_C = 50;
+function piePath(i, d) {
+  /* -90 degrees puts piece 0 at the top. Two pieces meeting at an edge share exactly one
+     computed point, so no seam opens between them at any d. */
+  const a0 = (i * 360 / d - 90) * Math.PI / 180,
+    a1 = ((i + 1) * 360 / d - 90) * Math.PI / 180;
+  const x0 = PIE_C + PIE_R * Math.cos(a0),
+    y0 = PIE_C + PIE_R * Math.sin(a0);
+  const x1 = PIE_C + PIE_R * Math.cos(a1),
+    y1 = PIE_C + PIE_R * Math.sin(a1);
+  const large = 360 / d > 180 ? 1 : 0;
+  return `M ${PIE_C} ${PIE_C} L ${x0.toFixed(2)} ${y0.toFixed(2)} A ${PIE_R} ${PIE_R} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`;
+}
+function FractionPie({
+  d,
+  taken,
+  onTake
+}) {
+  const n = taken.length,
+    full = n === d;
+  const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fp-cell ${full ? 'full' : ''}`
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "fp-pie",
+    viewBox: "0 0 100 100",
+    role: "group",
+    "aria-label": label
+  }, d === 1 ? /*#__PURE__*/React.createElement("circle", {
+    className: `fp-piece ${taken.includes(0) ? 'on' : ''}`,
+    cx: PIE_C,
+    cy: PIE_C,
+    r: PIE_R,
+    tabIndex: 0,
+    role: "button",
+    "aria-label": taken.includes(0) ? 'taken, one whole' : 'take the whole',
+    onClick: () => onTake(d, 0)
+  }) : Array.from({
+    length: d
+  }, (_, i) => /*#__PURE__*/React.createElement("path", {
+    key: i,
+    className: `fp-piece ${taken.includes(i) ? 'on' : ''}`,
+    d: piePath(i, d),
+    tabIndex: 0,
+    role: "button",
+    "aria-label": taken.includes(i) ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
+    onClick: () => onTake(d, i)
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "fp-foot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fp-name"
+  }, label), /*#__PURE__*/React.createElement("span", {
+    className: "fw-read",
+    "aria-hidden": "true"
+  }, n > 0 && (d === 1 ? /*#__PURE__*/React.createElement("span", {
+    className: "fw-one"
+  }, "1") : /*#__PURE__*/React.createElement("span", {
+    className: "fw-frac"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fw-top"
+  }, n), /*#__PURE__*/React.createElement("span", {
+    className: "fw-rule"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fw-bot"
+  }, d))), full && d > 1 && /*#__PURE__*/React.createElement("span", {
+    className: "fw-eq"
+  }, "= 1"))));
+}
 function FractionRow({
   d,
   taken,
@@ -6626,6 +6861,10 @@ function FractionWall({
   onToggleMute
 }) {
   const [taken, setTaken] = useState({});
+  /* Pie by default, per the owner. Deliberately NOT remembered between visits: the default
+     is the teaching choice, and a child who taps the toggle by accident should find the pie
+     again next time rather than inherit a switch nobody meant to throw. */
+  const [pie, setPie] = useState(true);
   const mascot = useMascot();
   useEffect(() => {
     Voice.say('Tap the pieces to make a fraction!');
@@ -6683,13 +6922,28 @@ function FractionWall({
   }, "Read Fractions"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
   }, "Tap the pieces!")), /*#__PURE__*/React.createElement("button", {
+    className: "rb-restart fp-toggle",
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      setPie(v => !v);
+    },
+    "aria-label": pie ? 'Show fraction bars instead' : 'Show fraction pies instead'
+  }, pie ? /*#__PURE__*/React.createElement(BarsIcon, null) : /*#__PURE__*/React.createElement(PieIcon, null)), /*#__PURE__*/React.createElement("button", {
     className: `rb-restart ${any ? '' : 'off'}`,
     onClick: clear,
     disabled: !any,
     "aria-label": "Start over"
   }, "Start Over")), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card fw-card"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, pie ? /*#__PURE__*/React.createElement("div", {
+    className: "fp-grid"
+  }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionPie, {
+    key: d,
+    d: d,
+    taken: taken[d] || [],
+    onTake: take
+  }))) : /*#__PURE__*/React.createElement("div", {
     className: "fw-wall"
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionRow, {
     key: d,
