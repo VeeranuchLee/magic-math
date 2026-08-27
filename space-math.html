@@ -1785,17 +1785,27 @@ const missHint = () => MISS_HINT[Math.floor(Math.random() * MISS_HINT.length)];
    above, which is themed in space-math and not in unicorn-math. */
 const Clips = (() => {
   const ROOT = 'assets-runtime/narration/';
-  /* THREE SETS, RESOLVED TWO DIFFERENT WAYS, and the split is deliberate.
-      `times-tables` is PATTERNS. "7 times 8?" and 964 siblings are covered by four
-     regexes, which is why 965 clips need no lookup table at all.
-      `count-by` and `shared` are mostly FIXED STRINGS -- mascot lines, home cards,
-     journey facts. A regex cannot cover those, and a hand-written lookup would recreate
+  /* FOUR SETS, RESOLVED TWO DIFFERENT WAYS, and the split is deliberate.
+      `times-tables` is PATTERNS. "7 times 8?" and its siblings are covered by four
+     regexes, which is why 2,133 clips need no lookup table at all.
+      `count-by`, `shared` and `times-tables-hint` are mostly FIXED STRINGS -- mascot
+     lines, home cards, journey facts. A regex cannot cover those, and a hand-written lookup would recreate
      the exact failure that shipped `tt-card` paid-for and silent: two hand-maintained
      lists of the same strings, quietly disagreeing. So their `clips.json` carries a
      text->id map emitted from the manifest that was rendered. Every clip present is
      reachable by construction, and one that failed to encode is missing from both the
-     id list and the map together, so it falls back to the engine instead of 404ing. */
-  const SETS = ['times-tables', 'count-by', 'shared'];
+     id list and the map together, so it falls back to the engine instead of 404ing.
+      `times-tables-hint` IS A TIMES TABLES SET THAT CANNOT LIVE IN `times-tables`, and the
+     reason is url()'s role split below. The robot asks idFor(), which is the regexes. The
+     companion asks exactFor(), which is the text map and the positional praise and NO
+     REGEXES AT ALL. The second-miss line -- "8 groups of 7. Count them!" -- is the
+     companion's, so a fifth regex would never be consulted for it; it needs a `texts`
+     entry. And `times-tables` must never have one: an entry there resolves ungated in
+     every mode, so feeding it 308 bare products would restore the 2026-08-20 bug the
+     VOICED gate exists to end. A separate set gets the map for the 144 fixed sentences
+     and leaves the products without it. Same voice and format, so crossing into it
+     mid-chain is inaudible. */
+  const SETS = ['times-tables', 'count-by', 'shared', 'times-tables-hint'];
   const PRAISE_PREFIX = 'tt-praise-';
   let have = null; /* id -> set directory */
   let texts = null; /* exact line text -> id */

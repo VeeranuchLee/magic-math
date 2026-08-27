@@ -76,9 +76,17 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //   v22 -> v23 Read Big Numbers reaches nineteen digits, so the robot names quadrillions and
 //              quintillions, and Read Fractions opens as a grid of pies with the bar wall one
 //              tap away.
-//   NOTE: v22 was never published. v21 is what devices are running, so the publish that
-//              ships v23 delivers both of the entries above in one release.
-const CACHE_NAME = "magic-math-v23";
+//   NOTE: v22 was never published. Devices went straight from v21 to v23 on 2026-08-27,
+//              so that publish delivered both of the entries above in one release.
+//   v23 -> v24 Unicorn Math gets the Times Tables blocks hint Space Math has had since v22:
+//              two misses draw the groups, three add the total. Both worlds now teach the
+//              same fact with the same picture.
+//   v24 -> v25 the beat that teaches finally has a voice. The second-miss line -- "8 groups
+//              of 7. Count them!" -- fell through to the device's own speech in both worlds
+//              while the third-miss "here is a peek" played paid narration, so the one beat
+//              carrying the teaching was the one beat not in Ari's voice. 144 clips, plus
+//              the three Read Fractions lines that #236 added and nobody rendered.
+const CACHE_NAME = "magic-math-v25";
 
 const SHELL = [
   "./",

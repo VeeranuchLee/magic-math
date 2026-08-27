@@ -62,6 +62,14 @@ def _array_from_length(src, name):
     return int(m.group(1))
 
 
+def _const_number(src, name):
+    """The N of a top-level `const NAME=N;`."""
+    m = re.search(r"const %s\s*=\s*(\d+)\s*;" % re.escape(name), src)
+    if not m:
+        sys.exit(f"build-narration-manifest: cannot find {name} in space-math.html")
+    return int(m.group(1))
+
+
 def _obj_number(src, name, key):
     """The `key:N` of a top-level `const NAME={...}`."""
     m = re.search(r"const %s\s*=\s*\{[^}]*\b%s\s*:\s*(\d+)" % (re.escape(name), re.escape(key)), src)
@@ -74,6 +82,10 @@ _PAGE  = (ROOT / SKINS["space"]).read_text(encoding="utf-8")
 RUNGS  = _obj_number(_PAGE, "DEFAULT_COUNT_BY", "upTo")        # every ladder is this many rungs
 STEPS  = range(1, _array_from_length(_PAGE, "COUNT_BY_STEP_OPTIONS") + 1)
 TIMES  = range(1, _array_from_length(_PAGE, "TIMES_MAX_OPTIONS") + 1)
+# The blocks hint has its OWN ceiling, and it is not the grid's: 13x13 squares stop being
+# countable long before the picker stops offering tables. Read from the page for the same
+# reason as the two above -- a copy here would silently stop covering the game.
+HINT   = range(1, _const_number(_PAGE, "HINT_BLOCKS_MAX") + 1)
 
 
 def read(skin):
@@ -317,6 +329,49 @@ def build_times_tables():
     return lines
 
 
+def build_times_tables_hint():
+    """The line spoken at the SECOND miss, and the reason it is its own set.
+
+    It is a Times Tables line, so the obvious home is `times-tables`. It cannot live
+    there, and the reason is the resolver rather than taste:
+
+        Clips.url() splits by ROLE. The robot asks idFor(), which is the four regex rules
+        and is gated on VOICED. The companion asks exactFor(), which is the `texts` map
+        and the positional praise -- AND NO REGEXES AT ALL. This line is the companion's
+        (Voice.say with no role), so a fifth regex rule would never be consulted.
+
+        Resolving it therefore needs a `texts` entry. `times-tables` deliberately ships
+        none: build-runtime-audio.py witholds it because a `texts` entry resolves ungated
+        in every mode, and feeding that map 308 bare products and 1,800 arithmetic
+        sentences is exactly the 2026-08-20 bug the VOICED gate was built to end.
+
+    So the split is per-SET, which is the grain the builder already works at: these 144
+    lines are fixed strings with nothing unbounded behind them, they get a `texts` map by
+    being any set other than `times-tables`, and the products keep not having one. Same
+    voice, same format, so a chain crossing into it is inaudible.
+
+    Tagging the line ROBOT instead would have made idFor() reachable and cost nothing to
+    render -- and was rejected: ROBOT prepends Sound.readout()'s mechanical blip and the
+    ship's-computer delivery, and this beat is the companion naming the rule the blocks
+    draw, not a value being read out.
+
+    The ceiling is HINT_BLOCKS_MAX, not the grid's: above it no blocks are drawn, so
+    there is no rule to point at and the line is never spoken."""
+    lines = []
+    for a in HINT:
+        for b in HINT:
+            # Byte-identical to the template in both pages. `1 group` is singular, and
+            # the 12 singular sentences are why this is 144 clips and not 132 plus a
+            # number bank -- see the rejected splice in the log for 2026-08-27.
+            word = "group" if a == 1 else "groups"
+            lines.append({"id": f"tt-groups-{a}x{b}",
+                          "text": f"{a} {word} of {b}. Count them!",
+                          "role": "narrator",
+                          "note": "the second miss: names the rule the blocks draw, "
+                                  "without giving the total away"})
+    return lines
+
+
 def build_count_by():
     """s1, complete. Every line the mode can utter that is not already rendered."""
     lines = [{"id": "cb-pick", "text": "Which number shall we count by? Tap it!",
@@ -412,8 +467,24 @@ def build_shared():
     return lines
 
 
-def manifest(mode, sets, lines, why):
+def manifest(mode, sets, lines, why, carry_from=None):
+    """`carry_from` is the manifest this one replaces, and it exists because provenance
+    was being LOST on every run.
+
+    `model` and `renderedOn` are render-time facts, as the note below says -- so this
+    builder cannot know them, and wrote None. But it also OVERWRITES the file the
+    renderer stamped them into, which quietly undid the fix of 310591b: the 30x30
+    rebuild on 2026-08-26 blanked times-tables' provenance, and AUDIO-DIRECTION.md says
+    a clip without it cannot be published. It shipped anyway, twice, because nothing
+    checks. So a regeneration now carries forward what a render established."""
     chars = sum(len(l["text"]) for l in lines)
+    keep = {}
+    if carry_from and carry_from.exists():
+        try:
+            old = json.loads(carry_from.read_text(encoding="utf-8")).get("provenance", {})
+            keep = {k: old[k] for k in ("model", "renderedOn") if old.get(k)}
+        except (ValueError, OSError):
+            keep = {}
     return {
         "app": "math-app",
         "mode": mode,
@@ -430,12 +501,12 @@ def manifest(mode, sets, lines, why):
                 "prompt or voice. Filled at render time. A file that arrives without "
                 "them cannot be published.",
             "tool": "ElevenLabs Voice Design",
-            "model": None,
+            "model": keep.get("model"),
             "voiceId": "syTCOMrIG987VoS0EmlL",
             "voiceName": "Magic Math Narrator",
             "voiceNote": "The same voice as the times-tables set, deliberately. A second "
                          "voice design would be audible the moment a chain crossed sets.",
-            "renderedOn": None,
+            "renderedOn": keep.get("renderedOn"),
             "termsCheckedForPublicRedistribution": True,
         },
         "counts": {"clips": len(lines), "characters": chars},
@@ -458,7 +529,7 @@ def app_coverage():
     is covered by a manifest or already rendered. Interpolated lines are not checkable
     this way and are covered by the pattern rules instead."""
     covered = set()
-    for name in ("times-tables", "count-by", "shared"):
+    for name in ("times-tables", "count-by", "shared", "times-tables-hint"):
         f = ROOT / "narration" / f"{name}.json"
         if f.exists():
             covered |= {l["text"] for l in
@@ -560,7 +631,9 @@ def verify():
                   f"  <- paid for and silent")
             bad = 1
 
-    for name in ("count-by", "shared"):
+    # times-tables-hint verifies HERE, not against the resolver mirror above: it is a
+    # text-mapped set, so "reachable" means the same thing it means for the other two.
+    for name in ("count-by", "shared", "times-tables-hint"):
         man = ROOT / "narration" / f"{name}.json"
         idx = ROOT / "assets-runtime" / "narration" / name / "clips.json"
         if not man.exists():
@@ -585,6 +658,39 @@ def verify():
                   f"  <- paid for and silent")
             bad = 1
 
+    # ══ ROBOT-TAGGED FIXED STRINGS, WHICH `texts` CANNOT SAVE ══
+    #
+    # Found 2026-08-27 by instrumenting Audio, which is the second time that is the only
+    # thing that found one. `Clips.url` splits by role BEFORE it looks anything up: the
+    # companion gets exactFor() and resolves a text map entry in ANY mode, but the robot
+    # gets idFor() only when VOICED.has(mode). So a `num('literal')` line inside a mode
+    # that is not in VOICED can never resolve, however thoroughly it was rendered.
+    #
+    # `sh-l-one-whole` is exactly that: Read Fractions (f1) says Voice.lines([num('One
+    # whole.')]), f1 is not in VOICED, and so 25 credits are shipped and silent. The
+    # harvester bought it because spoken_fixed() reads the string and not the role.
+    #
+    # This cannot be a hard failure -- which mode a call site sits in is not something
+    # this file can know statically -- so it names the clip and leaves the judgement to a
+    # person. Three ways out, all the owner's: voice the mode and add it to VOICED, drop
+    # the num() tag so the companion says it, or let exact matches through for the robot
+    # too (the safety argument for the gate is about PATTERNS, not about chosen sentences).
+    robot_fixed = set()
+    for skin in ("space", "unicorn"):
+        robot_fixed |= set(re.findall(r"num\('([^']*)'\)", read(skin)))
+    mapped = {}
+    for name in ("count-by", "shared", "times-tables-hint"):
+        idx = ROOT / "assets-runtime" / "narration" / name / "clips.json"
+        if idx.exists():
+            for t, i in json.loads(idx.read_text(encoding="utf-8")).get("texts", {}).items():
+                mapped[t] = f"{name}/{i}"
+    suspect = sorted(t for t in robot_fixed if t in mapped)
+    if suspect:
+        print(f"\nROBOT-TAGGED and rendered ({len(suspect)}) -- resolves ONLY in a VOICED "
+              f"mode, so check the mode each is spoken in:")
+        for t in suspect:
+            print(f"           {mapped[t]:34} {t!r}")
+
     print("\nVERIFY " + ("INCOMPLETE - the lines above fall back to the engine until "
                           "they are rendered" if bad else
                           "OK - every line rendered and reachable"))
@@ -607,6 +713,7 @@ def main():
     tt = build_times_tables()
     cb = build_count_by()
     sh = build_shared()
+    th = build_times_tables_hint()
 
     # ══ TIMES-TABLES IS WRITTEN FIRST, AND ON ITS OWN, because everything below reads it.
     # It is the authority the other two sets de-duplicate against (`have_text`), so it has
@@ -619,7 +726,8 @@ def main():
                     "The grid the child can reach from the picker, in full. m1 is in "
                     "Clips's VOICED set only because this set is CLOSED -- every product "
                     "the mode can utter is bought -- so the ceiling in the page and the "
-                    "ceiling here are one decision, not two.")
+                    "ceiling here are one decision, not two.",
+                    carry_from=ROOT / "narration" / "times-tables.json")
     tt_m["coverage"] = {
         "grid": f"1x1 to {TIMES[-1]}x{TIMES[-1]}",
         "why": "TIMES_MAX_OPTIONS lets the child pick any ceiling up to "
@@ -663,6 +771,11 @@ def main():
         ("shared", sh, "shared surfaces", ["space-math.html", "unicorn-math.html"],
          "Mascot, pickers, home cards and journey lines. Not a mode's own lines, but "
          "reachable inside one -- which is why m1 was not in fact fully voiced."),
+        ("times-tables-hint", th, "Times Tables (m1) blocks hint",
+         ["space-math.html", "unicorn-math.html"],
+         "The second-miss line, in its own set because the companion resolves by exact "
+         "text and times-tables ships no `texts` map on purpose. See "
+         "build_times_tables_hint's docstring -- the split is the resolver's, not taste."),
     ):
         dup_id = sorted(l["id"] for l in lines if l["id"] in have_ids)
         if dup_id:
@@ -684,7 +797,8 @@ def main():
 
         have_text |= {l["text"] for l in lines}
 
-        m = manifest(mode, sets, lines, why)
+        m = manifest(mode, sets, lines, why,
+                     carry_from=ROOT / "narration" / f"{name}.json")
         chars = m["counts"]["characters"]
         total += chars
         print(f"{name:10} {len(lines):5} clips  {chars:7,} characters  ~{chars:,} credits")
@@ -693,8 +807,9 @@ def main():
             out.write_text(json.dumps(m, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
             print(f"           -> {out.relative_to(ROOT.parent)}")
 
-    print(f"{'TOTAL':10} {len(cb) + len(sh):5} clips  {total:7,} characters  ~{total:,} credits"
-          "   (count-by + shared only; times-tables is billed by the renderer's diff)")
+    print(f"{'TOTAL':10} {len(cb) + len(sh) + len(th):5} clips  {total:7,} characters  "
+          f"~{total:,} credits"
+          "   (the three text-resolved sets; times-tables is billed by the renderer's diff)")
     print(f"\nalready rendered and reused for free: {len(have_ids)} clips "
           f"(Count By's whole answer chain is 552 of them)")
 

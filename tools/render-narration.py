@@ -208,6 +208,26 @@ def main():
         "renderedOn": time.strftime("%Y-%m-%d"),
         "clipsRendered": ok, "clipsFailed": fail,
     }, indent=2) + "\n", encoding="utf-8")
+    # ...AND INTO THE TRACKED MANIFEST, which is the half that was missing. The manifest's
+    # own note says provenance is "Filled at render time", and nothing ever filled it: the
+    # receipt above sits in narration/rendered/, which is gitignored and rewritten on every
+    # resume. So AUDIO-DIRECTION.md's rule -- a clip without tool, model and date cannot be
+    # published -- was unenforceable, and 310591b's hand-fix was blanked by the next
+    # regeneration. Stamped here, where the facts are actually known, and preserved across
+    # regenerations by build-narration-manifest.py's `carry_from`.
+    if ok:
+        try:
+            man = json.loads(a.manifest.read_text(encoding="utf-8"))
+            man.setdefault("provenance", {})
+            man["provenance"]["model"] = MODEL
+            man["provenance"]["renderedOn"] = time.strftime("%Y-%m-%d")
+            a.manifest.write_text(json.dumps(man, indent=2, ensure_ascii=False) + "\n",
+                                  encoding="utf-8")
+            print(f"stamped provenance into {a.manifest.name}: {MODEL}, "
+                  f"{man['provenance']['renderedOn']}")
+        except (ValueError, OSError) as e:
+            print(f"WARNING: could not stamp provenance into {a.manifest}: {e}")
+
     print(f"done: {ok} rendered, {fail} failed -> {a.outdir}")
     if fail:
         print("re-run the same command to retry only the failures")

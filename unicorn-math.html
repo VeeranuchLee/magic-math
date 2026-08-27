@@ -731,6 +731,20 @@
     .tc-sq{width:var(--sq);height:var(--sq);border-radius:3px;background:linear-gradient(160deg,#e91e63,#7b1fa2);animation:correctPop .35s ease}
     .tc-done{display:block;margin:14px auto 0;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;border:none;border-radius:50px;padding:11px 40px;font-family:inherit;font-size:1.1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7b1fa2}
     .tc-done:active{transform:translateY(3px);box-shadow:0 1px 0 #7b1fa2}
+
+    /* ── THE BLOCKS HINT on Times Tables (m1) ──
+       Reuses .tc-groups/.tc-group/.tc-sq/.tc-tally from the chart's panel, so the picture
+       is the same one the child met there. Only the frame differs: inline in the screen's
+       flow instead of a fixed bottom sheet, and translucent so the screen behind still
+       reads through -- it is help sitting on the page, not a panel taking it over. */
+    .mh-hint{margin:14px auto 0;max-width:min(94vw,620px);padding:10px 12px 12px;
+      background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:20px;
+      box-shadow:0 5px 0 #f48fb1;animation:mhIn .22s ease}
+    @keyframes mhIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .mh-cap{font-size:1.05rem;font-weight:900;color:#e91e63;text-align:center}
+    /* The total is the three-miss reveal, so it is the loud part of the caption. */
+    .mh-total{color:#7b1fa2;font-size:1.2rem}
+    .mh-hint .tc-groups{margin-top:8px;gap:7px}
     /* ── READ FRACTIONS (f1): the wall ──
        Sized so the whole wall is on screen at once on a 9.7" iPad without scrolling,
        because a wall you scroll is not a wall. Twelfths land at roughly 40px a piece,
@@ -1585,17 +1599,27 @@ const missHint = () => MISS_HINT[Math.floor(Math.random() * MISS_HINT.length)];
    above, which is themed in space-math and not in unicorn-math. */
 const Clips = (() => {
   const ROOT = 'assets-runtime/narration/';
-  /* THREE SETS, RESOLVED TWO DIFFERENT WAYS, and the split is deliberate.
-      `times-tables` is PATTERNS. "7 times 8?" and 964 siblings are covered by four
-     regexes, which is why 965 clips need no lookup table at all.
-      `count-by` and `shared` are mostly FIXED STRINGS -- mascot lines, home cards,
-     journey facts. A regex cannot cover those, and a hand-written lookup would recreate
+  /* FOUR SETS, RESOLVED TWO DIFFERENT WAYS, and the split is deliberate.
+      `times-tables` is PATTERNS. "7 times 8?" and its siblings are covered by four
+     regexes, which is why 2,133 clips need no lookup table at all.
+      `count-by`, `shared` and `times-tables-hint` are mostly FIXED STRINGS -- mascot
+     lines, home cards, journey facts. A regex cannot cover those, and a hand-written lookup would recreate
      the exact failure that shipped `tt-card` paid-for and silent: two hand-maintained
      lists of the same strings, quietly disagreeing. So their `clips.json` carries a
      text->id map emitted from the manifest that was rendered. Every clip present is
      reachable by construction, and one that failed to encode is missing from both the
-     id list and the map together, so it falls back to the engine instead of 404ing. */
-  const SETS = ['times-tables', 'count-by', 'shared'];
+     id list and the map together, so it falls back to the engine instead of 404ing.
+      `times-tables-hint` IS A TIMES TABLES SET THAT CANNOT LIVE IN `times-tables`, and the
+     reason is url()'s role split below. The robot asks idFor(), which is the regexes. The
+     companion asks exactFor(), which is the text map and the positional praise and NO
+     REGEXES AT ALL. The second-miss line -- "8 groups of 7. Count them!" -- is the
+     companion's, so a fifth regex would never be consulted for it; it needs a `texts`
+     entry. And `times-tables` must never have one: an entry there resolves ungated in
+     every mode, so feeding it 308 bare products would restore the 2026-08-20 bug the
+     VOICED gate exists to end. A separate set gets the map for the 144 fixed sentences
+     and leaves the products without it. Same voice and format, so crossing into it
+     mid-chain is inaudible. */
+  const SETS = ['times-tables', 'count-by', 'shared', 'times-tables-hint'];
   const PRAISE_PREFIX = 'tt-praise-u';
   let have = null; /* id -> set directory */
   let texts = null; /* exact line text -> id */
@@ -5654,6 +5678,100 @@ function ColumnMath({
   }, "Next"));
 }
 
+/* ══ THE BLOCKS HINT ══
+   Owner, 2026-08-27, on the Times Tables screen: *"I think we can show it as hint"*, and
+   then the shape of it, which is the part that matters: *"at 2 misses no total, and at 3
+   misses also show total"*.
+
+   TWO THRESHOLDS, TWO DIFFERENT KINDS OF HELP, and the gap between them is the whole
+   design. At two misses the child gets the QUESTION DRAWN -- three fenced groups of two --
+   and nothing else. That is not the answer; it is the rule, and counting it is the work.
+   Only at three does the total appear, on the same beat as the ghost answer in the boxes.
+   Handing the total over at two would replace the counting with reading, and the counting
+   is the lesson. It is the standing shape of help here: teach the rule first, reveal the
+   answer only after.
+
+   IT IS m2's PICTURE, DELIBERATELY. `GroupsPanel` on the Times Table chart already draws a
+   product as fenced groups you tap to skip-count, and a child who has met it there should
+   meet the same picture here -- so the group, block and tally CLASSES are shared with it
+   rather than restyled. What differs is that this one is inline and knows about
+   thresholds, where m2's is a bottom-sheet dialog that always prints the fact. Making one
+   component do both would have meant threading a "pretend you are a quiz" flag through a
+   teaching screen.
+
+   WHY IT SITS BELOW THE KEYPAD. It appears mid-problem, after a wrong answer, so anything
+   above the keys would shove the keypad down while a child's finger is already reaching
+   for a number. The empty lower part of the screen is what the owner pointed at, and
+   putting it there moves nothing the child is already using.
+
+   THE CAP IS DELIBERATE. The picker goes to 30, and 30 x 30 is 900 squares -- a picture
+   that teaches nothing and does not fit. Blocks are drawn up to 12 x 12, the bound the
+   chart already trusts; past that the three-miss ghost answer is the help, as it was
+   before this existed. */
+const HINT_BLOCKS_MAX = 12;
+function GroupsHint({
+  a,
+  b,
+  showTotal,
+  muted
+}) {
+  const total = a * b;
+  /* One step smaller than the chart's panel at every tier: that one owns a bottom sheet,
+     this one shares the screen with a question card and a keypad. */
+  const sq = total <= 24 ? '22px' : total <= 60 ? '17px' : total <= 120 ? '13px' : '10px';
+  const cols = Math.min(b, 5);
+  const [counted, setCounted] = useState([]);
+  /* A new problem must clear the tally, or the next hint opens part-counted. */
+  useEffect(() => {
+    setCounted([]);
+  }, [a, b]);
+  const take = useCallback(g => {
+    setCounted(prev => {
+      if (prev.includes(g)) return prev;
+      const next = [...prev, g];
+      Sound.setMuted(muted);
+      Sound.tap();
+      /* The running total is spoken -- 7, 14, 21 -- because that IS the child counting,
+         in the same voice m2 counts in. What is NOT spoken is the closing "a times b is
+         c": on the chart that sentence is the teaching, but here it is a question the
+         child has not answered yet, and saying it would hand over exactly what the
+         two-miss threshold exists to withhold. */
+      Voice.say(num(`${next.length * b}!`));
+      return next;
+    });
+  }, [b, muted]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mh-hint"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mh-cap"
+  }, a, " ", a === 1 ? 'group' : 'groups', " of ", b, showTotal ? /*#__PURE__*/React.createElement("span", {
+    className: "mh-total"
+  }, " = ", total) : null), /*#__PURE__*/React.createElement("div", {
+    className: "tc-groups"
+  }, Array.from({
+    length: a
+  }, (_, g) => {
+    const on = counted.includes(g);
+    return /*#__PURE__*/React.createElement("button", {
+      key: g,
+      className: `tc-group ${on ? 'counted' : ''}`,
+      style: {
+        '--cols': cols,
+        '--sq': sq
+      },
+      "aria-label": on ? `counted, ${(counted.indexOf(g) + 1) * b}` : `count this group of ${b}`,
+      onClick: () => take(g)
+    }, Array.from({
+      length: b
+    }, (_, i) => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: "tc-sq"
+    })), on && /*#__PURE__*/React.createElement("span", {
+      className: "tc-tally"
+    }, (counted.indexOf(g) + 1) * b));
+  })));
+}
+
 /* ══ MODE m1: TIMES TABLES ══ */
 function timesRangeLabel(range) {
   return `${range.rowMax} × ${range.colMax}`;
@@ -5729,11 +5847,16 @@ function MultiplicationGame({
   const answerLength = String(problem.answer).length;
   const mascot = useMascot();
   const [misses, setMisses] = useState(0);
-  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
-     that same beat and used to appear in silence; this is the line that belongs under it. */
+  /* Two lines on two different beats, matching the two thresholds. At two misses the
+     blocks arrive and the companion names the RULE they draw -- "three groups of two" --
+     help that still leaves the counting to the child. MISS_HINT's "here is a peek" belongs
+     on the third only, where the total and the ghost answer actually appear; before
+     2026-08-27 the third was the only beat that spoke at all. Guarded on the cap: with no
+     blocks on screen there is no rule to point at. */
+  const hintBlocks = problem.a <= HINT_BLOCKS_MAX && problem.b <= HINT_BLOCKS_MAX;
   useEffect(() => {
-    if (misses && misses % 3 === 0) Voice.say(missHint());
-  }, [misses]);
+    if (misses === 2 && hintBlocks) Voice.say(`${problem.a} ${problem.a === 1 ? 'group' : 'groups'} of ${problem.b}. Count them!`);else if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses, hintBlocks, problem]);
   const [digits, setDigits] = useState(() => Array(answerLength).fill(''));
   const [won, setWon] = useState(false);
   const [wrong, setWrong] = useState(false);
@@ -5872,7 +5995,12 @@ function MultiplicationGame({
   }, "Clear")), won && /*#__PURE__*/React.createElement("button", {
     className: "next-btn",
     onClick: next
-  }, "Next"));
+  }, "Next"), !won && misses >= 2 && hintBlocks && /*#__PURE__*/React.createElement(GroupsHint, {
+    a: problem.a,
+    b: problem.b,
+    showTotal: misses >= 3,
+    muted: muted
+  }));
 }
 
 /* ══ MODE s1: COUNT BY ══
