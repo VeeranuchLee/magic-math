@@ -51,7 +51,6 @@
     .home-sub{font-size:1rem;font-weight:900;color:#ad1457;text-shadow:0 1px 0 #fff;letter-spacing:.5px}
     .home-crown-row{display:flex;gap:80px;align-items:center;justify-content:center;min-height:64px;margin-bottom:-6px}
     .home-crown{font-size:52px;line-height:1;filter:drop-shadow(0 5px 10px rgba(173,20,87,.25))}
-    .section-heading{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:900;color:#880e4f;text-shadow:0 1px 0 #fff;margin-top:6px}
     .mode-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;width:100%;max-width:640px}
     .mode-card{flex:1;min-width:140px;max-width:190px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s;font-family:inherit}
     .mode-card:active{transform:translateY(5px) scale(.96)}
@@ -73,17 +72,22 @@
        lives in Space Math and Unicorn Math. z-index clears the drifting petals. */
     .hub-btn{position:fixed;top:12px;left:12px;z-index:20;text-decoration:none}
     .bar-label{font-size:.8rem;font-weight:900;color:#9c27b0;background:rgba(255,255,255,.7);border-radius:50px;padding:4px 12px}
-    .chip-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-    .chip{border:none;border-radius:50px;padding:7px 14px;font-family:inherit;font-weight:900;font-size:.78rem;cursor:pointer;background:rgba(255,255,255,.75);color:#ad1457;box-shadow:0 3px 0 rgba(173,20,87,.25)}
-    .chip.on{background:linear-gradient(160deg,#f06292,#c2185b);color:#fff;box-shadow:0 3px 0 #880e4f}
-    .chip:active{transform:translateY(2px)}
+
+    /* ── PACK GRID ── */
+    .pack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;width:100%;max-width:640px}
+    .pack-card{border:none;border-radius:20px;padding:12px 6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:inherit;min-height:100px}
+    .pack-card:active{transform:translateY(4px) scale(.97)}
+    .pack-num{font-size:1.7rem;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.3);line-height:1.1}
+    .pack-word{font-size:.62rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.25)}
+    .pack-stars{font-size:.95rem;letter-spacing:2px;line-height:1;margin-top:2px}
+    .star-on {color:#fff59d;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .star-off{color:rgba(255,255,255,.38)}
 
     /* ── GAME AREA ── */
-    .word-pic{font-size:clamp(64px,18vw,104px);line-height:1;filter:drop-shadow(0 6px 12px rgba(173,20,87,.25));animation:bounce 1.6s ease-in-out infinite alternate}
     .prompt-bubble{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:20px;padding:10px 18px;box-shadow:0 4px 0 #f48fb1;font-size:clamp(1rem,4vw,1.4rem);font-weight:900;color:#333;text-align:center;display:flex;align-items:center;gap:10px}
     /* THE ROBOT IS THE BUTTON. This was a bare 🔊 on a purple pill, and the emoji is drawn
-       by the operating system -- a grey metal speaker on macOS, something else again on
-       the iPad -- so it was chrome pretending to be art. It also asked a pre-reader to
+       by the operating system -- a grey metal speaker on macOS, something else again on the
+       iPad -- so it was chrome pretending to be art. It also asked a pre-reader to
        know that a speaker glyph means "press me and I will say it", which is exactly the
        kind of reading this game exists to teach. A face that opens its mouth when you tap
        it needs no such decoding. Sized well past the 44px tap minimum, both because the
@@ -117,12 +121,17 @@
     @keyframes rbPulse{0%,100%{filter:none}50%{filter:brightness(1.12) drop-shadow(0 0 9px rgba(233,30,99,.7))}}
     .icon-svg{width:22px;height:22px;display:block}
 
+    /* THE SLOTS ARE LOWERCASE NOW, and that is the point. The old game showed CAT in
+       capitals because it was teaching letter recognition; this game teaches children to
+       write real words, and a Grade 3 child writes "because", not "BECAUSE". Capitals
+       appear exactly where the written form has them -- the I in I'll, the M in Mrs. --
+       so the tiles a child taps are the characters they would put on paper. */
     .slot-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
     .slot{width:52px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;background:rgba(255,255,255,.55);border:3px dashed #f06292;color:#ad1457}
     .slot.filled{background:linear-gradient(160deg,#fff,#fce4ec);border:3px solid #e91e63;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
-    .slot.blank-target{border-color:#9c27b0;background:rgba(243,229,245,.8);animation:pulseSlot 1s infinite alternate}
+    .slot-row.long{gap:5px}
+    .slot-row.long .slot{width:38px;height:46px;font-size:1.2rem;border-radius:10px;border-width:2.5px}
     @keyframes popIn{from{transform:scale(0) rotate(-10deg)}to{transform:scale(1)}}
-    @keyframes pulseSlot{from{transform:scale(1)}to{transform:scale(1.1)}}
 
     .tile-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:560px}
     .tile{width:60px;height:64px;border-radius:16px;border:none;font-family:inherit;font-size:1.8rem;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);transition:transform .1s}
@@ -134,10 +143,30 @@
     .tile.used{opacity:.25;pointer-events:none;transform:scale(.9)}
     .tile.wrong{animation:wrongShake .35s ease}
     .tile.right{animation:correctPop .5s ease}
+    /* THE HINT GLOWS THE TILES THAT COULD BE NEXT, and never fills the slot for the child
+       until the third miss. It is help that still asks for a tap -- the child keeps the
+       agency of choosing, which is the whole difference between help and the game
+       playing itself. */
+    .tile.hint{animation:hintGlow 1s ease-in-out infinite alternate}
+    @keyframes hintGlow{from{outline:0 solid rgba(255,213,79,0)}to{outline:5px solid rgba(255,213,79,.9)}}
+    .tile-row.dense{gap:7px;max-width:600px}
+    .tile-row.dense .tile{width:46px;height:50px;font-size:1.3rem;border-radius:12px}
     @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.4) rotate(-8deg)}70%{transform:scale(1.2) rotate(8deg)}100%{transform:scale(1)}}
     @keyframes wrongShake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
 
-    .praise-banner{font-size:1.3rem;font-weight:900;color:#e91e63;text-shadow:0 1px 0 #fff;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);min-height:1.6em}
+    .praise-banner{font-size:1.3rem;font-weight:900;color:#e91e63;text-shadow:0 1px 0 #fff;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);min-height:1.6em;text-align:center}
+
+    /* ── PACK COMPLETE ── */
+    .complete-overlay{position:fixed;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:rgba(255,240,247,.94);backdrop-filter:blur(4px)}
+    .complete-stars{font-size:clamp(56px,16vw,84px);display:flex;gap:12px;line-height:1}
+    .complete-stars span{display:inline-block;animation:popIn .55s cubic-bezier(.34,1.56,.64,1) both}
+    .complete-stars .off{filter:grayscale(1);opacity:.3}
+    .complete-title{font-size:clamp(1.4rem,6vw,2rem);font-weight:900;color:#ad1457;text-shadow:0 1px 0 #fff;text-align:center}
+    .complete-sub{font-size:1rem;font-weight:900;color:#880e4f}
+    .complete-btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+    .big-btn{border:none;border-radius:50px;padding:14px 26px;font-family:inherit;font-size:1rem;font-weight:900;color:#fff;cursor:pointer;background:linear-gradient(160deg,#f06292,#c2185b);box-shadow:0 5px 0 #880e4f}
+    .big-btn.alt{background:linear-gradient(160deg,#ce93d8,#7b1fa2);box-shadow:0 5px 0 #4a148c}
+    .big-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #880e4f}
 
     /* ── SCORE / GARDEN ── */
     .score-row{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.55);backdrop-filter:blur(6px);border-top:2px solid rgba(244,143,177,.5)}
@@ -161,6 +190,10 @@
       .flower-slot{width:20px;height:20px;font-size:14px}
       .slot{width:44px;height:50px;font-size:1.4rem}
       .tile{width:52px;height:56px;font-size:1.5rem}
+      .slot-row.long{gap:3px}
+      .slot-row.long .slot{width:29px;height:36px;font-size:.95rem;border-width:2px}
+      .tile-row.dense{gap:5px}
+      .tile-row.dense .tile{width:41px;height:45px;font-size:1.05rem}
     }
 
     /* ── CONFETTI ── */
@@ -171,6 +204,16 @@
 </head>
 <body>
 <div id="root"></div>
+<!-- THE WORD UNIVERSE, as data. 729 words in 63 packs across three grades, from the
+     owner's curriculum master (spelling/spelling-master.csv -- Reading Rockets Grades 1-3
+     core with the Fry first-300 overlay). It rides inside the page on purpose: the page
+     is what the service worker precaches, so the words are offline the moment the game
+     is, with no second file to fetch, cache or strand. tools/check-spelling-data.py
+     holds this JSON and the CSV to the same content; edit the CSV and regenerate, never
+     this block by hand. Homophones carry a spoken context line because "two" and "too"
+     cannot be told apart by ear -- the line is spoken by the robot and NEVER shown as
+     text, or it would give away the spelling it exists to disambiguate. -->
+<script type="application/json" id="spelling-universe">{"grades":{"1":[["a","all","am","and","at","be","big","book","boy","but","called","came"],["can","car","come","day","did","do","for","get","go","good","got","had"],["he","her","here","him","his","home","I","if","in","into","is","it"],["its","let","like","look","man","may","me","my","no","not","of","old"],["on","one","out","play","run","see","she","so","stop","the","this","to"],["two","up","us","was","we","will","words","you","ball","bed","box","cat"],["cow","dad","dog","fat","fun","hat","hen","hot","mom","oh","pan","pet"],["pig","ran","rat","red","ride","sat","sit","six","sun","ten","top","toy"],["yes"]],"2":[["about","add","after","America","an","answer","any","are","as","ask","away","back"],["been","before","being","both","by","change","city","could","cut","different","down","each"],["eat","end","far","father","feet","find","first","food","four","from","girl","give"],["grow","hand","hard","has","have","hear","help","house","how","just","keep","know"],["land","last","late","left","light","line","little","live","long","made","make","many"],["means","men","mile","miss","more","most","mother","move","much","must","name","need"],["new","next","night","now","off","only","open","or","other","our","over","page"],["part","plant","put","read","said","same","saw","say","school","sea","seem","sentence"],["set","show","side","small","some","soon","spell","start","still","story","take","talk"],["tell","than","that","them","then","there","they","things","think","three","through","time"],["too","took","tree","try","use","very","walk","want","way","well","went","were"],["what","when","while","white","who","why","with","work","years","your","ago","apple"],["ate","baby","bad","bag","base","bat","bee","best","bike","bill","bird","black"],["blue","boat","bring","brother","brown","bus","buy","cake","call","candy","child","clean"],["club","coat","cold","coming","corn","cry","cup","daddy","dear","deep","deer","doing"],["doll","door","dress","drive","drop","dry","duck","eating","egg","fall","farm","fast"],["feed","feel","fell","fine","fire","fish","five","fix","flag","floor","fly","foot"],["fox","full","funny","game","gas","gave","glad","goat","goes","going","gold","gone"],["grade","grass","green","happy","hill","hit","hold","hole","hop","hope","horse","ice"],["inch","inside","job","jump","king","lake","lay","leg","lives","looking","lost","lot"],["love","mad","meat","met","milk","mine","moon","myself","nail","nice","nine","north"],["nut","outside","park","pay","pick","playing","pony","post","pull","rabbit","rain","rest"],["riding","road","rock","room","sang","seat","seen","send","seven","sheep","ship","shoe"],["sick","sing","sky","sleep","snow","stay","store","tall","teach","thank","thing","today"],["told","train","truck","warm","wash","week","wet","wind","wish","woke","wood","yellow"],["yet","zoo"]],"3":[["above","again","air","almost","along","also","always","animal","another","around","because","began"],["begin","below","between","carry","children","close","country","does","don't","earth","enough","even"],["every","example","eyes","face","family","few","follow","form","found","great","group","head"],["high","idea","important","Indian","it's","kind","large","learn","leave","letter","life","list"],["might","mountains","near","never","number","often","once","own","paper","people","picture","place"],["point","real","right","river","second","should","something","sometimes","song","sound","state","study"],["such","their","these","those","thought","together","turn","under","until","watch","water","where"],["which","without","world","would","write","young","able","afraid","afternoon","age","airplane","alone"],["already","anything","art","aunt","balloon","bark","barn","basket","beach","bear","become","behind"],["believe","belt","better","birthday","body","bones","born","bought","bread","bright","broke","brought"],["busy","cabin","cage","camp","can't","care","catch","cattle","cave","class","cloth","coal"],["color","corner","cotton","cover","dark","desert","didn't","dinner","dishes","done","dragon","draw"],["dream","drink","early","east","eight","ever","everyone","everything","feeling","felt","fight","fishing"],["flower","flying","forest","forgot","fourth","free","Friday","friend","front","getting","given","grandmother"],["grew","ground","guess","hair","half","having","he's","heard","heat","hello","himself","hour"],["hundred","hurry","hurt","I'd","I'll","I'm","I've","inches","isn't","kept","kids","kitten"],["knew","knife","lady","largest","later","let's","living","lovely","loving","lunch","mail","making"],["maybe","mean","merry","mind","money","month","morning","mouse","mouth","Mr.","Mrs.","Ms."],["music","nearly","news","noise","nothing","o'clock","oil","orange","order","paint","pair","party"],["pass","past","penny","person","plan","plane","please","pocket","poor","race","reach","reading"],["ready","rich","rocket","rode","round","rule","running","salt","says","sending","sent","seventh"],["sew","shall","short","shot","sight","sister","sitting","sixth","sled","smoke","soap","someone"],["sometime","sorry","south","space","spelling","spent","sport","spring","stairs","stand","step","stick"],["stood","stopped","stove","street","strong","sugar","summer","Sunday","supper","table","taken","taking"],["talking","teacher","team","teeth","tenth","that's","thinking","third","throw","tonight","trade","trick"],["trip","trying","twelve","twenty","uncle","upon","wagon","wait","walking","wasn't","we're","weather"],["west","wheat","wife","wild","win","window","winter","woman","won","won't","wool","word"],["working","wrong","yard","year","yesterday","you're"]]},"homophones":{"to":"We go to school.","too":"This is too big.","two":"I have two hands.","for":"This gift is for you.","four":"A cat has four legs.","no":"No more cookies.","know":"I know the answer.","new":"I have new shoes.","knew":"I knew the answer.","right":"This is my right hand.","write":"Write your name.","their":"Their house is big.","there":"The ball is over there.","by":"Sit by me.","buy":"We buy bread at the shop.","one":"I have one nose.","won":"She won the game.","your":"Your book is red.","you're":"You're my friend."}}</script>
 <script>
 const {
   useState,
@@ -256,10 +299,6 @@ const Voice = {
     _voiceMuted = m;
     if (m && window.speechSynthesis) window.speechSynthesis.cancel();
   },
-  /* `on(true)` / `on(false)` report when the voice actually starts and stops, so the
-     robot's mouth is driven by the engine rather than by a guess at how long a word takes.
-     EVERY early return reports false: a robot mouthing at a voice that never started is
-     worse than one that never moved, and muting mid-word returns early here. */
   say(text, rate = 0.85, on) {
     const off = () => {
       try {
@@ -294,62 +333,387 @@ const Voice = {
     }
   }
 };
+
+/* ══ NARRATION CLIPS ══
+   Rendered speech for the whole game -- every word, the praise and the pack-complete
+   lines -- replacing the browser's adult robot voice, which was never a decision for
+   this game, just what it always had (2026-08-27 open item, closed by the owner
+   2026-08-29: render it). Same resolver idea as Space Math's Clips: the game asks for
+   a line by its exact text and neither knows nor cares whether a file exists, so a
+   missing clip falls back to speechSynthesis line by line rather than breaking the
+   game. One set, exact strings only -- there are no patterns here because every spoken
+   line in this game is one of a fixed handful of strings plus the words themselves,
+   which is exactly what made the render affordable. The index is fetched, not guessed:
+   without clips.json the only way to discover a missing clip is a 404 the child hears
+   as silence before the engine picks the word up. */
+const Clips = (() => {
+  const ROOT = 'assets-runtime/narration/spelling/';
+  let texts = null,
+    tried = false;
+  const load = () => {
+    if (tried) return;
+    tried = true;
+    try {
+      fetch(ROOT + 'clips.json').then(r => r.ok ? r.json() : null).then(j => {
+        if (j && j.texts) texts = j.texts;
+      }).catch(() => {});
+    } catch (e) {}
+  };
+  return {
+    url(text) {
+      load();
+      const s = String(text).trim();
+      return texts && texts[s] ? ROOT + texts[s] + '.m4a' : null;
+    }
+  };
+})();
+/* One Audio at a time, so a rapid robot tap cannot stack two words on top of each
+   other, and so the mute button can stop a clip that is already playing. */
+let _lineAudio = null;
+const speakLine = (text, rate = 0.95) => {
+  try {
+    _lineAudio && _lineAudio.pause();
+  } catch (e) {}
+  _lineAudio = null;
+  const u = Clips.url(text);
+  if (u) {
+    const a = new Audio(u);
+    _lineAudio = a;
+    a.onended = () => {
+      _lineAudio = null;
+    };
+    a.onerror = () => {
+      _lineAudio = null;
+      Voice.say(text, rate);
+    };
+    a.play().catch(() => {
+      _lineAudio = null;
+      Voice.say(text, rate);
+    });
+  } else Voice.say(text, rate);
+};
 const PRAISE = ['Great job!', 'Amazing!', 'You did it!', 'Wonderful!', 'Beautiful!', 'Magical!'];
 const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
-const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
-const shuffle = a => {
-  const x = [...a];
+const STAR_LINES = {
+  1: 'One star!',
+  2: 'Two stars!',
+  3: 'Three stars! Amazing!'
+};
+const PRACTICE_LINE = "Let's practice the tricky ones again!";
+const STORE_KEY = 'magicSpelling.v1';
+
+/* ══ WORD UNIVERSE ══
+   grades: 1/2/3 -> array of packs; each pack is an ordered array of words in their
+   exact written form (lowercase except where the word itself is capitalised: I'll,
+   Mr., Mrs., Ms., America, Indian). homophones: word -> spoken context line. */
+const UNIVERSE = JSON.parse(document.getElementById('spelling-universe').textContent);
+const GRADE_META = {
+  1: {
+    label: 'Grade 1',
+    sub: 'First words',
+    art: '🐰'
+  },
+  2: {
+    label: 'Grade 2',
+    sub: 'More words',
+    art: '🦊'
+  },
+  3: {
+    label: 'Grade 3',
+    sub: 'Big words',
+    art: '🦁'
+  }
+};
+
+/* ══ SPELLING PRIMITIVES (shared, pure) ══
+   Everything deterministic about the game engine, with the randomness injected as an
+   `rng` argument so tools/test-spelling-game.js can replay it from a seed and test the
+   engine the page actually ships -- the same discipline as the maths primitives block
+   in space-math.html. Nothing in this block touches React, the DOM or the word data. */
+const DECOY_ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function randR(rng, a, b) {
+  return Math.floor(rng() * (b - a + 1)) + a;
+}
+function shuffleR(rng, arr) {
+  const x = arr.slice();
   for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rng() * (i + 1));
     [x[i], x[j]] = [x[j], x[i]];
   }
   return x;
-};
+}
+/* Decoy letters scale with word length: two for the short words a beginner meets, four
+   for the eight-and-up words where the tile bank is already big. The count is small on
+   purpose -- every extra decoy makes "guess by elimination" easier than spelling. */
+function decoyCount(len) {
+  return len <= 4 ? 2 : len <= 7 ? 3 : 4;
+}
+function makeTiles(word, rng) {
+  const inWord = new Set(word.toLowerCase().split(''));
+  const decoys = [];
+  while (decoys.length < decoyCount(word.length)) {
+    const c = DECOY_ALPHABET[randR(rng, 0, 25)];
+    if (!inWord.has(c) && !decoys.includes(c)) decoys.push(c);
+  }
+  /* A capital in the word (the I of I'll) still gets its capital tile; decoys are
+     always lowercase, so a capital tile is always a real letter of the word. */
+  return shuffleR(rng, word.split('').concat(decoys)).map((c, i) => ({
+    c,
+    id: i
+  }));
+}
+/* The robot says the bare word, except for the words English cannot disambiguate by
+   ear -- "two" sounds exactly like "too", so those carry a context line that names
+   which spelling is meant without ever showing it. */
+function lineFor(word, homophones) {
+  const h = homophones && homophones[word];
+  return h ? word + '. ' + h : word;
+}
+/* Stars measure independence, not just completion: three stars means every word in the
+   pack was spelled with no wrong tap at all; two means wrong taps but never the
+   auto-fill ladder; one means the game had to fill letters in. A child who needs the
+   ladder still finishes the pack -- the stars simply tell the truth about how much
+   help it took. */
+function starsFor(pass1) {
+  if (pass1.wrongTaps === 0) return 3;
+  if (pass1.autoFills === 0) return 2;
+  return 1;
+}
+function packId(grade, packIdx) {
+  return 'G' + grade + '-' + String(packIdx + 1).padStart(2, '0');
+}
+function defaultState() {
+  return {
+    stars: {},
+    bouquets: 0
+  };
+}
+function recordPack(state, id, stars) {
+  const prev = state.stars && state.stars[id] || 0;
+  return {
+    ...state,
+    stars: {
+      ...state.stars,
+      [id]: Math.max(prev, stars)
+    }
+  };
+}
+function addBouquet(state) {
+  return {
+    ...state,
+    bouquets: (state.bouquets || 0) + 1
+  };
+}
 
-/* ══ WORD BANK (word, emoji) ══ */
-const WORDS3 = [['CAT', '🐱'], ['DOG', '🐶'], ['SUN', '☀️'], ['HAT', '🎩'], ['BEE', '🐝'], ['CUP', '🍵'], ['BUS', '🚌'], ['KEY', '🔑'], ['PIG', '🐷'], ['FOX', '🦊'], ['OWL', '🦉'], ['EGG', '🥚'], ['BED', '🛏️'], ['PIE', '🥧'], ['GEM', '💎'], ['COW', '🐮'], ['ANT', '🐜'], ['BOW', '🎀']];
-const WORDS4 = [['STAR', '⭐'], ['FISH', '🐟'], ['CAKE', '🎂'], ['FROG', '🐸'], ['RING', '💍'], ['MOON', '🌙'], ['ROSE', '🌹'], ['BEAR', '🐻'], ['DUCK', '🦆'], ['LION', '🦁'], ['BOAT', '⛵'], ['KING', '🤴'], ['BELL', '🔔'], ['BIRD', '🐦'], ['KITE', '🪁'], ['SWAN', '🦢'], ['DRUM', '🥁'], ['CORN', '🌽']];
-const WORDS5 = [['CROWN', '👑'], ['APPLE', '🍎'], ['HEART', '💖'], ['FAIRY', '🧚'], ['HORSE', '🐴'], ['MOUSE', '🐭'], ['SNAKE', '🐍'], ['TIGER', '🐯'], ['TRAIN', '🚂'], ['CLOUD', '☁️'], ['GRAPE', '🍇'], ['LEMON', '🍋'], ['QUEEN', '👸'], ['CANDY', '🍬'], ['CASTLE', '🏰'], ['FLOWER', '🌸'], ['DRESS', '👗'], ['RABBIT', '🐰'], ['TURTLE', '🐢'], ['CHERRY', '🍒'], ['UNICORN', '🦄']];
-const PRESETS = [{
-  id: 'p3',
-  emoji: '🌸',
-  tag: 'Short',
-  desc: '3 letters',
-  bank: WORDS3,
-  decoys: 0
-}, {
-  id: 'p4',
-  emoji: '🌷',
-  tag: 'Medium',
-  desc: '4 letters',
-  bank: WORDS4,
-  decoys: 1
-}, {
-  id: 'p5',
-  emoji: '👑',
-  tag: 'Long',
-  desc: '5+ letters',
-  bank: WORDS5,
-  decoys: 2
-}];
-const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const MAX_FLOWERS = 10;
-const FLOWER_TYPES = ['🌸', '🌼', '🌷', '🌺', '💖'];
-const BG_EMOJI = ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'];
-const TITLE_COLORS = ['#e91e63', '#f06292', '#9c27b0', '#7b1fa2', '#3f51b5', '#2196f3', '#00bcd4', '#f9a825', '#ff9800', '#e91e63', '#9c27b0', '#f06292', '#ffd54f', '#ab47bc'];
-const CONFETTI_C = ['#e91e63', '#f06292', '#9c27b0', '#ce93d8', '#ffd54f', '#fff176', '#f48fb1', '#ba68c8', '#fff'];
+/* ── THE SESSION ENGINE ──
+   One pack = a first pass over every word, then as many "practice again" passes over
+   the words that needed the auto-fill ladder as it takes to clear one with none. Words
+   a child self-corrects (one or two wrong taps, then the right tile) are NOT re-asked:
+   re-queuing every imperfect word would double a nine-word pack for one slip, and the
+   stars already record the slip. */
+function initSession(words, rng) {
+  const q = shuffleR(rng, words.slice());
+  return {
+    passNo: 1,
+    q,
+    qi: 0,
+    word: q[0],
+    filled: 0,
+    used: [],
+    tiles: makeTiles(q[0], rng),
+    posMisses: 0,
+    hint: false,
+    wordWrong: 0,
+    wordAuto: false,
+    pass1: {
+      wrongTaps: 0,
+      autoFills: 0
+    },
+    relearn: [],
+    stars: 0,
+    celebrating: false,
+    relearnPulse: false,
+    complete: false
+  };
+}
+/* THE HELP LADDER, three rungs and never a dead end:
+     miss 1  -- shake and buzz, try again;
+     miss 2  -- every tile that could fill this slot glows (still the child's choice);
+     miss 3  -- the game fills the letter in, the word is marked as helped, and it will
+                come back in the practice pass at the end of the pack.
+   The engine never blocks, and the child can always finish by tapping glowing tiles. */
+function applyTap(s, tileId) {
+  if (s.celebrating || s.complete) return {
+    s,
+    fx: null
+  };
+  const t = s.tiles.find(x => x.id === tileId);
+  if (!t || s.used.includes(tileId)) return {
+    s,
+    fx: null
+  };
+  if (t.c === s.word[s.filled]) {
+    const used = [...s.used, tileId];
+    const filled = s.filled + 1;
+    if (filled >= s.word.length) {
+      return {
+        s: {
+          ...s,
+          used,
+          filled,
+          celebrating: true,
+          relearn: s.wordAuto ? [...s.relearn, s.word] : s.relearn
+        },
+        fx: {
+          tile: tileId,
+          kind: 'right'
+        }
+      };
+    }
+    return {
+      s: {
+        ...s,
+        used,
+        filled,
+        posMisses: 0,
+        hint: false
+      },
+      fx: {
+        tile: tileId,
+        kind: 'right'
+      }
+    };
+  }
+  const misses = s.posMisses + 1;
+  const wordWrong = s.wordWrong + 1;
+  let pass1 = s.pass1;
+  if (s.passNo === 1) pass1 = {
+    ...pass1,
+    wrongTaps: pass1.wrongTaps + 1
+  };
+  if (misses >= 3) {
+    /* Auto-fill: consume an unused tile carrying the needed letter so the bank stays
+       honest -- every letter that lands in a slot comes from a tile the child can see. */
+    const need = s.word[s.filled];
+    const tile = s.tiles.find(x => x.c === need && !s.used.includes(x.id));
+    const used = tile ? [...s.used, tile.id] : s.used;
+    const filled = s.filled + 1;
+    let p1 = pass1;
+    if (s.passNo === 1) p1 = {
+      ...p1,
+      autoFills: p1.autoFills + 1
+    };
+    const base = {
+      ...s,
+      used,
+      filled,
+      posMisses: 0,
+      hint: false,
+      wordWrong,
+      wordAuto: true,
+      pass1: p1
+    };
+    if (filled >= s.word.length) {
+      return {
+        s: {
+          ...base,
+          celebrating: true,
+          relearn: [...s.relearn, s.word]
+        },
+        fx: {
+          tile: tile ? tile.id : null,
+          kind: 'autofill'
+        }
+      };
+    }
+    return {
+      s: base,
+      fx: {
+        tile: tile ? tile.id : null,
+        kind: 'autofill'
+      }
+    };
+  }
+  return {
+    s: {
+      ...s,
+      posMisses: misses,
+      hint: misses >= 2,
+      wordWrong,
+      pass1
+    },
+    fx: {
+      tile: tileId,
+      kind: 'wrong'
+    }
+  };
+}
+function nextWord(s, rng) {
+  if (!s.celebrating) return s;
+  const ni = s.qi + 1;
+  const fresh = w => ({
+    word: w,
+    filled: 0,
+    used: [],
+    tiles: makeTiles(w, rng),
+    posMisses: 0,
+    hint: false,
+    wordWrong: 0,
+    wordAuto: false
+  });
+  if (ni < s.q.length) {
+    return {
+      ...s,
+      qi: ni,
+      ...fresh(s.q[ni]),
+      celebrating: false,
+      relearnPulse: false
+    };
+  }
+  const stars = s.passNo === 1 ? starsFor(s.pass1) : s.stars;
+  if (s.relearn.length) {
+    const q2 = shuffleR(rng, s.relearn.slice());
+    return {
+      ...s,
+      passNo: s.passNo + 1,
+      q: q2,
+      qi: 0,
+      ...fresh(q2[0]),
+      relearn: [],
+      stars,
+      celebrating: false,
+      relearnPulse: true
+    };
+  }
+  return {
+    ...s,
+    celebrating: false,
+    complete: true,
+    stars
+  };
+}
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
-  const items = useMemo(() => BG_EMOJI.map((e, i) => ({
+  const items = useMemo(() => ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'].map((e, i) => ({
     e,
     id: i,
-    left: rand(2, 95),
-    top: rand(2, 88),
-    dur: rand(14, 34) / 10,
-    delay: rand(0, 30) / 10,
-    size: rand(16, 32),
-    opacity: (rand(28, 58) / 100).toFixed(2)
+    left: randR(Math.random, 2, 95),
+    top: randR(Math.random, 2, 88),
+    dur: randR(Math.random, 14, 34) / 10,
+    delay: randR(Math.random, 0, 30) / 10,
+    size: randR(Math.random, 16, 32),
+    opacity: (randR(Math.random, 28, 58) / 100).toFixed(2)
   })), []);
   return /*#__PURE__*/React.createElement("div", {
     className: "bg-deco"
@@ -372,11 +736,11 @@ function Confetti({
     length: 70
   }, (_, i) => ({
     id: i,
-    left: rand(0, 100),
-    delay: rand(0, 700),
-    dur: rand(1200, 2400),
-    color: CONFETTI_C[i % CONFETTI_C.length],
-    size: rand(7, 14),
+    left: randR(Math.random, 0, 100),
+    delay: randR(Math.random, 0, 700),
+    dur: randR(Math.random, 1200, 2400),
+    color: ['#e91e63', '#f06292', '#9c27b0', '#ce93d8', '#ffd54f', '#fff176', '#f48fb1', '#ba68c8', '#fff'][i % 9],
+    size: randR(Math.random, 7, 14),
     isE: i % 5 === 0
   })), [active]);
   if (!active) return null;
@@ -420,6 +784,7 @@ function useMascot() {
     setStamp(x => x + 1);
     if (ms) tRef.current = setTimeout(() => setMood('idle'), ms);
   }, []);
+  useEffect(() => () => clearTimeout(tRef.current), []);
   return {
     mood,
     stamp,
@@ -432,13 +797,13 @@ function FlowerGarden({
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "flower-garden",
-    "aria-label": `${flowers} of ${MAX_FLOWERS} flowers collected`
+    "aria-label": `${flowers} of 10 flowers collected`
   }, Array.from({
-    length: MAX_FLOWERS
+    length: 10
   }, (_, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
     className: `flower-slot ${i < flowers ? 'filled' : 'empty'}`
-  }, i < flowers ? FLOWER_TYPES[i % FLOWER_TYPES.length] : '·')));
+  }, i < flowers ? ['🌸', '🌼', '🌷', '🌺', '💖'][i % 5] : '·')));
 }
 function ScoreRow({
   score,
@@ -465,7 +830,7 @@ function ScoreRow({
 function useFlowerReward(setFlowers, setGardenFull, addBouquet) {
   return useCallback(() => {
     setFlowers(f => {
-      if (f + 1 >= MAX_FLOWERS) {
+      if (f + 1 >= 10) {
         setGardenFull(true);
         setTimeout(() => {
           Sound.fanfare();
@@ -475,7 +840,7 @@ function useFlowerReward(setFlowers, setGardenFull, addBouquet) {
           setFlowers(0);
           addBouquet();
         }, 2100);
-        return MAX_FLOWERS;
+        return 10;
       }
       return f + 1;
     });
@@ -558,41 +923,57 @@ function RobotReader({
     alt: ""
   }));
 }
-
-/* One reader for all three games: they ask the same question -- "say this word" -- and a
-   child who learns to tap the robot in one should not have to learn it again in the next. */
+/* ONE TOKEN PER TAP, and only the current tap may stop the mouth. `speechSynthesis.cancel()`
+   fires `end` on the utterance it is cancelling, so without this the SECOND tap starts the
+   animation and is then killed a tick later by the FIRST tap's end event -- the robot moved
+   once per session and never again, which is the opposite of how a child uses him. */
 function useReader() {
   const [speaking, setSpeaking] = useState(false);
   const t = useRef(0);
-  /* ONE TOKEN PER TAP, and only the current tap may stop the mouth. `speechSynthesis.cancel()`
-     fires `end` on the utterance it is cancelling, so without this the SECOND tap starts the
-     animation and is then killed a tick later by the FIRST tap's end event -- the robot moved
-     once per session and never again, which is the opposite of how a child uses him. */
   const gen = useRef(0);
-  useEffect(() => () => clearTimeout(t.current), []);
+  const audio = useRef(null);
+  useEffect(() => () => {
+    clearTimeout(t.current);
+    try {
+      audio.current && audio.current.pause();
+    } catch (e) {}
+  }, []);
   const stop = useCallback(() => {
     clearTimeout(t.current);
     setSpeaking(false);
   }, []);
-  const say = useCallback(word => {
+  /* THE MOUTH STARTS ON THE TAP, NOT ON THE ENGINE'S `onstart`. Driving it from onstart
+     reads better on paper and fails in practice: Chrome never fires it while the document
+     is hidden (the utterance sits queued with speaking===true), and iOS Safari drops
+     utterances outright. A robot that stays still when a child taps him reads as broken,
+     which is far worse than one who mouths a beat past the voice. With a rendered clip
+     the audio's own `ended` stops him early; the timeout stays as the net under both. */
+  const say = useCallback(text => {
     const mine = ++gen.current;
     Sound.tap();
     clearTimeout(t.current);
-    /* THE MOUTH STARTS ON THE TAP, NOT ON THE ENGINE'S `onstart`. Driving it from onstart
-       reads better on paper and fails in practice: Chrome never fires it while the document
-       is hidden (the utterance sits queued with speaking===true), and iOS Safari drops
-       utterances outright. A robot that stays still when a child taps him reads as broken,
-       which is far worse than one that mouths a beat past the voice. `onend` still stops him
-       early whenever the engine does report it, and the timeout is the net under that.
-       Muting is safe: Voice.say reports false synchronously, so the two state writes batch in
-       this same handler and the robot never moves. */
-    setSpeaking(true);
-    t.current = setTimeout(() => {
+    try {
+      audio.current && audio.current.pause();
+    } catch (e) {}
+    const stopMine = () => {
       if (gen.current === mine) stop();
-    }, Math.max(1800, word.length * 280 + 1000));
-    Voice.say(word, 0.85, on => {
-      if (!on && gen.current === mine) stop();
+    };
+    setSpeaking(true);
+    t.current = setTimeout(stopMine, Math.max(2400, text.length * 110 + 900));
+    const fallback = () => Voice.say(text, 0.85, on => {
+      if (!on) stopMine();
     });
+    const u = Clips.url(text);
+    if (u) {
+      const a = new Audio(u);
+      audio.current = a;
+      a.onended = stopMine;
+      a.onerror = () => {
+        stopMine();
+        fallback();
+      };
+      a.play().catch(fallback);
+    } else fallback();
   }, [stop]);
   return {
     speaking,
@@ -621,7 +1002,7 @@ function TopBar({
     }
   }, "\uD83C\uDF38"), /*#__PURE__*/React.createElement("button", {
     className: "round-btn",
-    "aria-label": "Back home",
+    "aria-label": "Back",
     onClick: () => {
       Sound.tap();
       onBack();
@@ -634,373 +1015,26 @@ function TopBar({
     onClick: onToggleMute
   }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)));
 }
-function PresetChips({
-  preset,
-  setPreset
+function Stars({
+  n,
+  total
 }) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "chip-row",
-    role: "group",
-    "aria-label": "Word length"
-  }, PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `chip ${preset.id === p.id ? 'on' : ''}`,
-    onClick: () => {
-      Sound.tap();
-      setPreset(p);
-    }
-  }, p.emoji, " ", p.tag, " \xB7 ", p.desc)));
-}
-
-/* pick a word, avoiding the previous one */
-function pickWord(bank, prev) {
-  let w;
-  do {
-    w = bank[rand(0, bank.length - 1)];
-  } while (bank.length > 1 && prev && w[0] === prev);
-  return w;
-}
-
-/* shared success/served-problem hook */
-function useGameCore({
-  reward,
-  setScore,
-  mascot,
-  onNew
-}) {
-  const [celebrating, setCelebrating] = useState(false);
-  const [banner, setBanner] = useState('');
-  const win = useCallback(word => {
-    Sound.celebrate();
-    const msg = praise();
-    setBanner(msg);
-    Voice.say(msg, 1);
-    mascot.happy();
-    setCelebrating(true);
-    setScore(s => s + 1);
-    reward();
-    setTimeout(() => {
-      setCelebrating(false);
-      setBanner('');
-      onNew();
-    }, 1900);
-  }, [reward, setScore, mascot, onNew]);
-  return {
-    celebrating,
-    banner,
-    win
-  };
-}
-
-/* ══ GAME 1: FIRST LETTER (ages 4-5) ══ */
-function FirstLetter({
-  onBack,
-  shared
-}) {
-  const [preset, setPreset] = useState(PRESETS[0]);
-  const [prob, setProb] = useState(null);
-  const [fx, setFx] = useState({});
-  const prevRef = useRef(null);
-  const reader = useReader();
-  const mascot = useMascot();
-  const newProblem = useCallback(() => {
-    const [w, e] = pickWord(preset.bank, prevRef.current);
-    prevRef.current = w;
-    const correct = w[0];
-    const opts = new Set([correct]);
-    while (opts.size < 4) opts.add(ALPHA[rand(0, 25)]);
-    setProb({
-      w,
-      e,
-      correct,
-      opts: shuffle([...opts])
-    });
-    setFx({});
-    setTimeout(() => Voice.say(w), 350);
-  }, [preset]);
-  useEffect(newProblem, [newProblem]);
-  const core = useGameCore({
-    ...shared,
-    mascot,
-    onNew: newProblem
-  });
-  const pick = L => {
-    if (core.celebrating) return;
-    if (L === prob.correct) {
-      setFx({
-        [L]: 'right'
-      });
-      core.win(prob.w);
-    } else {
-      Sound.wrong();
-      mascot.oops();
-      setFx({
-        [L]: 'wrong'
-      });
-      setTimeout(() => setFx({}), 400);
-    }
-  };
-  if (!prob) return null;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
-  }, /*#__PURE__*/React.createElement(TopBar, {
-    onBack: onBack,
-    label: "First Letter",
-    muted: shared.muted,
-    onToggleMute: shared.toggleMute
-  }), /*#__PURE__*/React.createElement(PresetChips, {
-    preset: preset,
-    setPreset: setPreset
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "word-pic",
-    role: "img",
-    "aria-label": prob.w.toLowerCase()
-  }, prob.e), /*#__PURE__*/React.createElement("div", {
-    className: "read-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "speak-btn",
-    "aria-label": "Say the word",
-    onClick: () => reader.say(prob.w)
-  }, /*#__PURE__*/React.createElement(RobotReader, {
-    speaking: reader.speaking
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "prompt-bubble"
-  }, "What letter does ", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: '#e91e63'
-    }
-  }, prob.w.toLowerCase()), " start with?")), /*#__PURE__*/React.createElement("div", {
-    className: "praise-banner"
-  }, core.banner), /*#__PURE__*/React.createElement("div", {
-    className: "tile-row"
-  }, prob.opts.map((L, i) => /*#__PURE__*/React.createElement("button", {
-    key: L,
-    className: `tile t${i % 4} ${fx[L] || ''}`,
-    onClick: () => pick(L)
-  }, L))), /*#__PURE__*/React.createElement(Mascot, {
-    mood: mascot.mood,
-    stamp: mascot.stamp
-  }), /*#__PURE__*/React.createElement(Confetti, {
-    active: core.celebrating
-  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
-}
-
-/* ══ GAME 2: BUILD THE WORD (ages 5-7) ══ */
-function BuildWord({
-  onBack,
-  shared
-}) {
-  const [preset, setPreset] = useState(PRESETS[0]);
-  const [prob, setProb] = useState(null);
-  const [filled, setFilled] = useState(0);
-  const [used, setUsed] = useState([]);
-  const [fx, setFx] = useState({});
-  const prevRef = useRef(null);
-  const reader = useReader();
-  const mascot = useMascot();
-  const newProblem = useCallback(() => {
-    const [w, e] = pickWord(preset.bank, prevRef.current);
-    prevRef.current = w;
-    const decoys = [];
-    while (decoys.length < preset.decoys) {
-      const L = ALPHA[rand(0, 25)];
-      if (!w.includes(L) && !decoys.includes(L)) decoys.push(L);
-    }
-    const tiles = shuffle([...w.split(''), ...decoys]).map((L, i) => ({
-      L,
-      id: i
-    }));
-    setProb({
-      w,
-      e,
-      tiles
-    });
-    setFilled(0);
-    setUsed([]);
-    setFx({});
-    setTimeout(() => Voice.say(`Spell ${w}`), 350);
-  }, [preset]);
-  useEffect(newProblem, [newProblem]);
-  const core = useGameCore({
-    ...shared,
-    mascot,
-    onNew: newProblem
-  });
-  const tap = tile => {
-    if (core.celebrating || used.includes(tile.id)) return;
-    if (tile.L === prob.w[filled]) {
-      Sound.tap();
-      setUsed(u => [...u, tile.id]);
-      setFx({
-        [tile.id]: 'right'
-      });
-      const nf = filled + 1;
-      setFilled(nf);
-      if (nf === prob.w.length) core.win(prob.w);
-    } else {
-      Sound.wrong();
-      mascot.oops();
-      setFx({
-        [tile.id]: 'wrong'
-      });
-      setTimeout(() => setFx({}), 400);
-    }
-  };
-  if (!prob) return null;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
-  }, /*#__PURE__*/React.createElement(TopBar, {
-    onBack: onBack,
-    label: "Build the Word",
-    muted: shared.muted,
-    onToggleMute: shared.toggleMute
-  }), /*#__PURE__*/React.createElement(PresetChips, {
-    preset: preset,
-    setPreset: setPreset
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "word-pic",
-    role: "img",
-    "aria-label": prob.w.toLowerCase()
-  }, prob.e), /*#__PURE__*/React.createElement("div", {
-    className: "read-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "speak-btn",
-    "aria-label": "Say the word",
-    onClick: () => reader.say(prob.w)
-  }, /*#__PURE__*/React.createElement(RobotReader, {
-    speaking: reader.speaking
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "prompt-bubble"
-  }, "Spell ", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: '#e91e63'
-    }
-  }, prob.w.toLowerCase()), "!")), /*#__PURE__*/React.createElement("div", {
-    className: "slot-row",
-    "aria-label": "Word so far"
-  }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "pack-stars",
+    "aria-label": `${n} of ${total} stars`
+  }, Array.from({
+    length: total
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
-    className: `slot ${i < filled ? 'filled' : ''}`
-  }, i < filled ? L : ''))), /*#__PURE__*/React.createElement("div", {
-    className: "praise-banner"
-  }, core.banner), /*#__PURE__*/React.createElement("div", {
-    className: "tile-row"
-  }, prob.tiles.map((t, i) => /*#__PURE__*/React.createElement("button", {
-    key: t.id,
-    className: `tile t${i % 4} ${used.includes(t.id) ? 'used' : ''} ${fx[t.id] || ''}`,
-    onClick: () => tap(t)
-  }, t.L))), /*#__PURE__*/React.createElement(Mascot, {
-    mood: mascot.mood,
-    stamp: mascot.stamp
-  }), /*#__PURE__*/React.createElement(Confetti, {
-    active: core.celebrating
-  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
-}
-
-/* ══ GAME 3: MISSING LETTER (ages 6-8) ══ */
-function MissingLetter({
-  onBack,
-  shared
-}) {
-  const [preset, setPreset] = useState(PRESETS[1]);
-  const [prob, setProb] = useState(null);
-  const [solved, setSolved] = useState(false);
-  const [fx, setFx] = useState({});
-  const prevRef = useRef(null);
-  const reader = useReader();
-  const mascot = useMascot();
-  const newProblem = useCallback(() => {
-    const [w, e] = pickWord(preset.bank, prevRef.current);
-    prevRef.current = w;
-    const gap = rand(0, w.length - 1);
-    const correct = w[gap];
-    const opts = new Set([correct]);
-    while (opts.size < 4) opts.add(ALPHA[rand(0, 25)]);
-    setProb({
-      w,
-      e,
-      gap,
-      correct,
-      opts: shuffle([...opts])
-    });
-    setSolved(false);
-    setFx({});
-    setTimeout(() => Voice.say(w), 350);
-  }, [preset]);
-  useEffect(newProblem, [newProblem]);
-  const core = useGameCore({
-    ...shared,
-    mascot,
-    onNew: newProblem
-  });
-  const pick = L => {
-    if (core.celebrating) return;
-    if (L === prob.correct) {
-      setSolved(true);
-      setFx({
-        [L]: 'right'
-      });
-      core.win(prob.w);
-    } else {
-      Sound.wrong();
-      mascot.oops();
-      setFx({
-        [L]: 'wrong'
-      });
-      setTimeout(() => setFx({}), 400);
-    }
-  };
-  if (!prob) return null;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
-  }, /*#__PURE__*/React.createElement(TopBar, {
-    onBack: onBack,
-    label: "Missing Letter",
-    muted: shared.muted,
-    onToggleMute: shared.toggleMute
-  }), /*#__PURE__*/React.createElement(PresetChips, {
-    preset: preset,
-    setPreset: setPreset
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "word-pic",
-    role: "img",
-    "aria-label": prob.w.toLowerCase()
-  }, prob.e), /*#__PURE__*/React.createElement("div", {
-    className: "read-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "speak-btn",
-    "aria-label": "Say the word",
-    onClick: () => reader.say(prob.w)
-  }, /*#__PURE__*/React.createElement(RobotReader, {
-    speaking: reader.speaking
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "prompt-bubble"
-  }, "Which letter is missing?")), /*#__PURE__*/React.createElement("div", {
-    className: "slot-row",
-    "aria-label": "Word with a missing letter"
-  }, prob.w.split('').map((L, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    className: `slot ${i === prob.gap ? solved ? 'filled' : 'blank-target' : 'filled'}`
-  }, i === prob.gap ? solved ? L : '?' : L))), /*#__PURE__*/React.createElement("div", {
-    className: "praise-banner"
-  }, core.banner), /*#__PURE__*/React.createElement("div", {
-    className: "tile-row"
-  }, prob.opts.map((L, i) => /*#__PURE__*/React.createElement("button", {
-    key: L,
-    className: `tile t${i % 4} ${fx[L] || ''}`,
-    onClick: () => pick(L)
-  }, L))), /*#__PURE__*/React.createElement(Mascot, {
-    mood: mascot.mood,
-    stamp: mascot.stamp
-  }), /*#__PURE__*/React.createElement(Confetti, {
-    active: core.celebrating
-  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
+    className: i < n ? 'star-on' : 'star-off',
+    "aria-hidden": "true"
+  }, i < n ? '★' : '☆')));
 }
 
 /* ══ HOME ══ */
 function Home({
   go,
-  bouquets
+  store
 }) {
   const title = 'Magic Spelling!'.split('');
   return /*#__PURE__*/React.createElement("div", {
@@ -1028,74 +1062,38 @@ function Home({
   }, title.map((ch, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
     style: {
-      color: TITLE_COLORS[i % TITLE_COLORS.length],
+      color: ['#e91e63', '#f06292', '#9c27b0', '#7b1fa2', '#3f51b5', '#2196f3', '#00bcd4', '#f9a825', '#ff9800', '#e91e63', '#9c27b0', '#f06292', '#ffd54f', '#ab47bc'][i % 14],
       animationDelay: `${i * 0.06}s`
     }
   }, ch === ' ' ? '\u00A0' : ch))), /*#__PURE__*/React.createElement("div", {
     className: "home-sub"
-  }, "Choose your adventure!"), bouquets > 0 && /*#__PURE__*/React.createElement("div", {
+  }, "Hear the word. Spell it!"), store.bouquets > 0 && /*#__PURE__*/React.createElement("div", {
     className: "trophy-line"
-  }, "\uD83D\uDC90 Bouquets collected: ", bouquets), /*#__PURE__*/React.createElement("div", {
-    className: "section-heading"
-  }, /*#__PURE__*/React.createElement("span", {
-    "aria-hidden": "true",
-    style: {
-      fontSize: 24
-    }
-  }, "\uD83C\uDF38"), "Letter Games"), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDC90 Bouquets collected: ", store.bouquets), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-pink",
+  }, [1, 2, 3].map((g, i) => /*#__PURE__*/React.createElement("button", {
+    key: g,
+    className: `mode-card ${['mc-pink', 'mc-purple', 'mc-gold'][i]}`,
+    "aria-label": `${GRADE_META[g].label}: ${gradeStars(store, g)} of ${UNIVERSE.grades[String(g)].length * 3} stars`,
     onClick: () => {
       Sound.tap();
-      go('first');
+      go({
+        s: 'packs',
+        g
+      });
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "mode-card-art",
     role: "img",
-    "aria-label": "princess"
-  }, "\uD83D\uDC78"), /*#__PURE__*/React.createElement("span", {
+    "aria-label": GRADE_META[g].sub
+  }, GRADE_META[g].art), /*#__PURE__*/React.createElement("span", {
     className: "mode-card-label"
-  }, "First Letter"), /*#__PURE__*/React.createElement("span", {
+  }, GRADE_META[g].label), /*#__PURE__*/React.createElement("span", {
     className: "mode-card-sub"
-  }, "What does it start with?")), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-purple",
-    onClick: () => {
-      Sound.tap();
-      go('missing');
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-art",
-    role: "img",
-    "aria-label": "fairy"
-  }, "\uD83E\uDDDA"), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-label"
-  }, "Missing Letter"), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-sub"
-  }, "Fill in the blank!"))), /*#__PURE__*/React.createElement("div", {
-    className: "section-heading"
-  }, /*#__PURE__*/React.createElement("span", {
-    "aria-hidden": "true",
-    style: {
-      fontSize: 24
-    }
-  }, "\uD83D\uDC51"), "Word Games"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-gold",
-    onClick: () => {
-      Sound.tap();
-      go('build');
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-art",
-    role: "img",
-    "aria-label": "castle"
-  }, "\uD83C\uDFF0"), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-label"
-  }, "Build the Word"), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-sub"
-  }, "Tap the letters in order!"))), /*#__PURE__*/React.createElement("div", {
+  }, GRADE_META[g].sub), /*#__PURE__*/React.createElement(Stars, {
+    n: gradeStars(store, g),
+    total: 3
+  })))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 8,
       fontSize: 44,
@@ -1105,22 +1103,291 @@ function Home({
     "aria-hidden": "true"
   }, "\uD83C\uDF08"));
 }
+function gradeStars(store, grade) {
+  const packs = UNIVERSE.grades[String(grade)].length;
+  let n = 0;
+  for (let i = 0; i < packs; i++) n += store.stars && store.stars[packId(grade, i)] || 0;
+  return n;
+}
+
+/* ══ PACK PICKER ══ */
+function Packs({
+  nav,
+  grade,
+  store,
+  muted,
+  onToggleMute
+}) {
+  const packs = UNIVERSE.grades[String(grade)];
+  const meta = GRADE_META[grade];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: () => nav({
+      s: 'home'
+    }),
+    label: meta.label,
+    muted: muted,
+    onToggleMute: onToggleMute
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "home-sub"
+  }, "Pick a pack!"), /*#__PURE__*/React.createElement("div", {
+    className: "pack-grid",
+    role: "group",
+    "aria-label": `${meta.label} packs`
+  }, packs.map((_, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    className: `pack-card ${['mc-pink', 'mc-purple', 'mc-gold'][i % 3]}`,
+    "aria-label": `Pack ${i + 1}: ${store.stars && store.stars[packId(grade, i)] || 0} of 3 stars`,
+    onClick: () => {
+      Sound.tap();
+      nav({
+        s: 'game',
+        g: grade,
+        p: i
+      });
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "pack-num"
+  }, i + 1), /*#__PURE__*/React.createElement("span", {
+    className: "pack-word"
+  }, "pack"), /*#__PURE__*/React.createElement(Stars, {
+    n: store.stars && store.stars[packId(grade, i)] || 0,
+    total: 3
+  })))));
+}
+
+/* ══ THE SPELL GAME ══ */
+function SpellGame({
+  nav,
+  grade,
+  packIdx,
+  shared
+}) {
+  const words = UNIVERSE.grades[String(grade)][packIdx];
+  const [st, setSt] = useState(() => initSession(words, Math.random));
+  const [fx, setFx] = useState({});
+  const [banner, setBanner] = useState('');
+  const [confetti, setConfetti] = useState(false);
+  const reader = useReader();
+  const mascot = useMascot();
+  const stRef = useRef(st);
+  stRef.current = st;
+
+  /* Speak each new word once it lands -- the robot, so his mouth moves. The delay keeps
+     the previous word's praise from colliding with the new question. */
+  useEffect(() => {
+    if (st.celebrating || st.complete) return;
+    const id = setTimeout(() => reader.say(lineFor(st.word, UNIVERSE.homophones)), 350);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.word, st.passNo, st.qi]);
+
+  /* The word is solved: the filled slots ARE the reveal, then praise, a flower, and the
+     next word. Stars are recorded when the FIRST pass ends; practice passes only re-ask. */
+  useEffect(() => {
+    if (!st.celebrating) return;
+    Sound.celebrate();
+    const msg = praise();
+    setBanner(msg);
+    speakLine(msg, 1);
+    mascot.happy();
+    setConfetti(true);
+    shared.reward();
+    shared.setScore(s => s + 1);
+    const id = setTimeout(() => {
+      setConfetti(false);
+      setBanner('');
+      setSt(s => nextWord(s, Math.random));
+    }, 1900);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.celebrating, st.qi, st.word]);
+
+  /* A practice pass just started: say so, in words and in voice. */
+  useEffect(() => {
+    if (!st.relearnPulse) return;
+    setBanner(PRACTICE_LINE);
+    speakLine(PRACTICE_LINE, 1);
+    const id = setTimeout(() => setBanner(''), 2200);
+    return () => clearTimeout(id);
+  }, [st.relearnPulse]);
+
+  /* The pack is finished: stars land in the store, three stars pay a bonus bouquet,
+     the fanfare and the star line play. */
+  useEffect(() => {
+    if (!st.complete) return;
+    const id = packId(grade, packIdx);
+    const stars = st.stars;
+    shared.setStore(prev => {
+      let next = recordPack(prev, id, stars);
+      if (stars === 3) next = addBouquet(next);
+      return next;
+    });
+    Sound.fanfare();
+    speakLine(STAR_LINES[stars] || STAR_LINES[1], 1);
+    mascot.happy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.complete]);
+  const tap = tileId => {
+    const {
+      s,
+      fx: f
+    } = applyTap(stRef.current, tileId);
+    if (!f) return;
+    if (f.kind === 'right') {
+      Sound.tap();
+      setSt(s);
+      setFx({
+        [f.tile]: 'right'
+      });
+    } else if (f.kind === 'autofill') {
+      Sound.ding();
+      setSt(s);
+      setFx({});
+    } else {
+      Sound.wrong();
+      mascot.oops();
+      setSt(s);
+      setFx({
+        [f.tile]: 'wrong'
+      });
+      setTimeout(() => setFx({}), 400);
+    }
+  };
+  if (st.complete) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "screen"
+    }, /*#__PURE__*/React.createElement(Confetti, {
+      active: true
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "complete-overlay",
+      role: "dialog",
+      "aria-label": "Pack complete"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "complete-stars"
+    }, [1, 2, 3].map(i => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: i <= st.stars ? '' : 'off',
+      style: {
+        animationDelay: `${i * 0.18}s`
+      }
+    }, i <= st.stars ? '⭐' : '☆'))), /*#__PURE__*/React.createElement("div", {
+      className: "complete-title"
+    }, "Pack ", packIdx + 1, " complete!"), /*#__PURE__*/React.createElement("div", {
+      className: "complete-sub"
+    }, GRADE_META[grade].label, " \xB7 ", st.stars === 3 ? 'Perfect spelling!' : st.stars === 2 ? 'Almost perfect!' : 'You did it!'), /*#__PURE__*/React.createElement("div", {
+      className: "complete-btn-row"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "big-btn",
+      onClick: () => {
+        Sound.tap();
+        setSt(initSession(words, Math.random));
+      }
+    }, "Play again"), packIdx + 1 < UNIVERSE.grades[String(grade)].length && /*#__PURE__*/React.createElement("button", {
+      className: "big-btn alt",
+      onClick: () => {
+        Sound.tap();
+        nav({
+          s: 'game',
+          g: grade,
+          p: packIdx + 1
+        });
+      }
+    }, "Next pack \u2192"), /*#__PURE__*/React.createElement("button", {
+      className: "big-btn alt",
+      onClick: () => {
+        Sound.tap();
+        nav({
+          s: 'packs',
+          g: grade
+        });
+      }
+    }, "All packs"))), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
+  }
+  const need = st.word[st.filled];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen"
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: () => nav({
+      s: 'packs',
+      g: grade
+    }),
+    label: `Pack ${packIdx + 1} · ${st.qi + 1}/${st.q.length}`,
+    muted: shared.muted,
+    onToggleMute: shared.toggleMute
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "read-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "speak-btn",
+    "aria-label": "Say the word again",
+    onClick: () => reader.say(lineFor(st.word, UNIVERSE.homophones))
+  }, /*#__PURE__*/React.createElement(RobotReader, {
+    speaking: reader.speaking
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "prompt-bubble"
+  }, "Spell the word!")), /*#__PURE__*/React.createElement("div", {
+    className: `slot-row ${st.word.length >= 8 ? 'long' : ''}`,
+    "aria-label": "Word so far"
+  }, st.word.split('').map((c, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `slot ${i < st.filled ? 'filled' : ''}`
+  }, i < st.filled ? st.word[i] : ''))), /*#__PURE__*/React.createElement("div", {
+    className: "praise-banner"
+  }, banner), /*#__PURE__*/React.createElement("div", {
+    className: `tile-row ${st.tiles.length >= 12 ? 'dense' : ''}`
+  }, st.tiles.map((t, i) => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: `tile t${i % 4} ${st.used.includes(t.id) ? 'used' : ''} ${fx[t.id] || ''} ${st.hint && t.c === need && !st.used.includes(t.id) ? 'hint' : ''}`,
+    "aria-label": `letter ${t.c}`,
+    onClick: () => tap(t.id)
+  }, t.c))), /*#__PURE__*/React.createElement(Mascot, {
+    mood: mascot.mood,
+    stamp: mascot.stamp
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
+}
 
 /* ══ APP ══ */
 function App() {
-  const [screen, setScreen] = useState('home');
+  const [nav, setNav] = useState({
+    s: 'home'
+  });
   const [score, setScore] = useState(0);
   const [flowers, setFlowers] = useState(0);
-  const [bouquets, setBouquets] = useState(0);
   const [gardenFull, setGardenFull] = useState(false);
   const [muted, setMuted] = useState(false);
-  const addBouquet = useCallback(() => setBouquets(b => b + 1), []);
+  const [store, setStore] = useState(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+      if (raw && typeof raw === 'object') return {
+        ...defaultState(),
+        ...raw
+      };
+    } catch (e) {}
+    return defaultState();
+  });
+  /* Progress survives the app being closed: pack stars and bouquets are the long game,
+     while score, flowers and the garden reset per session, as they always did. */
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+    } catch (e) {}
+  }, [store]);
+  const addBouquet = useCallback(() => setStore(s => ({
+    ...s,
+    bouquets: (s.bouquets || 0) + 1
+  })), []);
   const reward = useFlowerReward(setFlowers, setGardenFull, addBouquet);
   const toggleMute = () => {
     setMuted(m => {
       const nm = !m;
       Sound.setMuted(nm);
       Voice.setMuted(nm);
+      try {
+        _lineAudio && _lineAudio.pause();
+      } catch (e) {}
       if (!nm) Sound.tap();
       return nm;
     });
@@ -1128,28 +1395,32 @@ function App() {
   const shared = {
     reward,
     setScore,
+    setStore,
     muted,
     toggleMute,
     scoreProps: {
       score,
       flowers,
-      bouquets,
+      bouquets: store.bouquets || 0,
       gardenFull
     }
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "app-bg"
-  }), /*#__PURE__*/React.createElement(BgDeco, null), screen === 'home' && /*#__PURE__*/React.createElement(Home, {
-    go: setScreen,
-    bouquets: bouquets
-  }), screen === 'first' && /*#__PURE__*/React.createElement(FirstLetter, {
-    onBack: () => setScreen('home'),
-    shared: shared
-  }), screen === 'build' && /*#__PURE__*/React.createElement(BuildWord, {
-    onBack: () => setScreen('home'),
-    shared: shared
-  }), screen === 'missing' && /*#__PURE__*/React.createElement(MissingLetter, {
-    onBack: () => setScreen('home'),
+  }), /*#__PURE__*/React.createElement(BgDeco, null), nav.s === 'home' && /*#__PURE__*/React.createElement(Home, {
+    go: setNav,
+    store: store
+  }), nav.s === 'packs' && /*#__PURE__*/React.createElement(Packs, {
+    nav: setNav,
+    grade: nav.g,
+    store: store,
+    muted: muted,
+    onToggleMute: toggleMute
+  }), nav.s === 'game' && /*#__PURE__*/React.createElement(SpellGame, {
+    key: nav.g + '-' + nav.p,
+    nav: setNav,
+    grade: nav.g,
+    packIdx: nav.p,
     shared: shared
   }));
 }

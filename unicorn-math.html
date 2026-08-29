@@ -570,11 +570,13 @@
     .fr-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .fr-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
 
-    /* ── Which Unit? ── */
-    .um-thing{display:flex;flex-direction:column;align-items:center;gap:16px}
+    /* ── Which Unit? ──
+       The glyph is all that survived the quiz: .um-thing, .um-ask and .um-tile
+       styled the one-thing-and-three-chips screen the chart replaced on
+       2026-08-29, and nothing renders those classes any more. The glyph itself is
+       still the drawing under every picture on the chart, which overrides the
+       size and the frame — see .uc-thing .um-glyph. */
     .um-glyph{width:clamp(84px,15vw,130px);height:clamp(84px,15vw,130px);color:#2f4a8f;background:rgba(255,255,255,.72);border-radius:26px;padding:18px;box-shadow:0 5px 18px rgba(90,46,214,.12)}
-    .um-ask{font-size:clamp(1.4rem,4.6vw,2.1rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);text-align:center;max-width:80vw}
-    .um-tile{font-size:clamp(1.7rem,5.5vw,2.4rem)}
     /* ── Cover It (area) ── */
     .ag-grid{display:grid;gap:0;background:#2f4a8f;border:3px solid #2f4a8f;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(90,46,214,.18)}
     .ag-cell{width:var(--ag-cell,clamp(40px,7vw,58px));height:var(--ag-cell,clamp(40px,7vw,58px));box-sizing:border-box;background:rgba(255,255,255,.35);cursor:pointer;transition:background .15s}
@@ -582,9 +584,85 @@
     .ag-cell.ag-on{background:rgba(255,255,255,.55);border:1.5px solid rgba(47,74,143,.4)}
     .ag-cell.ag-marked{background:#dceaff;box-shadow:inset 0 0 0 3px rgba(47,109,246,.7)}
     .ag-filled .ag-cell.ag-on{background:linear-gradient(135deg,#ffd54f,#f9a825);animation:tfPop .4s ease both}
+    /* ── The move key ──
+       The board's four rules, drawn, sitting beside it on every rung (see MoveKey).
+       It is a legend, not a control, so it takes horizontal room and never vertical:
+       the board's own comment measures the 1024x768 floor and there is nothing spare
+       below it. THE ROW IS A GRID, not a flex line, for one reason: the board has to
+       stay centred under the question and the title, and a flex row centres the PAIR,
+       which slides the board a hundred pixels right of everything else on the screen.
+       1fr | auto | 1fr keeps the board on the screen's centre line and hangs the key
+       off its left edge.
+       Under 700px the key is hidden outright: at that width the board already reaches
+       the bottom of a phone, and half a key clipped by .screen{overflow:hidden}
+       teaches nothing. Every iPad is above the line.
+       Each seat speaks its own rule, so each seat is a TAP TARGET: the clamp floor is
+       44px and 6.6vw keeps it above that at 768 too. */
+    .hb-stage-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;width:100%}
+    .hb-stage-row>.hb-board{grid-column:2;grid-row:1}
+    /* grid-row is not decoration: the board is first in the DOM (so that it is the
+       key that disappears on a narrow screen), and without it auto-placement drops
+       the key into a second row, under the board and on top of the mascot. */
+    .hb-key{grid-column:1;grid-row:1;justify-self:end;margin-right:12px;--hb-key-cell:clamp(44px,6.6vw,56px);display:grid;grid-template-columns:repeat(3,var(--hb-key-cell));grid-template-rows:repeat(3,var(--hb-key-cell));gap:4px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);font-family:inherit;cursor:pointer;position:relative;z-index:1}
+    .hb-key-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border:2px solid transparent;border-radius:9px;background:rgba(255,255,255,.55);color:#2f4a8f;font-family:inherit;font-weight:900;font-size:clamp(.62rem,1.5vw,.82rem);line-height:1.05;cursor:pointer}
+    .hb-key-cell b{font-size:clamp(1rem,2.5vw,1.35rem);line-height:1}
+    button.hb-key-cell:active{transform:scale(.9)}
+    .hb-key-cell.lit{background:#dceaff;border-color:#2f6df6}
+    .hb-key-up{grid-area:1/2/2/3}
+    .hb-key-left{grid-area:2/1/3/2}
+    .hb-key-here{grid-area:2/2/3/3;background:#e8f0ff;border:2px solid #2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,.3)}
+    .hb-key-here i{width:34%;height:34%;border-radius:50%;background:#2f6df6}
+    .hb-key-right{grid-area:2/3/3/4}
+    .hb-key-down{grid-area:3/2/4/3}
+    @media (max-width:699px){.hb-key{display:none}}
     @media (max-width:600px){
       .hb-board{gap:2px;padding:6px}
       .hb-cell{border-radius:6px;font-size:.68rem}
+    }
+    /* ── Which Unit?: the chart ──
+       A teaching screen, so it is laid out like one: three rows of the same shape,
+       units smallest first, and the things under the unit they are measured in.
+       `--step` grows the unit chip along its row — the size order is drawn rather
+       than asserted, which is as far as this tier goes towards conversion. */
+    .uc-card{display:flex;flex-direction:column;gap:10px;width:100%;max-width:min(96vw,760px);background:rgba(255,255,255,.72);border:2px solid #c4d7fd;border-radius:22px;padding:12px;box-shadow:0 5px 18px rgba(90,46,214,.12);position:relative;z-index:1}
+    .uc-row{display:flex;flex-direction:column;gap:6px}
+    .uc-row+.uc-row{border-top:2px dashed #c4d7fd;padding-top:9px}
+    .uc-ask{font-size:clamp(.95rem,2.4vw,1.15rem);font-weight:900;color:#2f4a8f;text-align:center}
+    .uc-units{display:flex;gap:10px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+    .uc-unit{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1 1 0;min-width:88px}
+    .uc-head{display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;padding:calc(4px + var(--step) * 2px) 8px;border:2px solid #82b1ff;border-radius:14px;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f4a8f;font-family:inherit;cursor:pointer;box-shadow:0 3px 0 #c4d7fd}
+    .uc-head:active{transform:translateY(2px);box-shadow:0 1px 0 #c4d7fd}
+    .uc-head.lit{background:linear-gradient(160deg,#ffd54f,#f9a825);border-color:#e65100;color:#7a3c00}
+    .uc-abbr{font-size:calc(1rem + var(--step) * .22rem);font-weight:900;line-height:1}
+    .uc-word{font-size:clamp(.56rem,1.5vw,.72rem);font-weight:900;opacity:.75;line-height:1.1}
+    .uc-things{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    .uc-thing{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 6px;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,.6);font-family:inherit;cursor:pointer}
+    .uc-thing:active{transform:scale(.94)}
+    .uc-thing.lit{border-color:#2f6df6;background:#e8f0ff;box-shadow:0 0 0 3px rgba(47,109,246,.22)}
+    .uc-thing .um-glyph{width:clamp(38px,6vw,52px);height:clamp(38px,6vw,52px);padding:5px;border-radius:12px;box-shadow:none;background:transparent}
+    .uc-name{font-size:clamp(.56rem,1.5vw,.74rem);font-weight:900;color:#2f4a8f;line-height:1.05;text-align:center}
+    /* Reserved whether or not anything has been tapped: the chart must not jump
+       under the finger that just tapped it.
+       It is a PANEL rather than outlined white text, which is what the rest of
+       this screen family uses over a background image. The two themes disagree
+       about what is behind it — space is a night sky, unicorn a pale pink one —
+       and white-on-pale was unreadable in the garden. A white pill with dark text
+       is legible on both, and it is the same shape .count-title already uses. */
+    .uc-said{min-height:2.9em;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(1rem,2.8vw,1.3rem);font-weight:900;color:#2f4a8f;background:rgba(255,255,255,.85);border:2px solid #c4d7fd;border-radius:18px;padding:7px 18px;box-shadow:0 4px 14px rgba(90,46,214,.12);max-width:min(92vw,700px);opacity:0;transition:opacity .18s}
+    .uc-said.lit{opacity:1}
+    /* A landscape iPad is 768px tall, and the chart plus its caption overran that
+       by ~36px — with .screen{overflow:hidden} the half that fell off the bottom
+       was the caption, which is the half that answers the tap. Everything gives a
+       little rather than one thing giving a lot. Measured at 1024x768. */
+    @media (max-height:820px){
+      .uc-card{gap:5px;padding:8px}
+      .uc-row{gap:4px}
+      .uc-row+.uc-row{padding-top:5px}
+      .uc-ask{font-size:clamp(.85rem,2.1vw,1rem)}
+      .uc-things{gap:5px}
+      .uc-thing{padding:3px 5px}
+      .uc-thing .um-glyph{width:clamp(34px,5vw,44px);height:clamp(34px,5vw,44px);padding:4px}
+      .uc-said{min-height:2.3em;padding:5px 14px;font-size:clamp(.95rem,2.5vw,1.15rem)}
     }
 
     /* ── WHAT'S MISSING? (b3) ──
@@ -2682,6 +2760,19 @@ function hundredMoveWords(delta) {
 const HUNDRED_STEP_OPS = [1, -1, 10, -10];
 const HUNDRED_JUMP_OPS = [1, -1, 10, -10, 20, -20, 11, 9, -9, -11];
 const HUNDRED_EDGE_OPS = [1, -1, 11, -11];
+/* The mix rung, and the board's opening rung (owner, 2026-08-29: *"add mode to
+   add and subtract with many number not only 1 11 20 ... just mix, make this mix
+   mode the default mode"*). Every move from −30 to +30, so tens and ones arrive
+   together and adding 23 is asked the way the board answers it: two rows down,
+   three seats along. Nothing is filtered out of a mix problem — a run of ones may
+   reach the end of a row and continue at the start of the next, which is TRUE,
+   which the path reveal walks one seat at a time, and which the move key beside
+   the board names before the child is ever asked. The curated rungs stay for the
+   child who wants one idea at a time. */
+const HUNDRED_MIX_MAX = 30;
+const HUNDRED_MIX_OPS = Array.from({
+  length: HUNDRED_MIX_MAX * 2
+}, (_, i) => i < HUNDRED_MIX_MAX ? i - HUNDRED_MIX_MAX : i - HUNDRED_MIX_MAX + 1);
 /* Which starting columns a delta can leave from WITHOUT the landing seat looking
    like a wrap (a one-step move changes row only at a real edge). ±10 and ±20 keep
    their column wherever they start, so any start is honest for them. */
@@ -2723,7 +2814,7 @@ function makeHundredProblem(rng, preset, avoid) {
         choices: hundredBuildChoices(rng, delta)
       };
     }
-    const ops = preset.kind === 'step' ? HUNDRED_STEP_OPS : preset.kind === 'edge' ? HUNDRED_EDGE_OPS : HUNDRED_JUMP_OPS;
+    const ops = preset.kind === 'step' ? HUNDRED_STEP_OPS : preset.kind === 'edge' ? HUNDRED_EDGE_OPS : preset.kind === 'mix' ? HUNDRED_MIX_OPS : HUNDRED_JUMP_OPS;
     const delta = pickR(rng, ops);
     let start = randR(rng, 1, 100);
     const rc = hundredRC(start);
@@ -2741,6 +2832,8 @@ function makeHundredProblem(rng, preset, avoid) {
         delta,
         target: target0
       };
+    } else if (preset.kind === 'mix') {
+      /* deliberately unfiltered: every start is honest on the mix rung */
     } else if (preset.kind === 'jump') {
       if (!hundredHonestStart(delta, rc.c)) continue;
     } else {
@@ -2864,75 +2957,99 @@ const MEASURE_UNITS = {
   mass: [['g', 'grams'], ['kg', 'kilograms']],
   capacity: [['ml', 'millilitres'], ['l', 'litres']]
 };
+/* `about` is the fact the game exists to hand over, added when u1 stopped being a
+   quiz (owner, 2026-08-29: *"i think we shouldn't use quiz style, but use the
+   informational style"*). A quiz can only ask which unit; a chart can say HOW BIG,
+   which is the thing a child has to have met before the unit means anything.
+   Every one of them names its own unit's word out loud — the invariant tests hold
+   that, so a number cannot drift away from the unit it is quoted in. `label` is the
+   short name under the picture; `thing` stays the spoken noun phrase. */
 const MEASURE_ITEMS = [{
   thing: 'a pencil',
+  label: 'pencil',
   glyph: 'pencil',
   cat: 'length',
-  unit: 'cm'
+  unit: 'cm',
+  about: 'about 15 centimetres long'
 }, {
   thing: 'a door',
+  label: 'door',
   glyph: 'door',
   cat: 'length',
-  unit: 'm'
+  unit: 'm',
+  about: 'about 2 metres tall'
 }, {
   thing: 'the way to another city',
+  label: 'a trip',
   glyph: 'road',
   cat: 'length',
-  unit: 'km'
+  unit: 'km',
+  about: 'about 100 kilometres'
 }, {
   thing: 'an apple',
+  label: 'apple',
   glyph: 'apple',
   cat: 'mass',
-  unit: 'g'
+  unit: 'g',
+  about: 'about 150 grams'
 }, {
   thing: 'a big dog',
+  label: 'big dog',
   glyph: 'dog',
   cat: 'mass',
-  unit: 'kg'
+  unit: 'kg',
+  about: 'about 30 kilograms'
 }, {
   thing: 'a spoon of water',
+  label: 'a spoon',
   glyph: 'spoon',
   cat: 'capacity',
-  unit: 'ml'
+  unit: 'ml',
+  about: 'about 5 millilitres'
 }, {
   thing: 'a big bottle',
+  label: 'big bottle',
   glyph: 'bottle',
   cat: 'capacity',
-  unit: 'l'
+  unit: 'l',
+  about: 'about 2 litres'
 },
 /* Added 2026-08-29 for variety (owner review): each category now spans the
    whole scale, so the discrimination is about size, not item trivia. */
 {
   thing: 'a table',
+  label: 'table',
   glyph: 'table',
   cat: 'length',
-  unit: 'm'
+  unit: 'm',
+  about: 'about 2 metres long'
 }, {
   thing: 'a strawberry',
+  label: 'strawberry',
   glyph: 'strawberry',
   cat: 'mass',
-  unit: 'g'
+  unit: 'g',
+  about: 'about 12 grams'
 }, {
   thing: 'a swimming pool',
+  label: 'swimming pool',
   glyph: 'pool',
   cat: 'capacity',
-  unit: 'l'
+  unit: 'l',
+  about: 'about 50 thousand litres'
 }];
-function makeMeasureProblem(rng, avoid) {
-  for (let tries = 0; tries < 40; tries++) {
-    const item = MEASURE_ITEMS[Math.floor(rng() * MEASURE_ITEMS.length)];
-    if (avoid && avoid.thing === item.thing) continue;
-    return {
-      kind: 'measure',
-      ...item
-    };
-  }
-  const item = MEASURE_ITEMS[0];
-  return {
-    kind: 'measure',
-    ...item
-  };
-}
+/* What each unit is FOR, in one sentence with something to picture. The chart
+   speaks these when a unit is tapped; they are sense, not conversion — the module
+   still refuses to teach "1000 metres make a kilometre" at this tier. */
+const MEASURE_SENSE = {
+  cm: 'Little things, like a pencil.',
+  m: 'Room-sized things, like a door.',
+  km: 'Long journeys, like the way to another city.',
+  g: 'Light things, like an apple.',
+  kg: 'Heavy things, like a big dog.',
+  ml: 'A few drops, like a spoon of water.',
+  l: 'Lots of water, like a big bottle.'
+};
 
 /* ── Fractions ──
    Part of a whole, named — across representations (roadmap 2026-08-28: a child
@@ -2986,6 +3103,16 @@ function fractionCells(rng, n, d) {
 const fractionBarParts = d => Array.from({
   length: d
 }, () => 1 / d);
+/* The grid shape draws d cells in a rectangle, and the rectangle has to CLOSE:
+   `ceil(sqrt(d))` columns leaves 5, 8 and 10 with a short final row, so the
+   "one whole" the child is counting parts of is a ragged L. Widened when the mix
+   rung made every denominator the opening question (2026-08-29). The columns are
+   the divisor nearest the square root, so the grid is always a full rectangle and
+   a prime lies down in one row. */
+function fractionGridCols(d) {
+  for (let c = Math.floor(Math.sqrt(d)); c >= 1; c--) if (d % c === 0) return d / c;
+  return d;
+}
 const fractionCircleParts = d => Array.from({
   length: d
 }, () => 360 / d);
@@ -3651,7 +3778,7 @@ function GamePreview({
   }, "/"), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "4")));
-  if (id === 'u1') return /*#__PURE__*/ /* Which Unit — a thing and its measure word */React.createElement("div", {
+  if (id === 'u1') return /*#__PURE__*/ /* Which Unit — the chart's row of units, smallest first */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3666,7 +3793,7 @@ function GamePreview({
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-chip"
   }, "cm"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-chip q"
+    className: "gp-chip"
   }, "m"), /*#__PURE__*/React.createElement("span", {
     className: "gp-chip"
   }, "km")));
@@ -8715,6 +8842,18 @@ function HundredBoard({
   compact = false
 }) {
   const pathIdx = new Map(path.map((n, i) => [n, i]));
+  /* THE WALK IS CAPPED, AND THE ANSWER NEVER WAITS FOR IT. Both of these were
+     free while a move was ±1 or ±10 — two stops, one beat — and both broke the
+     moment the mix rung made 95 − 15 an ordinary question (2026-08-29):
+        a fixed half-second a stop turned a twelve-stop walk into six seconds of
+       staring, so the step shrinks to fit a ~1.6s sweep and short paths keep the
+       half-second beat they always had;
+        and the gold answer cell inherited the LAST stop's delay, which meant the
+       square a child had just tapped stayed blank for those six seconds. It is
+       excluded from the walk now: the tap is confirmed instantly and the stops
+       light in behind it, which is the right order anyway — the child knows where
+       they landed, the board is explaining why. */
+  const step = path.length > 1 ? Math.min(.5, 1.6 / (path.length - 1)) : .5;
   return /*#__PURE__*/React.createElement("div", {
     className: `hb-board ${compact ? 'hb-compact' : ''}`,
     role: "grid",
@@ -8724,19 +8863,82 @@ function HundredBoard({
   }, (_, i) => {
     const n = i + 1;
     const onPath = pathIdx.has(n);
-    const cls = ['hb-cell', n === start ? 'hb-start' : '', onPath && !won ? 'hb-path' : '', onPath && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', won && n === target ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
+    const landed = won && n === target;
+    const walking = onPath && !landed;
+    const cls = ['hb-cell', n === start ? 'hb-start' : '', walking ? 'hb-path' : '', walking && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', landed ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
     return /*#__PURE__*/React.createElement("button", {
       key: n,
       className: cls,
       role: "gridcell",
       disabled: disabled,
-      style: onPath ? {
-        animationDelay: `${pathIdx.get(n) * .5}s`
+      style: walking ? {
+        animationDelay: `${pathIdx.get(n) * step}s`
       } : undefined,
       onClick: () => onCell && onCell(n),
       "aria-label": String(n)
     }, n);
   }));
+}
+
+/* ── The move key ──
+   The four rules of the hundred board, DRAWN rather than stated (owner,
+   2026-08-29: *"may also provide lesson that +10 is move one down, +1 is move
+   right, also -10 and -1"*). It is a lesson and never a question: three seats of
+   board across and three down, with the move that reaches each neighbour written
+   on it, sitting beside the real board on every rung.
+
+   IT SHOWS A NEIGHBOURHOOD, NOT THE CHILD'S NUMBER. Lighting the real board would
+   hand over the answer every time the key's arrow and the question's move agreed
+   — on the step rung, always. So the middle seat is anonymous: a blue ring like
+   the one the board puts under the number you are on, with nothing written in it.
+   The arrangement is the whole argument. Down IS ten more, because the seat that
+   says +10 is the one below.
+
+   EACH SEAT IS ITS OWN TAP. Reading all four rules from one tap is eight seconds
+   of talking at a child who wanted one of them; tapping the seat that says +10 says
+   that rule and stops. Four rules, four taps, in any order — the same principle as
+   the times-table chart's groups. */
+const MOVE_KEY_RULES = [{
+  cls: 'hb-key-up',
+  label: '−10',
+  arrow: '↑',
+  say: 'Take away ten goes one row up.'
+}, {
+  cls: 'hb-key-left',
+  label: '−1',
+  arrow: '←',
+  say: 'Take away one goes one seat to the left.'
+}, {
+  cls: 'hb-key-right',
+  label: '+1',
+  arrow: '→',
+  say: 'Add one goes one seat to the right.'
+}, {
+  cls: 'hb-key-down',
+  label: '+10',
+  arrow: '↓',
+  say: 'Add ten goes one row down.'
+}];
+function MoveKey() {
+  const [said, setSaid] = useState(null);
+  const tap = useCallback(r => {
+    Sound.tap();
+    setSaid(r.cls);
+    Voice.lines([r.say]);
+  }, []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "hb-key",
+    role: "group",
+    "aria-label": "What the moves do on the board"
+  }, MOVE_KEY_RULES.map(r => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: r.cls,
+    className: `hb-key-cell ${r.cls} ${said === r.cls ? 'lit' : ''}`,
+    onClick: () => tap(r),
+    "aria-label": r.say
+  }, r.label, /*#__PURE__*/React.createElement("b", null, r.arrow))), /*#__PURE__*/React.createElement("span", {
+    className: "hb-key-cell hb-key-here"
+  }, /*#__PURE__*/React.createElement("i", null)));
 }
 
 /* The sharing mat: the division manipulative, the same counters as the ten-frame.
@@ -8836,7 +9038,7 @@ function FractionShape({
     })));
   }
   if (shape === 'grid') {
-    const cols = Math.ceil(Math.sqrt(d));
+    const cols = fractionGridCols(d);
     return /*#__PURE__*/React.createElement("div", {
       className: `fr-grid ${pulse}`,
       style: {
@@ -9502,18 +9704,35 @@ function TenBondGame({
 
 /* ══ MODE h1: HUNDRED BOARD ══
    The 100-square as both teaching object and game surface (roadmap 2026-08-28).
-   Three rungs, one board:
+   Five rungs, one board:
+     mix   THE DEFAULT. Any add or take away from −30 to +30, tens and ones
+           together — 63 + 27, 48 − 19 — because that is what the board is FOR
+           (owner, 2026-08-29). A rung that only ever moves one seat or one row
+           teaches the board's grammar and then never lets a child speak it.
      step  one move of ±1 or ±10; ±1 never crosses a row edge at this rung, so
            "more is right, ten-more is down" is visually true on every question
      jump  bigger and mixed moves (±20, ±11, ±9…) where the boundary truths
            appear ON PURPOSE: 39 + 1 = 40 lands at the next row's first seat,
            because that is where 40 lives
+     edge  the boundary taught deliberately: the start sits ON the edge its move
+           crosses, so the row filling up is the whole question
      build the reverse question: given 34 → 54, choose the move (+20, not +2 —
            the classic tens/ones confusion, asked directly)
+   THE MIX RUNG COMES FIRST AND THE LESSON SITS BESIDE IT. Opening on mixed moves
+   only works if the four rules are on screen rather than in the child's memory,
+   so the move key (see MoveKey) is drawn next to the board on every rung: −10 up,
+   +10 down, −1 left, +1 right. The curated rungs did not go anywhere; they are one
+   tap away for the child who wants one idea at a time.
    The path reveal is the heart of it: on a win (or the second miss) the stops
    of hundredPath light in tap order, so "add ten" is SEEN as one row down
    before the number is said. */
 const HUNDRED_PRESETS = [{
+  id: 'h1mix',
+  emoji: '🎀',
+  tag: 'Any move',
+  kind: 'mix',
+  desc: 'Mixed adds and take aways'
+}, {
   id: 'h1step',
   emoji: '🌸',
   tag: 'One step',
@@ -9738,6 +9957,8 @@ function HundredGame({
     className: "hb-qnum hb-qunk"
   }, "?")), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hb-stage-row"
   }, /*#__PURE__*/React.createElement(HundredBoard, {
     start: problem.start,
     path: path,
@@ -9747,7 +9968,7 @@ function HundredGame({
     onCell: problem.kind === 'build' ? null : tapCell,
     disabled: won,
     compact: problem.kind === 'build'
-  })), problem.kind === 'build' && !won ? /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(MoveKey, null))), problem.kind === 'build' && !won ? /*#__PURE__*/React.createElement("div", {
     className: "nb-tiles hb-choices"
   }, problem.choices.map(c => /*#__PURE__*/React.createElement("button", {
     key: c,
@@ -10097,10 +10318,26 @@ function DivisionGame({
    n of d equal parts lit, and the question "what fraction is highlighted?".
    Denominators stay visible and unsimplified at these rungs — understanding
    "part of THIS whole" comes before reduction. Rungs widen the family:
+     mix    THE DEFAULT. Every family and every representation, drawn at random
+            (owner, 2026-08-29: *"add mix mode that random all, and make that mode
+            default mode"*). It is the right default for THIS game because the
+            skill being practised is reading a picture, not calculating: a child
+            who can count parts can count six of them as easily as three, and the
+            variety is what stops "fraction = the shape I always see".
      easy   halves, thirds, quarters — bar and pie only
      wide   up to sixths — all four representations, groups included
-     big    fifths to tenths — including the awkward primes and eighths */
+     big    fifths to tenths — including the awkward primes and eighths
+   The pie joins the big denominators on the mix rung: a tenth of a circle is a
+   thin slice but a legible one, and leaving it out would have taught that pies
+   only ever come in fours. */
 const FRACTION_PRESETS = [{
+  id: 'q1mix',
+  emoji: '🎀',
+  tag: 'A bit of everything',
+  denoms: [2, 3, 4, 5, 6, 8, 10],
+  shapes: ['bar', 'circle', 'grid', 'group'],
+  desc: 'Every family, every shape'
+}, {
   id: 'q1easy',
   emoji: '🌸',
   tag: 'Halves – quarters',
@@ -10301,15 +10538,37 @@ function FractionGame({
 }
 
 /* ══ MODE u1: WHICH UNIT? ══
-   Measurement's first module (roadmap 2026-08-28): not conversion — sense.
-   "How long is a pencil?" and the choice is centimetres, metres or kilometres.
-   The curated table is the whole game: each item's unit is the one a sensible
-   person uses, and the wrong choices are the other units of the SAME category,
-   so the discrimination is about size, never about trivia. */
-const MEASURE_VERBS = {
-  length: 'How long is',
-  mass: 'How heavy is',
-  capacity: 'How much water is in'
+   Owner, 2026-08-29: *"i think we shouldn't use quiz style, but use the
+   informational style (like the table chart)"*. It was a quiz — one thing, three
+   chips, a right answer and a wrong one — and a quiz was the wrong shape for this
+   material. "Which unit" is not something a child works out from what they know;
+   it is something they have to have MET. Asking first and telling afterwards puts
+   those two the wrong way round.
+
+   So u1 joins the times-table chart and Read Fractions on the teaching side of the
+   app: nothing is marked, there is no score row and no journey progress, and every
+   picture speaks. The rocket is not paid for tapping a chart — see m2's note; that
+   is what keeps the journey worth flying.
+
+   WHAT THE CHART SAYS. Each row is a question a person actually asks — how long,
+   how heavy, how much does it hold — and along the row the units run SMALLEST
+   FIRST, with the things you measure that way sitting under each one. That
+   ordering is the lesson: a pencil and a journey are the same question at
+   different sizes, and the unit is which size you are in. Tapping a thing says how
+   big it really is ("A pencil is about 15 centimetres long."), which is the fact
+   the quiz could only ever test, never teach. Tapping a unit says what that unit
+   is for.
+
+   STILL NOT CONVERSION. The chart does not say a hundred centimetres make a
+   metre. The module's decision (roadmap 2026-08-28) was sense before conversion,
+   and a chart is a tempting place to break it. The size ORDER is shown — each unit
+   chip is drawn a little bigger than the one before — and that is the whole of the
+   arithmetic here. */
+const MEASURE_CATS = ['length', 'mass', 'capacity'];
+const MEASURE_ASK = {
+  length: 'How long is it?',
+  mass: 'How heavy is it?',
+  capacity: 'How much does it hold?'
 };
 const MEASURE_WORDS = {
   cm: 'centimetres',
@@ -10320,118 +10579,101 @@ const MEASURE_WORDS = {
   ml: 'millilitres',
   l: 'litres'
 };
-function MeasureGame({
+const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+function UnitChart({
   onBack,
-  flowers,
-  gardenFull,
-  setFlowers,
-  setGardenFull,
-  score,
-  setScore,
-  bouquets,
-  addBouquet,
+  journeyBg,
   muted,
   onToggleMute
 }) {
-  const [problem, setProblem] = useState(() => makeMeasureProblem(Math.random));
-  const [won, setWon] = useState(false);
-  const [wrongUnit, setWrongUnit] = useState(null);
-  const [misses, setMisses] = useState(0);
-  const [confetti, setConf] = useState(false);
+  const [sel, setSel] = useState(null);
   const mascot = useMascot();
-  const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
-  const wrongT = useRef(null);
-  useEffect(() => () => clearTimeout(wrongT.current), []);
-  const resetForProblem = useCallback(p => {
-    setProblem(p);
-    setWon(false);
-    setWrongUnit(null);
-    setMisses(0);
+  useEffect(() => {
+    Voice.say('Tap a picture to hear how big it is!');
   }, []);
-  const next = useCallback(() => {
-    if (flowers === MAX_FLOWERS) {
-      setFlowers(0);
-      setGardenFull(false);
-      addBouquet();
-    }
-    resetForProblem(makeMeasureProblem(Math.random, problem));
-  }, [flowers, setFlowers, setGardenFull, addBouquet, problem, resetForProblem]);
-  useEffect(() => {
-    Voice.lines([`${MEASURE_VERBS[problem.cat]} ${problem.thing}?`]);
-  }, [problem]);
-  useEffect(() => {
-    if (misses === 2) Voice.say(problem.cat === 'length' ? 'Is it small like a pencil, big like a door, or far like a trip?' : problem.cat === 'mass' ? 'Is it light like an apple, or heavy like a dog?' : 'Is it a little bit like a spoon, or a lot like a bottle?');
-  }, [misses, problem]);
-  const tap = useCallback(unit => {
+  const tapThing = useCallback(it => {
     Sound.setMuted(muted);
     Sound.tap();
-    if (won) return;
-    if (unit === problem.unit) {
-      setWon(true);
-      setConf(true);
-      Sound.ding();
-      setTimeout(() => Sound.celebrate(), 200);
-      mascot.happy();
-      Voice.lines([praise(), `You measure it in ${MEASURE_WORDS[problem.unit]}!`]);
-      setScore(s => s + 1);
-      addFlower();
-      setTimeout(() => setConf(false), 2500);
-    } else {
-      setWrongUnit(unit);
-      setMisses(m => m + 1);
-      Sound.wrong();
-      mascot.oops();
-      clearTimeout(wrongT.current);
-      wrongT.current = setTimeout(() => setWrongUnit(null), 450);
-    }
-  }, [problem, won, muted, addFlower, setScore]);
+    mascot.happy();
+    const text = `${capFirst(it.thing)} is ${it.about}.`;
+    setSel({
+      key: it.thing,
+      text
+    });
+    /* One line, and it is the fact. The companion has nothing to add to a
+       measurement being read out, and a cheer per tap would make the chart
+       chatter — the same reasoning as the times-table chart's. */
+    Voice.lines([text]);
+  }, [muted, mascot]);
+  const tapUnit = useCallback(abbr => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    setSel({
+      key: abbr,
+      text: `${capFirst(MEASURE_WORDS[abbr])}: ${MEASURE_SENSE[abbr]}`
+    });
+    Voice.lines([`${capFirst(MEASURE_WORDS[abbr])}.`, MEASURE_SENSE[abbr]]);
+  }, [muted]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "screen um-screen"
+    className: "screen uc-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), /*#__PURE__*/React.createElement(Confetti, {
-    active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
     onToggleMute: onToggleMute,
     label: "Units"
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
-    score: score,
-    flowers: flowers,
-    bouquets: bouquets
-  }), /*#__PURE__*/React.createElement(Mascot, {
-    kind: "unicorn",
-    mood: mascot.mood,
-    stamp: mascot.stamp,
-    onPoke: mascot.poke
   }), /*#__PURE__*/React.createElement("div", {
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
     className: "count-title-main"
   }, "Which Unit?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Pick the sensible measure!")), /*#__PURE__*/React.createElement("div", {
+  }, "Tap a picture!")), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "um-thing"
-  }, /*#__PURE__*/React.createElement(MeasureGlyph, {
-    name: problem.glyph
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "um-ask"
-  }, MEASURE_VERBS[problem.cat], " ", problem.thing, "?"))), won ? /*#__PURE__*/React.createElement("div", {
-    className: "celebrate-text"
-  }, problem.thing.replace(/^an? /, ''), ": ", MEASURE_WORDS[problem.unit]) : /*#__PURE__*/React.createElement("div", {
-    className: "nb-tiles"
-  }, MEASURE_UNITS[problem.cat].map(([abbr, word]) => /*#__PURE__*/React.createElement("button", {
+    className: "uc-card"
+  }, MEASURE_CATS.map(cat => /*#__PURE__*/React.createElement("div", {
+    key: cat,
+    className: "uc-row"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "uc-ask"
+  }, MEASURE_ASK[cat]), /*#__PURE__*/React.createElement("div", {
+    className: "uc-units"
+  }, MEASURE_UNITS[cat].map(([abbr, word], i) => /*#__PURE__*/React.createElement("div", {
     key: abbr,
-    className: `nb-tile um-tile ${wrongUnit === abbr ? 'wrong' : ''} ${misses >= 2 && abbr === problem.unit ? 'hint-glow' : ''}`,
-    onClick: () => tap(abbr),
+    className: "uc-unit",
+    style: {
+      '--step': i
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `uc-head ${sel && sel.key === abbr ? 'lit' : ''}`,
+    onClick: () => tapUnit(abbr),
     "aria-label": word
-  }, abbr))), won && /*#__PURE__*/React.createElement("button", {
-    className: "next-btn",
-    onClick: next
-  }, "Next"));
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "uc-abbr"
+  }, abbr), /*#__PURE__*/React.createElement("span", {
+    className: "uc-word"
+  }, word)), /*#__PURE__*/React.createElement("div", {
+    className: "uc-things"
+  }, MEASURE_ITEMS.filter(it => it.cat === cat && it.unit === abbr).map(it => /*#__PURE__*/React.createElement("button", {
+    key: it.thing,
+    className: `uc-thing ${sel && sel.key === it.thing ? 'lit' : ''}`,
+    onClick: () => tapThing(it),
+    "aria-label": `${it.thing}, ${it.about}`
+  }, /*#__PURE__*/React.createElement(MeasureGlyph, {
+    name: it.glyph
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "uc-name"
+  }, it.label)))))))))), /*#__PURE__*/React.createElement("div", {
+    className: `uc-said ${sel ? 'lit' : ''}`,
+    "aria-live": "polite"
+  }, sel ? sel.text : '')), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "unicorn",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }));
 }
 
 /* ══ MODE a1: COVER IT (AREA) ══
@@ -10440,16 +10682,13 @@ function MeasureGame({
    missing corner must be counted around. The child can tap cells to count
    them — same interaction as the ten-frame — and the answer is the occupied
    cell count, by construction equal to what is on screen. */
+/* THE L OPENS (owner, 2026-08-29: *"cover it -> default to L shape"*). A
+   rectangle can be answered without counting anything — a child who knows their
+   times tables reads 4 × 3 off the sides and never touches a square, which is the
+   one thing this game is not about. The L has no product to spot, so the only way
+   through it is the way area actually works: count what the shape covers.
+   Rectangles stay, one tap away, for the child who wants the array back. */
 const AREA_PRESETS = [{
-  id: 'a1rect',
-  emoji: '🌸',
-  tag: 'Rectangles',
-  kind: 'rect',
-  maxSide: 5,
-  min: 4,
-  max: 20,
-  desc: 'Count the squares'
-}, {
   id: 'alshape',
   emoji: '🚀',
   tag: 'L-shapes',
@@ -10458,6 +10697,15 @@ const AREA_PRESETS = [{
   min: 5,
   max: 20,
   desc: 'Around the corner'
+}, {
+  id: 'a1rect',
+  emoji: '🌸',
+  tag: 'Rectangles',
+  kind: 'rect',
+  maxSide: 5,
+  min: 4,
+  max: 20,
+  desc: 'Count the squares'
 }];
 function AreaSettings({
   current,
@@ -10936,8 +11184,8 @@ function Home({
     className: "mode-card-label"
   }, "Which Unit?"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
-  }, "Pick the measure!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
+  }, "Tap a picture!"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
   })), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-purple",
     onClick: () => onSelect('a1')
@@ -11132,7 +11380,6 @@ function App() {
     h1: 0,
     d1: 0,
     q1: 0,
-    u1: 0,
     a1: 0
   });
   const [bouquets, setBouquets] = useState(() => {
@@ -11289,10 +11536,7 @@ function App() {
     score: scores.q1,
     setScore: setScore('q1')
   }));
-  if (mode === 'u1') return /*#__PURE__*/React.createElement(MeasureGame, _extends({}, shared, {
-    score: scores.u1,
-    setScore: setScore('u1')
-  }));
+  if (mode === 'u1') return /*#__PURE__*/React.createElement(UnitChart, shared);
   if (mode === 'a1') return /*#__PURE__*/React.createElement(AreaGame, _extends({}, shared, {
     score: scores.a1,
     setScore: setScore('a1')

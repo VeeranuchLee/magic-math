@@ -86,7 +86,14 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              while the third-miss "here is a peek" played paid narration, so the one beat
 //              carrying the teaching was the one beat not in Ari's voice. 144 clips, plus
 //              the three Read Fractions lines that #236 added and nobody rendered.
-const CACHE_NAME = "magic-math-v26";
+// v27 -- 2026-08-29, the owner's four calls on the expansion games: the Hundred
+//        Board opens on mixed moves and carries a drawn move key, What's the Fraction?
+//        opens on every family and every shape, Which Unit? became a chart instead of a
+//        quiz, and Cover It opens on L-shapes. Both pages changed, so an installed iPad
+//        holding v26 would keep playing the old defaults until this name changes.
+//        The same bump carries the Magic Spelling rebuild (PR #322): the page is new,
+//        and the tier-3 spelling clips.json has to be discovered by installed devices.
+const CACHE_NAME = "magic-math-v27";
 
 const SHELL = [
   "./",

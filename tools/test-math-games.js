@@ -34,7 +34,7 @@ function loadPrimitives() {
   const src = html.slice(a, b);
   const sandbox = {};
   vm.createContext(sandbox);
-  vm.runInContext(src + '\nthis.__x={mulberry32,randR,shuffleR,makeOddEvenProblem,makeTenProblem,tenForm,tenChoices,hundredRC,hundredAt,hundredPath,hundredMoveWords,makeHundredProblem,hundredBuildChoices,hundredHonestStart,hundredEdgeStart,makeDivisionProblem,makeFractionProblem,fractionCells,fractionBarParts,fractionCircleParts,fractionChoices,makeMeasureProblem,MEASURE_ITEMS,MEASURE_UNITS,makeAreaProblem,areaChoices};', sandbox);
+  vm.runInContext(src + '\nthis.__x={mulberry32,randR,shuffleR,makeOddEvenProblem,makeTenProblem,tenForm,tenChoices,hundredRC,hundredAt,hundredPath,hundredMoveWords,makeHundredProblem,hundredBuildChoices,hundredHonestStart,hundredEdgeStart,makeDivisionProblem,makeFractionProblem,fractionCells,fractionBarParts,fractionCircleParts,fractionChoices,MEASURE_ITEMS,MEASURE_UNITS,MEASURE_SENSE,fractionGridCols,HUNDRED_MIX_OPS,makeAreaProblem,areaChoices};', sandbox);
   return sandbox.__x;
 }
 const P = loadPrimitives();
@@ -304,8 +304,9 @@ for (const kind of ['add', 'sub']) {
 
 /* ── measurement ──
    The curated table IS the contract: every item's unit belongs to its category's
-   unit list, every category is represented, and the generator only ever picks
-   from the table. Accepted classifications are exactly the curated ones. */
+   unit list and every category is represented. There is no generator to test any
+   more — u1 became a chart on 2026-08-29 and now DRAWS the whole table at once,
+   which means every row of it is on screen and every row of it has to be right. */
 {
   const cats = new Set(P.MEASURE_ITEMS.map(i => i.cat));
   check('measure table covers length, mass and capacity',
@@ -316,18 +317,14 @@ for (const kind of ['add', 'sub']) {
     if (!units.includes(item.unit)) { tableOk = false; firstBad = `${item.thing}: ${item.unit} not in ${item.cat}`; break; }
   }
   check('every curated unit belongs to its category', tableOk, firstBad);
-  const rng = P.mulberry32(20260905);
-  let genOk = true, avoidOk = true; firstBad = '';
-  let prev = null;
-  for (let i = 0; i < 300; i++) {
-    const p = P.makeMeasureProblem(rng, prev);
-    const known = P.MEASURE_ITEMS.find(m => m.thing === p.thing);
-    if (!known || known.unit !== p.unit || known.cat !== p.cat) { genOk = false; firstBad = `unknown or altered: ${p.thing}`; break; }
-    if (prev && prev.thing === p.thing) { avoidOk = false; firstBad = `repeat ${p.thing}`; break; }
-    prev = p;
-  }
-  check('measure generator only asks curated items, verbatim', genOk, firstBad);
-  check('measure avoids an immediate repeat', avoidOk, firstBad);
+  /* The chart lays a row out per category and a column per unit, so no unit may
+     stand empty: a "kilometres" column with nothing under it teaches nothing and
+     looks broken. */
+  const empty = [];
+  for (const [cat, list] of Object.entries(P.MEASURE_UNITS))
+    for (const [abbr] of list)
+      if (!P.MEASURE_ITEMS.some(it => it.cat === cat && it.unit === abbr)) empty.push(`${cat}/${abbr}`);
+  check('every unit column has something in it', empty.length === 0, empty.join(','));
 }
 
 /* ── area ──
@@ -391,7 +388,13 @@ for (const kind of ['add', 'sub']) {
   check('jump rung never lands a one-step across a row edge', jumpOk, firstBad);
   check('edge rung always starts on the edge it crosses', edgeOk, firstBad);
 }
-/* ── measure table, final shape: ten items, every category spanning its scale ── */
+/* ── measure table, final shape: ten items, every category spanning its scale ──
+   Since 2026-08-29 the table is a CHART's data rather than a quiz's, so every row
+   also carries the size it is quoted at. A number that drifted away from its unit
+   ("about 15 metres long" under cm) would be a wrong fact printed on a teaching
+   screen, which is the worst kind this app can ship — so each `about` must name
+   its own unit's word, and every unit in the table must have a sense line for the
+   chart to speak when the unit itself is tapped. */
 {
   const cats = {};
   for (const it of P.MEASURE_ITEMS) (cats[it.cat] = cats[it.cat] || []).push(it.unit);
@@ -400,6 +403,76 @@ for (const kind of ['add', 'sub']) {
   check('length spans cm, m and km', new Set(cats.length).size === 3);
   check('mass spans g and kg', new Set(cats.mass).size === 2);
   check('capacity spans ml and l', new Set(cats.capacity).size === 2);
+
+  const words = { cm: 'centimetres', m: 'metres', km: 'kilometres', g: 'grams', kg: 'kilograms', ml: 'millilitres', l: 'litres' };
+  const bad = P.MEASURE_ITEMS.filter(it => !it.about || !it.about.includes(words[it.unit]));
+  check('every item says how big it is, in its own unit', bad.length === 0,
+    bad.map(it => `${it.thing}: ${it.about}`).join(' | '));
+  const noLabel = P.MEASURE_ITEMS.filter(it => !it.label || it.label.length > 14);
+  check('every item has a short label for under its picture', noLabel.length === 0,
+    noLabel.map(it => it.thing).join(' | '));
+  const units = [...new Set(P.MEASURE_ITEMS.map(it => it.unit))];
+  check('every unit in the table has a sense line', units.every(u => P.MEASURE_SENSE[u]),
+    units.filter(u => !P.MEASURE_SENSE[u]).join(','));
+  /* the chart draws each category's units smallest first — the order in
+     MEASURE_UNITS IS the teaching, so it is asserted rather than assumed */
+  check('units are listed smallest first', JSON.stringify(Object.fromEntries(
+      Object.entries(P.MEASURE_UNITS).map(([c, list]) => [c, list.map(u => u[0])])))
+    === JSON.stringify({ length: ['cm', 'm', 'km'], mass: ['g', 'kg'], capacity: ['ml', 'l'] }));
+}
+
+/* ── the mix rung (2026-08-29 owner direction: the board's default) ──
+   Every move from −30 to +30 and nothing else; problems stay on the board; the
+   pool genuinely mixes rather than dressing up the curated four. */
+{
+  check('mix ops are −30..+30 with no zero',
+    P.HUNDRED_MIX_OPS.length === 60 &&
+    new Set(P.HUNDRED_MIX_OPS).size === 60 &&
+    P.HUNDRED_MIX_OPS.every(d => d !== 0 && Math.abs(d) <= 30),
+    P.HUNDRED_MIX_OPS.join(','));
+  const rng = P.mulberry32(20260908);
+  const mix = { kind: 'mix' };
+  let rangeOk = true, targetOk = true, pathOk = true, avoidOk = true, firstBad = '';
+  const seen = new Set();
+  let prev = null;
+  for (let i = 0; i < 3000; i++) {
+    const p = P.makeHundredProblem(rng, mix, prev);
+    if (p.start < 1 || p.start > 100 || p.target < 1 || p.target > 100) { rangeOk = false; firstBad = `${p.start}${p.delta}`; break; }
+    if (p.target !== p.start + p.delta) { targetOk = false; firstBad = `${p.start}${p.delta}=${p.target}`; break; }
+    const path = P.hundredPath(p.start, p.delta);
+    if (path.some(n => n < 1 || n > 100) || path[path.length - 1] !== p.target) { pathOk = false; firstBad = `${p.start}${p.delta}`; break; }
+    if (prev && prev.start === p.start && prev.delta === p.delta) { avoidOk = false; firstBad = `repeat ${p.start}${p.delta}`; break; }
+    seen.add(p.delta);
+    prev = p;
+  }
+  check('mix problems stay on the board', rangeOk, firstBad);
+  check('mix problems: target = start + delta', targetOk, firstBad);
+  check('mix paths stay on the board and land on the target', pathOk, firstBad);
+  check('mix problems avoid an immediate repeat', avoidOk, firstBad);
+  /* the point of the rung: tens AND ones, both directions, not just the tidy
+     moves the curated rungs already offer */
+  const mixed = [...seen].filter(d => Math.abs(d) % 10 !== 0 && Math.abs(d) > 10);
+  check('mix asks moves that carry tens AND ones', mixed.length >= 10, [...seen].join(','));
+  check('mix asks both directions', [...seen].some(d => d > 0) && [...seen].some(d => d < 0));
+  check('mix reaches most of its pool', seen.size >= 50, `${seen.size} distinct deltas`);
+}
+
+/* ── the fraction grid closes its rectangle ──
+   The grid shape is "one whole cut into d equal parts", so the parts have to fill
+   a rectangle: a short final row makes the whole a ragged L and the child is then
+   counting parts of a shape nobody drew. Every denominator any rung offers must
+   tile exactly. */
+{
+  const denoms = [2, 3, 4, 5, 6, 8, 10, 12];
+  let ok = true, firstBad = '';
+  for (const d of denoms) {
+    const cols = P.fractionGridCols(d);
+    if (cols < 1 || d % cols !== 0) { ok = false; firstBad = `d=${d} cols=${cols}`; break; }
+  }
+  check('fraction grids tile a full rectangle', ok, firstBad);
+  check('fraction grid columns stay near the square root',
+    denoms.every(d => { const c = P.fractionGridCols(d); return c <= d && c >= Math.sqrt(d) - 0.001; }),
+    denoms.map(d => `${d}->${P.fractionGridCols(d)}`).join(' '));
 }
 
 console.log(`\n${failed === 0 ? 'ALL GAME-LOGIC INVARIANTS HOLD' : failed + ' INVARIANT FAILURE(S)'}`);

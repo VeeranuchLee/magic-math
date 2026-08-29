@@ -234,23 +234,12 @@ const READERS = {
     const lit = (bar || grid) ? byClass(host, 'fr-on').length : pie ? findAll(host, n => n.props && n.props.className === 'fr-on').length : byClass(host, 'fr-dot-on').length;
     return `${lit}/${parts.length}`;
   },
-  u1(tree) {
-    const ask = textOf(byClass(tree, 'um-ask')[0]);
-    const items = vm.runInContext('MEASURE_ITEMS', SKIN.sandbox);
-    const words = vm.runInContext('MEASURE_WORDS', SKIN.sandbox);
-    /* match by the item's full noun phrase, longest first so "swimming pool"
-       beats "pool", then answer with the WORD the chips speak */
-    const sorted = items.slice().sort((a, b) => b.thing.length - a.thing.length);
-    const item = sorted.find(m => ask.includes(m.thing));
-    return item ? words[item.unit] : null;
-  },
   a1(tree) { return String(byClass(tree, 'ag-on').length); },
 };
 
 /* answer-control locator per game: returns [{key, click}] where key matches the reader's answer */
 function answerControls(game, tree) {
   if (game === 'oe1') return buttons(tree).filter(b => b.props.className.includes('oe-key')).map(b => ({ key: b.props['aria-label'].startsWith('Even') ? 'even' : 'odd', click: b }));
-  if (game === 'u1') return byClass(tree, 'um-tile').map(b => ({ key: b.props['aria-label'], click: b }));
   if (game === 'h1') {
     const chips = byClass(tree, 'hb-chip');
     if (chips.length) return chips.map(b => ({ key: textOf(b).replace(/\s+/g, ''), click: b }));
@@ -348,7 +337,7 @@ function exerciseGame(skin, game, Comp, props, rungLabel, rounds) {
 const SPACE_SHARED = { onBack: () => {}, journey: 3, addProgress: () => false, trophies: 0, journeyBg: 'bg.webp', muted: true, onToggleMute: () => {} };
 const UNICORN_SHARED = { onBack: () => {}, flowers: 4, gardenFull: false, setFlowers: () => {}, setFlowersDirect: null, setGardenFull: () => {}, bouquets: 0, addBouquet: () => {}, muted: true, onToggleMute: () => {} };
 
-let SKIN; /* READERS.u1 needs a sandbox for MEASURE_ITEMS */
+let SKIN; /* the chart checks read MEASURE_ITEMS out of the live sandbox */
 for (const [skinName, file, shared] of [
   ['space', 'space-math.html', SPACE_SHARED],
   ['unicorn', 'unicorn-math.html', UNICORN_SHARED],
@@ -364,7 +353,6 @@ for (const [skinName, file, shared] of [
     ['h1', 'HundredGame', P.HUNDRED_PRESETS.map(p => ({ props: { ...shared }, preset: p }))],
     ['d1', 'DivisionGame', P.DIVISION_PRESETS.map(p => ({ props: { ...shared }, preset: p }))],
     ['q1', 'FractionGame', P.FRACTION_PRESETS.map(p => ({ props: { ...shared }, preset: p }))],
-    ['u1', 'MeasureGame', [{ props: { ...shared }, preset: null }]],
     ['a1', 'AreaGame', P.AREA_PRESETS.map(p => ({ props: { ...shared }, preset: p }))],
   ];
 
@@ -404,6 +392,83 @@ for (const [skinName, file, shared] of [
         }
       }
     }
+  }
+
+  /* ── the hundred board's win reveal ──
+     Long paths were unreachable while the rungs moved ±1 and ±10; the mix rung
+     made them ordinary and broke the reveal in two ways at once — the gold answer
+     cell inherited the LAST stop's animation delay (six blank seconds on the
+     square the child had just tapped) and the walk was never lit on a win at all,
+     which is not what the game's own comment says it does. Neither shows up in a
+     "did it score" test, so both are asserted from the rendered tree: the gold
+     cell waits for nothing, every stop but the target lights, and the whole sweep
+     fits in 1.6s however many stops it has. */
+  {
+    const session = mount(skin, 'HundredGame', { ...shared });
+    let sawLong = false, delayOk = true, walkOk = true, goldOk = true, firstBad = '';
+    for (let r = 0; r < 40 && !sawLong; r++) {
+      const info = playRound(session, 'h1', 'mix');
+      if (!info.ok) { firstBad = info.why; break; }
+      const q = textOf(byClass(session.tree(), 'hb-question')[0]).replace(/\s+/g, '');
+      const m = q.match(/(\d+)[+\u2212-](\d+)/);
+      const delta = m ? parseInt(m[2], 10) : 0;
+      const stops = Math.trunc(delta / 10) + (delta % 10);   /* |tens| + |ones| */
+      session.click(info.correct.click);
+      const tree = session.tree();
+      const gold = byClass(tree, 'hb-target')[0];
+      const walk = byClass(tree, 'hb-path');
+      if (!gold) { goldOk = false; firstBad = `${q}: no gold cell after a win`; break; }
+      const goldDelay = gold.props.style && gold.props.style.animationDelay;
+      if (goldDelay && parseFloat(goldDelay) > 0) { goldOk = false; firstBad = `${q}: gold cell waited ${goldDelay}`; break; }
+      if (walk.length !== stops) { walkOk = false; firstBad = `${q}: ${walk.length} stops lit, expected ${stops}`; break; }
+      const worst = walk.reduce((a, c) => Math.max(a, parseFloat(c.props.style.animationDelay) || 0), 0);
+      if (worst > 1.61) { delayOk = false; firstBad = `${q}: the last stop waited ${worst}s`; break; }
+      if (stops >= 6) sawLong = true;
+      const next = byClass(tree, 'next-btn')[0];
+      if (!next) { firstBad = `${q}: no Next after a win`; break; }
+      session.click(next);
+    }
+    check(`${skinName} h1: a win lights every stop of the walk`, walkOk, firstBad);
+    check(`${skinName} h1: the gold answer never waits for the walk`, goldOk, firstBad);
+    check(`${skinName} h1: the walk fits in 1.6s however long it is`, delayOk, firstBad);
+    check(`${skinName} h1: a long walk was actually exercised`, sawLong, 'no 6-stop path in 40 rounds');
+  }
+
+  /* ── the unit chart: a teaching screen, so what is checked is different ──
+     It cannot be "played" — nothing is right or wrong — so the contract is that
+     every picture and every unit is TAPPABLE and SPEAKS, that what it says is the
+     row's own fact rather than a neighbour's, and that it never touches the score.
+     A chart that silently drops a tap is the failure mode here, and it is exactly
+     the one the quiz harness would never have found. */
+  {
+    const session = mount(skin, 'UnitChart', { ...shared });
+    const items = vm.runInContext('MEASURE_ITEMS', skin.sandbox);
+    const things = byClass(session.tree(), 'uc-thing');
+    check(`${skinName} u1: every curated item is on the chart`, things.length === items.length,
+      `${things.length} pictures for ${items.length} items`);
+    let spokeOk = true, litOk = true, firstBad = '';
+    for (const it of items) {
+      const btn = byClass(session.tree(), 'uc-thing').find(b => (b.props['aria-label'] || '').startsWith(it.thing + ','));
+      if (!btn) { spokeOk = false; firstBad = `no picture for ${it.thing}`; break; }
+      const before = session.spoken().length;
+      session.click(btn);
+      const said = session.spoken().slice(before).join(' ');
+      if (!said.includes(it.about)) { spokeOk = false; firstBad = `${it.thing} said "${said}"`; break; }
+      const lit = byClass(session.tree(), 'uc-thing').filter(b => String(b.props.className).includes('lit'));
+      if (lit.length !== 1) { litOk = false; firstBad = `${it.thing} lit ${lit.length} pictures`; break; }
+      if (textOf(byClass(session.tree(), 'uc-said')[0]).indexOf(it.about) < 0) { spokeOk = false; firstBad = `${it.thing} caption`; break; }
+    }
+    check(`${skinName} u1: every picture says its own size`, spokeOk, firstBad);
+    check(`${skinName} u1: exactly one picture is lit at a time`, litOk, firstBad);
+    let headOk = true;
+    for (const head of byClass(session.tree(), 'uc-head')) {
+      const before = session.spoken().length;
+      session.click(head);
+      if (session.spoken().length <= before) { headOk = false; firstBad = `${head.props['aria-label']} said nothing`; break; }
+    }
+    check(`${skinName} u1: every unit says what it is for`, headOk, firstBad);
+    check(`${skinName} u1: a chart never scores`, session.scoreCalls().length === 0);
+    check(`${skinName} u1: a chart has no Next button`, byClass(session.tree(), 'next-btn').length === 0);
   }
 
   /* ── division share rung: the dealing flow itself ── */
