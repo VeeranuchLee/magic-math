@@ -57,7 +57,8 @@ function loadClips(skin) {
     console,
   };
   vm.createContext(sandbox);
-  vm.runInContext(cardSrc + '\n' + praiseSrc + '\n' + clipsSrc + '\nthis.Clips=Clips;this.PRAISE=PRAISE;',
+  vm.runInContext(cardSrc + '\n' + praiseSrc + '\n' + clipsSrc
+                  + '\nthis.Clips=Clips;this.PRAISE=PRAISE;this.CARD_VOICE=CARD_VOICE;',
                   sandbox);
   return sandbox;
 }
@@ -84,6 +85,21 @@ const CLIPS = SETS['times-tables'].clips;
     console.log(`\n=== ${skin} ===`);
     const s = loadClips(skin);
     const { Clips, PRAISE } = s;
+
+    /* Give the stubbed `shared` set this skin's card names, mirroring the shipped split:
+       every card is an `sh-card-<key>` entry in the generated text map EXCEPT m1's, which
+       stays out because build-narration-manifest.py drops it as already rendered — it is
+       `tt-card`, in the times-tables set, which ships no text map at all. Reproducing that
+       asymmetry here is the whole value of the card assertions below; a stub that mapped
+       all eleven would pass whether or not the m1 rule existed. */
+    SETS.shared.clips = ['sh-mascot-s1'];
+    SETS.shared.texts = { 'Hello there!': 'sh-mascot-s1' };
+    for (const [key, text] of Object.entries(s.CARD_VOICE || {})) {
+      if (key === 'm1') continue;
+      SETS.shared.clips.push('sh-card-' + key);
+      SETS.shared.texts[text] = 'sh-card-' + key;
+    }
+
     Clips.load();
     await new Promise(r => setImmediate(r));   // let the stubbed fetch settle
 
@@ -160,6 +176,30 @@ const CLIPS = SETS['times-tables'].clips;
     console.log('-- A set whose clips.json is missing costs only its own lines');
     Clips.setMode('m1');
     check('a count-by line falls back to the engine', asNum('Count by 7!') === null);
+
+    /* ══ EVERY HOME-SCREEN CARD NAME, AS THE COMPANION ASKS FOR IT ══
+       This file opens by naming `tt-card` as the bug it exists to prevent, listed the id
+       in its stub — and then never asked the resolver for it. So the bug came back, in a
+       new shape, and shipped: `shared` correctly declined to buy a second copy of
+       "Times Tables!", the only rule claiming the clip sat in idFor(), and idFor() is the
+       ROBOT resolver. Card names are `Voice.say(CARD_VOICE[id])` with no role — the
+       COMPANION — so one card of eleven played nothing and spoke through the OS voice on
+       an otherwise fully-voiced home screen. Found 2026-08-29, by reading, not by failing.
+
+       Asked here EXACTLY as the app asks: companion role, home screen (mode null). The
+       stub mirrors the shipped split — every card name lives in `shared`'s generated text
+       map except m1's, which is `tt-card` over in times-tables and reachable only through
+       the hand-written rule. Skipped for unicorn, which has no CARD_VOICE. */
+    const cards = Object.keys(s.CARD_VOICE || {});
+    if (cards.length) {
+      console.log('-- Every home-screen card name resolves for the companion');
+      for (const key of cards) {
+        const url = inMode(null, asComp, s.CARD_VOICE[key]) || '';
+        check(`card ${key} plays a file, not the engine`, /\.m4a$/.test(url));
+      }
+      check('and m1 is specifically tt-card, over in the times-tables set',
+            /\/times-tables\/tt-card\.m4a$/.test(inMode(null, asComp, s.CARD_VOICE.m1) || ''));
+    }
 
     console.log('-- An unrendered line is null whoever asks for it');
     check('an unrendered number falls back',   asNum('7 times 7?') === null);

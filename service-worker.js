@@ -86,6 +86,11 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              while the third-miss "here is a peek" played paid narration, so the one beat
 //              carrying the teaching was the one beat not in Ari's voice. 144 clips, plus
 //              the three Read Fractions lines that #236 added and nobody rendered.
+// v26 -- 2026-08-29, the eight-game expansion: Odd or Even?, Add to 10, Take from 10,
+//        Hundred Board, Share It Out, What's the Fraction?, Which Unit? and Cover It,
+//        in both worlds. Backfilled here 2026-08-29 -- it shipped without extending this
+//        list, which is the second time that has happened; the list is the only record of
+//        what a version actually carried, so a bump-only commit still owes it an entry.
 // v27 -- 2026-08-29, the owner's four calls on the expansion games: the Hundred
 //        Board opens on mixed moves and carries a drawn move key, What's the Fraction?
 //        opens on every family and every shape, Which Unit? became a chart instead of a
@@ -93,7 +98,16 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        holding v26 would keep playing the old defaults until this name changes.
 //        The same bump carries the Magic Spelling rebuild (PR #322): the page is new,
 //        and the tier-3 spelling clips.json has to be discovered by installed devices.
-const CACHE_NAME = "magic-math-v27";
+// v28 -- 2026-08-29, the robot voice retreats from the eight newest games. 34 clips give
+//        their card names and every fixed companion line the rendered narrator, in every
+//        mode -- an exact text match resolves outside the VOICED gate, so the numbers stay
+//        the ship's computer and only the sentences change voice. Carries two fixes an
+//        installed iPad cannot get any other way: the Times Tables card resolved to
+//        nothing and spoke through the device (its clip had shipped, paid for and silent,
+//        since v26), and Which Unit?'s card name was re-rendered after v27 reworded it.
+//        Both pages changed, so a device holding v27 keeps the old audio until this name
+//        changes.
+const CACHE_NAME = "magic-math-v28";
 
 const SHELL = [
   "./",

@@ -10126,7 +10126,7 @@ function DivisionGame({
         demoT.current = null;
         setPhase('dealt');
         Sound.ding();
-        Voice.lines(['Everyone gets the same.', num('How many in each basket?')]);
+        Voice.lines(['Everyone gets the same.', 'How many in each basket?']);
         return;
       }
       const upto = step + 1;
@@ -10190,7 +10190,7 @@ function DivisionGame({
       if (fair) {
         Sound.ding();
         setPhase('dealt');
-        Voice.lines([`You shared them equally!`, num(`How many in each basket?`)]);
+        Voice.lines([`You shared them equally!`, `How many in each basket?`]);
       } else {
         setUnequal(true);
         Sound.wrong();

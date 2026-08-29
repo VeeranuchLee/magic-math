@@ -155,9 +155,49 @@ def main():
 
     already = {} if (a.ids or a.ignore_shipped) else shipped_texts(a.outdir.name)
 
+    # ══ THE LOCAL-MASTER LEDGER, AND THE BUG IT CLOSES — 2026-08-29 ══
+    #
+    # `have_master` used to ask one question: does `<id>.mp3` exist and is it big enough.
+    # That is an ID check standing in for a TEXT check, and the two come apart the moment a
+    # line is REWORDED WITHOUT BEING RENUMBERED. Ids here are mostly slugs of the text, so
+    # this is rare — except for the hand-assigned ones, `sh-card-<key>` above all.
+    #
+    # It happened, and it would have shipped. `sh-card-u1` was rendered as "Which Unit?
+    # Pick the sensible measure!"; a concurrent branch reworded that card to "Which Unit?
+    # Tap a picture!" and kept the id. The manifest carried the new text, the master on
+    # disk carried the old audio, `have_master` said "already rendered", and
+    # build-runtime-audio.py would then have mapped the NEW sentence to the OLD recording.
+    # No error, no cost, and a child hearing a sentence that is not on the screen — which
+    # is worse than the engine voice, because nothing about it looks wrong.
+    #
+    # So the resume key is now (id, text) rather than id. `_texts.json` records what each
+    # master was actually rendered from, written beside the masters at render time.
+    #
+    # THE FALLBACK MATTERS AS MUCH AS THE LEDGER, because every master rendered before
+    # today predates it. With no ledger entry, ask the SHIPPED ledger instead: clips.json's
+    # `renderedTexts` already records the text each encoded clip was made from, and if that
+    # disagrees with the manifest, the master is stale whatever its filename says. Only
+    # when neither ledger knows the id do we fall back to trusting the file — which is the
+    # old behaviour, now the last resort rather than the first answer.
+    texts_ledger = {}
+    _lf = a.outdir / "_texts.json"
+    if _lf.exists():
+        try:
+            texts_ledger = json.loads(_lf.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            texts_ledger = {}
+    shipped_by_id = {i: t for t, i in already.items()} if already else {}
+
     def have_master(l):
         f = a.outdir / f"{l['id']}.mp3"
-        return f.exists() and f.stat().st_size >= MIN_BYTES
+        if not (f.exists() and f.stat().st_size >= MIN_BYTES):
+            return False
+        known = texts_ledger.get(l["id"], shipped_by_id.get(l["id"]))
+        if known is not None and known != l["text"]:
+            print(f"  STALE  {l['id']}: master says {known!r}, manifest says {l['text']!r}"
+                  f" - re-rendering")
+            return False
+        return True
 
     # --ids always re-renders: it is the "this one clip came out wrong" tool, and
     # skipping the file you explicitly named would be the opposite of what you asked.
@@ -199,6 +239,19 @@ def main():
         dst.write_bytes(audio); ok += 1
         if i % 25 == 0 or i == len(todo):
             print(f"  [{i}/{len(todo)}] ok={ok} fail={fail}")
+
+    # What each master was rendered FROM, so the next resume can tell a finished clip from
+    # a stale one carrying the same id. MERGED, not replaced: a run that renders four clips
+    # must not forget the nine hundred beside them. See have_master above for the bug.
+    if ok:
+        merged = dict(texts_ledger)
+        for l in todo:
+            f = a.outdir / f"{l['id']}.mp3"
+            if f.exists() and f.stat().st_size >= MIN_BYTES:
+                merged[l["id"]] = l["text"]
+        (a.outdir / "_texts.json").write_text(
+            json.dumps(merged, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+            encoding="utf-8")
 
     # Provenance the manifest requires, written next to what it describes.
     (a.outdir / "_provenance.json").write_text(json.dumps({

@@ -2116,6 +2116,21 @@ const Clips = (() => {
        see PRAISE above — and it is the companion's line in every mode that can say it. */
     const p = PRAISE.indexOf(s);
     if (p >= 0) return PRAISE_PREFIX + (p + 1);
+    /* ══ THE TIMES TABLES CARD, AND WHY THE RULE LIVES HERE AND NOT IN idFor ══
+       `tt-card` was rendered with the times-tables set, so `shared` deliberately does not
+       buy a second copy of "Times Tables!" — build-narration-manifest.py drops it as
+       already-rendered. That drop is right about BILLING and was wrong about
+       REACHABILITY, because the only rule claiming the clip sat in idFor() below, and
+       idFor() is the ROBOT resolver. Card names are spoken by `Voice.say(CARD_VOICE[id])`
+       with no role, which is the companion, which asks exactFor() — and exactFor() cannot
+       see the clip: times-tables ships no `texts` map on purpose (a map entry resolves
+       ungated in every mode, and that set is 308 bare products).
+       So one card of eleven answered in the OS robot voice on an otherwise fully-voiced
+       home screen, playing nothing, while the clip it wanted sat shipped and paid for —
+       the exact `tt-card` failure the generator was built to end, back through a different
+       door. Found 2026-08-29 by checking the reuse-drop against the resolver rather than
+       trusting the comment. unicorn-math has no CARD_VOICE and so needs no rule. */
+    if (s === CARD_VOICE.m1) return 'tt-card';
     return null;
   };
   let mode = null;
@@ -2129,10 +2144,9 @@ const Clips = (() => {
     if (m = s.match(/^(\d+)!$/)) return 'tt-n-' + m[1];
     const p = PRAISE.indexOf(s);
     if (p >= 0) return PRAISE_PREFIX + (p + 1);
-    /* The home-screen card line. Rendered, so it must be claimed here — a clip that
-       exists but that nothing resolves to is worse than one that was never made: it is
-       paid for, shipped, and silent. unicorn-math has no CARD_VOICE and so has no
-       equivalent rule. */
+    /* Kept in step with exactFor()'s copy above, which is the one that actually fires:
+       the card is the companion's line. This one costs nothing and covers the case where
+       a future caller reads a card name out in the robot's voice. */
     if (s === CARD_VOICE.m1) return 'tt-card';
     return null;
   };
@@ -10729,7 +10743,7 @@ function DivisionGame({
         demoT.current = null;
         setPhase('dealt');
         Sound.ding();
-        Voice.lines(['Everyone gets the same.', num('How many in each basket?')]);
+        Voice.lines(['Everyone gets the same.', 'How many in each basket?']);
         return;
       }
       const upto = step + 1;
@@ -10788,7 +10802,7 @@ function DivisionGame({
       if (fair) {
         Sound.ding();
         setPhase('dealt');
-        Voice.lines([`You shared them equally!`, num(`How many in each basket?`)]);
+        Voice.lines([`You shared them equally!`, `How many in each basket?`]);
       } else {
         setUnequal(true);
         Sound.wrong();

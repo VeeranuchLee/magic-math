@@ -92,6 +92,7 @@ def read(skin):
     return (ROOT / SKINS[skin]).read_text(encoding="utf-8")
 
 
+
 def js_array(src, name):
     """The string literals of a top-level `const NAME=[ ... ];`."""
     m = re.search(r"const %s\s*=\s*\[(.*?)\n?\];" % re.escape(name), src, re.S)
@@ -529,7 +530,10 @@ def app_coverage():
     is covered by a manifest or already rendered. Interpolated lines are not checkable
     this way and are covered by the pattern rules instead."""
     covered = set()
-    for name in ("times-tables", "count-by", "shared", "times-tables-hint"):
+    # `spelling` is listed but NOT built here: math-app/tools/build-spelling-manifest.py owns
+    # that set, and two builders writing one manifest is the drift this file exists to end.
+    # Reading it keeps the coverage report honest about lines already covered elsewhere.
+    for name in ("times-tables", "count-by", "shared", "times-tables-hint", "spelling"):
         f = ROOT / "narration" / f"{name}.json"
         if f.exists():
             covered |= {l["text"] for l in
@@ -633,7 +637,9 @@ def verify():
 
     # times-tables-hint verifies HERE, not against the resolver mirror above: it is a
     # text-mapped set, so "reachable" means the same thing it means for the other two.
-    for name in ("count-by", "shared", "times-tables-hint"):
+    # spelling verifies here too -- it is text-mapped like the others -- even though
+    # build-spelling-manifest.py is what produces it.
+    for name in ("count-by", "shared", "times-tables-hint", "spelling"):
         man = ROOT / "narration" / f"{name}.json"
         idx = ROOT / "assets-runtime" / "narration" / name / "clips.json"
         if not man.exists():
