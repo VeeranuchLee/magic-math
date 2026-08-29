@@ -457,6 +457,9 @@
     .nb-eq{display:flex;align-items:center;justify-content:center;gap:10px;font-size:clamp(2rem,7.5vw,2.9rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);position:relative;z-index:1}
     .nb-eq .nb-slot{min-width:1.3em;text-align:center}
     .nb-eq .nb-q{color:#ffd54f}
+    /* The sentence printed WITH the picture (owner, 2026-08-29) sits a size smaller
+       than the numbers rung's: it labels the frame, it is not the whole question. */
+    .nb-eq-frame,.dv-eq{font-size:clamp(1.5rem,5vw,2.1rem);margin:0 0 8px}
     /* Four big number tiles — the same button idiom as Which is Bigger?'s keys. */
     .nb-tiles{display:flex;gap:clamp(10px,3vw,18px);justify-content:center;position:relative;z-index:1}
     .nb-tile{width:clamp(82px,19vw,112px);height:clamp(82px,19vw,112px);display:flex;align-items:center;justify-content:center;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;font-size:clamp(2rem,7vw,2.7rem);font-weight:900;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
@@ -526,6 +529,10 @@
     .hb-qop{color:#ffd54f}
     .hb-qunk{color:#ffd54f;border:3px dashed rgba(255,213,79,.8);border-radius:12px;padding:0 .2em}
     .hb-qarrow{color:#ffd54f}
+    /* Written move words under the question, shown only at the reveal (owner,
+       2026-08-29: the teaching should be read as well as heard). Small on purpose —
+       they accompany the lit path, they never replace the question. */
+    .hb-movewords{display:flex;align-items:center;justify-content:center;font-size:clamp(.95rem,3.2vw,1.35rem);font-weight:700;color:#ffd54f;text-shadow:0 2px 0 rgba(4,8,30,.45);margin:2px 0;position:relative;z-index:1}
     .hb-choices .hb-chip{width:auto;min-width:clamp(84px,20vw,120px);height:clamp(56px,13.5vw,76px);font-size:clamp(1.5rem,4.6vw,2rem)}
 
     /* ── The sharing mat ──
@@ -9645,7 +9652,27 @@ function TenBondGame({
     className: "count-title-sub"
   }, cfg.sub)), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
-  }, modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nb-eq nb-eq-frame"
+  }, modeId === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, won ? q.p.answer : '?'), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), "10") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, won ? q.p.answer : '?'), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "+"), q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), "10") : /*#__PURE__*/React.createElement(React.Fragment, null, "10", /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "\u2212"), q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, won ? q.p.answer : '?'))), modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
     key: round,
     kept: q.p.k,
     added: won ? q.p.answer : 0,
@@ -9666,11 +9693,11 @@ function TenBondGame({
     className: "nb-slot"
   }, "+"), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
-  }, "?"), /*#__PURE__*/React.createElement("span", {
+  }, won ? q.p.answer : '?'), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot"
   }, "="), "10") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
-  }, "?"), /*#__PURE__*/React.createElement("span", {
+  }, won ? q.p.answer : '?'), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot"
   }, "+"), q.p.k, /*#__PURE__*/React.createElement("span", {
     className: "nb-slot"
@@ -9680,7 +9707,7 @@ function TenBondGame({
     className: "nb-slot"
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
-  }, "?"))), won && (modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+  }, won ? q.p.answer : '?'))), won && (modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
     kept: q.p.k,
     added: q.p.answer
   }) : /*#__PURE__*/React.createElement(TenFrame, {
@@ -9955,7 +9982,10 @@ function HundredGame({
     className: "hb-qop"
   }, problem.delta > 0 ? '+' : '−', Math.abs(problem.delta)), /*#__PURE__*/React.createElement("span", {
     className: "hb-qnum hb-qunk"
-  }, "?")), /*#__PURE__*/React.createElement("div", {
+  }, "?")), problem.kind !== 'build' && reveal ? /*#__PURE__*/React.createElement("div", {
+    className: "hb-movewords",
+    "aria-live": "polite"
+  }, hundredMoveWords(problem.delta)) : null, /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
     className: "hb-stage-row"
@@ -9985,8 +10015,10 @@ function HundredGame({
 }
 
 /* ══ MODE d1: SHARING IS DIVISION ══
-   Division taught as its two concrete meanings before any ÷ sign appears
-   (roadmap 2026-08-28). Rungs:
+   Division taught as its two concrete meanings first (roadmap, 2026-08-28),
+   with the ÷ sentence printed on every rung and a numbers rung on top of the
+   ladder (owner, 2026-08-29: "also need to put like 9 ÷ 3 = ?" — concrete
+   first, symbolic after, not concrete instead). Rungs:
      share  the child DEALS: tap a basket, one counter leaves the pool and lands
             in it; when the pool empties, unequal baskets are named and reset —
             a fair share is equal, and here that is something you make — then
@@ -9995,6 +10027,9 @@ function HundredGame({
             each? (counting what a fair share gives you)
      groups the grouping reading: T loose counters, "groups of e — how many
             groups?"; the rings are drawn on the win or at two misses
+     nums   the equation alone asks; the mat arrives with the answer (the
+            completion the child had to imagine, exactly like Make 10's
+            numbers rung)
    No remainders at this tier, by the roadmap's instruction. */
 const DIVISION_PRESETS = [{
   id: 'd1share',
@@ -10014,6 +10049,12 @@ const DIVISION_PRESETS = [{
   tag: 'Make groups',
   kind: 'groups',
   desc: 'How many groups?'
+}, {
+  id: 'd1nums',
+  emoji: '⭐',
+  tag: 'With numbers',
+  kind: 'nums',
+  desc: '9 ÷ 3 = ?'
 }];
 function DivisionSettings({
   current,
@@ -10166,11 +10207,11 @@ function DivisionGame({
   }, [resetForProblem]);
   useEffect(() => {
     if (showSettings) return;
-    if (problem.kind === 'share') Voice.lines([num(`${problem.total}.`), `Share them between ${problem.g} baskets. Tap a basket to give out one.`]);else if (problem.kind === 'each') Voice.lines([num(`${problem.total}.`), `Shared equally between ${problem.g} baskets. How many in each?`]);else Voice.lines([num(`${problem.total}.`), `Groups of ${problem.e}. How many groups?`]);
+    if (problem.kind === 'share') Voice.lines([num(`${problem.total}.`), `Share them between ${problem.g} baskets. Tap a basket to give out one.`]);else if (problem.kind === 'each') Voice.lines([num(`${problem.total}.`), `Shared equally between ${problem.g} baskets. How many in each?`]);else if (problem.kind === 'nums') Voice.lines([num(`${problem.total} divided by ${problem.g}. How many each?`)]);else Voice.lines([num(`${problem.total}.`), `Groups of ${problem.e}. How many groups?`]);
   }, [problem, showSettings]);
   useEffect(() => {
     if (misses === 2) {
-      if (problem.kind === 'share') Voice.say('Deal them round and round — one to this basket, one to that one. Fair shares are equal.');else if (problem.kind === 'each') Voice.say('Count the counters in one basket.');else Voice.say(`Count in ${problem.e}s. Each full group is ${problem.e}.`);
+      if (problem.kind === 'share') Voice.say('Deal them round and round — one to this basket, one to that one. Fair shares are equal.');else if (problem.kind === 'each') Voice.say('Count the counters in one basket.');else if (problem.kind === 'nums') Voice.say('See baskets in your head. Deal them out fairly — one to each.');else Voice.say(`Count in ${problem.e}s. Each full group is ${problem.e}.`);
     }
   }, [misses, problem]);
   const tapPlate = useCallback(i => {
@@ -10278,9 +10319,17 @@ function DivisionGame({
     className: "count-title-main"
   }, "Share It Out"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, preset.kind === 'groups' ? `Groups of ${problem.e}` : preset.kind === 'each' ? 'Equal baskets!' : 'Deal them fairly!')), /*#__PURE__*/React.createElement("div", {
+  }, preset.kind === 'groups' ? `Groups of ${problem.e}` : preset.kind === 'each' ? 'Equal baskets!' : preset.kind === 'nums' ? 'Just numbers!' : 'Deal them fairly!')), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
-  }, preset.kind === 'share' ? /*#__PURE__*/React.createElement(ShareMat, {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nb-eq dv-eq"
+  }, problem.total, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "\xF7"), preset.kind === 'groups' ? problem.e : problem.g, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, won ? problem.answer : '?')), preset.kind === 'share' ? /*#__PURE__*/React.createElement(ShareMat, {
     total: problem.total,
     plateCount: problem.g,
     dealt: q.dealt,
@@ -10291,7 +10340,15 @@ function DivisionGame({
     dealt: Array.from({
       length: problem.g
     }, () => problem.e)
-  }) : /*#__PURE__*/React.createElement(ShareMat, {
+  }) : preset.kind === 'nums'
+  /* the numbers rung mirrors Make 10's: the equation alone asks, the mat
+     arrives only with the answer, as the share the child had to imagine */ ? won ? /*#__PURE__*/React.createElement(ShareMat, {
+    total: problem.total,
+    plateCount: problem.g,
+    dealt: Array.from({
+      length: problem.g
+    }, () => problem.e)
+  }) : null : /*#__PURE__*/React.createElement(ShareMat, {
     total: reveal ? 0 : problem.total,
     plateCount: problem.g,
     revealGroups: reveal ? problem.e : 0

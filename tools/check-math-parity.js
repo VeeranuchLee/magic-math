@@ -324,8 +324,8 @@ DERIVED.push({
 /* d1: Share It Out. Same substitution family as the other expansion games; the
    ShareMat manipulative and the generator live in the shared blocks. */
 const DIVISION_SUBS = [
-  ["const DIVISION_PRESETS=[\n  {id:'d1share', icon:ICON_EARTH,  tag:'Share it out',kind:'share', desc:'Deal them fairly'},\n  {id:'d1each',  icon:ICON_ROCKET, tag:'How many each?',kind:'each', desc:'Count a basket'},\n  {id:'d1groups',icon:ICON_GALAXY, tag:'Make groups',kind:'groups',desc:'How many groups?'},\n];",
-   "const DIVISION_PRESETS=[\n  {id:'d1share', emoji:'🌸',tag:'Share it out',kind:'share', desc:'Deal them fairly'},\n  {id:'d1each',  emoji:'🚀',tag:'How many each?',kind:'each', desc:'Count a basket'},\n  {id:'d1groups',emoji:'🌈',tag:'Make groups',kind:'groups',desc:'How many groups?'},\n];"],
+  ["const DIVISION_PRESETS=[\n  {id:'d1share', icon:ICON_EARTH,  tag:'Share it out',kind:'share', desc:'Deal them fairly'},\n  {id:'d1each',  icon:ICON_ROCKET, tag:'How many each?',kind:'each', desc:'Count a basket'},\n  {id:'d1groups',icon:ICON_GALAXY, tag:'Make groups',kind:'groups',desc:'How many groups?'},\n  {id:'d1nums',  icon:ICON_MARS,   tag:'With numbers',kind:'nums',  desc:'9 ÷ 3 = ?'},\n];",
+   "const DIVISION_PRESETS=[\n  {id:'d1share', emoji:'🌸',tag:'Share it out',kind:'share', desc:'Deal them fairly'},\n  {id:'d1each',  emoji:'🚀',tag:'How many each?',kind:'each', desc:'Count a basket'},\n  {id:'d1groups',emoji:'🌈',tag:'Make groups',kind:'groups',desc:'How many groups?'},\n  {id:'d1nums',  emoji:'⭐',tag:'With numbers',kind:'nums',  desc:'9 ÷ 3 = ?'},\n];"],
   ['            <img className="preset-tag-img" src={p.icon} alt=""/>\n',
    '            <span className="preset-tag">{p.emoji}</span>\n'],
   ['function DivisionGame({onBack, journey, addProgress, trophies, journeyBg, score, setScore, muted, onToggleMute}){',

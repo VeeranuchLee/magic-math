@@ -211,6 +211,14 @@ const READERS = {
     return null;
   },
   d1(tree) {
+    /* the ÷ sentence is on every rung now (owner, 2026-08-29) and reads the same
+       way everywhere: total over divisor — share/each/nums ask the each, groups
+       asks the count, and both are total ÷ divisor */
+    const eq = byClass(tree, 'dv-eq')[0];
+    if (eq) {
+      const m = textOf(eq).match(/(\d+)\s*÷\s*(\d+)/);
+      if (m && parseInt(m[1], 10) % parseInt(m[2], 10) === 0) return String(parseInt(m[1], 10) / parseInt(m[2], 10));
+    }
     const plates = byClass(tree, 'dv-plate');
     if (plates.length) {
       const counts = plates.map(p => byClass(p, 'oe-dot').length);
@@ -261,7 +269,7 @@ function playRound(session, game, label) {
   return { ok: true, answer, correct, wrong, controls };
 }
 
-function exerciseGame(skin, game, Comp, props, rungLabel, rounds) {
+function exerciseGame(skin, game, Comp, props, rungLabel, rounds, preset) {
   const issues = [];
   const session = mount(skin, Comp, props);
 
@@ -272,6 +280,25 @@ function exerciseGame(skin, game, Comp, props, rungLabel, rounds) {
     if (!info.ok) { issues.push(`round ${r}: ${info.why}`); break; }
     if (prevAnswer !== null && info.answer === prevAnswer && rounds > 3) { /* fine occasionally, not every time */ }
     prevAnswer = info.answer;
+
+    /* pre-answer contract for the equation formats (owner, 2026-08-29): the
+       sentence is printed and still asks — a ? that is already the answer would
+       hand it over; on the division numbers rung nothing is drawn yet */
+    if (game === 'n1' || game === 'n2') {
+      const eq = byClass(session.tree(), 'nb-eq')[0];
+      if (!eq) issues.push(`round ${r}: no number sentence on the Make 10 screen`);
+      else if (!textOf(eq).includes('?')) issues.push(`round ${r}: sentence answered before the child answers`);
+    }
+    if (game === 'd1') {
+      const eq = byClass(session.tree(), 'dv-eq')[0];
+      if (!eq) issues.push(`round ${r}: no ÷ sentence on the division screen`);
+      else if (!textOf(eq).includes('?')) issues.push(`round ${r}: ÷ sentence answered before the child answers`);
+      if (preset && preset.kind === 'nums' && byClass(session.tree(), 'dv-plate').length)
+        issues.push(`round ${r}: numbers rung drew baskets before the answer`);
+    }
+    if (game === 'h1') {
+      if (byClass(session.tree(), 'hb-movewords').length) issues.push(`round ${r}: move words printed before the reveal`);
+    }
 
     /* wrong answer: no progress, question unchanged */
     const before = session.scoreCalls().length;
@@ -289,6 +316,24 @@ function exerciseGame(skin, game, Comp, props, rungLabel, rounds) {
     snap = session.tree();
     if (!byClass(snap, 'next-btn').length) issues.push(`round ${r}: no next button after correct answer`);
     if (session.scoreCalls().length !== before + 1) issues.push(`round ${r}: score not +1 after correct (Δ=${session.scoreCalls().length - before})`);
+    /* win contract for the equation formats: every printed sentence completes
+       itself with the answer, the numbers rung confirms with the mat, and the
+       board writes its move words at the reveal (never on the build rung) */
+    if (game === 'n1' || game === 'n2') {
+      const eq = byClass(snap, 'nb-eq')[0];
+      if (eq && textOf(eq).includes('?')) issues.push(`round ${r}: sentence did not complete at the win`);
+    }
+    if (game === 'd1') {
+      const eq = byClass(snap, 'dv-eq')[0];
+      if (!eq || textOf(eq).includes('?')) issues.push(`round ${r}: ÷ sentence did not complete at the win`);
+      if (preset && preset.kind === 'nums' && !byClass(snap, 'dv-plate').length)
+        issues.push(`round ${r}: numbers rung did not confirm with the mat`);
+    }
+    if (game === 'h1') {
+      const q = textOf(byClass(snap, 'hb-question')[0] || '');
+      if (!q.includes('→') && !byClass(snap, 'hb-movewords').length) issues.push(`round ${r}: no written move words at the win reveal`);
+      if (q.includes('→') && byClass(snap, 'hb-movewords').length) issues.push(`round ${r}: move words on the build rung`);
+    }
 
     /* Spam, honestly: real React dispatches to the CURRENT handlers, and the
        win replaces the tiles with the celebrate row — so spam must re-locate
@@ -320,8 +365,12 @@ function exerciseGame(skin, game, Comp, props, rungLabel, rounds) {
     session2.click(info.wrong.click); session2.flush(500);
     session2.click(info.wrong.click); session2.flush(500);
     if (game === 'h1') {
-      /* the board's hint is the revealed path — the stops light up to the answer */
+      /* the board's hint is the revealed path — the stops light up to the answer —
+         and, since 2026-08-29, the move words are WRITTEN under the question too
+         (except on the build rung, which asks for the move itself) */
       if (!byClass(session2.tree(), 'hb-path').length) issues.push('no path reveal after two misses');
+      const q = textOf(byClass(session2.tree(), 'hb-question')[0] || '');
+      if (!q.includes('→') && !byClass(session2.tree(), 'hb-movewords').length) issues.push('no written move words at the two-miss reveal');
     } else {
       const hinted = answerControls(game, session2.tree()).filter(c => String(c.click.props.className).includes('hint-glow'));
       if (!hinted.length) issues.push('no hint highlight after two misses');
@@ -378,7 +427,7 @@ for (const [skinName, file, shared] of [
         }
       }
       try {
-        const issues = exerciseGame(skin, game, Comp, rung.props, label, 8);
+        const issues = exerciseGame(skin, game, Comp, rung.props, label, 8, rung.preset);
         check(`${label}: wrong→recover→correct→next ×8 + hint path + spam`, issues.length === 0, issues.join('; '));
       } catch (e) {
         check(`${label}: session ran`, false, e.message);

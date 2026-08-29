@@ -107,7 +107,27 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        since v26), and Which Unit?'s card name was re-rendered after v27 reworded it.
 //        Both pages changed, so a device holding v27 keeps the old audio until this name
 //        changes.
-const CACHE_NAME = "magic-math-v28";
+// v29 -- 2026-08-29, equation formats (owner): Make 10 prints the number sentence with
+//        the ten-frame and Share It Out prints 9 ÷ 3 = ? on every rung plus a "With
+//        numbers" rung where the equation alone asks; the Hundred Board WRITES the move
+//        words at the reveal. Both pages changed.
+//        WRITTEN AS v28 ON MAIN, RENUMBERED HERE, AND THE REASON IS THAT v28 ALREADY
+//        EXISTS IN THE WORLD. Two branches bumped v27 -> v28 independently on the same
+//        evening, and one of them was published: the live worker has served v28 since
+//        23:20 ICT, carrying the robot-voice entry above and NOT this one. (Written as
+//        bare "v28" on purpose -- the full cache name is spelled out exactly once in this
+//        file, on the CACHE_NAME line, because both the publish runbook and this repo's
+//        own checks read the version with `grep -o 'magic-math-v[0-9]*' | head -1`. A
+//        second literal in a comment ABOVE that line makes every one of them report the
+//        wrong version, on the live file as well, since comments ship.)
+//        Keeping both at v28 would leave every device that already downloaded
+//        the live v28 permanently unable to see this work -- the activate handler drops
+//        every cache whose NAME differs, so a name that does not change delivers nothing.
+//        The entry above is therefore left exactly as it shipped: a version number is a
+//        claim about a public artefact, and rewriting one that devices are already
+//        holding would make this list lie about what it delivered. This release carries
+//        both change sets and must publish as v29.
+const CACHE_NAME = "magic-math-v29";
 
 const SHELL = [
   "./",

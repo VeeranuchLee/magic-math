@@ -220,15 +220,17 @@ for (const kind of ['add', 'sub']) {
 
 /* ── division ──
    Exact sharing only (no remainders at this tier): total = groups × each, always;
-   the answer is whichever half the rung asks for; totals stay countable (≤ 30). */
+   the answer is whichever half the rung asks for; totals stay countable (≤ 30).
+   Four readings since 2026-08-29: share / each / groups / nums (the equation-only
+   rung — same facts, the divisor is the baskets, the answer is the each). */
 {
   const rng = P.mulberry32(20260903);
-  const kinds = ['share', 'each', 'groups'];
+  const kinds = ['share', 'each', 'groups', 'nums'];
   let exactOk = true, capOk = true, answerOk = true, avoidOk = true, sawAllKinds = true, firstBad = '';
   const seenKinds = new Set();
   let prev = null;
   for (let i = 0; i < 600; i++) {
-    const preset = { kind: kinds[i % 3] };
+    const preset = { kind: kinds[i % 4] };
     const p = P.makeDivisionProblem(rng, preset, prev);
     seenKinds.add(p.kind);
     if (p.total !== p.g * p.e) { exactOk = false; firstBad = `g=${p.g} e=${p.e} total=${p.total}`; break; }
@@ -238,12 +240,38 @@ for (const kind of ['add', 'sub']) {
     if (prev && prev.total === p.total && prev.g === p.g && prev.e === p.e) { avoidOk = false; firstBad = `repeat g=${p.g} e=${p.e}`; break; }
     prev = p;
   }
-  if (seenKinds.size !== 3) sawAllKinds = false;
+  if (seenKinds.size !== 4) sawAllKinds = false;
   check('division problems divide exactly (no remainders)', exactOk, firstBad);
   check('division totals stay countable (≤ 30, ≥ 2 per group)', capOk, firstBad);
   check('division answer matches its rung (each vs groups)', answerOk, firstBad);
   check('division avoids an immediate repeat', avoidOk, firstBad);
-  check('division generates all three readings', sawAllKinds);
+  check('division generates all four readings', sawAllKinds);
+}
+
+/* ── hundred move words ──
+   The sentence the board WRITES at the reveal (owner, 2026-08-29): tens before
+   ones, rows before seats, "down" for more — the same decomposition hundredPath
+   walks. Fixed samples, because the wording is the teaching. (1 is the only
+   number spelled out; the rest are digits a pre-reader recognises.) */
+{
+  const cases = [
+    [-23, '2 rows up and 3 seats to the left'],
+    [27, '2 rows down and 7 seats to the right'],
+    [-11, 'one row up and one seat to the left'],
+    [11, 'one row down and one seat to the right'],
+    [12, 'one row down and 2 seats to the right'],
+    [-10, 'one row up'],
+    [-9, '9 seats to the left'],
+    [3, '3 seats to the right'],
+    [30, '3 rows down'],
+    [1, 'one seat to the right'],
+  ];
+  let ok = true, firstBad = '';
+  for (const [d, want] of cases) {
+    const got = P.hundredMoveWords(d);
+    if (got !== want) { ok = false; firstBad = `${d} → "${got}" (want "${want}")`; break; }
+  }
+  check('hundred move words state tens then ones, in board language', ok, firstBad);
 }
 
 
