@@ -86,7 +86,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //              while the third-miss "here is a peek" played paid narration, so the one beat
 //              carrying the teaching was the one beat not in Ari's voice. 144 clips, plus
 //              the three Read Fractions lines that #236 added and nobody rendered.
-const CACHE_NAME = "magic-math-v25";
+const CACHE_NAME = "magic-math-v26";
 
 const SHELL = [
   "./",
@@ -116,11 +116,15 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-/* Cache isolation (private PR #288): evict only this app's own old caches - sibling apps on this origin keep theirs. */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
+      /* Evict only this app's old versions (magic-math-v*). Several repo apps
+         share one origin when published, each with its own worker — deleting
+         every cache that is not ours would evict the neighbours' offline caches
+         (the children-apps hub's own header documents the shared origin).
+         Foreign cache names are not ours to touch. */
       .then((keys) => Promise.all(keys.filter((key) => /^magic-math-v/.test(key) && key !== CACHE_NAME).map((key) => caches.delete(key))))
       .then(warmImages)
   );

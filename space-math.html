@@ -80,6 +80,25 @@
     .gp-dot{width:7px;height:7px;border-radius:50%;background:#c4d7fd}
     .gp-dot.on{background:#2f6df6;box-shadow:0 0 0 2px rgba(0,0,0,.08)}
     .gp-chip{padding:1px 5px;border-radius:999px;border:1.5px solid #93b7fb;background:#fff;font-size:.62rem;font-weight:900;color:#2f6df6;line-height:1.35}
+    /* The expansion cards' minis: paired dots for odd/even, a five-wide ten-frame row. */
+    .gp-pair{display:flex;gap:2px;position:relative;padding-top:3px}
+    .gp-pair::before{content:'';position:absolute;left:1px;right:1px;top:0;height:5px;border-top:1.5px solid #2f6df6;border-radius:999px 999px 0 0}
+    .gp-pd{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100}
+    .gp-pd.gp-lone{background:none;border-style:dashed;border-color:#93b7fb;color:#2f6df6;font-size:.5rem;font-weight:900;display:flex;align-items:center;justify-content:center}
+    .gp-tf{width:10px;height:10px;border-radius:3px;border:1.5px dashed #93b7fb}
+    .gp-tf.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100}
+    .gp-tf.gone{background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100;opacity:.45}
+    .gp-hc{width:9px;height:9px;border-radius:2px;border:1.5px solid #93b7fb;background:rgba(255,255,255,.5)}
+    .gp-hc.on{background:linear-gradient(135deg,#8ec2ff,#4a86e8);border-color:#2f6df6}
+    .gp-hc.gold{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
+    .gp-dv{width:9px;height:9px;border-radius:50% 50% 50% 0;background:rgba(255,255,255,.5);border:1.5px solid #93b7fb;transform:rotate(-45deg)}
+    .gp-dv.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
+    .gp-fr{width:16px;height:12px;border:1.5px solid #93b7fb;border-radius:2px;background:rgba(255,255,255,.5)}
+    .gp-fr.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
+    .gp-um{width:34px;height:22px;border:2px solid #93b7fb;border-radius:4px;background:rgba(255,255,255,.5);position:relative}
+    .gp-um::after{content:'';position:absolute;left:4px;top:4px;width:6px;height:10px;border-radius:2px;background:linear-gradient(135deg,#ffd54f,#f9a825)}
+    .gp-ag{width:11px;height:11px;border:1.5px solid #93b7fb;border-radius:2px;background:rgba(255,255,255,.35)}
+    .gp-ag.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
     .gp-chip.q{border-style:dashed;color:#5a2ed6}
     .gp-arrow{font-size:.6rem;font-weight:900;color:#5a2ed6;opacity:.5}
     /* ── COLUMN MATHS PREVIEWS (c1-c4) ──
@@ -394,6 +413,165 @@
        eight, which is one line for almost every pile. */
     @media (min-width:768px){
       .cmp-row{max-width:min(96vw,1000px)}
+    }
+
+    /* ── EXPANSION GAMES: odd/even + number bonds to ten ──
+       The ten-frame and the pairing board are SHARED MANIPULATIVES (see the MATH
+       PRIMITIVES block in the script): one visual language for two families of games.
+       The counters are the same yellow as the ones blocks in What Number? on purpose —
+       a child who has counted those blocks already knows what a dot here is worth.
+       Sizing rule for everything in this block: the whole question — board AND answer
+       buttons — fits 768px of height at the 1024-wide design floor without scrolling
+       (the What Number? fold lesson). */
+    .tf{display:flex;flex-direction:column;gap:9px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:22px;padding:13px;box-shadow:0 5px 18px rgba(90,46,214,.1)}
+    .tf-row{display:flex;gap:9px}
+    .tf-cell{width:clamp(46px,7.2vw,60px);height:clamp(46px,7.2vw,60px);border-radius:13px;border:3px dashed #b9c8ee;background:rgba(255,255,255,.5);position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+    /* ::after draws the counter, so the cell is the seat and the counter is a thing
+       that can arrive, stay, or leave without the seat moving. */
+    .tf-cell.tf-on::after,.tf-cell.tf-gone::after,.tf-cell.tf-add::after{content:'';width:72%;height:72%;border-radius:50%;background:linear-gradient(135deg,#ffd54f,#f9a825);border:3px solid #e65100;box-shadow:0 3px 0 rgba(150,60,0,.35)}
+    .tf-cell.tf-add::after{background:linear-gradient(135deg,#7de3a0,#2e9e5b);border-color:#1c7a44;box-shadow:0 3px 0 rgba(10,70,35,.35);animation:tfPop .45s ease both}
+    .tf-cell.tf-gone::after{opacity:.45;filter:grayscale(.6)}
+    /* The ✕ is a real child span rather than ::before content so it can sit over the
+       faded counter at any cell size. */
+    .tf-x{position:absolute;font-size:clamp(1.3rem,4vw,1.8rem);font-weight:900;color:#f4566e;line-height:1;text-shadow:0 1px 0 #fff;pointer-events:none}
+    .tf-cell.tf-fly::after{animation:tfFly .6s ease-in both}
+    /* A seat the child has counted: the same lifted-ring treatment as a counted block
+       in Which is Bigger?, so one gesture means one thing across games. */
+    .tf-cell.marked{border-style:solid;box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(91,140,248,.8)}
+    @keyframes tfPop{0%{transform:scale(0)}70%{transform:scale(1.18)}100%{transform:scale(1)}}
+    @keyframes tfFly{to{transform:translateY(-48px) scale(.3);opacity:0}}
+    /* The number-bond equation rung: the same bond written as a sentence of numerals. */
+    .nb-eq{display:flex;align-items:center;justify-content:center;gap:10px;font-size:clamp(2rem,7.5vw,2.9rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);position:relative;z-index:1}
+    .nb-eq .nb-slot{min-width:1.3em;text-align:center}
+    .nb-eq .nb-q{color:#ffd54f}
+    /* Four big number tiles — the same button idiom as Which is Bigger?'s keys. */
+    .nb-tiles{display:flex;gap:clamp(10px,3vw,18px);justify-content:center;position:relative;z-index:1}
+    .nb-tile{width:clamp(82px,19vw,112px);height:clamp(82px,19vw,112px);display:flex;align-items:center;justify-content:center;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;font-size:clamp(2rem,7vw,2.7rem);font-weight:900;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    .nb-tile:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .nb-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .nb-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    /* ── Odd or Even: the pairing board ──
+       Objects hold hands in twos. A pair-unit is two dots joined by an arc, and pairs
+       wrap as WHOLE PAIRS — never split across lines, because a pair cut in half is
+       exactly the misreading this game exists to prevent. */
+    .oe-pairs{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 14px;max-width:min(92vw,660px);position:relative;z-index:1}
+    .oe-unit{position:relative;display:flex;gap:5px;padding:8px 7px}
+    .oe-dot{width:clamp(20px,4.2vw,28px);height:clamp(20px,4.2vw,28px);border-radius:50%;background:linear-gradient(135deg,#ffd54f,#f9a825);border:3px solid #e65100;box-shadow:0 3px 0 rgba(150,60,0,.35)}
+    /* The joining arc draws itself on reveal, so "everyone found a partner" is an
+       event the child watches rather than a state they are told about. */
+    .oe-link{position:absolute;left:4px;right:4px;top:2px;height:14px;width:calc(100% - 8px);pointer-events:none;stroke:#2f6df6;stroke-width:3.5;fill:none;stroke-linecap:round;opacity:0;transform:rotate(180deg)}
+    .oe-reveal .oe-link{opacity:.9;animation:oeDraw .4s ease-out both}
+    @keyframes oeDraw{from{stroke-dasharray:0 120}to{stroke-dasharray:120 0}}
+    .oe-lone{border-style:dashed}
+    .oe-reveal .oe-lone .oe-dot{animation:oeWobble .8s ease-in-out infinite alternate}
+    @keyframes oeWobble{from{transform:translateX(0)}to{transform:translateX(6px)}}
+    .oe-numrow{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:1}
+    .oe-num{font-size:clamp(3rem,11vw,4.6rem);font-weight:900;color:#fff;text-shadow:0 4px 0 rgba(47,109,246,.55),0 7px 16px rgba(4,8,30,.5);line-height:1}
+    /* The compact board is for the big-numbers rung: one hundred dots still has to fit
+       beside the two answer buttons without scrolling. */
+    .oe-compact{gap:5px 8px;max-width:min(94vw,760px)}
+    .oe-compact .oe-dot{width:14px;height:14px;border-width:2px;box-shadow:none}
+    .oe-compact .oe-unit{gap:3px;padding:4px 3px}
+    .oe-key-ico .oe-dot.lone{margin-left:5px}
+    .oe-pair-btn{display:flex;align-items:center;gap:8px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);border-radius:50px;padding:10px 22px;font-family:inherit;font-size:1.05rem;font-weight:900;color:#2f6df6;cursor:pointer;box-shadow:0 5px 0 #93b7fb}
+    .oe-pair-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    /* The two concept buttons. Their pictures are the CONCEPTS (a pair; a pair plus one
+       left over), not this problem — static by design, so they teach rather than leak. */
+    .oe-keys{display:flex;gap:clamp(12px,4vw,26px);justify-content:center;position:relative;z-index:1}
+    .oe-key{width:clamp(120px,30vw,172px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 10px 12px;border-radius:26px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    .oe-key:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .oe-key-ico{display:flex;align-items:center;gap:4px}
+    .oe-key-ico .oe-dot{width:15px;height:15px;border-width:2px;box-shadow:none}
+    .oe-key-word{font-size:1.35rem;font-weight:900;line-height:1}
+    .oe-key-glyph{font-size:.8rem;font-weight:900;color:#5a2ed6;line-height:1}
+    .oe-key.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .oe-key.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    .oe-stage{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;justify-content:center;width:100%;min-height:0}
+
+    /* ── The hundred board ──
+       Ten rows of ten. Sized so the whole board plus question and score fits the
+       768px design floor: cells clamp to at most 46px, gaps 4px, so the board is
+       ~500px tall and the required interaction never scrolls. */
+    /* Sizing measured at the 1024×768 floor: cells cap at 42px so ten rows plus the
+       question stack stay above the fold (the What Number? lesson). The build rung
+       also shows answer chips, so it drops to the compact size for room. */
+    .hb-board{--hb-cell:clamp(32px,4vw,42px);display:grid;grid-template-columns:repeat(10,var(--hb-cell));gap:3px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+    .hb-board.hb-compact{--hb-cell:clamp(26px,3.3vw,34px)}
+    .hb-cell{width:var(--hb-cell);height:var(--hb-cell);border-radius:9px;border:2px solid transparent;background:rgba(255,255,255,.55);color:#2f4a8f;font-family:inherit;font-size:clamp(.66rem,1.8vw,.98rem);font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-sizing:border-box;transition:transform .12s,box-shadow .12s}
+    .hb-cell:active{transform:scale(.9)}
+    /* The number we stand on: a blue ring, sitting but not shouting. */
+    .hb-cell.hb-start{border-color:#2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,.3);background:#e8f0ff}
+    /* The revealed stops, lighting in tap order — the "why" of the move. */
+    .hb-cell.hb-path{background:#dceaff;animation:hbGlow .5s ease both}
+    .hb-cell.hb-path-last{border-color:#2f6df6}
+    /* The answer, gold and unmistakable once the move is made. */
+    .hb-cell.hb-target{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100;color:#7a3c00;transform:scale(1.12);box-shadow:0 3px 10px rgba(230,81,0,.4);animation:tfPop .45s ease both}
+    .hb-cell.hb-wrong{animation:wrongShake .35s ease;border-color:#f44336;background:#ffebee}
+    @keyframes hbGlow{0%{transform:scale(.8);opacity:.3}100%{transform:scale(1);opacity:1}}
+    .hb-question{display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(1.7rem,6vw,2.5rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);position:relative;z-index:1}
+    .hb-qnum{min-width:1.4em;text-align:center}
+    .hb-qop{color:#ffd54f}
+    .hb-qunk{color:#ffd54f;border:3px dashed rgba(255,213,79,.8);border-radius:12px;padding:0 .2em}
+    .hb-qarrow{color:#ffd54f}
+    .hb-choices .hb-chip{width:auto;min-width:clamp(84px,20vw,120px);height:clamp(56px,13.5vw,76px);font-size:clamp(1.5rem,4.6vw,2rem)}
+
+    /* ── The sharing mat ──
+       Division's manipulative: loose counters above, baskets below. A basket is a
+       soft tray that fills vertically; the pool shrinks as counters leave it. Baskets
+       are big tap targets — dealing is the interaction. */
+    .dv-mat{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:1}
+    .dv-pool{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;max-width:min(92vw,560px);background:rgba(255,255,255,.5);border-radius:16px;padding:8px 12px}
+    .dv-plates{display:flex;justify-content:center;gap:clamp(10px,3vw,22px);flex-wrap:wrap}
+    .dv-plate{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:clamp(56px,9vw,76px);min-height:clamp(64px,12vw,96px);padding:8px 10px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:16px;cursor:pointer;box-shadow:0 4px 0 #c4d7fd;transition:transform .1s}
+    .dv-plate:active{transform:translateY(3px)}
+    .dv-plate.dv-giveme{border-style:dashed}
+    .dv-ring{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:clamp(80px,13vw,110px);padding:10px;border:3px solid #2f6df6;border-radius:50%;background:rgba(232,240,255,.75)}
+    .dv-rings{display:flex;justify-content:center;gap:clamp(10px,3vw,20px);flex-wrap:wrap;animation:tfPop .45s ease both}
+    .dv-unequal{font-size:1.05rem;font-weight:900;color:#fff;background:rgba(244,67,54,.82);border-radius:14px;padding:8px 16px}
+
+    /* ── The fraction shapes ──
+       One whole, four ways. Lit parts use the app's counter gold; unlit parts are
+       quiet grey seats. The pie's sectors are drawn from exact angles (360/d each)
+       so "equal parts" is true in the geometry, not just claimed. */
+    .fr-bar{display:flex;width:min(78vw,560px);height:clamp(64px,13vh,96px);border:3px solid #2f4a8f;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.6);box-shadow:0 5px 16px rgba(90,46,214,.15)}
+    .fr-part{border-right:2px solid #fff;transition:filter .15s}
+    .fr-part:last-child{border-right:none}
+    .fr-part.fr-on{background:linear-gradient(135deg,#ffd54f,#f9a825)}
+    .fr-grid{display:grid;gap:4px;width:min(62vw,340px);height:min(62vw,340px);max-height:44vh}
+    .fr-grid .fr-cell{border:2px solid #2f4a8f;border-radius:10px;background:rgba(255,255,255,.55)}
+    .fr-grid .fr-cell.fr-on{background:linear-gradient(135deg,#ffd54f,#f9a825)}
+    .fr-grid .fr-part{border-right:none}
+    .fr-pie{width:min(56vw,300px);height:min(56vw,300px);max-height:42vh}
+    .fr-pie .fr-off{fill:#f2f5fc;stroke:#2f4a8f;stroke-width:1.6}
+    .fr-pie .fr-on{fill:#ffd54f;stroke:#e65100;stroke-width:1.6}
+    .fr-group{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;max-width:min(84vw,560px)}
+    .fr-group .oe-dot.fr-dot-on{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100;box-shadow:0 0 0 3px rgba(255,213,79,.4)}
+    .fr-pulse .fr-part.fr-on,.fr-pulse .fr-cell.fr-on,.fr-pulse .fr-on,.fr-pulse .fr-dot-on{animation:frPulse .8s ease-in-out infinite alternate}
+    @keyframes frPulse{from{filter:brightness(1)}to{filter:brightness(1.25)}}
+    /* Fraction answer tiles: a real stacked numerator-over-denominator chip. */
+    .fr-tiles{display:flex;gap:clamp(10px,3vw,20px);justify-content:center;position:relative;z-index:1}
+    .fr-tile{width:clamp(84px,19vw,116px);height:clamp(84px,19vw,116px);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    .fr-tile:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .fr-tile-top,.fr-tile-bot{font-size:clamp(1.5rem,4.5vw,2.1rem);font-weight:900;line-height:1.05}
+    .fr-tile-bar{width:64%;height:3px;background:#2f6df6;border-radius:2px;margin:3px 0}
+    .fr-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .fr-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+
+    /* ── Which Unit? ── */
+    .um-thing{display:flex;flex-direction:column;align-items:center;gap:16px}
+    .um-glyph{width:clamp(84px,15vw,130px);height:clamp(84px,15vw,130px);color:#2f4a8f;background:rgba(255,255,255,.72);border-radius:26px;padding:18px;box-shadow:0 5px 18px rgba(90,46,214,.12)}
+    .um-ask{font-size:clamp(1.4rem,4.6vw,2.1rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);text-align:center;max-width:80vw}
+    .um-tile{font-size:clamp(1.7rem,5.5vw,2.4rem)}
+    /* ── Cover It (area) ── */
+    .ag-grid{display:grid;gap:0;background:#2f4a8f;border:3px solid #2f4a8f;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(90,46,214,.18)}
+    .ag-cell{width:var(--ag-cell,clamp(40px,7vw,58px));height:var(--ag-cell,clamp(40px,7vw,58px));box-sizing:border-box;background:rgba(255,255,255,.35);cursor:pointer;transition:background .15s}
+    .ag-cell.ag-off{background:rgba(255,255,255,.12);cursor:default}
+    .ag-cell.ag-on{background:rgba(255,255,255,.55);border:1.5px solid rgba(47,74,143,.4)}
+    .ag-cell.ag-marked{background:#dceaff;box-shadow:inset 0 0 0 3px rgba(47,109,246,.7)}
+    .ag-filled .ag-cell.ag-on{background:linear-gradient(135deg,#ffd54f,#f9a825);animation:tfPop .4s ease both}
+    @media (max-width:600px){
+      .hb-board{gap:2px;padding:6px}
+      .hb-cell{border-radius:6px;font-size:.68rem}
     }
 
     /* ── WHAT'S MISSING? (b3) ──
@@ -2458,6 +2636,66 @@ const COMPARE_PRESETS = [{
   show: 'numbers',
   desc: 'Numbers only'
 }];
+/* ── ODD OR EVEN? (oe1) ──
+   Concrete first: the first rung is pairable objects you can count, the second adds
+   the numeral beside them, the third is numerals alone with pairing available on
+   demand. Same concrete→abstract ladder as Which is Bigger?. */
+const ODD_EVEN_PRESETS = [{
+  id: 'oe10',
+  icon: ICON_EARTH,
+  tag: '1 – 10',
+  min: 1,
+  max: 10,
+  show: 'pairs',
+  desc: 'Count the pairs'
+}, {
+  id: 'oe30',
+  icon: ICON_ROCKET,
+  tag: '1 – 30',
+  min: 1,
+  max: 30,
+  show: 'both',
+  desc: 'Numbers and pairs'
+}, {
+  id: 'oe100',
+  icon: ICON_GALAXY,
+  tag: '1 – 100',
+  min: 1,
+  max: 100,
+  show: 'numbers',
+  desc: 'Big numbers'
+}];
+/* ── MAKE 10 (n1 add / n2 sub) ──
+   Two rungs each: the manipulative first, the bare equation second. The frame rung is
+   where the bond is SEEN; the numbers rung is where it is recalled. */
+const TEN_BOND_PRESETS = {
+  n1: [{
+    id: 'n1f',
+    icon: ICON_EARTH,
+    tag: 'With frame',
+    show: 'frame',
+    desc: 'Count the seats'
+  }, {
+    id: 'n1n',
+    icon: ICON_GALAXY,
+    tag: 'Numbers',
+    show: 'numbers',
+    desc: '6 + ? = 10'
+  }],
+  n2: [{
+    id: 'n2f',
+    icon: ICON_EARTH,
+    tag: 'With frame',
+    show: 'frame',
+    desc: 'Watch them fly'
+  }, {
+    id: 'n2n',
+    icon: ICON_GALAXY,
+    tag: 'Numbers',
+    show: 'numbers',
+    desc: '10 − 3 = ?'
+  }]
+};
 /* ── WHAT'S MISSING? (b3) ──
    The missing addend, played as a balance. Owner request, 2026-08-19: "23 + ? = 30 …
    I want blocks to count, not in number format, but two sides of blocks to count",
@@ -2610,7 +2848,15 @@ const CARD_VOICE = {
   c3: 'Take Away! Column style!',
   c4: 'Borrow Take Away! Borrow one!',
   g1: 'Which is Bigger? Feed the hungry mouth!',
-  b3: "What's Missing? Make both sides the same!"
+  b3: "What's Missing? Make both sides the same!",
+  oe1: 'Odd or Even? Pair them up!',
+  n1: 'Add to 10! Fill the frame!',
+  n2: 'Take from 10! Some fly away!',
+  h1: 'Hundred Board! Where do you land?',
+  d1: 'Share It Out! Deal them fairly!',
+  q1: "What's the Fraction? Count the lit parts!",
+  u1: 'Which Unit? Pick the sensible measure!',
+  a1: 'Cover It! How many squares?'
 };
 
 /* ══ UTILITIES ══ */
@@ -2654,6 +2900,488 @@ const decompose = (n, counting) => {
   };
 };
 const calcTotal = (p, counting) => counting ? p.o : p.h * 100 + p.t * 10 + p.o;
+
+/* ══ MATH PRIMITIVES (shared, pure) ══
+   The 2026-08-28 expansion roadmap's load-bearing decision: reusable puzzle logic and
+   manipulative representations first, not one bespoke pile per game. Everything in this
+   block is DOM-free and takes `rng` — a ()=>[0,1) function — so the generation harness
+   (tools/test-math-games.js) can seed it and reproduce any failure, while the UI passes
+   Math.random. The block is byte-identical in both skins by construction (see
+   tools/check-math-parity.js): teaching logic that drifts between worlds is exactly the
+   bug that gate exists to stop. */
+const mulberry32 = seed => {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+};
+const randR = (rng, min, max) => min + Math.floor(rng() * (max - min + 1));
+const shuffleR = (rng, arr) => {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+  }
+  return a;
+};
+
+/* ── Odd or Even ──
+   The problem is just a number and its parity — the VIEW is the teaching model, because
+   the model is the pairing: objects hold hands in twos, and what decides the answer is
+   whether one is left without a partner. The abstract last-digit rule is deliberately
+   nowhere in the generator; a later rung can teach it once the pairing is secure. */
+function makeOddEvenProblem(rng, preset, avoid) {
+  for (let tries = 0; tries < 40; tries++) {
+    const n = randR(rng, preset.min, preset.max);
+    if (avoid && avoid.n === n) continue;
+    return {
+      n,
+      odd: n % 2 === 1
+    };
+  }
+  const n = randR(rng, preset.min, preset.max);
+  return {
+    n,
+    odd: n % 2 === 1
+  };
+}
+
+/* ── Number bonds to ten ──
+   ONE generator feeds both bond games, because they are the same family of facts read
+   two ways — that is the roadmap's "visually connect subtraction to the same number
+   bonds" made literal in the code. add: the frame shows k counters and asks what
+   completes it; sub: the frame starts full and k leave. k lives in 1..9 so the answer
+   is never 0 or 10 and there is always something to add and something to take. */
+function makeTenProblem(rng, kind, avoid) {
+  for (let tries = 0; tries < 40; tries++) {
+    const k = randR(rng, 1, 9);
+    if (avoid && avoid.k === k) continue;
+    return {
+      kind,
+      k,
+      answer: 10 - k
+    };
+  }
+  const k = randR(rng, 1, 9);
+  return {
+    kind,
+    k,
+    answer: 10 - k
+  };
+}
+/* Which seat the unknown sits in on the numbers rung. `6 + ? = 10` and `? + 6 = 10`
+   ask the same complement in two shapes, which is the variety the roadmap asks for —
+   teach the bond, not one fixed presentation of it. */
+const tenForm = rng => rng() < .5 ? 'end' : 'start';
+/* Four big number tiles, one of them right. The on-screen number k is ALWAYS among the
+   distractors, because the classic error in this family is answering with the number
+   you can already see; the rest are the near misses either side of the answer. When
+   k IS the answer (5 and 5 make 10) it is not duplicated — a doubled tile would be two
+   ways to be right — and a third near-miss fills the fourth seat instead. */
+function tenChoices(rng, answer, k) {
+  const pool = [...new Set([answer - 2, answer - 1, answer + 1, answer + 2, k - 1, k + 1].filter(x => x >= 0 && x <= 10 && x !== answer))];
+  const others = shuffleR(rng, pool.filter(x => x !== k)).slice(0, k === answer ? 3 : 2);
+  const base = k === answer ? [answer] : [answer, k];
+  return shuffleR(rng, [...base, ...others]);
+}
+
+/* ── The hundred board ──
+   The 100-square is a REUSABLE TEACHING SURFACE (roadmap, 2026-08-28): these
+   transforms are the whole point of the board — where a number lives, and what
+   moving by 1 and by 10 means in position. The rule the roadmap insists on:
+   moves are ARITHMETIC first and the board displays the truth. +1 from a column-9
+   number lands at the START of the next row — visually a diagonal, mathematically
+   exactly right — and these helpers never paper over it. */
+const hundredRC = n => ({
+  r: Math.floor((n - 1) / 10),
+  c: (n - 1) % 10
+});
+const hundredAt = (r, c) => r < 0 || r > 9 || c < 0 || c > 9 ? null : r * 10 + c + 1;
+/* The stops a child would touch moving tens first, then ones — the decomposition
+   the board teaches (+11 = one row down and one along). Ends at start+delta. */
+function hundredPath(start, delta) {
+  const stops = [start];
+  let cur = start;
+  const tens = Math.trunc(delta / 10),
+    ones = delta - tens * 10;
+  for (let i = 0; i < Math.abs(tens); i++) {
+    cur += tens > 0 ? 10 : -10;
+    stops.push(cur);
+  }
+  for (let i = 0; i < Math.abs(ones); i++) {
+    cur += ones > 0 ? 1 : -1;
+    stops.push(cur);
+  }
+  return stops;
+}
+/* Spoken shape of a move, in board language. The words are the lesson: ten is a
+   ROW, one is a SEAT. Mixed moves state tens then ones, matching hundredPath. */
+function hundredMoveWords(delta) {
+  const tens = Math.trunc(delta / 10),
+    ones = delta - tens * 10;
+  const t = t => t > 0 ? `${t === 1 ? 'one row' : t + ' rows'} down` : t < 0 ? `${t === -1 ? 'one row' : -t + ' rows'} up` : '';
+  const o = o => o > 0 ? `${o === 1 ? 'one seat' : o + ' seats'} to the right` : o < 0 ? `${o === -1 ? 'one seat' : -o + ' seats'} to the left` : '';
+  return [t(tens), o(ones)].filter(Boolean).join(' and ');
+}
+const HUNDRED_STEP_OPS = [1, -1, 10, -10];
+const HUNDRED_JUMP_OPS = [1, -1, 10, -10, 20, -20, 11, 9, -9, -11];
+const HUNDRED_EDGE_OPS = [1, -1, 11, -11];
+/* Which starting columns a delta can leave from WITHOUT the landing seat looking
+   like a wrap (a one-step move changes row only at a real edge). ±10 and ±20 keep
+   their column wherever they start, so any start is honest for them. */
+function hundredHonestStart(delta, col) {
+  if (delta === 1 || delta === 11) return col <= 8;
+  if (delta === -1 || delta === -11) return col >= 1;
+  if (delta === 9) return col >= 1;
+  if (delta === -9) return col <= 8;
+  return true;
+}
+/* The edge rung is the deliberate boundary teacher: the start sits ON the edge a
+   one-step would visually wrap across, so the child SEES that 39's next number is
+   40 at the head of the next row — arithmetic first, the board displays it. */
+function hundredEdgeStart(delta) {
+  /* only the crisp boundary landings live here: +1/+11 start at a full row's END
+     (col 9), −1/−11 at a row's HEAD (col 0). ±9 walks the row instead of landing
+     across it — that belongs to the jump rung, not the boundary teacher. */
+  if (delta === 1 || delta === 11) return 9;
+  return 0;
+}
+/* step rung: ±1 never crosses a row edge, so "right is more" is visually true on
+   every question of the first rung; jump widens the moves while keeping every
+   landing honest (owner direction, 2026-08-29: no boundary examples unless the
+   rung teaches boundaries — that is what the edge rung is for). */
+function makeHundredProblem(rng, preset, avoid) {
+  for (let tries = 0; tries < 60; tries++) {
+    if (preset.kind === 'build') {
+      const delta = pickR(rng, preset.ops);
+      const lo = delta > 0 ? 1 : 1 - delta,
+        hi = delta > 0 ? 100 - delta : 100;
+      const start = randR(rng, lo, hi);
+      const target = start + delta;
+      if (avoid && avoid.start === start && avoid.delta === delta) continue;
+      return {
+        kind: 'build',
+        start,
+        delta,
+        target,
+        choices: hundredBuildChoices(rng, delta)
+      };
+    }
+    const ops = preset.kind === 'step' ? HUNDRED_STEP_OPS : preset.kind === 'edge' ? HUNDRED_EDGE_OPS : HUNDRED_JUMP_OPS;
+    const delta = pickR(rng, ops);
+    let start = randR(rng, 1, 100);
+    const rc = hundredRC(start);
+    if (preset.kind === 'edge') {
+      /* pick the start ON the required edge column directly — retry-fishing for
+         col 0/9 occasionally fell through to the generic fallback and produced a
+         non-boundary problem (caught by the edge invariant, 2026-08-29). */
+      start = randR(rng, 0, 9) * 10 + hundredEdgeStart(delta) + 1;
+      const target0 = start + delta;
+      if (target0 < 1 || target0 > 100) continue;
+      if (avoid && avoid.start === start && avoid.delta === delta) continue;
+      return {
+        kind: 'edge',
+        start,
+        delta,
+        target: target0
+      };
+    } else if (preset.kind === 'jump') {
+      if (!hundredHonestStart(delta, rc.c)) continue;
+    } else {
+      if (delta === 1 && rc.c === 9) continue;
+      if (delta === -1 && rc.c === 0) continue;
+    }
+    const target = start + delta;
+    if (target < 1 || target > 100) continue;
+    if (avoid && avoid.start === start && avoid.delta === delta) continue;
+    return {
+      kind: preset.kind,
+      start,
+      delta,
+      target
+    };
+  }
+  const delta = preset.kind === 'step' ? 10 : 11;
+  const start = preset.kind === 'build' ? 30 : randR(rng, 1, 100 - delta);
+  return {
+    kind: preset.kind,
+    start,
+    delta,
+    target: start + delta,
+    choices: preset.kind === 'build' ? hundredBuildChoices(rng, delta) : undefined
+  };
+}
+const pickR = (rng, arr) => arr[Math.floor(rng() * arr.length)];
+/* Build-the-operation choices: the correct chip, the sign flip, and the classic
+   magnitude confusion (+20 against +2) when the two are distinguishable. */
+function hundredBuildChoices(rng, delta) {
+  const label = d => d > 0 ? `+${d}` : `−${-d}`;
+  const wrong = [-delta];
+  const mag = delta > 0 ? 10 : -10;
+  if (Math.abs(delta) >= 10) {
+    const flippedTens = Math.trunc(delta / 10);
+    if (flippedTens !== 0 && flippedTens !== delta) wrong.push(flippedTens);
+  } else {
+    wrong.push(delta * 10);
+  }
+  const uniq = [...new Set(wrong.filter(d => d !== delta))];
+  return shuffleR(rng, [label(delta), ...uniq.slice(0, 2).map(label)]);
+}
+
+/* ── Division: sharing and grouping ──
+   Exact sharing only at this tier (roadmap, 2026-08-28: remainders wait for an
+   obvious advanced rung). One fact, three readings:
+     share  T into G baskets by dealing them out (each = T/G)
+     each   the completed sharing shown; count what is in one basket
+     groups the grouping reading: T things, groups of E, how many groups (G = T/E)
+   Totals cap at 30 — every counter stays visible and countable on the mat. */
+
+/* ── Area ──
+   Space covered, measured in unit squares (roadmap 2026-08-28: rectangles and
+   shapes composed of FULL unit cells — no halves yet; perimeter is out of
+   scope and deliberately not mentioned). The answer is always the occupied
+   cell count, so the visual model and the number can never disagree. */
+function makeAreaProblem(rng, preset, avoid) {
+  for (let tries = 0; tries < 60; tries++) {
+    let w,
+      h,
+      cells = [];
+    if (preset.kind === 'rect') {
+      w = randR(rng, 2, preset.maxSide);
+      h = randR(rng, 2, preset.maxSide);
+      cells = Array.from({
+        length: w * h
+      }, (_, i) => i);
+    } else {
+      /* L-shapes: a full rectangle with one corner block taken away — still one
+         connected piece, and the missing corner is visible, which is what makes
+         counting-on necessary rather than remembering w×h. */
+      w = randR(rng, 3, preset.maxSide);
+      h = randR(rng, 3, preset.maxSide);
+      const cw = randR(rng, 1, w - 1),
+        ch = randR(rng, 1, h - 1);
+      cells = [];
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (x >= w - cw && y >= h - ch) continue;
+        cells.push(y * w + x);
+      }
+    }
+    const answer = cells.length;
+    if (answer < preset.min || answer > preset.max) continue;
+    if (avoid && avoid.w === w && avoid.h === h && avoid.kindRect === preset.kind) continue;
+    return {
+      kind: preset.kind,
+      w,
+      h,
+      cells,
+      answer
+    };
+  }
+  const w = 3,
+    h = 4;
+  return {
+    kind: preset.kind,
+    w,
+    h,
+    cells: Array.from({
+      length: w * h
+    }, (_, i) => i),
+    answer: w * h
+  };
+}
+
+/* Area answers run past ten, so they get their own near-miss choice maker
+   rather than the bond game's 0–10 tiles. */
+function areaChoices(rng, answer) {
+  const pool = [...new Set([answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3].filter(x => x >= 1 && x <= 24 && x !== answer))];
+  return shuffleR(rng, [answer, ...shuffleR(rng, pool).slice(0, 3)]);
+}
+
+/* ── Measurement ──
+   First module only (roadmap 2026-08-28): WHICH unit makes sense — not
+   conversion tables. Curated, not generated: every item names the unit a
+   sensible person would use, so the game can never ask a question whose
+   "right" answer is arguable. Metric throughout (the app's audience is
+   metric-schooled); abbreviations on the chips, full words spoken. */
+const MEASURE_UNITS = {
+  length: [['cm', 'centimetres'], ['m', 'metres'], ['km', 'kilometres']],
+  mass: [['g', 'grams'], ['kg', 'kilograms']],
+  capacity: [['ml', 'millilitres'], ['l', 'litres']]
+};
+const MEASURE_ITEMS = [{
+  thing: 'a pencil',
+  glyph: 'pencil',
+  cat: 'length',
+  unit: 'cm'
+}, {
+  thing: 'a door',
+  glyph: 'door',
+  cat: 'length',
+  unit: 'm'
+}, {
+  thing: 'the way to another city',
+  glyph: 'road',
+  cat: 'length',
+  unit: 'km'
+}, {
+  thing: 'an apple',
+  glyph: 'apple',
+  cat: 'mass',
+  unit: 'g'
+}, {
+  thing: 'a big dog',
+  glyph: 'dog',
+  cat: 'mass',
+  unit: 'kg'
+}, {
+  thing: 'a spoon of water',
+  glyph: 'spoon',
+  cat: 'capacity',
+  unit: 'ml'
+}, {
+  thing: 'a big bottle',
+  glyph: 'bottle',
+  cat: 'capacity',
+  unit: 'l'
+},
+/* Added 2026-08-29 for variety (owner review): each category now spans the
+   whole scale, so the discrimination is about size, not item trivia. */
+{
+  thing: 'a table',
+  glyph: 'table',
+  cat: 'length',
+  unit: 'm'
+}, {
+  thing: 'a strawberry',
+  glyph: 'strawberry',
+  cat: 'mass',
+  unit: 'g'
+}, {
+  thing: 'a swimming pool',
+  glyph: 'pool',
+  cat: 'capacity',
+  unit: 'l'
+}];
+function makeMeasureProblem(rng, avoid) {
+  for (let tries = 0; tries < 40; tries++) {
+    const item = MEASURE_ITEMS[Math.floor(rng() * MEASURE_ITEMS.length)];
+    if (avoid && avoid.thing === item.thing) continue;
+    return {
+      kind: 'measure',
+      ...item
+    };
+  }
+  const item = MEASURE_ITEMS[0];
+  return {
+    kind: 'measure',
+    ...item
+  };
+}
+
+/* ── Fractions ──
+   Part of a whole, named — across representations (roadmap 2026-08-28: a child
+   must meet 3/4 as pieces of a bar, a pie, a grid and a group of objects, not
+   learn "fractions = pizza slices"). Proper fractions first (n < d): the
+   denominator stays visible and is never simplified away at these rungs.
+   Partitions are EQUAL BY CONSTRUCTION and the tests prove it: every bar cell
+   is 1/d of the strip, every sector 360/d degrees. */
+function makeFractionProblem(rng, preset, avoid) {
+  for (let tries = 0; tries < 60; tries++) {
+    const d = pickR(rng, preset.denoms);
+    const n = randR(rng, 1, d - 1);
+    const shape = pickR(rng, preset.shapes);
+    const cells = fractionCells(rng, n, d);
+    if (avoid && avoid.n === n && avoid.d === d && avoid.shape === shape) continue;
+    return {
+      kind: 'fraction',
+      n,
+      d,
+      shape,
+      cells
+    };
+  }
+  const d = preset.denoms[0],
+    n = 1;
+  return {
+    kind: 'fraction',
+    n,
+    d,
+    shape: preset.shapes[0],
+    cells: fractionCells(rng, n, d)
+  };
+}
+/* WHICH parts are highlighted varies on purpose: a run (three in a row) and a
+   scatter both read as 3/4, and meeting both is what stops "fraction = the bits
+   on the left". Returns sorted indices of the highlighted parts. */
+function fractionCells(rng, n, d) {
+  if (rng() < .5) {
+    const start = randR(rng, 0, d - n);
+    return Array.from({
+      length: n
+    }, (_, i) => start + i);
+  }
+  const idx = shuffleR(rng, Array.from({
+    length: d
+  }, (_, i) => i)).slice(0, n).sort((a, b) => a - b);
+  return idx;
+}
+/* The exact-partition specs the shape renderers draw from; equality is checked
+   by the invariant tests rather than trusted. */
+const fractionBarParts = d => Array.from({
+  length: d
+}, () => 1 / d);
+const fractionCircleParts = d => Array.from({
+  length: d
+}, () => 360 / d);
+/* Answer chips: the correct fraction, the classic inversion (d/n), and a
+   near-miss on either side of the slash. All within 1/1..1/12 and unique. */
+function fractionChoices(rng, n, d) {
+  const label = (a, b) => `${a}/${b}`;
+  /* The inversion d/n is always offered when it differs — swapping top and bottom
+     is THE classic fraction error, so the choice that tests it is never left to
+     chance (same principle as the mirror number in the bond games). */
+  const inversion = n === d ? null : label(d, n);
+  const pool = [...new Set([[n - 1, d], [n + 1, d], [n, d - 1], [n, d + 1], [n + 1, d + 1]].filter(([a, b]) => a >= 1 && a <= 12 && b >= 1 && b <= 12 && !(a === n && b === d)).map(([a, b]) => label(a, b)))];
+  const others = shuffleR(rng, pool).slice(0, inversion ? 2 : 3);
+  return shuffleR(rng, [label(n, d), ...(inversion ? [inversion] : []), ...others]);
+}
+function makeDivisionProblem(rng, preset, avoid) {
+  for (let tries = 0; tries < 60; tries++) {
+    let g, e;
+    if (preset.kind === 'groups') {
+      g = randR(rng, 2, 6);
+      e = randR(rng, 2, 6);
+    } else {
+      g = randR(rng, 2, 5);
+      e = randR(rng, 2, 6);
+    }
+    const total = g * e;
+    if (total > 30) continue; /* every counter must stay countable on the mat */
+    if (avoid && avoid.total === total && avoid.g === g && avoid.e === e) continue;
+    return {
+      kind: preset.kind,
+      g,
+      e,
+      total,
+      answer: preset.kind === 'groups' ? g : e
+    };
+  }
+  const g = 3,
+    e = 4;
+  return {
+    kind: preset.kind,
+    g,
+    e,
+    total: g * e,
+    answer: preset.kind === 'groups' ? g : e
+  };
+}
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
@@ -3333,6 +4061,264 @@ function GamePreview({
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "3")));
+  if (id === 'oe1') return /*#__PURE__*/ /* Odd or Even — pairs that hold hands, and maybe one left over */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pair"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pair"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pair"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd gp-lone"
+  }, "?")));
+  if (id === 'n1') return /*#__PURE__*/ /* Add to 10 — a part-filled ten-frame asking to be finished */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf"
+  })));
+  if (id === 'n2') return /*#__PURE__*/ /* Take from 10 — a nearly full frame, one counter leaving */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf gone"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-tf on"
+  })));
+  if (id === 'h1') return /*#__PURE__*/ /* Hundred Board — a mini chart with one lit jump */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc gold"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-hc"
+  })));
+  if (id === 'd1') return /*#__PURE__*/ /* Share It Out — two baskets, a fair share each */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pair"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pair"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-pd"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-dv on"
+  })));
+  if (id === 'q1') return /*#__PURE__*/ /* What's the Fraction — three of four parts lit */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-fr on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-fr on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-fr on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-fr"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "/"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "4")));
+  if (id === 'u1') return /*#__PURE__*/ /* Which Unit — a thing and its measure word */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-um"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "cm"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "m"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "km")));
+  if (id === 'a1') return /*#__PURE__*/ /* Cover It — a lit L of unit squares */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag on"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ag"
+  })));
   return null;
 }
 function Stars({
@@ -7282,19 +8268,20 @@ function ReadBigNumbers({
     const words = numberToWords(ds.join(''));
     Sound.tap();
     mascot.happy();
-    /* Two chains rather than one, so the robot animates for HIS line only. If he mouthed
-       along to hers the screen would be teaching the wrong thing about who is speaking. */
-    Voice.notifyNextChain(() => {
-      setSpeaking(true);
-      /* The engine can go quiet without ever firing onend -- iOS Safari drops utterances,
-         and muting mid-line returns early -- and a robot left mouthing at silence is
-         worse than one that stops a beat early. Same reasoning as Voice's own net. */
-      clearTimeout(talkT.current);
-      talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
-      Voice.notifyNextChain(stopTalking);
-      Voice.lines([num(words)]);
-    });
-    Voice.lines(["Let's hear the robot read it!"]);
+    /* iPad Safari requires the FIRST speechSynthesis request to start inside a user
+       gesture. This used to play the companion's rendered "Let's hear..." clip first
+       and call the robot from that Audio element's ended callback. On a fresh iPad the
+       tap activation was gone by then, so Safari silently dropped the number; visiting
+       Fractions first happened to unlock the engine and hid the defect. Read it means
+       exactly one thing now: this tap starts the robot itself. */
+    setSpeaking(true);
+    /* The engine can go quiet without ever firing onend -- iOS Safari drops utterances,
+       and muting mid-line returns early -- and a robot left mouthing at silence is
+       worse than one that stops a beat early. Same reasoning as Voice's own net. */
+    clearTimeout(talkT.current);
+    talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
+    Voice.notifyNextChain(stopTalking);
+    Voice.lines([num(words)]);
   }, [ds, mascot, stopTalking]);
   const groups = digitGroups(ds);
   /* Boxes shrink as the number grows so the row never scrolls -- a number you have to
@@ -8214,6 +9201,2031 @@ function CompareGame({
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
 
+/* ══ EXPANSION MANIPULATIVES (shared) ══
+   The 2026-08-28 roadmap's reusable representations, as visible things. The ten-frame
+   serves both Make-10 games; the pairing board serves Odd or Even and, later, any game
+   whose idea is "look at it in twos". Both draw their counters in the same yellow as
+   the ones blocks of What Number?, so a child who has counted those blocks already
+   knows what one dot is worth here. Byte-identical in both skins. */
+
+/* The ten-frame: two rows of five, filled left to right, top row first — the top row
+   reading "five" when full is the subitising anchor the whole frame exists for.
+     kept   counters standing in their seats
+     gone   counters shown crossed in their ORIGINAL seats — "take away" must read as
+            removal from ten, not as a smaller frame, or subtraction stops starting at
+            the whole (flyAway animates them out once the answer lands)
+     added  counters that arrive with the answer: a second colour, so 7 + 3 = 10 reads
+            as two colours making one full frame
+   countWhat lets the child perform the count the CompareGame way: tap a seat and the
+   app supplies the number word, one-to-one correspondence with the counting sequence.
+   Nothing is said until something is tapped, so the question is never given away. */
+function TenFrame({
+  kept = 0,
+  gone = 0,
+  added = 0,
+  flyAway = false,
+  countWhat = null,
+  onCount
+}) {
+  const [marked, setMarked] = useState({});
+  const cells = Array.from({
+    length: 10
+  }, (_, i) => {
+    if (i < kept) return 'on';
+    if (i < kept + gone) return flyAway ? 'fly' : 'gone';
+    if (i < kept + gone + added) return 'add';
+    return 'off';
+  });
+  const target = s => countWhat === 'empty' ? s === 'off' : s === 'on';
+  const tapCell = i => {
+    if (!countWhat || !target(cells[i])) return;
+    Sound.tap();
+    const next = {
+      ...marked,
+      [i]: !marked[i]
+    };
+    setMarked(next);
+    const total = Object.keys(next).filter(k => next[k]).length;
+    if (total > 0 && onCount) onCount(total);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "tf",
+    role: "img",
+    "aria-label": `Ten frame with ${kept} counters${gone ? ` and ${gone} taken away` : ''}`
+  }, [0, 1].map(r => /*#__PURE__*/React.createElement("div", {
+    className: "tf-row",
+    key: r
+  }, cells.slice(r * 5, r * 5 + 5).map((s, i) => {
+    const idx = r * 5 + i;
+    return /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: `tf-cell tf-${s} ${marked[idx] && target(s) ? 'marked' : ''}`,
+      onClick: () => tapCell(idx)
+    }, s === 'gone' ? /*#__PURE__*/React.createElement("span", {
+      className: "tf-x",
+      "aria-hidden": "true"
+    }, "\u2715") : null);
+  }))));
+}
+
+/* The pairing board: objects hold hands in twos. A pair-unit is two dots joined by an
+   arc, and pairs wrap as WHOLE PAIRS — never split across lines, because a pair cut in
+   half by a line break is exactly the misreading this board exists to prevent. An odd
+   count leaves one dot alone at the end. reveal draws the arcs (and wobbles the lone
+   dot), so "everyone found a partner" / "one is left over" is an event the child
+   watches, not a state they are told about. */
+function PairedObjects({
+  n,
+  reveal = false,
+  compact = false
+}) {
+  const pairs = Math.floor(n / 2),
+    lone = n % 2;
+  return /*#__PURE__*/React.createElement("div", {
+    className: `oe-pairs ${compact ? 'oe-compact' : ''} ${reveal ? 'oe-reveal' : ''}`
+  }, Array.from({
+    length: pairs
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "oe-unit"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("svg", {
+    className: "oe-link",
+    viewBox: "0 0 40 14",
+    preserveAspectRatio: "none",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M6 13 Q20 -3 34 13"
+  })))), lone === 1 && /*#__PURE__*/React.createElement("span", {
+    className: "oe-unit oe-lone"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  })));
+}
+
+/* The hundred board itself: numbers 1–100 in ten rows of ten, THE reusable
+   teaching surface of the roadmap. States a cell can wear, in visual order of
+   strength: start (the number we stand on, blue ring), a stop on the revealed
+   path (soft glow, appearing in tap order once the answer lands or at two
+   misses — the child SEES why +10 is one row down), target (gold, on win),
+   wrong (the cell just tapped incorrectly, shakes). Everything is arithmetic
+   first: a +1 across a row edge renders as the next row's first cell because
+   that is where the number lives, not because anything wraps. */
+function HundredBoard({
+  start,
+  path = [],
+  target = null,
+  won = false,
+  wrongCell = null,
+  onCell,
+  disabled = false,
+  compact = false
+}) {
+  const pathIdx = new Map(path.map((n, i) => [n, i]));
+  return /*#__PURE__*/React.createElement("div", {
+    className: `hb-board ${compact ? 'hb-compact' : ''}`,
+    role: "grid",
+    "aria-label": "Hundred board, numbers one to one hundred"
+  }, Array.from({
+    length: 100
+  }, (_, i) => {
+    const n = i + 1;
+    const onPath = pathIdx.has(n);
+    const cls = ['hb-cell', n === start ? 'hb-start' : '', onPath && !won ? 'hb-path' : '', onPath && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', won && n === target ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
+    return /*#__PURE__*/React.createElement("button", {
+      key: n,
+      className: cls,
+      role: "gridcell",
+      disabled: disabled,
+      style: onPath ? {
+        animationDelay: `${pathIdx.get(n) * .5}s`
+      } : undefined,
+      onClick: () => onCell && onCell(n),
+      "aria-label": String(n)
+    }, n);
+  }));
+}
+
+/* The sharing mat: the division manipulative, the same counters as the ten-frame.
+   A pool of loose counters above, G plates below. The share rung deals by tapping
+   a plate — one counter flies into it per tap, the child CHOOSES where each goes,
+   and the equality of a fair share is something they make (or break and repair)
+   rather than watch. `plates` pre-fills the mat for the show-the-answer rungs;
+   `rings` draws the grouping reading as G circles of e each. */
+function ShareMat({
+  total,
+  plateCount,
+  dealt = null,
+  revealGroups = 0,
+  onPlate = null
+}) {
+  const dealtNow = dealt || Array.from({
+    length: plateCount
+  }, () => 0);
+  const remaining = total - dealtNow.reduce((a, b) => a + b, 0);
+  /* The basket is the tap target — one tap deals one counter into it. It is a
+     <button> so the dealing is a real, focusable child interaction, not a
+     decorated div (the first version rendered inert divs and the share rung was
+     unplayable; caught while building the interaction harness, 2026-08-29). */
+  const plate = (count, i) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: i,
+    className: `dv-plate ${dealt ? '' : 'dv-giveme'}`,
+    "data-plate": i,
+    onClick: () => onPlate && onPlate(i),
+    "aria-label": `Basket ${i + 1} with ${count} counters`
+  }, Array.from({
+    length: count
+  }, (_, j) => /*#__PURE__*/React.createElement("span", {
+    key: j,
+    className: "oe-dot"
+  })));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "dv-mat"
+  }, remaining > 0 || !revealGroups ? /*#__PURE__*/React.createElement("div", {
+    className: "dv-pool",
+    "aria-label": `${remaining} counters to share`
+  }, Array.from({
+    length: remaining
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "oe-dot"
+  }))) : null, revealGroups > 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "dv-rings"
+  }, Array.from({
+    length: plateCount
+  }, (_, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "dv-ring"
+  }, Array.from({
+    length: revealGroups
+  }, (_, j) => /*#__PURE__*/React.createElement("span", {
+    key: j,
+    className: "oe-dot"
+  })))))
+  /* plates render only when a dealing exists (share/each rungs). The groups
+     rung shows the loose pool alone — empty baskets under "make groups of 2"
+     read as a sharing question the child was not asked (found by the
+     interaction harness reader, 2026-08-29). */ : dealt ? /*#__PURE__*/React.createElement("div", {
+    className: "dv-plates"
+  }, dealtNow.map(plate)) : null);
+}
+
+/* The fraction shapes: one whole, shown four ways, n of its d equal parts
+   highlighted in the same gold as every countable thing in this app.
+     bar    a strip cut into d equal cells — the anchor representation
+     grid   a near-square of unit cells (the area model, and the bridge to
+            the hundred board's grid)
+     circle the pie, equal sectors drawn from exact angles
+     group  d separate objects, n of them lit — "fraction of a SET", the
+            representation the roadmap insists must not be missing
+   reveal pulses the numerator parts so the count is an event. */
+function FractionShape({
+  shape,
+  n,
+  d,
+  cells,
+  reveal = false
+}) {
+  const lit = new Set(cells);
+  const pulse = reveal ? 'fr-pulse' : '';
+  if (shape === 'bar') {
+    return /*#__PURE__*/React.createElement("div", {
+      className: `fr-bar ${pulse}`,
+      role: "img",
+      "aria-label": `A bar in ${d} equal parts, ${n} highlighted`
+    }, fractionBarParts(d).map((w, i) => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: `fr-part ${lit.has(i) ? 'fr-on' : ''}`,
+      style: {
+        flex: w
+      }
+    })));
+  }
+  if (shape === 'grid') {
+    const cols = Math.ceil(Math.sqrt(d));
+    return /*#__PURE__*/React.createElement("div", {
+      className: `fr-grid ${pulse}`,
+      style: {
+        gridTemplateColumns: `repeat(${cols},1fr)`
+      },
+      role: "img",
+      "aria-label": `A square in ${d} equal parts, ${n} highlighted`
+    }, Array.from({
+      length: d
+    }, (_, i) => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: `fr-part fr-cell ${lit.has(i) ? 'fr-on' : ''}`
+    })));
+  }
+  if (shape === 'circle') {
+    const r = 50,
+      cx = 60,
+      cy = 60;
+    return /*#__PURE__*/React.createElement("svg", {
+      className: `fr-pie ${pulse}`,
+      viewBox: "0 0 120 120",
+      role: "img",
+      "aria-label": `A circle in ${d} equal parts, ${n} highlighted`
+    }, fractionCircleParts(d).map((deg, i) => {
+      const a0 = (i * deg - 90) * Math.PI / 180,
+        a1 = ((i + 1) * deg - 90) * Math.PI / 180;
+      const x0 = cx + r * Math.cos(a0),
+        y0 = cy + r * Math.sin(a0),
+        x1 = cx + r * Math.cos(a1),
+        y1 = cy + r * Math.sin(a1);
+      const large = deg > 180 ? 1 : 0;
+      return /*#__PURE__*/React.createElement("path", {
+        key: i,
+        d: `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`,
+        className: lit.has(i) ? 'fr-on' : 'fr-off'
+      });
+    }));
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fr-group ${pulse}`,
+    role: "img",
+    "aria-label": `${d} objects, ${n} highlighted`
+  }, Array.from({
+    length: d
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: `oe-dot ${lit.has(i) ? 'fr-dot-on' : ''}`
+  })));
+}
+
+/* The measure glyphs: line-art SVGs in the house style of the app's icon
+   buttons (crisp strokes, no fills), one per curated item. They are diagrams
+   rather than painted art — the thing being measured, drawn small and honest. */
+function MeasureGlyph({
+  name
+}) {
+  const G = {
+    pencil: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M5 19 L15 9 l4 4 -10 10 -5 1 z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M15 9 l2-2 4 4 -2 2"
+    })),
+    door: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+      x: "6",
+      y: "4",
+      width: "12",
+      height: "17",
+      rx: "1"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "15",
+      cy: "12",
+      r: "1.2",
+      fill: "currentColor"
+    })),
+    road: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M3 20 L9 4 h6 l6 16"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M12 7 v3 M12 13 v3 M12 19 v1",
+      strokeDasharray: "none"
+    })),
+    apple: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M12 8 C8 6 4 9 5 14 c1 4 4 6 7 6 s6-2 7-6 c1-5-3-8-7-6z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M12 8 c0-3 2-4 4-4"
+    })),
+    dog: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M7 5 v5 M17 5 v5 M5 10 c0-2 3-4 7-4 s7 2 7 4 v5 c0 4-3 6-7 6 s-7-2-7-6z"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "9.5",
+      cy: "13",
+      r: ".9",
+      fill: "currentColor"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "14.5",
+      cy: "13",
+      r: ".9",
+      fill: "currentColor"
+    })),
+    spoon: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("ellipse", {
+      cx: "12",
+      cy: "8",
+      rx: "4",
+      ry: "5.5"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M12 14 v7"
+    })),
+    bottle: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M10 3 h4 v4 c3 1 4 4 4 7 v6 a1 1 0 0 1 -1 1 h-10 a1 1 0 0 1 -1 -1 v-6 c0-3 1-6 4-7z"
+    })),
+    table: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M3 8 h18"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M5 8 v10 M19 8 v10 M8 12 v6 M16 12 v6"
+    })),
+    strawberry: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M12 21 C7 18 5 13 6 9 c3-2 9-2 12 0 c1 4-1 9-6 12z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M9 6 c1-2 5-2 6 0"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M10 12 h.01 M14 12 h.01 M12 16 h.01"
+    })),
+    pool: /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+      d: "M3 14 c3 2 5-2 8 0 s5 2 8 0"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M3 18 c3 2 5-2 8 0 s5 2 8 0"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M7 11 V6 a2 2 0 0 1 2-2"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M13 11 l2-4"
+    }))
+  };
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "um-glyph",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.8",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, G[name] || G.pencil);
+}
+
+/* The unit-square grid: the area model. Cells are tap-to-count (the same
+   interaction as the ten-frame's seats — the child performs the count, the app
+   supplies the number word). `filled` lights the shape on the win. */
+function AreaGrid({
+  w,
+  h,
+  cells,
+  onCell,
+  filled = false
+}) {
+  const shape = new Set(cells);
+  const [marked, setMarked] = useState({});
+  const tapCell = (x, y) => {
+    const idx = y * w + x;
+    if (!shape.has(idx)) return;
+    Sound.tap();
+    const next = {
+      ...marked,
+      [idx]: !marked[idx]
+    };
+    setMarked(next);
+    const total = Object.keys(next).filter(k => next[k]).length;
+    if (total > 0 && onCell) onCell(total);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: `ag-grid ${filled ? 'ag-filled' : ''}`,
+    role: "img",
+    style: {
+      gridTemplateColumns: `repeat(${w},var(--ag-cell,clamp(40px,7vw,58px)))`
+    },
+    "aria-label": `A shape made of ${cells.length} unit squares`
+  }, Array.from({
+    length: h
+  }, (_, y) => Array.from({
+    length: w
+  }, (_, x) => {
+    const idx = y * w + x,
+      on = shape.has(idx);
+    return /*#__PURE__*/React.createElement("span", {
+      key: idx,
+      className: `ag-cell ${on ? 'ag-on' : 'ag-off'} ${marked[idx] && on ? 'ag-marked' : ''}`,
+      onClick: () => onCell && tapCell(x, y)
+    });
+  })));
+}
+
+/* ══ MODE oe1: ODD OR EVEN? ══
+   Odd and even taught as the PAIRING model, not the last-digit rule: numbers are odd
+   or even because of what happens when their objects hold hands in twos. The rungs run
+   concrete → abstract exactly like Which is Bigger?: countable pairs with no numeral;
+   numeral beside the pairs; numeral alone with pairing one tap away — the button keeps
+   the model available rather than retiring it, which is the whole difference between
+   "you used to be able to check" and "you can always check". */
+function OddEvenSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How big?"), ODD_EVEN_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function OddEvenGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  /* Opens on the first rung — pairs of countable dots — for the same reason Which is
+     Bigger? does: the rung above can be won by reading a digit, while this one has to
+     be paired and counted, which is the thing this game is for. */
+  const [preset, setPreset] = useState(ODD_EVEN_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeOddEvenProblem(Math.random, ODD_EVEN_PRESETS[0]));
+  const [won, setWon] = useState(false);
+  const [wrongKey, setWrongKey] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const [showPairs, setShowPairs] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setWon(false);
+    setWrongKey(null);
+    setMisses(0);
+    setShowPairs(false);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeOddEvenProblem(Math.random, preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeOddEvenProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    /* Same rule as Which is Bigger?'s blocks rung: at the pairs rung the app must not
+       say the number, or the game is won by listening rather than by pairing and
+       counting. The number is named once the child has answered. */
+    if (preset.show === 'pairs') {
+      Voice.say('Odd or even?');
+      return;
+    }
+    Voice.lines([num(`${problem.n}.`), 'Odd or even?']);
+  }, [problem, showSettings, preset]);
+  /* The rule, said once at the second miss, states BOTH halves — CompareGame's hint
+     schedule and for the same reason: a child stuck on "even" is not helped by a hint
+     about "odd". */
+  useEffect(() => {
+    if (misses === 2) Voice.say('Pair them up! If one is left without a partner, it is odd. If they all have a partner, it is even.');
+  }, [misses]);
+  const tap = useCallback(key => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    const right = problem.odd ? 'odd' : 'even';
+    if (key === right) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${problem.n} is ${right}!`), problem.odd ? 'One is left without a partner.' : 'Everyone has a partner.']);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongKey(key);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongKey(null), 450);
+    }
+  }, [problem, won, muted, addProgress, setScore]);
+  const reveal = won || misses >= 2;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen oe-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(OddEvenSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Odd or Even?"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Pair them up!")), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, preset.show === 'numbers' ? /*#__PURE__*/React.createElement("div", {
+    className: "oe-numrow"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "oe-num"
+  }, problem.n), showPairs || reveal ? /*#__PURE__*/React.createElement(PairedObjects, {
+    n: problem.n,
+    reveal: reveal,
+    compact: problem.n > 30
+  }) : /*#__PURE__*/React.createElement("button", {
+    className: "oe-pair-btn",
+    onClick: () => {
+      Sound.tap();
+      setShowPairs(true);
+      Voice.say('Pair them up!');
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-ico"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  })), "Pair them up")) : /*#__PURE__*/React.createElement("div", {
+    className: "oe-numrow"
+  }, /*#__PURE__*/React.createElement(PairedObjects, {
+    n: problem.n,
+    reveal: reveal
+  }), preset.show === 'both' && /*#__PURE__*/React.createElement("div", {
+    className: "oe-num"
+  }, problem.n))), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, problem.n, " is ", problem.odd ? 'odd' : 'even') : /*#__PURE__*/React.createElement("div", {
+    className: "oe-keys"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `oe-key ${wrongKey === 'even' ? 'wrong' : ''} ${misses >= 2 && !problem.odd ? 'hint-glow' : ''}`,
+    onClick: () => tap('even'),
+    "aria-label": "Even. All in pairs"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-ico"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-word"
+  }, "Even"), /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-glyph"
+  }, "all in pairs")), /*#__PURE__*/React.createElement("button", {
+    className: `oe-key ${wrongKey === 'odd' ? 'wrong' : ''} ${misses >= 2 && problem.odd ? 'hint-glow' : ''}`,
+    onClick: () => tap('odd'),
+    "aria-label": "Odd. One left over"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-ico"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "oe-dot lone"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-word"
+  }, "Odd"), /*#__PURE__*/React.createElement("span", {
+    className: "oe-key-glyph"
+  }, "one left over"))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODES n1 / n2: MAKE 10 ══
+   The two number-bond games: one generator (see makeTenProblem), one frame, two
+   readings. Add to 10 shows a part-filled frame and asks what completes it — the
+   completion is DRAWN when the answer lands, because seeing 7-and-3 make one full ten
+   is the sentence the game is teaching. Take from 10 starts full, crosses k out in
+   their seats (subtraction begins at the whole), and flies them away when the answer
+   lands. On the numbers rung the equation is the question and the frame arrives only
+   with the answer — the bond has to be imagined before it is seen. */
+const TEN_CFG = {
+  n1: {
+    title: 'Add to 10',
+    sub: 'Fill the frame!',
+    hint: 'Count the empty seats. That is how many more you need.',
+    win: p => num(`${p.k} and ${p.answer} make 10.`),
+    line: p => `${p.k} + ${p.answer} = 10`
+  },
+  n2: {
+    title: 'Take from 10',
+    sub: 'Some fly away!',
+    hint: 'Count the counters that are still bright. That is how many are left.',
+    win: p => num(`10 take away ${p.k} is ${p.answer}.`),
+    line: p => `10 − ${p.k} = ${p.answer}`
+  }
+};
+function TenBondSettings({
+  modeId,
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), TEN_BOND_PRESETS[modeId].map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function TenBondGame({
+  modeId,
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const cfg = TEN_CFG[modeId];
+  const presets = TEN_BOND_PRESETS[modeId];
+  /* Opens on the frame rung: the bond is SEEN before it is recalled. */
+  const [preset, setPreset] = useState(presets[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  /* Problem, its choices and the equation's shape are one question and are generated
+     together — deriving choices in a second initializer could pair this problem's
+     answer with another problem's distractors. */
+  const [q, setQ] = useState(() => {
+    const p = makeTenProblem(Math.random, modeId);
+    return {
+      p,
+      choices: tenChoices(Math.random, p.answer, p.k),
+      form: tenForm(Math.random)
+    };
+  });
+  const [won, setWon] = useState(false);
+  const [wrongTile, setWrongTile] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const [round, setRound] = useState(0);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setQ({
+      p,
+      choices: tenChoices(Math.random, p.answer, p.k),
+      form: tenForm(Math.random)
+    });
+    setWon(false);
+    setWrongTile(null);
+    setMisses(0);
+    setRound(r => r + 1);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeTenProblem(Math.random, modeId, q.p));
+  }, [modeId, q.p, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeTenProblem(Math.random, modeId));
+    setShowSettings(false);
+  }, [modeId, resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    if (modeId === 'n1') Voice.lines([num(`${q.p.k}.`), 'How many more make ten?']);else Voice.say(num(`10 take away ${q.p.k}?`));
+  }, [q, showSettings, modeId]);
+  useEffect(() => {
+    if (misses === 2) Voice.say(cfg.hint);
+  }, [misses, cfg]);
+  const tap = useCallback(v => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (v === q.p.answer) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${q.p.answer}!`), cfg.win(q.p)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongTile(v);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongTile(null), 450);
+    }
+  }, [q, won, muted, addProgress, setScore, cfg]);
+  const countTap = useCallback(t => Voice.say(num(String(t))), []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen nb-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(TenBondSettings, {
+    modeId: modeId,
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, cfg.title), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, cfg.sub)), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+    key: round,
+    kept: q.p.k,
+    added: won ? q.p.answer : 0,
+    countWhat: won ? null : 'empty',
+    onCount: countTap
+  }) : /*#__PURE__*/React.createElement(TenFrame, {
+    key: round,
+    kept: 10 - q.p.k,
+    gone: q.p.k,
+    flyAway: won,
+    countWhat: won ? null : 'on',
+    onCount: countTap
+  })) : /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nb-eq"
+  }, modeId === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, "?"), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), "10") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, "?"), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "+"), q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), "10") : /*#__PURE__*/React.createElement(React.Fragment, null, "10", /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "\u2212"), q.p.k, /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "nb-slot nb-q"
+  }, "?"))), won && (modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+    kept: q.p.k,
+    added: q.p.answer
+  }) : /*#__PURE__*/React.createElement(TenFrame, {
+    kept: 10 - q.p.k,
+    gone: q.p.k,
+    flyAway: true
+  }))), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, cfg.line(q.p)) : /*#__PURE__*/React.createElement("div", {
+    className: "nb-tiles"
+  }, q.choices.map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    className: `nb-tile ${wrongTile === v ? 'wrong' : ''} ${misses >= 2 && v === q.p.answer ? 'hint-glow' : ''}`,
+    onClick: () => tap(v),
+    "aria-label": String(v)
+  }, v))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE h1: HUNDRED BOARD ══
+   The 100-square as both teaching object and game surface (roadmap 2026-08-28).
+   Three rungs, one board:
+     step  one move of ±1 or ±10; ±1 never crosses a row edge at this rung, so
+           "more is right, ten-more is down" is visually true on every question
+     jump  bigger and mixed moves (±20, ±11, ±9…) where the boundary truths
+           appear ON PURPOSE: 39 + 1 = 40 lands at the next row's first seat,
+           because that is where 40 lives
+     build the reverse question: given 34 → 54, choose the move (+20, not +2 —
+           the classic tens/ones confusion, asked directly)
+   The path reveal is the heart of it: on a win (or the second miss) the stops
+   of hundredPath light in tap order, so "add ten" is SEEN as one row down
+   before the number is said. */
+const HUNDRED_PRESETS = [{
+  id: 'h1step',
+  icon: ICON_EARTH,
+  tag: 'One step',
+  kind: 'step',
+  desc: '±1 and ±10'
+}, {
+  id: 'h1jump',
+  icon: ICON_ROCKET,
+  tag: 'Big jumps',
+  kind: 'jump',
+  desc: '±20, ±11, ±9'
+}, {
+  id: 'h1edge',
+  icon: ICON_SATURN,
+  tag: 'Across the edge',
+  kind: 'edge',
+  desc: '39 and one more…'
+}, {
+  id: 'h1build',
+  icon: ICON_GALAXY,
+  tag: 'Which move?',
+  kind: 'build',
+  desc: '34 → 54 was…',
+  ops: [20, 10, 2, 1, -10, -20]
+}];
+const HUNDRED_OP_WORDS = {
+  '1': 'Add one',
+  '-1': 'Take away one',
+  '10': 'Add ten',
+  '-10': 'Take away ten',
+  '20': 'Add twenty',
+  '-20': 'Take away twenty',
+  '11': 'Add eleven',
+  '9': 'Add nine',
+  '-9': 'Take away nine',
+  '-11': 'Take away eleven'
+};
+function HundredSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), HUNDRED_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function HundredGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [preset, setPreset] = useState(HUNDRED_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeHundredProblem(Math.random, HUNDRED_PRESETS[0]));
+  const [won, setWon] = useState(false);
+  const [wrongCell, setWrongCell] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setWon(false);
+    setWrongCell(null);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeHundredProblem(Math.random, preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeHundredProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  const deltaWord = d => HUNDRED_OP_WORDS[String(d)] || `${d > 0 ? 'Add ' : 'Take away '}${Math.abs(d)}`;
+  useEffect(() => {
+    if (showSettings) return;
+    if (problem.kind === 'build') Voice.lines([num(`${problem.start} goes to ${problem.target}.`), `${deltaWord(problem.delta).toLowerCase()}? No — what did we add or take away?`]);else if (problem.kind === 'edge') Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. The row is full — where does the next number live?`]);else Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. Where do you land?`]);
+  }, [problem, showSettings]);
+  /* The rule at the second miss: name the direction IN BOARD LANGUAGE, then show
+     the stops — the same schedule as the other games, with the board's own words. */
+  useEffect(() => {
+    if (misses === 2) {
+      if (problem.kind === 'build') Voice.say('Count the rows between them. Each row is ten.');else if (problem.kind === 'edge') Voice.say('The row is full. One more begins the next row, at its first seat.');else Voice.say(`${deltaWord(problem.delta)} is ${hundredMoveWords(problem.delta)}.`);
+    }
+  }, [misses, problem]);
+  const win = useCallback(() => {
+    setWon(true);
+    setConf(true);
+    Sound.ding();
+    setTimeout(() => Sound.celebrate(), 200);
+    mascot.happy();
+    const arrived = addProgress();
+    if (problem.kind === 'build') {
+      Voice.lines([arrived ? null : praise(), num(`${problem.delta > 0 ? '+' : ''}${problem.delta}!`), num(`${problem.start} plus ${problem.delta} is ${problem.target}.`)]);
+    } else if (problem.kind === 'edge') {
+      Voice.lines([arrived ? null : praise(), num(`${problem.target}!`), 'It begins the next row — that is where the number lives!']);
+    } else {
+      Voice.lines([arrived ? null : praise(), num(`${problem.target}!`), num(`${hundredMoveWords(problem.delta)}.`)]);
+    }
+    setScore(s => s + 1);
+    setTimeout(() => setConf(false), 2500);
+  }, [problem, addProgress, setScore]);
+  const tapCell = useCallback(n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (n === problem.target) {
+      win();
+    } else {
+      setWrongCell(n);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongCell(null), 450);
+    }
+  }, [problem, won, muted, win]);
+  const tapChoice = useCallback(d => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (d === problem.delta) {
+      win();
+    } else {
+      setWrongChoice(d);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongChoice(null), 450);
+    }
+  }, [problem, won, muted, win]);
+  const [wrongChoice, setWrongChoice] = useState(null);
+  const reveal = won || misses >= 2;
+  const path = problem.kind === 'build' ? reveal ? hundredPath(problem.start, problem.delta) : [] : reveal ? hundredPath(problem.start, problem.delta) : [];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen hb-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(HundredSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Hundred Board"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, preset.kind === 'build' ? 'Which move was it?' : 'Where do you land?')), problem.kind === 'build' ? /*#__PURE__*/React.createElement("div", {
+    className: "hb-question"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-qnum"
+  }, problem.start), /*#__PURE__*/React.createElement("span", {
+    className: "hb-qarrow"
+  }, "\u2192"), /*#__PURE__*/React.createElement("span", {
+    className: "hb-qnum"
+  }, problem.target)) : /*#__PURE__*/React.createElement("div", {
+    className: "hb-question"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-qnum"
+  }, problem.start), /*#__PURE__*/React.createElement("span", {
+    className: "hb-qop"
+  }, problem.delta > 0 ? '+' : '−', Math.abs(problem.delta)), /*#__PURE__*/React.createElement("span", {
+    className: "hb-qnum hb-qunk"
+  }, "?")), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBoard, {
+    start: problem.start,
+    path: path,
+    target: problem.target,
+    won: won,
+    wrongCell: wrongCell,
+    onCell: problem.kind === 'build' ? null : tapCell,
+    disabled: won,
+    compact: problem.kind === 'build'
+  })), problem.kind === 'build' && !won ? /*#__PURE__*/React.createElement("div", {
+    className: "nb-tiles hb-choices"
+  }, problem.choices.map(c => /*#__PURE__*/React.createElement("button", {
+    key: c,
+    className: `nb-tile hb-chip ${wrongChoice === c ? 'wrong' : ''} ${misses >= 2 && c === `+${problem.delta}` ? 'hint-glow' : ''}`,
+    onClick: () => {
+      const d = c.startsWith('+') ? parseInt(c.slice(1), 10) : -parseInt(c.slice(1), 10);
+      tapChoice(d);
+    },
+    "aria-label": c
+  }, c))) : null, won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE d1: SHARING IS DIVISION ══
+   Division taught as its two concrete meanings before any ÷ sign appears
+   (roadmap 2026-08-28). Rungs:
+     share  the child DEALS: tap a basket, one counter leaves the pool and lands
+            in it; when the pool empties, unequal baskets are named and reset —
+            a fair share is equal, and here that is something you make — then
+            the dealt count becomes the question (tiles)
+     each   the sharing already drawn: G equal baskets on the mat; how many in
+            each? (counting what a fair share gives you)
+     groups the grouping reading: T loose counters, "groups of e — how many
+            groups?"; the rings are drawn on the win or at two misses
+   No remainders at this tier, by the roadmap's instruction. */
+const DIVISION_PRESETS = [{
+  id: 'd1share',
+  icon: ICON_EARTH,
+  tag: 'Share it out',
+  kind: 'share',
+  desc: 'Deal them fairly'
+}, {
+  id: 'd1each',
+  icon: ICON_ROCKET,
+  tag: 'How many each?',
+  kind: 'each',
+  desc: 'Count a basket'
+}, {
+  id: 'd1groups',
+  icon: ICON_GALAXY,
+  tag: 'Make groups',
+  kind: 'groups',
+  desc: 'How many groups?'
+}];
+function DivisionSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), DIVISION_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function DivisionGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [preset, setPreset] = useState(DIVISION_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  /* Problem and its deal travel together — the dealt array's length IS problem.g,
+     so it is born in the same initializer (the 2026-08-29 browser QA caught a first
+     version whose hardcoded three plates outlived problems with two or five). */
+  const [q, setQ] = useState(() => {
+    const p = makeDivisionProblem(Math.random, DIVISION_PRESETS[0]);
+    return {
+      p,
+      dealt: p.kind === 'share' ? Array.from({
+        length: p.g
+      }, () => 0) : []
+    };
+  });
+  const problem = q.p;
+  const [phase, setPhase] = useState('ask'); /* ask → dealt-out (share rung) → answered */
+  const [unequal, setUnequal] = useState(false);
+  /* Owner direction, 2026-08-29: after TWO unfair deals the game demonstrates the
+     fair one rather than resetting again — wrong, retry, wrong again, then a
+     gentle worked dealing the child watches before answering. It never auto-solves
+     the QUESTION (the tiles still ask how many in each basket). */
+  const [badDeals, setBadDeals] = useState(0);
+  const [won, setWon] = useState(false);
+  const [wrongTile, setWrongTile] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  const demoT = useRef(null);
+  useEffect(() => () => {
+    clearTimeout(wrongT.current);
+    clearTimeout(demoT.current);
+  }, []);
+  const resetForProblem = useCallback(p => {
+    clearTimeout(demoT.current);
+    demoT.current = null;
+    setQ({
+      p,
+      dealt: p.kind === 'share' ? Array.from({
+        length: p.g
+      }, () => 0) : []
+    });
+    setWon(false);
+    setWrongTile(null);
+    setMisses(0);
+    setUnequal(false);
+    setBadDeals(0);
+    setPhase('ask');
+  }, []);
+  /* The demonstration deals round-robin, one counter every beat, so the dealing
+     is watched rather than revealed. Phase 'demo' locks the baskets while it
+     runs, then the question arrives. */
+  const demoDeal = useCallback(p => {
+    setUnequal(false);
+    setPhase('demo');
+    const order = Array.from({
+      length: p.total
+    }, (_, i) => i % p.g);
+    let step = 0;
+    const tick = () => {
+      if (step >= order.length) {
+        demoT.current = null;
+        setPhase('dealt');
+        Sound.ding();
+        Voice.lines(['Everyone gets the same.', num('How many in each basket?')]);
+        return;
+      }
+      const upto = step + 1;
+      setQ(cur => ({
+        ...cur,
+        dealt: order.slice(0, upto).reduce((nd, b) => {
+          nd[b]++;
+          return nd;
+        }, Array.from({
+          length: p.g
+        }, () => 0))
+      }));
+      Sound.tap();
+      step++;
+      demoT.current = setTimeout(tick, 260);
+    };
+    setQ(cur => ({
+      ...cur,
+      dealt: Array.from({
+        length: p.g
+      }, () => 0)
+    }));
+    demoT.current = setTimeout(tick, 600);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeDivisionProblem(Math.random, preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeDivisionProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    if (problem.kind === 'share') Voice.lines([num(`${problem.total}.`), `Share them between ${problem.g} baskets. Tap a basket to give out one.`]);else if (problem.kind === 'each') Voice.lines([num(`${problem.total}.`), `Shared equally between ${problem.g} baskets. How many in each?`]);else Voice.lines([num(`${problem.total}.`), `Groups of ${problem.e}. How many groups?`]);
+  }, [problem, showSettings]);
+  useEffect(() => {
+    if (misses === 2) {
+      if (problem.kind === 'share') Voice.say('Deal them round and round — one to this basket, one to that one. Fair shares are equal.');else if (problem.kind === 'each') Voice.say('Count the counters in one basket.');else Voice.say(`Count in ${problem.e}s. Each full group is ${problem.e}.`);
+    }
+  }, [misses, problem]);
+  const tapPlate = useCallback(i => {
+    if (phase !== 'ask' || preset.kind !== 'share') return;
+    const remaining = problem.total - q.dealt.reduce((a, b) => a + b, 0);
+    if (remaining <= 0) return;
+    Sound.tap();
+    const nd = q.dealt.slice();
+    nd[i] = nd[i] + 1;
+    setQ(cur => ({
+      ...cur,
+      dealt: nd
+    }));
+    const left = problem.total - nd.reduce((a, b) => a + b, 0);
+    if (left === 0) {
+      const fair = nd.every(c => c === nd[0]);
+      if (fair) {
+        Sound.ding();
+        setPhase('dealt');
+        Voice.lines([`You shared them equally!`, num(`How many in each basket?`)]);
+      } else {
+        setUnequal(true);
+        Sound.wrong();
+        mascot.oops();
+        const nextBad = badDeals + 1;
+        setBadDeals(nextBad);
+        if (nextBad >= 2) {
+          Voice.lines(['Let me show you.', 'One here, one there — everyone gets the same.']);
+          demoDeal(problem);
+        } else {
+          Voice.say('That share is not fair — one basket has more. Fair shares are equal. Try again!');
+          setTimeout(() => {
+            setQ(cur => ({
+              ...cur,
+              dealt: Array.from({
+                length: problem.g
+              }, () => 0)
+            }));
+            setUnequal(false);
+          }, 2200);
+        }
+      }
+    }
+  }, [phase, preset.kind, problem, q.dealt, badDeals, demoDeal, mascot]);
+  const tap = useCallback(v => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (v === problem.answer) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      if (problem.kind === 'groups') Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.total} is ${problem.g} groups of ${problem.e}.`)]);else Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.total} shared between ${problem.g} is ${problem.answer} each.`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongTile(v);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongTile(null), 450);
+    }
+  }, [problem, won, muted, addProgress, setScore]);
+  /* tiles appear once the share is dealt (share rung) or immediately otherwise;
+     near misses and the mirror facts (g and e) make the distractors. */
+  const choices = useMemo(() => {
+    const a = problem.answer;
+    const pool = [...new Set([a - 2, a - 1, a + 1, a + 2, problem.g, problem.e].filter(x => x >= 0 && x <= 10 && x !== a))];
+    return shuffleR(Math.random, [a, ...shuffleR(Math.random, pool).slice(0, 3)]);
+  }, [problem]);
+  const tilesReady = preset.kind !== 'share' || phase !== 'ask';
+  const reveal = won || misses >= 2;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen dv-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(DivisionSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Share It Out"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, preset.kind === 'groups' ? `Groups of ${problem.e}` : preset.kind === 'each' ? 'Equal baskets!' : 'Deal them fairly!')), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, preset.kind === 'share' ? /*#__PURE__*/React.createElement(ShareMat, {
+    total: problem.total,
+    plateCount: problem.g,
+    dealt: q.dealt,
+    onPlate: phase === 'ask' ? tapPlate : null
+  }) : preset.kind === 'each' ? /*#__PURE__*/React.createElement(ShareMat, {
+    total: problem.total,
+    plateCount: problem.g,
+    dealt: Array.from({
+      length: problem.g
+    }, () => problem.e)
+  }) : /*#__PURE__*/React.createElement(ShareMat, {
+    total: reveal ? 0 : problem.total,
+    plateCount: problem.g,
+    revealGroups: reveal ? problem.e : 0
+  }), unequal && /*#__PURE__*/React.createElement("div", {
+    className: "dv-unequal"
+  }, "Not fair \u2014 shares must be equal!")), tilesReady ? won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, problem.kind === 'groups' ? `${problem.total} = ${problem.g} × ${problem.e}` : `${problem.total} ÷ ${problem.g} = ${problem.answer}`) : /*#__PURE__*/React.createElement("div", {
+    className: "nb-tiles"
+  }, choices.map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    className: `nb-tile ${wrongTile === v ? 'wrong' : ''} ${misses >= 2 && v === problem.answer ? 'hint-glow' : ''}`,
+    onClick: () => tap(v),
+    "aria-label": String(v)
+  }, v))) : null, won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE q1: WHAT'S THE FRACTION? ══
+   The identify-the-fraction game the roadmap asked for, next to Read Fractions'
+   name-the-fraction toy (f1): one whole shown as a bar, a grid, a pie or a group,
+   n of d equal parts lit, and the question "what fraction is highlighted?".
+   Denominators stay visible and unsimplified at these rungs — understanding
+   "part of THIS whole" comes before reduction. Rungs widen the family:
+     easy   halves, thirds, quarters — bar and pie only
+     wide   up to sixths — all four representations, groups included
+     big    fifths to tenths — including the awkward primes and eighths */
+const FRACTION_PRESETS = [{
+  id: 'q1easy',
+  icon: ICON_EARTH,
+  tag: 'Halves – quarters',
+  denoms: [2, 3, 4],
+  shapes: ['bar', 'circle'],
+  desc: 'First fractions'
+}, {
+  id: 'q1wide',
+  icon: ICON_ROCKET,
+  tag: 'Up to sixths',
+  denoms: [2, 3, 4, 5, 6],
+  shapes: ['bar', 'circle', 'grid', 'group'],
+  desc: 'Bars, pies, grids, groups'
+}, {
+  id: 'q1big',
+  icon: ICON_GALAXY,
+  tag: 'Fifths – tenths',
+  denoms: [5, 6, 8, 10],
+  shapes: ['bar', 'grid', 'group'],
+  desc: 'Bigger families'
+}];
+function FractionSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), FRACTION_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function FractionGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [preset, setPreset] = useState(FRACTION_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [q, setQ] = useState(() => {
+    const p = makeFractionProblem(Math.random, FRACTION_PRESETS[0]);
+    return {
+      p,
+      choices: fractionChoices(Math.random, p.n, p.d)
+    };
+  });
+  const [won, setWon] = useState(false);
+  const [wrongTile, setWrongTile] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setQ({
+      p,
+      choices: fractionChoices(Math.random, p.n, p.d)
+    });
+    setWon(false);
+    setWrongTile(null);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeFractionProblem(Math.random, preset, q.p));
+  }, [preset, q.p, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeFractionProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    /* The parts are never named in the ask — counting them IS the question. The
+       group representation asks its own words: a fraction OF THE SET, so the
+       child is not left mapping pie language onto loose objects. */
+    Voice.say(q.p.shape === 'group' ? 'What fraction of the objects are lit?' : 'What fraction is highlighted?');
+  }, [q, showSettings]);
+  useEffect(() => {
+    if (misses === 2) Voice.say('Count the lit parts for the top number. Count all the parts for the bottom number.');
+  }, [misses]);
+  const tap = useCallback(v => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (v === `${q.p.n}/${q.p.d}`) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${fractionWords(q.p.n, q.p.d)}.`), num(`${q.p.n} out of ${q.p.d} equal parts.`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongTile(v);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongTile(null), 450);
+    }
+  }, [q, won, muted, addProgress, setScore]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen fr-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(FractionSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "What's the Fraction?"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Count the lit parts!")), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(FractionShape, {
+    shape: q.p.shape,
+    n: q.p.n,
+    d: q.p.d,
+    cells: q.p.cells,
+    reveal: won || misses >= 2
+  })), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, q.p.n, " / ", q.p.d) : /*#__PURE__*/React.createElement("div", {
+    className: "fr-tiles"
+  }, q.choices.map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    className: `fr-tile ${wrongTile === v ? 'wrong' : ''} ${misses >= 2 && v === `${q.p.n}/${q.p.d}` ? 'hint-glow' : ''}`,
+    onClick: () => tap(v),
+    "aria-label": v
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fr-tile-top"
+  }, v.split('/')[0]), /*#__PURE__*/React.createElement("span", {
+    className: "fr-tile-bar"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fr-tile-bot"
+  }, v.split('/')[1])))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE u1: WHICH UNIT? ══
+   Measurement's first module (roadmap 2026-08-28): not conversion — sense.
+   "How long is a pencil?" and the choice is centimetres, metres or kilometres.
+   The curated table is the whole game: each item's unit is the one a sensible
+   person uses, and the wrong choices are the other units of the SAME category,
+   so the discrimination is about size, never about trivia. */
+const MEASURE_VERBS = {
+  length: 'How long is',
+  mass: 'How heavy is',
+  capacity: 'How much water is in'
+};
+const MEASURE_WORDS = {
+  cm: 'centimetres',
+  m: 'metres',
+  km: 'kilometres',
+  g: 'grams',
+  kg: 'kilograms',
+  ml: 'millilitres',
+  l: 'litres'
+};
+function MeasureGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [problem, setProblem] = useState(() => makeMeasureProblem(Math.random));
+  const [won, setWon] = useState(false);
+  const [wrongUnit, setWrongUnit] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setWon(false);
+    setWrongUnit(null);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeMeasureProblem(Math.random, problem));
+  }, [problem, resetForProblem]);
+  useEffect(() => {
+    Voice.lines([`${MEASURE_VERBS[problem.cat]} ${problem.thing}?`]);
+  }, [problem]);
+  useEffect(() => {
+    if (misses === 2) Voice.say(problem.cat === 'length' ? 'Is it small like a pencil, big like a door, or far like a trip?' : problem.cat === 'mass' ? 'Is it light like an apple, or heavy like a dog?' : 'Is it a little bit like a spoon, or a lot like a bottle?');
+  }, [misses, problem]);
+  const tap = useCallback(unit => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (unit === problem.unit) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), `You measure it in ${MEASURE_WORDS[problem.unit]}!`]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongUnit(unit);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongUnit(null), 450);
+    }
+  }, [problem, won, muted, addProgress, setScore]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen um-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: "Units"
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Which Unit?"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Pick the sensible measure!")), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "um-thing"
+  }, /*#__PURE__*/React.createElement(MeasureGlyph, {
+    name: problem.glyph
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "um-ask"
+  }, MEASURE_VERBS[problem.cat], " ", problem.thing, "?"))), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, problem.thing.replace(/^an? /, ''), ": ", MEASURE_WORDS[problem.unit]) : /*#__PURE__*/React.createElement("div", {
+    className: "nb-tiles"
+  }, MEASURE_UNITS[problem.cat].map(([abbr, word]) => /*#__PURE__*/React.createElement("button", {
+    key: abbr,
+    className: `nb-tile um-tile ${wrongUnit === abbr ? 'wrong' : ''} ${misses >= 2 && abbr === problem.unit ? 'hint-glow' : ''}`,
+    onClick: () => tap(abbr),
+    "aria-label": word
+  }, abbr))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE a1: COVER IT (AREA) ══
+   Area from the spatial meaning up: how many unit squares a shape covers.
+   Rectangles first (the array structure is visible), then L-shapes where the
+   missing corner must be counted around. The child can tap cells to count
+   them — same interaction as the ten-frame — and the answer is the occupied
+   cell count, by construction equal to what is on screen. */
+const AREA_PRESETS = [{
+  id: 'a1rect',
+  icon: ICON_EARTH,
+  tag: 'Rectangles',
+  kind: 'rect',
+  maxSide: 5,
+  min: 4,
+  max: 20,
+  desc: 'Count the squares'
+}, {
+  id: 'alshape',
+  icon: ICON_ROCKET,
+  tag: 'L-shapes',
+  kind: 'l',
+  maxSide: 5,
+  min: 5,
+  max: 20,
+  desc: 'Around the corner'
+}];
+function AreaSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), AREA_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function AreaGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [preset, setPreset] = useState(AREA_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [q, setQ] = useState(() => {
+    const p = makeAreaProblem(Math.random, AREA_PRESETS[0]);
+    return {
+      p,
+      choices: areaChoices(Math.random, p.answer)
+    };
+  });
+  const [won, setWon] = useState(false);
+  const [wrongTile, setWrongTile] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const [round, setRound] = useState(0);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const resetForProblem = useCallback(p => {
+    setQ({
+      p,
+      choices: areaChoices(Math.random, p.answer)
+    });
+    setWon(false);
+    setWrongTile(null);
+    setMisses(0);
+    setRound(r => r + 1);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeAreaProblem(Math.random, preset, q.p));
+  }, [preset, q.p, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeAreaProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  useEffect(() => {
+    if (showSettings) return;
+    Voice.say('How many squares does the shape cover? Tap them to count!');
+  }, [q, showSettings]);
+  useEffect(() => {
+    if (misses === 2) Voice.say('Count every square the shape sits on. One tap, one square.');
+  }, [misses]);
+  const tap = useCallback(v => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (v === q.p.answer) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${q.p.answer}!`), num(`The shape covers ${q.p.answer} squares.`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongTile(v);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongTile(null), 450);
+    }
+  }, [q, won, muted, addProgress, setScore]);
+  const countTap = useCallback(t => Voice.say(num(String(t))), []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen ag-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(AreaSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Cover It"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "How many squares?")), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(AreaGrid, {
+    key: round,
+    w: q.p.w,
+    h: q.p.h,
+    cells: q.p.cells,
+    onCell: won ? null : countTap,
+    filled: won
+  })), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text"
+  }, q.p.answer, " squares") : /*#__PURE__*/React.createElement("div", {
+    className: "nb-tiles"
+  }, q.choices.map(v => /*#__PURE__*/React.createElement("button", {
+    key: v,
+    className: `nb-tile ${wrongTile === v ? 'wrong' : ''} ${misses >= 2 && v === q.p.answer ? 'hint-glow' : ''}`,
+    onClick: () => tap(v),
+    "aria-label": String(v)
+  }, v))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -8393,6 +11405,42 @@ function Home({
     className: "home-section-heading"
   }, /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
+    src: "assets-runtime/space/icons/fourstar-gold.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Make 10"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/sparkle-blue.webp",
+    alt: ""
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('n1', 'mc-pink'),
+    onClick: () => pick('n1'),
+    "aria-label": "Add to 10. Fill the frame"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "n1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Add to 10"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('n2', 'mc-purple'),
+    onClick: () => pick('n2'),
+    "aria-label": "Take from 10. Some fly away"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "n2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Take from 10"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
     src: "assets-runtime/space/icons/comet.webp",
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
@@ -8433,6 +11481,66 @@ function Home({
     className: "mode-card-label"
   }, "Fractions"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('q1', 'mc-rose'),
+    onClick: () => pick('q1'),
+    "aria-label": "What's the Fraction? Count the lit parts"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "q1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "What's the Fraction?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('oe1', 'mc-rose'),
+    onClick: () => pick('oe1'),
+    "aria-label": "Odd or Even? Pair them up"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "oe1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Odd or Even?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('h1', 'mc-purple'),
+    onClick: () => pick('h1'),
+    "aria-label": "Hundred Board. Where do you land?"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "h1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Hundred Board"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('d1', 'mc-magic'),
+    onClick: () => pick('d1'),
+    "aria-label": "Share It Out. Deal them fairly"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "d1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Share It Out"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('u1', 'mc-pink'),
+    onClick: () => pick('u1'),
+    "aria-label": "Which Unit? Pick the sensible measure"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "u1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Which Unit?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('a1', 'mc-purple'),
+    onClick: () => pick('a1'),
+    "aria-label": "Cover It. How many squares"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "a1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Cover It"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -8558,7 +11666,20 @@ function Home({
 
 /* ══ APP ══ */
 function App() {
-  const [mode, setMode] = useState(null);
+  /* QA bootstrap: `#play-<modeId>` opens straight into a game. The menu is the only
+     child-facing way in and stays so; this exists because automated browser QA of the
+     2026-08-29 expansion had to reach cards below the menu's fold on a guest whose
+     scroll input was broken, and because a deep link exercises a game's cold mount —
+     the path a real child reaches only through the launch animation. Unknown ids fall
+     through the routing to the home screen, so a stray hash can never blank the app. */
+  const [mode, setMode] = useState(() => {
+    try {
+      const m = (location.hash.match(/^#play-([a-z]+\d)$/) || [])[1];
+      return m || null;
+    } catch (e) {
+      return null;
+    }
+  });
   // The journey (0..JOURNEY_TOTAL) is shared by every game and persists,
   // so the rocket keeps flying no matter which game is played.
   // Finished journeys become trophies (localStorage).
@@ -8594,7 +11715,15 @@ function App() {
     c4: 0,
     m1: 0,
     s1: 0,
-    g1: 0
+    g1: 0,
+    oe1: 0,
+    n1: 0,
+    n2: 0,
+    h1: 0,
+    d1: 0,
+    q1: 0,
+    u1: 0,
+    a1: 0
   });
   const [muted, setMutedState] = useState(() => {
     try {
@@ -8784,6 +11913,34 @@ function App() {
   }));else if (mode === 'g1') screen = /*#__PURE__*/React.createElement(CompareGame, _extends({}, shared, {
     score: scores.g1,
     setScore: setScore('g1')
+  }));else if (mode === 'oe1') screen = /*#__PURE__*/React.createElement(OddEvenGame, _extends({}, shared, {
+    score: scores.oe1,
+    setScore: setScore('oe1')
+  }));else if (mode === 'n1') screen = /*#__PURE__*/React.createElement(TenBondGame, _extends({
+    modeId: "n1"
+  }, shared, {
+    score: scores.n1,
+    setScore: setScore('n1')
+  }));else if (mode === 'n2') screen = /*#__PURE__*/React.createElement(TenBondGame, _extends({
+    modeId: "n2"
+  }, shared, {
+    score: scores.n2,
+    setScore: setScore('n2')
+  }));else if (mode === 'h1') screen = /*#__PURE__*/React.createElement(HundredGame, _extends({}, shared, {
+    score: scores.h1,
+    setScore: setScore('h1')
+  }));else if (mode === 'd1') screen = /*#__PURE__*/React.createElement(DivisionGame, _extends({}, shared, {
+    score: scores.d1,
+    setScore: setScore('d1')
+  }));else if (mode === 'q1') screen = /*#__PURE__*/React.createElement(FractionGame, _extends({}, shared, {
+    score: scores.q1,
+    setScore: setScore('q1')
+  }));else if (mode === 'u1') screen = /*#__PURE__*/React.createElement(MeasureGame, _extends({}, shared, {
+    score: scores.u1,
+    setScore: setScore('u1')
+  }));else if (mode === 'a1') screen = /*#__PURE__*/React.createElement(AreaGame, _extends({}, shared, {
+    score: scores.a1,
+    setScore: setScore('a1')
   }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
