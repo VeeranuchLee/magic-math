@@ -106,6 +106,10 @@
     .gp-um::after{content:'';position:absolute;left:4px;top:4px;width:6px;height:10px;border-radius:2px;background:linear-gradient(135deg,#ffd54f,#f9a825)}
     .gp-ag{width:11px;height:11px;border:1.5px solid #93b7fb;border-radius:2px;background:rgba(255,255,255,.35)}
     .gp-ag.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
+    /* Number Toys preview: the digits share one red box per number (two boxes here),
+       signs blue between -- the mode's colour convention, miniaturised. */
+    .gp-npn{width:15px;height:19px;display:flex;align-items:center;justify-content:center;border:1.5px solid #ff8a80;border-radius:4px;background:rgba(255,255,255,.4);color:#c62828;font-size:.62rem;font-weight:900}
+    .gp-npo{width:13px;height:19px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:rgba(94,53,177,.12);color:#5e35b1;font-size:.66rem;font-weight:900}
     .gp-chip.q{border-style:dashed;color:#7b1fa2}
     .gp-arrow{font-size:.6rem;font-weight:900;color:#7b1fa2;opacity:.5}
     /* ── COLUMN MATHS PREVIEWS (c1-c4) ──
@@ -591,6 +595,57 @@
     .ag-cell.ag-on{background:rgba(255,255,255,.55);border:1.5px solid rgba(47,74,143,.4)}
     .ag-cell.ag-marked{background:#dceaff;box-shadow:inset 0 0 0 3px rgba(47,109,246,.7)}
     .ag-filled .ag-cell.ag-on{background:linear-gradient(135deg,#ffd54f,#f9a825);animation:tfPop .4s ease both}
+    /* ── Number Toys (np1) ──
+       The one mode that is a TOY, not a question, so its layout is a workbench:
+       controls, then the sentence rail (the work), then the trays (the material),
+       then the child's own true sentences (the record). Red boxes hold numbers,
+       blue tiles are the math signs -- the brief's colour convention, and it is
+       pedagogical, not decorative: "12" is ONE red thing made of movable digits.
+       touch-action:none on every tile is what makes pointer-drag possible on iPad
+       Safari at all; the rail still pans on its background when the sentence is
+       longer than the screen. Chrome follows this skin's pink world; the red/blue
+       number/operator convention is identical to space on purpose. */
+    .np-screen{--np-tile:clamp(54px,10.5vw,68px);--np-tray-tile:clamp(44px,8.6vw,56px);overflow-y:auto}
+    .np-controls{display:flex;gap:clamp(10px,2.5vw,18px);justify-content:center;align-items:center;position:relative;z-index:2}
+    .np-btn{font-family:inherit;font-weight:900;font-size:clamp(.9rem,2.3vw,1.1rem);padding:9px 20px;border-radius:50px;border:3px solid #f48fb1;background:linear-gradient(160deg,#fff,#ffe9f2);color:#d81b60;box-shadow:0 5px 0 #f48fb1;cursor:pointer;transition:transform .1s}
+    .np-btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #f48fb1}
+    .np-btn:disabled{opacity:.45;box-shadow:none;cursor:default}
+    .np-check{border-color:#81c784;background:linear-gradient(160deg,#fff,#e2f6e3);color:#2e7d32;box-shadow:0 5px 0 #81c784}
+    .np-check:active{box-shadow:0 1px 0 #81c784}
+    .np-rail-wrap{width:min(96vw,1000px);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 4px;position:relative;z-index:1}
+    .np-rail{display:flex;align-items:center;gap:12px;min-width:max-content;min-height:calc(var(--np-tile) + 26px);padding:0 4px}
+    .np-num{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.45);border:3px solid #ef5350;border-radius:16px;padding:5px 7px;min-height:calc(var(--np-tile) + 10px);transition:border-color .15s,box-shadow .15s}
+    .np-num.np-active{border-color:#ff8a80;animation:npBreath 1.6s ease-in-out infinite}
+    @keyframes npBreath{0%,100%{box-shadow:0 0 0 3px rgba(255,138,128,.25)}50%{box-shadow:0 0 0 6px rgba(255,138,128,.4)}}
+    .np-num.np-over{border-color:#ffd54f;box-shadow:0 0 0 4px rgba(255,213,79,.4)}
+    .np-hole{width:calc(var(--np-tile)*.66);height:calc(var(--np-tile)*.66);border:3px dashed rgba(239,83,80,.6);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#ad1457;font-size:1.5rem;font-weight:900}
+    .np-tile{width:var(--np-tile);height:var(--np-tile);border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:900;font-size:calc(var(--np-tile)*.5);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;padding:0;position:relative;z-index:1}
+    .np-digit{background:linear-gradient(160deg,#fff8f6,#ffe3dc);color:#c62828;box-shadow:0 4px 0 #ffb4a2,0 6px 14px rgba(136,14,79,.22)}
+    .np-op{width:calc(var(--np-tile)*.84);font-size:calc(var(--np-tile)*.44);background:linear-gradient(160deg,#f6f3ff,#e4dcff);color:#5e35b1;box-shadow:0 4px 0 #b39ddb,0 6px 14px rgba(136,14,79,.22)}
+    .np-lifted{opacity:.25}
+    .np-swap-target{outline:4px solid #ffd54f;outline-offset:2px}
+    .np-caret{width:0;align-self:stretch;border-left:5px solid #ffd54f;border-radius:3px;margin:0 2px;box-shadow:0 0 10px rgba(255,213,79,.85);animation:npCaretPulse .65s ease-in-out infinite alternate}
+    @keyframes npCaretPulse{from{opacity:.45}to{opacity:1}}
+    .np-feedback{font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:900;padding:7px 20px;border-radius:50px;position:relative;z-index:1;background:rgba(255,255,255,.88)}
+    .np-fb-true{color:#2e7d32;border:2.5px solid #81c784;animation:npPopIn .3s ease both}
+    .np-fb-false{color:#ef6c00;border:2.5px solid #ffcc80;animation:npPopIn .3s ease both}
+    .np-fb-hmm{color:#ad1457;border:2.5px solid #f48fb1;animation:npPopIn .3s ease both}
+    @keyframes npPopIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+    .np-trays{display:flex;gap:clamp(12px,3.5vw,36px);justify-content:center;align-items:flex-start;flex-wrap:wrap;position:relative;z-index:1;padding-top:2px}
+    .np-tray-group{background:rgba(255,255,255,.42);border:2px solid rgba(244,143,177,.55);border-radius:18px;padding:7px 12px 11px}
+    .np-tray-label{font-size:.76rem;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#ad1457;text-align:center;margin-bottom:6px}
+    .np-digits{display:grid;grid-template-columns:repeat(5,var(--np-tray-tile));gap:7px}
+    .np-ops{display:grid;grid-template-columns:repeat(4,calc(var(--np-tray-tile)*.84));gap:7px}
+    .np-tray-tile{width:var(--np-tray-tile);height:var(--np-tray-tile);--np-tile:var(--np-tray-tile)}
+    .np-history{width:min(96vw,560px);display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;z-index:1}
+    .np-history-label{font-size:.76rem;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:#ad1457}
+    .np-history-empty{font-size:.85rem;font-weight:700;color:#880e4f;opacity:.8}
+    .np-history-row{display:flex;align-items:center;gap:12px;font-family:inherit;font-weight:900;font-size:clamp(.95rem,2.6vw,1.1rem);color:#880e4f;background:rgba(255,255,255,.55);border:2px solid rgba(129,199,132,.8);border-radius:14px;padding:7px 18px;cursor:pointer;animation:npPopIn .3s ease both}
+    .np-history-row:active{transform:scale(.97)}
+    .np-history-tick{font-size:1rem}
+    .np-ghost{position:fixed;z-index:80;width:var(--np-tile);height:var(--np-tile);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:calc(var(--np-tile)*.5);pointer-events:none;transform:translate(-50%,-58%) rotate(-4deg) scale(1.08);color:#c62828;background:linear-gradient(160deg,#fff8f6,#ffe3dc);box-shadow:0 10px 24px rgba(136,14,79,.35),0 4px 0 #ffb4a2}
+    .np-ghost-op{width:calc(var(--np-tile)*.84);font-size:calc(var(--np-tile)*.44);color:#5e35b1;background:linear-gradient(160deg,#f6f3ff,#e4dcff);box-shadow:0 10px 24px rgba(136,14,79,.35),0 4px 0 #b39ddb}
+    @media (max-height:640px){.np-screen{--np-tile:clamp(46px,9vw,56px);--np-tray-tile:clamp(38px,7.5vw,46px);gap:7px}.np-history-row{padding:4px 14px}}
     /* ── The move key ──
        The board's four rules, drawn, sitting beside it on every rung (see MoveKey).
        It is a legend, not a control, so it takes horizontal room and never vertical:
@@ -3167,6 +3222,249 @@ function makeDivisionProblem(rng, preset, avoid) {
   };
 }
 
+/* ══ NUMBER TOYS (np1) — the free-play sentence builder, pure logic ══
+   The whole mode rests on ONE structural promise, and it lives here rather than in
+   the component because it is the part the tests must be able to reach: the
+   expression is a list of TOKENS, never a string, and every digit is an
+   individually addressed piece with a stable id -- so a child can pull the 2 out
+   of 12 and drop it beside a 3 while every other tile keeps its id and its place.
+   The brief's highest-priority acceptance test is run against these functions.
+
+   Invariant kept by every reducer: tokens alternate number, op, number... and the
+   list always ENDS with a number container, which may hold zero digits -- that
+   trailing container is the "active" one that consecutive digit taps append into.
+   An empty container elsewhere (its digits were pulled out) is legal on the board
+   and simply makes the statement incomplete to the evaluator. */
+const NP_DIGITS = '0123456789';
+const NP_RELATIONS = ['=', '<', '>'];
+const npIsRelation = v => NP_RELATIONS.indexOf(v) >= 0;
+const npNewBoard = mkId => [{
+  type: 'number',
+  id: mkId('n'),
+  digits: []
+}];
+const npClone = tokens => tokens.map(t => t.type === 'number' ? {
+  type: 'number',
+  id: t.id,
+  digits: t.digits.map(d => ({
+    id: d.id,
+    value: d.value
+  }))
+} : {
+  type: 'op',
+  id: t.id,
+  value: t.value
+});
+/* parseInt collapses leading zeros ("0012" reads as 12) and an empty digit list
+   reads as 0 -- callers only consult the value once npEvaluate has confirmed the
+   statement is complete, so neither case leaks into a checked sentence. */
+const npNumValue = t => parseInt(t.digits.map(d => d.value).join(''), 10) || 0;
+const npRelationCount = tokens => tokens.reduce((n, t) => n + (t.type === 'op' && npIsRelation(t.value) ? 1 : 0), 0);
+const npStatementText = tokens => tokens.map(t => t.type === 'number' ? t.digits.map(d => d.value).join('') : ` ${t.value} `).join('').trim();
+/* Every reducer returns the NEXT token list, or null when the action is refused --
+   the component's contract is that null means "bounce it back gently" and the
+   board is left exactly as it was, so a refused drop can never strand a half
+   state. mkId('n'|'o'|'d') mints the fresh ids; passing it in keeps these pure. */
+function npAddDigit(tokens, digit, mkId) {
+  if (NP_DIGITS.indexOf(digit) < 0) return null;
+  const next = npClone(tokens);
+  let last = next[next.length - 1];
+  if (!last || last.type !== 'number') {
+    last = {
+      type: 'number',
+      id: mkId('n'),
+      digits: []
+    };
+    next.push(last);
+  }
+  last.digits.push({
+    id: mkId('d'),
+    value: digit
+  });
+  return next;
+}
+function npAddOperator(tokens, op, mkId) {
+  const last = tokens[tokens.length - 1];
+  if (!last || last.type !== 'number' || last.digits.length === 0) return null; /* never two ops in a row */
+  if (npIsRelation(op) && npRelationCount(tokens) > 0) return null; /* v1: ONE relation per statement */
+  const next = npClone(tokens);
+  next.push({
+    type: 'op',
+    id: mkId('o'),
+    value: op
+  });
+  next.push({
+    type: 'number',
+    id: mkId('n'),
+    digits: []
+  });
+  return next;
+}
+function npFindDigit(tokens, digitId) {
+  for (let ti = 0; ti < tokens.length; ti++) {
+    const t = tokens[ti];
+    if (t.type !== 'number') continue;
+    const di = t.digits.findIndex(d => d.id === digitId);
+    if (di >= 0) return {
+      ti,
+      di
+    };
+  }
+  return null;
+}
+function npFindNumber(tokens, numberId) {
+  const ti = tokens.findIndex(t => t.type === 'number' && t.id === numberId);
+  return ti < 0 ? null : ti;
+}
+/* Stamp a NEW digit into a chosen container at a chosen gap (drag from the tray).
+   Index is clamped, so a drop computed against a moving caret can never escape. */
+function npInsertDigit(tokens, numberId, index, digit, mkId) {
+  if (NP_DIGITS.indexOf(digit) < 0) return null;
+  const next = npClone(tokens);
+  const ti = npFindNumber(next, numberId);
+  if (ti === null) return null;
+  const at = Math.max(0, Math.min(index, next[ti].digits.length));
+  next[ti].digits.splice(at, 0, {
+    id: mkId('d'),
+    value: digit
+  });
+  return next;
+}
+/* Move an EXISTING digit -- the defining interaction. Works within one container
+   (reorder) and across containers; the source container is left in place even
+   when emptied, because removing the box the child can still see their way back
+   from is not the same as clearing the digit they asked to move. */
+function npMoveDigit(tokens, digitId, toNumberId, index) {
+  const at = npFindDigit(tokens, digitId);
+  if (at === null) return null;
+  const next = npClone(tokens);
+  const src = next[at.ti];
+  const destTi = npFindNumber(next, toNumberId);
+  if (destTi === null) return null;
+  const dest = next[destTi];
+  const moved = src.digits[at.di];
+  src.digits.splice(at.di, 1);
+  let insert = index;
+  if (destTi === at.ti && index > at.di) insert = index - 1; /* removal shifted the tail left */
+  dest.digits.splice(Math.max(0, Math.min(insert, dest.digits.length)), 0, moved);
+  return next;
+}
+function npRemoveDigit(tokens, digitId) {
+  const at = npFindDigit(tokens, digitId);
+  if (at === null) return null;
+  const next = npClone(tokens);
+  next[at.ti].digits.splice(at.di, 1);
+  return next;
+}
+/* Operators have exactly one legal kind of slot -- between two numbers -- so the
+   board's alternation invariant means "move an operator" can only ever SWAP two
+   operators. The values move; the ids stay, which keeps React keys and the undo
+   stack honest. A swap that would matter (a relation) is still one relation. */
+function npSwapOperators(tokens, opIdA, opIdB) {
+  if (opIdA === opIdB) return null;
+  const next = npClone(tokens);
+  const a = next.find(t => t.type === 'op' && t.id === opIdA);
+  const b = next.find(t => t.type === 'op' && t.id === opIdB);
+  if (!a || !b) return null;
+  const v = a.value;
+  a.value = b.value;
+  b.value = v;
+  return next;
+}
+/* Restore from history (or rebuild after Clear+Undo): a deep clone with fresh ids,
+   because the same sentence must be placeable twice on one board without two
+   digits sharing an id. If the entry somehow lacks a trailing container, one is
+   appended so the invariant holds for whatever the child does next. */
+function npFreshIds(tokens, mkId) {
+  const out = npClone(tokens).map(t => t.type === 'number' ? {
+    type: 'number',
+    id: mkId('n'),
+    digits: t.digits.map(d => ({
+      id: mkId('d'),
+      value: d.value
+    }))
+  } : {
+    type: 'op',
+    id: mkId('o'),
+    value: t.value
+  });
+  const last = out[out.length - 1];
+  if (!last || last.type !== 'number') out.push({
+    type: 'number',
+    id: mkId('n'),
+    digits: []
+  });else if (last.digits.length > 0) out.push({
+    type: 'number',
+    id: mkId('n'),
+    digits: []
+  });
+  return out;
+}
+/* ══ the evaluator ══
+   Judgement is deliberate: it runs ONLY when the child presses Check, never while
+   they build -- a half-built sentence that happens to be true is not feedback, it
+   is a spoiler. Precedence is real maths (× ÷ before + −); the brief is explicit
+   that 2 + 3 × 4 = 14 must check TRUE. ÷ by zero is div0, never Infinity or NaN
+   in anyone's UI. Anything structurally unexpected is malformed, never a crash. */
+function npEvalSide(tokens) {
+  if (!tokens.length || tokens[0].type !== 'number' || tokens[tokens.length - 1].type !== 'number') return null;
+  const nums = [],
+    ops = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.type === 'number') nums.push(npNumValue(t));else {
+      if (i === 0 || i === tokens.length - 1) return null;
+      ops.push(t.value);
+    }
+  }
+  if (nums.length !== ops.length + 1) return null;
+  let vals = [nums[0]];
+  const rest = [];
+  for (let i = 0; i < ops.length; i++) {
+    if (ops[i] === '×') vals[vals.length - 1] *= nums[i + 1];else if (ops[i] === '÷') {
+      if (nums[i + 1] === 0) return NaN;
+      vals[vals.length - 1] /= nums[i + 1];
+    } else {
+      rest.push(ops[i]);
+      vals.push(nums[i + 1]);
+    }
+  }
+  let out = vals[0];
+  for (let i = 0; i < rest.length; i++) out += rest[i] === '+' ? vals[i + 1] : -vals[i + 1];
+  return out;
+}
+function npEvaluate(tokens) {
+  if (!tokens.length) return {
+    status: 'incomplete'
+  };
+  for (const t of tokens) if (t.type === 'number' && t.digits.length === 0) return {
+    status: 'incomplete'
+  };
+  const rels = tokens.filter(t => t.type === 'op' && npIsRelation(t.value));
+  if (rels.length === 0) return {
+    status: 'incomplete'
+  }; /* an expression, not yet a sentence */
+  if (rels.length > 1) return {
+    status: 'malformed'
+  }; /* unreachable via the reducers; guarded anyway */
+  const ri = tokens.indexOf(rels[0]);
+  const a = npEvalSide(tokens.slice(0, ri)),
+    b = npEvalSide(tokens.slice(ri + 1));
+  if (a === null || b === null) return {
+    status: 'malformed'
+  };
+  if (Number.isNaN(a) || Number.isNaN(b)) return {
+    status: 'div0'
+  };
+  const rel = rels[0].value;
+  return {
+    status: 'ok',
+    truth: rel === '=' ? a === b : rel === '<' ? a < b : a > b,
+    left: a,
+    right: b
+  };
+}
+
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
   const items = useMemo(() => BG_IMGS.map((src, i) => ({
@@ -3844,6 +4142,34 @@ function GamePreview({
   }), /*#__PURE__*/React.createElement("span", {
     className: "gp-ag"
   })));
+  if (id === 'np1') return /*#__PURE__*/ /* Number Toys — a red number box of digits, blue signs between */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      gap: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-npn"
+  }, "1"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-npn"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-npo"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-npn"
+  }, "3")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-npo"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-npn"
+  }, "1"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-npn"
+  }, "5")));
   return null;
 }
 function Stars({
@@ -10937,6 +11263,456 @@ function AreaGame({
   }, "Next"));
 }
 
+/* ══ MODE np1: NUMBER TOYS ══
+   Free number play -- the sandbox, not a quiz. The child builds sentences from
+   reusable digit and operator tiles; judgement happens ONLY when they press
+   Check, false sentences are never punished, and every digit stays an
+   individually movable piece even inside a multi-digit number. The pure logic
+   (tokens, reducers, evaluator) lives in MATH PRIMITIVES above; this section is
+   the drag-and-tap shell around it. Drag follows the pattern-blocks-app
+   precedent: grab offset fixed, setPointerCapture, a 6px tap/drag threshold,
+   and a tray press is already carrying a copy (the tray is infinite stampers,
+   never a source that runs out). */
+const NP_HIST_KEY = 'mm_nphist';
+const NP_TRAY_OPS = ['+', '−', '×', '÷', '=', '>', '<'];
+const NP_OP_WORDS = {
+  '+': 'plus',
+  '−': 'minus',
+  '×': 'times',
+  '÷': 'divided by',
+  '=': 'equals',
+  '<': 'is less than',
+  '>': 'is greater than'
+};
+/* Spoken form of a sentence. numberToWords() is defined with Read Big Numbers,
+  above this point in the file, and speaks the same words the children hear
+  there; leading zeros are kept on the BOARD but read numerically ("0012" says
+  "twelve"), which is exactly how the evaluator treats them too. */
+const npSentenceWords = tokens => tokens.map(t => t.type === 'number' ? numberToWords(t.digits.map(d => d.value).join('').replace(/^0+(?=\d)/, '') || '0') : NP_OP_WORDS[t.value]).join(' ');
+const NP_FEEDBACK = {
+  true: "✓ That's true!",
+  false: 'Not true yet — try changing something.',
+  hmm: 'Finish your sentence first.'
+};
+function NumberPlayGame({
+  onBack,
+  flowers,
+  gardenFull,
+  setFlowers,
+  setGardenFull,
+  bouquets,
+  addBouquet,
+  muted,
+  onToggleMute
+}) {
+  const idRef = useRef(0);
+  const mkId = useCallback(kind => kind + ++idRef.current, []);
+  const [tokens, setTokens] = useState(() => npNewBoard(mkId));
+  const tokensRef = useRef(tokens);
+  tokensRef.current = tokens;
+  const [undoStack, setUndoStack] = useState([]);
+  const [history, setHistory] = useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(NP_HIST_KEY) || '[]');
+      return Array.isArray(v) ? v.filter(h => h && typeof h.text === 'string' && Array.isArray(h.tokens) && h.tokens.length) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [feedback, setFeedback] = useState(null); /* 'true' | 'false' | 'hmm' */
+  const [confetti, setConfetti] = useState(false);
+  const [drag, setDragState] = useState(null);
+  const dragRef = useRef(null);
+  const setDrag = useCallback(v => {
+    dragRef.current = v;
+    setDragState(v);
+  }, []);
+  const gestureRef = useRef(null);
+  const railRef = useRef(null);
+  const mascot = useMascot();
+  const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
+  /* One snapshot per PHYSICAL action (adding, moving, deleting, clearing,
+     restoring) -- so one accidental move costs one Undo tap, never a Clear. */
+  const act = useCallback(next => {
+    if (!next) {
+      Sound.setMuted(muted);
+      Sound.wrong();
+      return false;
+    }
+    Sound.setMuted(muted);
+    Sound.tap();
+    setUndoStack(u => [...u.slice(-99), tokensRef.current]);
+    setTokens(next);
+    setFeedback(null);
+    return true;
+  }, [muted]);
+  /* The rail follows the child's building: whenever the sentence grows, the new
+     end is scrolled into view. Widths alone are not enough on iPad -- the rail
+     is a scroll box precisely so long sentences never wrap. */
+  const lastLen = tokens[tokens.length - 1] ? tokens[tokens.length - 1].digits.length : 0;
+  useEffect(() => {
+    const el = railRef.current;
+    if (el) el.scrollTo({
+      left: el.scrollWidth,
+      behavior: 'smooth'
+    });
+  }, [tokens.length, lastLen]);
+  useEffect(() => {
+    Voice.say("Build any sentence you like, then tap the check mark!");
+  }, []);
+  /* ── drag plumbing ── */
+  const computeOver = useCallback((x, y, kind) => {
+    const el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    if (kind === 'digit') {
+      if (el.closest('.np-trays')) return 'trash';
+      const numEl = el.closest('[data-np-num]');
+      if (numEl) {
+        const numId = numEl.getAttribute('data-np-num');
+        const tiles = [...numEl.querySelectorAll('[data-np-digit]')];
+        let index = tiles.length;
+        for (let i = 0; i < tiles.length; i++) {
+          const r = tiles[i].getBoundingClientRect();
+          if (x < r.left + r.width / 2) {
+            index = i;
+            break;
+          }
+        }
+        return {
+          numId,
+          index
+        };
+      }
+      return null; /* a digit never lands on an operator */
+    }
+    const opEl = el.closest('[data-np-op]');
+    if (opEl) return {
+      swap: opEl.getAttribute('data-np-op')
+    };
+    if (el.closest('[data-np-num]') || el.closest('[data-np-digit]')) return null;
+    if (el.closest('.np-rail-wrap')) return {
+      append: true
+    };
+    return null;
+  }, []);
+  const beginTray = useCallback((e, kind, value) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    gestureRef.current = {
+      id: e.pointerId,
+      source: 'tray',
+      kind,
+      value,
+      sx: e.clientX,
+      sy: e.clientY,
+      moved: false
+    };
+    setDrag({
+      kind,
+      value,
+      source: 'tray',
+      x: e.clientX,
+      y: e.clientY,
+      over: null
+    });
+  }, [setDrag]);
+  const beginBoard = useCallback((e, kind, value, id) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    gestureRef.current = {
+      id: e.pointerId,
+      source: 'board',
+      kind,
+      value,
+      digitId: kind === 'digit' ? id : null,
+      opId: kind === 'op' ? id : null,
+      sx: e.clientX,
+      sy: e.clientY,
+      moved: false
+    };
+  }, []);
+  const onMove = useCallback(e => {
+    const g = gestureRef.current;
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.moved) {
+      if (Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 6) return;
+      g.moved = true;
+      if (g.source === 'board') setDrag({
+        kind: g.kind,
+        value: g.value,
+        source: 'board',
+        digitId: g.digitId,
+        opId: g.opId,
+        x: e.clientX,
+        y: e.clientY,
+        over: null
+      });
+    }
+    const d = dragRef.current;
+    if (d) {
+      d.x = e.clientX;
+      d.y = e.clientY;
+      d.over = computeOver(e.clientX, e.clientY, g.kind);
+      setDrag({
+        ...d
+      });
+    }
+  }, [computeOver, setDrag]);
+  const relationRefused = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.wrong();
+    mascot.oops();
+    Voice.say("Just one! Equals, less than, or greater than.");
+  }, [muted, mascot]);
+  const onUp = useCallback(e => {
+    const g = gestureRef.current;
+    if (!g || e.pointerId !== g.id) return;
+    gestureRef.current = null;
+    const d = dragRef.current;
+    setDrag(null);
+    /* ── TAP (fast construction) ── */
+    if (!g.moved || !d) {
+      if (g.source === 'tray') {
+        if (g.kind === 'digit') {
+          act(npAddDigit(tokensRef.current, g.value, mkId));
+          return;
+        }
+        if (npIsRelation(g.value) && npRelationCount(tokensRef.current) > 0) {
+          relationRefused();
+          return;
+        }
+        act(npAddOperator(tokensRef.current, g.value, mkId));
+      } else {
+        Sound.setMuted(muted);
+        Sound.tap();
+        Voice.say(num(g.kind === 'digit' ? g.value : NP_OP_WORDS[g.value]));
+      }
+      return;
+    }
+    /* ── DROP ── */
+    const over = d.over;
+    if (g.kind === 'digit') {
+      if (over && over.numId) act(g.source === 'tray' ? npInsertDigit(tokensRef.current, over.numId, over.index, g.value, mkId) : npMoveDigit(tokensRef.current, g.digitId, over.numId, over.index));else if (over === 'trash' && g.source === 'board') act(npRemoveDigit(tokensRef.current, g.digitId));else {
+        Sound.setMuted(muted);
+        Sound.wrong();
+      } /* gentle bounce-back */
+    } else {
+      if (g.source === 'tray' && over && over.append) {
+        if (npIsRelation(g.value) && npRelationCount(tokensRef.current) > 0) {
+          relationRefused();
+          return;
+        }
+        act(npAddOperator(tokensRef.current, g.value, mkId));
+      } else if (g.source === 'board' && over && over.swap) {
+        act(npSwapOperators(tokensRef.current, g.opId, over.swap));
+      } else {
+        Sound.setMuted(muted);
+        Sound.wrong();
+      }
+    }
+  }, [act, mkId, muted, mascot, relationRefused, setDrag]);
+  const onCancel = useCallback(e => {
+    const g = gestureRef.current;
+    if (g && e.pointerId === g.id) {
+      gestureRef.current = null;
+      setDrag(null);
+    }
+  }, [setDrag]);
+  const undo = useCallback(() => {
+    if (!undoStack.length) return;
+    Sound.setMuted(muted);
+    Sound.tap();
+    setTokens(undoStack[undoStack.length - 1]);
+    setUndoStack(undoStack.slice(0, -1));
+    setFeedback(null);
+  }, [undoStack, muted]);
+  const clear = useCallback(() => {
+    act(npNewBoard(mkId));
+  }, [act, mkId]);
+  const restore = useCallback(entry => {
+    act(npFreshIds(entry.tokens, mkId));
+  }, [act, mkId]);
+  /* ── Check: the only place judgement happens ── */
+  const doCheck = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    const v = npEvaluate(tokensRef.current);
+    if (v.status === 'incomplete' || v.status === 'malformed') {
+      Sound.wrong();
+      mascot.oops();
+      setFeedback('hmm');
+      Voice.say("Finish your sentence first!");
+      return;
+    }
+    if (v.status === 'div0') {
+      Sound.wrong();
+      mascot.oops();
+      setFeedback('hmm');
+      Voice.say("We can't share by zero. Try another number!");
+      return;
+    }
+    const text = npStatementText(tokensRef.current);
+    const words = npSentenceWords(tokensRef.current);
+    if (v.truth) {
+      setFeedback('true');
+      setConfetti(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      setTimeout(() => setConfetti(false), 2500);
+      /* The reward and the history entry are the SAME event: a sentence earns
+         the journey/flower the first time it is checked true, and never again,
+         so re-checking one sentence can never farm progress. */
+      const already = history.some(h => h.text === text);
+      if (!already) {
+        const nh = [{
+          text,
+          tokens: npClone(tokensRef.current)
+        }, ...history].slice(0, 3);
+        setHistory(nh);
+        try {
+          localStorage.setItem(NP_HIST_KEY, JSON.stringify(nh));
+        } catch (e) {}
+        addFlower();
+        Voice.lines([praise(), "That's true!", num(words + '.')]);
+      } else {
+        Voice.lines(["That's true!", num(words + '.')]);
+      }
+    } else {
+      /* False is information, not failure: the pieces stay exactly where the
+         child put them, ready to be changed. */
+      Sound.wrong();
+      mascot.oops();
+      setFeedback('false');
+      Voice.say("Not true yet. Try changing something!");
+    }
+  }, [muted, mascot, history, addFlower]);
+  const overNum = drag && drag.kind === 'digit' && drag.over && drag.over.numId ? drag.over : null;
+  const caretAt = (numId, i) => !!(overNum && overNum.numId === numId && overNum.index === i);
+  const swapTarget = drag && drag.kind === 'op' && drag.over && drag.over.swap ? drag.over.swap : null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen np-screen",
+    onPointerMove: onMove,
+    onPointerUp: onUp,
+    onPointerCancel: onCancel
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: "Number Toys"
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "unicorn",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Number Toys"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Build your own number sentence")), /*#__PURE__*/React.createElement("div", {
+    className: "np-controls"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "np-btn",
+    onClick: undo,
+    disabled: !undoStack.length,
+    "aria-label": "Undo"
+  }, "\u21B6 Undo"), /*#__PURE__*/React.createElement("button", {
+    className: "np-btn",
+    onClick: clear,
+    "aria-label": "Clear"
+  }, "Clear"), /*#__PURE__*/React.createElement("button", {
+    className: "np-btn np-check",
+    onClick: doCheck,
+    "aria-label": "Check"
+  }, "\u2713 Check")), /*#__PURE__*/React.createElement("div", {
+    className: "np-rail-wrap",
+    ref: railRef
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-rail"
+  }, tokens.map((t, ti) => t.type === 'number' ? /*#__PURE__*/React.createElement("div", {
+    key: t.id,
+    "data-np-num": t.id,
+    className: `np-num ${ti === tokens.length - 1 ? 'np-active' : ''} ${overNum && overNum.numId === t.id ? 'np-over' : ''}`
+  }, t.digits.map((d, di) => /*#__PURE__*/React.createElement(React.Fragment, {
+    key: d.id
+  }, caretAt(t.id, di) && /*#__PURE__*/React.createElement("span", {
+    className: "np-caret"
+  }), /*#__PURE__*/React.createElement("button", {
+    className: `np-tile np-digit ${drag && drag.digitId === d.id ? 'np-lifted' : ''}`,
+    "data-np-digit": d.id,
+    onPointerDown: e => beginBoard(e, 'digit', d.value, d.id),
+    "aria-label": `digit ${d.value}`
+  }, d.value))), caretAt(t.id, t.digits.length) && /*#__PURE__*/React.createElement("span", {
+    className: "np-caret"
+  }), t.digits.length === 0 && /*#__PURE__*/React.createElement("span", {
+    className: "np-hole"
+  }, "?")) : /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    "data-np-op": t.id,
+    className: `np-tile np-op ${drag && drag.opId === t.id ? 'np-lifted' : ''} ${swapTarget === t.id ? 'np-swap-target' : ''}`,
+    onPointerDown: e => beginBoard(e, 'op', t.value, t.id),
+    "aria-label": t.value
+  }, t.value)))), feedback && /*#__PURE__*/React.createElement("div", {
+    className: `np-feedback np-fb-${feedback === 'true' ? 'true' : feedback === 'false' ? 'false' : 'hmm'}`
+  }, NP_FEEDBACK[feedback]), /*#__PURE__*/React.createElement("div", {
+    className: "np-trays"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-tray-group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-tray-label"
+  }, "Numbers"), /*#__PURE__*/React.createElement("div", {
+    className: "np-digits"
+  }, NP_DIGITS.split('').map(d => /*#__PURE__*/React.createElement("button", {
+    key: d,
+    className: "np-tile np-digit np-tray-tile",
+    onPointerDown: e => beginTray(e, 'digit', d),
+    "aria-label": `stamp digit ${d}`
+  }, d)))), /*#__PURE__*/React.createElement("div", {
+    className: "np-tray-group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-tray-label"
+  }, "Math"), /*#__PURE__*/React.createElement("div", {
+    className: "np-ops"
+  }, NP_TRAY_OPS.map(o => /*#__PURE__*/React.createElement("button", {
+    key: o,
+    className: "np-tile np-op np-tray-tile",
+    onPointerDown: e => beginTray(e, 'op', o),
+    "aria-label": `stamp ${NP_OP_WORDS[o]}`
+  }, o))))), /*#__PURE__*/React.createElement("div", {
+    className: "np-history"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-history-label"
+  }, "My true sentences"), history.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "np-history-empty"
+  }, "Tap numbers and math signs to build one!") : history.map(h => /*#__PURE__*/React.createElement("button", {
+    key: h.text,
+    className: "np-history-row",
+    onClick: () => restore(h),
+    "aria-label": `Restore ${h.text}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "np-history-text"
+  }, h.text), /*#__PURE__*/React.createElement("span", {
+    className: "np-history-tick"
+  }, "\u2705")))), drag && /*#__PURE__*/React.createElement("div", {
+    className: `np-ghost ${drag.kind === 'op' ? 'np-ghost-op' : ''}`,
+    style: {
+      left: drag.x,
+      top: drag.y
+    },
+    "aria-hidden": "true"
+  }, drag.value));
+}
+
 /* ══ HOME ══ */
 function Home({
   onSelect,
@@ -11020,6 +11796,39 @@ function Home({
       fontSize: '.85rem'
     }
   }, "\uD83D\uDC90 Bouquets collected: ", bouquets), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/flower-yellow.webp",
+    alt: "",
+    style: {
+      width: 24,
+      height: 36
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Number Toys"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/star.webp",
+    alt: "",
+    style: {
+      width: 24,
+      height: 36
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-rose",
+    onClick: () => onSelect('np1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "np1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Number Toys"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Build a sentence!")))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
     className: "home-section-heading"
@@ -11598,6 +12407,7 @@ function App() {
     score: scores.a1,
     setScore: setScore('a1')
   }));
+  if (mode === 'np1') return /*#__PURE__*/React.createElement(NumberPlayGame, shared);
   return /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     bouquets: bouquets

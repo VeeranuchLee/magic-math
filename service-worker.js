@@ -127,7 +127,18 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        claim about a public artefact, and rewriting one that devices are already
 //        holding would make this list lie about what it delivered. This release carries
 //        both change sets and must publish as v29.
-const CACHE_NAME = "magic-math-v29";
+// v30 -- 2026-08-30, Number Toys (np1, PR #338): the free-play sentence builder, in both
+//        math skins, taking each to 23 games. Carries 7 new rendered narrator clips in
+//        `shared`, which an installed iPad cannot discover without this name changing --
+//        the page and the clips arrive together or the new mode speaks through the device.
+//        Merged to main on 2026-08-30 and unpublished until now.
+//        This release is also the first published by scripts/publish-app.sh from hosted
+//        Actions rather than by a person copying files, and the first to RETIRE anything:
+//        the 21 developer tools under tools/ stop shipping and are deleted from the public
+//        repository in the same commit. Nothing a device fetches is affected by that --
+//        the browser never asked for any of them -- so it does not change what v30
+//        delivers, only what the public tree stops carrying.
+const CACHE_NAME = "magic-math-v30";
 
 const SHELL = [
   "./",
