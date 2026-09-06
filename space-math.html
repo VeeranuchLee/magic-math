@@ -1206,7 +1206,6 @@
     .fp-foot .fw-read{min-height:40px;justify-content:center}
     .fp-name{font-size:.66rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
       color:#2f6df6;opacity:.7}
-    .fp-toggle{padding:10px 12px}
     .fw-card{gap:6px;padding:14px 16px;min-width:min(96vw,760px);max-width:min(96vw,760px)}
     .fw-wall{display:flex;flex-direction:column;gap:7px;width:100%}
     .fw-row{display:grid;grid-template-columns:76px 1fr 88px;align-items:center;gap:9px}
@@ -1228,6 +1227,106 @@
     .fw-eq{font-size:.92rem;color:#5a2ed6}
     .gp-piece{width:13px;height:16px;border-radius:3px;border:1.5px solid #93b7fb;background:#e8f0ff}
     .gp-piece.on{background:linear-gradient(160deg,#2f6df6,#5a2ed6);border-color:#5a2ed6}
+
+    /* ── FRACTIONS: THE MODEL STRIP ──
+       Its own row under the title. Five 46px buttons plus gaps is 270px, which will not fit
+       beside a 410px title block and Start Over on a 768px iPad -- and a control row that
+       wraps reads as two unrelated rows to a child who cannot read the labels. */
+    .fm-strip{display:flex;align-items:center;gap:8px;padding:6px 9px;background:rgba(255,255,255,.9);
+      border:2px solid #c4d7fd;border-radius:20px;box-shadow:0 3px 10px rgba(90,46,214,.12);
+      position:relative;z-index:1}
+    .fm-btn{width:46px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;
+      border:2.5px solid #ab97f5;border-radius:14px;background:linear-gradient(135deg,#fff,#e8f0ff);
+      color:#93b7fb;cursor:pointer;transition:transform .1s,color .14s,border-color .14s}
+    .fm-btn svg{width:26px;height:26px}
+    .fm-btn:active{transform:scale(.93)}
+    /* The chosen model wears the colour of a taken piece, which is the same signal the
+       whole screen already uses for "this one is on". */
+    .fm-btn.on{background:linear-gradient(160deg,#2f6df6,#5a2ed6);border-color:#5a2ed6;color:#fff;
+      box-shadow:0 3px 0 #371a92}
+
+    /* ── FRACTIONS, NUMBER LINE ──
+       Rows reuse .fw-row's 76px | 1fr | 88px grid, which is what makes 1/2, 2/4 and 3/6 land
+       on the same vertical: nine tracks that start and end at exactly the same x. */
+    .fl-wall{gap:6px}
+    .fl-end{display:flex;align-items:center}
+    .fl-end-a{justify-content:flex-end}
+    .fl-end-b{justify-content:flex-start}
+    .fl-end img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(20,30,90,.25))}
+    /* 17px of lane padding is what lets the first and last stops hang half past the track
+       without colliding with the name or the readout. */
+    .fl-lane{padding:0 17px}
+    .fl-track{position:relative;height:34px;display:flex;align-items:center}
+    .fl-track::before{content:'';position:absolute;left:0;right:0;top:50%;height:9px;
+      transform:translateY(-50%);background:#e8f0ff;border:2px solid #93b7fb;border-radius:6px;box-sizing:border-box}
+    .fl-run{position:absolute;left:0;top:50%;height:9px;transform:translateY(-50%);
+      background:linear-gradient(90deg,#2f6df6,#5a2ed6);border-radius:6px;z-index:1;
+      transition:width .3s cubic-bezier(.34,1.56,.64,1)}
+    /* Each stop is one whole step wide, so the stops TILE the track and there is no dead
+       gap between them -- a tap anywhere on the line takes the nearer stop. */
+    .fl-stop{position:absolute;top:0;height:34px;transform:translateX(-50%);background:none;border:0;
+      padding:0;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center}
+    .fl-tick{display:block;width:4px;height:17px;border-radius:3px;background:#93b7fb}
+    /* A tick the traveller has passed sits on the coloured run, where its own colour would
+       vanish; white is the one that reads as a milestone gone by. */
+    .fl-stop.passed .fl-tick{background:#fff}
+    .fl-stop:active .fl-tick{transform:scaleY(1.35)}
+    .fl-stop:focus-visible{outline:none}
+    .fl-stop:focus-visible .fl-tick{background:#5a2ed6;box-shadow:0 0 0 3px #c4d7fd}
+    .fl-traveller{position:absolute;top:50%;width:26px;height:26px;object-fit:contain;z-index:3;
+      pointer-events:none;transform:translate(-50%,-50%) rotate(42deg);
+      transition:left .3s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 2px 4px rgba(20,30,90,.35))}
+    .fl-track-head{height:22px}
+    .fl-track-head::before{display:none}
+    .fl-zero,.fl-one{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:1rem;
+      font-weight:900;color:#2f6df6}
+    .fl-zero{left:0}
+    .fl-one{left:100%}
+    /* A phone is not the target device -- the children use a 9.7" iPad -- but at 430px the
+       76px name and the 88px readout eat more than half the row, and a twelfth's stop falls
+       to 13px. Narrowing the two end columns buys the track back to roughly 20px a stop.
+       That is honest rather than good: unlike the bar wall, where any piece is the right
+       piece, a stop you did not mean to hit is the wrong ANSWER here, so twelfths on a phone
+       stay approximate. The iPad is where this model is meant to be used. */
+    @media (max-width:520px){
+      .fl-wall .fw-row{grid-template-columns:52px 1fr 46px;gap:6px}
+      .fl-wall .fw-name{font-size:.58rem;letter-spacing:.3px}
+      .fl-wall .fw-top,.fl-wall .fw-bot{font-size:.85rem}
+      .fl-wall .fw-rule{width:15px}
+      .fl-wall .fw-one{font-size:1rem}
+      .fl-wall .fw-eq{font-size:.72rem}
+      .fl-lane{padding:0 13px}
+      .fl-end img{width:24px;height:24px}
+    }
+
+    /* ── FRACTIONS, GRID ──
+       The box is a fixed 132x88 in every one of the nine cells. An area model whose whole
+       changes size teaches that a twelfth is small because its whole is small, which is the
+       exact misconception the screen exists to remove. */
+    .fq-cell{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
+    .fq-box{display:grid;width:min(100%,132px);height:88px;border:2.5px solid #93b7fb;border-radius:10px;
+      overflow:hidden;background:#e8f0ff}
+    .fq-piece{border:1.5px solid #93b7fb;box-sizing:border-box;background:#e8f0ff;cursor:pointer;padding:0;
+      font-family:inherit;transition:background .14s ease}
+    .fq-piece.on{background:#2f6df6;animation:fpFlash .34s ease}
+    .fq-piece:active{background:#93b7fb}
+    .fq-cell.full .fq-piece.on{background:#5a2ed6}
+
+    /* ── FRACTIONS, GROUPS ──
+       The tray is the denominator. The owner's requirement -- a visible container, so the
+       child can see what counts as the whole -- is the only thing that stops a scatter of
+       stars from being "some stars" instead of "three of eight". */
+    .fs-cell{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
+    .fs-tray{display:grid;grid-auto-rows:1fr;width:min(100%,132px);height:88px;padding:5px;
+      border:2.5px dashed #93b7fb;border-radius:16px;background:#e8f0ff;box-sizing:border-box}
+    /* The buttons tile the tray. The star is the mark; the cell is the target. */
+    .fs-obj{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+      min-width:0;min-height:0;border:0;background:none;padding:1px;cursor:pointer}
+    .fs-obj img{max-width:100%;max-height:100%;width:34px;height:34px;object-fit:contain;
+      filter:grayscale(1) opacity(.3);transition:filter .16s ease,transform .16s ease}
+    .fs-obj.on img{filter:drop-shadow(0 2px 3px rgba(20,30,90,.3));transform:scale(1.08)}
+    .fs-obj:active img{transform:scale(.9)}
+    .fs-cell.full .fs-tray{border-style:solid;border-color:#5a2ed6}
 
     /* ── SCORE ROW: SPACE JOURNEY TRACK ── */
     .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
@@ -4302,6 +4401,96 @@ function BarsIcon() {
     height: "5",
     rx: "1.6",
     fill: "currentColor"
+  }));
+}
+
+/* The three models Read Fractions gained on 2026-09-06. Each icon draws the SHAPE it hands
+   the child, because this screen is for children who cannot read "line" or "grid" -- the
+   same rule the two-state pie/bar toggle already followed, now that there are five. */
+function LineIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3 15h18",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.1",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "15",
+    cy: "15",
+    r: "4.2",
+    fill: "currentColor"
+  }));
+}
+function GridIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "6",
+    width: "18",
+    height: "12",
+    rx: "1.8",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M9 6v12M15 6v12M3 12h18",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.7"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "4",
+    y: "7",
+    width: "4",
+    height: "4",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "10",
+    y: "7",
+    width: "4",
+    height: "4",
+    fill: "currentColor"
+  }));
+}
+function GroupIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "2",
+    y: "6.8",
+    width: "20",
+    height: "10.4",
+    rx: "2.8",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.9"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "7",
+    cy: "12",
+    r: "2.2",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "2.2",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.7"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "17",
+    cy: "12",
+    r: "2.2",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.7"
   }));
 }
 function RefreshIcon() {
@@ -9172,6 +9361,67 @@ function fractionWords(n, d) {
   return PART_COUNT[n] + ' ' + PART_NAMES[d][n === 1 ? 0 : 1];
 }
 
+/* ══ THE FIVE MODELS, AND WHY THEY ARE FIVE AND NOT ONE SKIN ══
+   Owner, 2026-09-06: *"Do not spend much development effort creating separate modes such
+   as pizza -> cake -> watermelon -> pie. Those are visually different but mathematically
+   almost identical to the current circle model... Each new mode should introduce a
+   different way of understanding fractions, not merely a different skin."*
+
+   So this list is a list of MEANINGS, and every entry has to earn its place by disagreeing
+   with the others:
+
+     pie    a share of one round thing        area, and the whole visible before any tap
+     bar    a length cut into equal parts     the stack that shows twelfths are tiny
+     line   a position between 0 and 1        the fraction as a NUMBER
+     grid   a rectangle cut two ways          area in two dimensions
+     group  some of a tray of separate things a fraction of a SET, nothing divided at all
+
+   FIVE ICONS, NOT A CYCLING BUTTON. Two states could be a single button that swaps its
+   own face. Five cannot: a child tapping a cycling button cannot see what is available,
+   cannot get back to the one they liked without going round again, and is being asked to
+   remember an order. The strip shows all five at once for the same reason the wall shows
+   all nine denominators at once -- a chart you cannot see the whole of is not a chart.
+
+   THEY SHARE ONE `taken`, WHICH IS THE POINT. Switching model never loses a piece, and
+   three quarters taken on the pie is three quarters when the line appears. That is the
+   equivalence the screen is for: not five games, one whole seen five ways. */
+const FRACTION_MODELS = [{
+  id: 'pie',
+  Icon: PieIcon,
+  label: 'Show fraction pies'
+}, {
+  id: 'bar',
+  Icon: BarsIcon,
+  label: 'Show fraction bars'
+}, {
+  id: 'line',
+  Icon: LineIcon,
+  label: 'Show the number line'
+}, {
+  id: 'grid',
+  Icon: GridIcon,
+  label: 'Show fraction grids'
+}, {
+  id: 'group',
+  Icon: GroupIcon,
+  label: 'Show groups of stars'
+}];
+/* The prompt names what is actually under the finger. "Tap the pieces" is a lie on a line,
+   where nothing is a piece and nothing is being cut. */
+const MODEL_SUB = {
+  pie: 'Tap the pieces!',
+  bar: 'Tap the pieces!',
+  line: 'Tap the stops!',
+  grid: 'Tap the pieces!',
+  group: 'Tap the stars!'
+};
+/* The journey and the countable object, which are this app's own: it travels from Earth to the Moon.
+   Kept together at the top so the two variants differ by four lines. */
+const FL_START = 'assets-runtime/space/icons/earth.webp';
+const FL_END = 'assets-runtime/space/icons/moon.webp';
+const FL_TRAVELLER = 'assets-runtime/space/icons/rocket.webp';
+const FG_OBJECT = 'assets-runtime/space/icons/star.webp';
+
 /* ══ THE PIE VIEW ══
    Owner, 2026-08-27: *"read fraction: i want default view to be 'pie shape' and optional
    view to be current view."*
@@ -9247,22 +9497,10 @@ function FractionPie({
     className: "fp-foot"
   }, /*#__PURE__*/React.createElement("span", {
     className: "fp-name"
-  }, label), /*#__PURE__*/React.createElement("span", {
-    className: "fw-read",
-    "aria-hidden": "true"
-  }, n > 0 && (d === 1 ? /*#__PURE__*/React.createElement("span", {
-    className: "fw-one"
-  }, "1") : /*#__PURE__*/React.createElement("span", {
-    className: "fw-frac"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "fw-top"
-  }, n), /*#__PURE__*/React.createElement("span", {
-    className: "fw-rule"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "fw-bot"
-  }, d))), full && d > 1 && /*#__PURE__*/React.createElement("span", {
-    className: "fw-eq"
-  }, "= 1"))));
+  }, label), /*#__PURE__*/React.createElement(FractionRead, {
+    n: n,
+    d: d
+  })));
 }
 function FractionRow({
   d,
@@ -9291,7 +9529,22 @@ function FractionRow({
       "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
       onClick: () => onTake(d, i)
     });
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement(FractionRead, {
+    n: n,
+    d: d
+  }));
+}
+
+/* The printed symbol, which every model shows and none of them owns. Five copies of it
+   is five places to get "3 over 4" wrong, and the rule it encodes -- NOTHING IS PRINTED
+   UNTIL A PIECE IS TAKEN, so the symbol feels caused by the tap -- is the same rule in
+   all five. The colours carry the explanation: numerator in the colour of a TAKEN piece,
+   denominator in the colour of an EMPTY one. */
+function FractionRead({
+  n,
+  d
+}) {
+  return /*#__PURE__*/React.createElement("div", {
     className: "fw-read",
     "aria-hidden": "true"
   }, n > 0 && (d === 1 ? /*#__PURE__*/React.createElement("span", {
@@ -9304,9 +9557,210 @@ function FractionRow({
     className: "fw-rule"
   }), /*#__PURE__*/React.createElement("span", {
     className: "fw-bot"
-  }, d))), full && d > 1 && /*#__PURE__*/React.createElement("span", {
+  }, d))), n >= d && d > 1 && /*#__PURE__*/React.createElement("span", {
     className: "fw-eq"
-  }, "= 1")));
+  }, "= 1"));
+}
+
+/* ══ THE NUMBER LINE ══
+   Owner, 2026-09-06, heading a written expansion plan: *"Represent fractions as positions
+   on a line... teaches that 3/4 is a number/location, not only three colored pieces"*, and
+   marked it the highest priority of seven candidate models.
+
+   IT IS THE ONE MODEL THAT DISAGREES WITH THE OTHER FOUR, which is exactly why it was
+   asked for first. A pie, a bar, a grid and a tray all answer "how much of this thing?".
+   A number line answers "WHICH NUMBER IS THIS?" -- and a child who only ever meets
+   fractions as shaded parts will happily tell you that 3/4 is three things, then be unable
+   to say where it sits between 0 and 1, or that it is bigger than a half.
+
+   TAPPING SETS A POSITION, IT DOES NOT COLLECT PIECES. Everywhere else on this screen a
+   tap ADDS one part to what you already have. Here a tap says WHERE YOU ARE: tap the third
+   stop and you are at three quarters, whether you had taken two or none. Making the line
+   accumulate like the pie would have taught the opposite of the thing it exists to teach,
+   because a location is not a count of anything.
+
+   BOTH READINGS ARE DRAWN AT ONCE, and this is the model's real gift. The traveller sits
+   ON the point -- 3/4 is HERE -- while the track behind it is coloured from 0 -- 3/4 is
+   also THIS FAR. Those are the two meanings of a fraction on a line, and a child gets them
+   in one picture instead of in two lessons.
+
+   NINE LINES, ALIGNED, NOT ONE. The stacked rows share the same 0 and the same 1, so
+   1/2 and 2/4 and 3/6 land on the same vertical -- the fraction wall's lesson, arriving
+   free with the geometry. A single journey would have been prettier and would have taught
+   one fraction at a time.
+
+   THE STOPS TILE THE TRACK. Each stop is 100/d percent wide, so they touch: the whole
+   track is live and a tap between two stops takes the nearer one. The TICK inside stays
+   4px, because the mark should be small and the target should not -- the same trade the
+   bar wall already makes at twelfths.
+
+   TAPPING THE START IS "ZERO", not a dead spot. Zero is a real place on a line and the
+   only model here that can show it, so the leftmost stop empties the row and says so.
+
+   THE JOURNEY IS PER APP -- FL_START, FL_END and FL_TRAVELLER, which each theme sets for
+   itself -- and the two endpoints are drawn
+   ONCE, in a header above the nine rows, because every one of those rows runs between the
+   same two places. Nine copies of the pair would have said there were nine wholes. */
+function FractionLine({
+  d,
+  taken,
+  onTravel
+}) {
+  const n = taken.length,
+    full = n === d;
+  const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fw-row fl-row ${full ? 'full' : ''}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-name"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "fl-lane"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fl-track"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fl-run",
+    style: {
+      width: `${n / d * 100}%`
+    }
+  }), Array.from({
+    length: d + 1
+  }, (_, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    className: `fl-stop ${i <= n ? 'passed' : ''}`,
+    style: {
+      left: `${i / d * 100}%`,
+      width: `${100 / d}%`
+    },
+    "aria-label": i === 0 ? 'go back to zero' : `travel to ${fractionWords(i, d)}`,
+    onClick: () => onTravel(d, i)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fl-tick"
+  }))), n > 0 && /*#__PURE__*/React.createElement("img", {
+    className: "fl-traveller",
+    src: FL_TRAVELLER,
+    alt: "",
+    style: {
+      left: `${n / d * 100}%`
+    }
+  }))), /*#__PURE__*/React.createElement(FractionRead, {
+    n: n,
+    d: d
+  }));
+}
+
+/* ══ THE GRID ══
+   Owner: *"Represent the whole as a rectangular grid rather than a circle or long strip"*,
+   with the layouts written out -- sixths 3x2, eighths 4x2, tenths 5x2, twelfths 4x3.
+
+   `fractionGridCols` ALREADY DREW EXACTLY THOSE, for the quiz next door: it picks the
+   divisor nearest the square root, which gives 3x2, 4x2, 5x2 and 4x3 without being told,
+   and lays a prime down in a single row. It was written so the rectangle always CLOSES --
+   `ceil(sqrt(d))` leaves 5, 8 and 10 with a ragged final row, and a whole with a bite out
+   of it is not a whole. So the grid model borrows it rather than restating the owner's
+   table, and the two screens cannot drift apart.
+
+   THE BOX IS THE SAME SIZE IN ALL NINE CELLS. That is the whole discipline of an area
+   model: if the twelfths box were smaller than the halves box, the picture would say that
+   a twelfth is small because its whole is small, which is the misconception this screen
+   was built to kill. Same outer rectangle, different cuts.
+
+   IT IS NOT A SECOND BAR. A bar is one row and reads as a LENGTH; a grid reads as an AREA,
+   two dimensions, and it is the representation that makes 2/4 and 4/8 line up later. */
+function FractionGrid({
+  d,
+  taken,
+  onTake
+}) {
+  const n = taken.length,
+    full = n === d;
+  const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fq-cell ${full ? 'full' : ''}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fq-box",
+    style: {
+      gridTemplateColumns: `repeat(${fractionGridCols(d)},1fr)`
+    },
+    role: "group",
+    "aria-label": label
+  }, Array.from({
+    length: d
+  }, (_, i) => {
+    const on = taken.includes(i);
+    return /*#__PURE__*/React.createElement("button", {
+      key: i,
+      className: `fq-piece ${on ? 'on' : ''}`,
+      "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
+      onClick: () => onTake(d, i)
+    });
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fp-foot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fp-name"
+  }, label), /*#__PURE__*/React.createElement(FractionRead, {
+    n: n,
+    d: d
+  })));
+}
+
+/* ══ THE GROUP ══
+   Owner: *"Represent a fraction as part of a collection of objects, instead of dividing
+   one object"*, with one requirement attached: *"The complete collection should have a
+   clear boundary, such as a tray, bubble, box, or container, so the child can easily
+   understand what counts as the whole."*
+
+   THAT REQUIREMENT IS THE WHOLE DIFFICULTY OF THIS MODEL, and it is well spotted. Cut a
+   circle into eight and the whole is obvious -- it is the circle, and it is still drawn
+   even where nothing has been taken. Put eight stars on a background and there is nothing
+   to say whether the whole is those eight, or those eight and some more off the edge. So
+   the tray is drawn first and the objects live inside it: the boundary is the denominator.
+
+   THE OBJECTS ARE DIM, NOT ABSENT. Eight stars are there from the start and three light
+   up, so the child can see the eight they are taking three OF. Removing the untaken five
+   would leave three stars in a tray and no visible 8 anywhere -- which is how "3 out of 8"
+   quietly turns back into "3".
+
+   THE BUTTONS TILE THE TRAY, gaps and all, so at twelfths every tap inside the boundary
+   lands on an object. The star is the mark and the cell is the target; shrinking the
+   target to the size of the art is what makes a small object unreachable. */
+function FractionGroup({
+  d,
+  taken,
+  onTake
+}) {
+  const n = taken.length,
+    full = n === d;
+  const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fs-cell ${full ? 'full' : ''}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fs-tray",
+    style: {
+      gridTemplateColumns: `repeat(${fractionGridCols(d)},1fr)`
+    },
+    role: "group",
+    "aria-label": label
+  }, Array.from({
+    length: d
+  }, (_, i) => {
+    const on = taken.includes(i);
+    return /*#__PURE__*/React.createElement("button", {
+      key: i,
+      className: `fs-obj ${on ? 'on' : ''}`,
+      "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
+      onClick: () => onTake(d, i)
+    }, /*#__PURE__*/React.createElement("img", {
+      src: FG_OBJECT,
+      alt: ""
+    }));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fp-foot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fp-name"
+  }, label), /*#__PURE__*/React.createElement(FractionRead, {
+    n: n,
+    d: d
+  })));
 }
 function FractionWall({
   onBack,
@@ -9315,10 +9769,11 @@ function FractionWall({
   onToggleMute
 }) {
   const [taken, setTaken] = useState({});
-  /* Pie by default, per the owner. Deliberately NOT remembered between visits: the default
-     is the teaching choice, and a child who taps the toggle by accident should find the pie
-     again next time rather than inherit a switch nobody meant to throw. */
-  const [pie, setPie] = useState(true);
+  /* Pie by default, per the owner, and still the default now that there are five. It is
+     deliberately NOT remembered between visits: the default is the teaching choice, and a
+     child who taps the strip by accident should find the pie again next time rather than
+     inherit a switch nobody meant to throw. */
+  const [model, setModel] = useState('pie');
   const mascot = useMascot();
   useEffect(() => {
     Voice.say('Tap the pieces to make a fraction!');
@@ -9351,6 +9806,43 @@ function FractionWall({
       };
     });
   }, []);
+
+  /* The number line's action. It sets WHERE you are rather than adding a piece, so it is a
+     separate verb from take() -- see the FractionLine note for why that distinction is the
+     whole model and not an implementation detail.
+      IT KEEPS THE PIECES THE CHILD ALREADY CHOSE. Travelling to k needs a row of length k,
+     and the honest way to get one is to keep the first k pieces already taken and fill from
+     whatever is left, rather than resetting to 0..k-1. Otherwise a child who took the last
+     three quarters on the pie, tapped the line, and went back to the pie would find their
+     pieces had silently moved to the front -- which is the same lie as filling left to
+     right under a tap on the right, and it was rejected there for the same reason.
+      IT ALWAYS SPEAKS, even when the position has not changed. Tapping the same stop twice
+     is a child asking to hear it again, and a toy that goes quiet on the second tap is
+     broken in the only way that matters here. */
+  const travel = useCallback((d, k) => {
+    setTaken(prev => {
+      const cur = prev[d] || [];
+      const next = cur.slice(0, k);
+      for (let i = 0; i < d && next.length < k; i++) if (!next.includes(i)) next.push(i);
+      Sound.tap();
+      if (k === 0) {
+        Voice.say(num('Zero.'));
+      } else if (d === 1) {
+        Sound.ding();
+        Voice.lines([num('One whole.')]);
+      } else if (k === d) {
+        Sound.ding();
+        setTimeout(() => Sound.celebrate(), 200);
+        Voice.lines([num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + '.'), num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + ' is one whole.')]);
+      } else {
+        Voice.say(num(fractionWords(k, d) + '.'));
+      }
+      return cur.length === k ? prev : {
+        ...prev,
+        [d]: next
+      };
+    });
+  }, []);
   const clear = useCallback(() => {
     Sound.tap();
     setTaken({});
@@ -9375,31 +9867,79 @@ function FractionWall({
     className: "count-title-main"
   }, "Read Fractions"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Tap the pieces!")), /*#__PURE__*/React.createElement("button", {
-    className: "rb-restart fp-toggle",
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      setPie(v => !v);
-    },
-    "aria-label": pie ? 'Show fraction bars instead' : 'Show fraction pies instead'
-  }, pie ? /*#__PURE__*/React.createElement(BarsIcon, null) : /*#__PURE__*/React.createElement(PieIcon, null)), /*#__PURE__*/React.createElement("button", {
+  }, MODEL_SUB[model])), /*#__PURE__*/React.createElement("button", {
     className: `rb-restart ${any ? '' : 'off'}`,
     onClick: clear,
     disabled: !any,
     "aria-label": "Start over"
   }, /*#__PURE__*/React.createElement(RefreshIcon, null))), /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip",
+    role: "group",
+    "aria-label": "Choose how to see the fraction"
+  }, FRACTION_MODELS.map(m => /*#__PURE__*/React.createElement("button", {
+    key: m.id,
+    className: `fm-btn ${model === m.id ? 'on' : ''}`,
+    "aria-label": m.label,
+    "aria-pressed": model === m.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      setModel(m.id);
+    }
+  }, /*#__PURE__*/React.createElement(m.Icon, null)))), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card fw-card"
-  }, pie ? /*#__PURE__*/React.createElement("div", {
+  }, model === 'pie' ? /*#__PURE__*/React.createElement("div", {
     className: "fp-grid"
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionPie, {
     key: d,
     d: d,
     taken: taken[d] || [],
     onTake: take
-  }))) : /*#__PURE__*/React.createElement("div", {
+  }))) : model === 'bar' ? /*#__PURE__*/React.createElement("div", {
     className: "fw-wall"
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionRow, {
+    key: d,
+    d: d,
+    taken: taken[d] || [],
+    onTake: take
+  }))) : model === 'line' ? /*#__PURE__*/React.createElement("div", {
+    className: "fw-wall fl-wall"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fw-row fl-head",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fl-end fl-end-a"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: FL_START,
+    alt: ""
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fl-lane"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fl-track fl-track-head"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fl-zero"
+  }, "0"), /*#__PURE__*/React.createElement("span", {
+    className: "fl-one"
+  }, "1"))), /*#__PURE__*/React.createElement("div", {
+    className: "fl-end fl-end-b"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: FL_END,
+    alt: ""
+  }))), FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionLine, {
+    key: d,
+    d: d,
+    taken: taken[d] || [],
+    onTravel: travel
+  }))) : model === 'grid' ? /*#__PURE__*/React.createElement("div", {
+    className: "fp-grid"
+  }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionGrid, {
+    key: d,
+    d: d,
+    taken: taken[d] || [],
+    onTake: take
+  }))) : /*#__PURE__*/React.createElement("div", {
+    className: "fp-grid"
+  }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionGroup, {
     key: d,
     d: d,
     taken: taken[d] || [],
