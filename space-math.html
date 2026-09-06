@@ -509,6 +509,13 @@
     .hb-board.hb-compact{--hb-cell:clamp(26px,3.3vw,34px)}
     .hb-cell{width:var(--hb-cell);height:var(--hb-cell);border-radius:9px;border:2px solid transparent;background:rgba(255,255,255,.55);color:#2f4a8f;font-family:inherit;font-size:clamp(.66rem,1.8vw,.98rem);font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-sizing:border-box;transition:transform .12s,box-shadow .12s}
     .hb-cell:active{transform:scale(.9)}
+    /* A seat the child counted through. Quieter than every other state on purpose:
+       it is the child's working, not the answer, and it must never be mistaken for
+       an accepted one — so it stays off the blue/gold/red the board already spends
+       on standing, landing and being wrong. Declared FIRST of the cell states, so
+       start, path, target and wrong all paint over it at equal specificity. */
+    .hb-cell.hb-count{background:#e3d9fb;border-color:#9d7fe0;color:#3f2e78;animation:hbCount .2s ease both}
+    @keyframes hbCount{0%{transform:scale(.86)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
     /* The number we stand on: a blue ring, sitting but not shouting. */
     .hb-cell.hb-start{border-color:#2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,.3);background:#e8f0ff}
     /* The revealed stops, lighting in tap order — the "why" of the move. */
@@ -3309,6 +3316,54 @@ function hundredPath(start, delta) {
     cur += ones > 0 ? 1 : -1;
     stops.push(cur);
   }
+  return stops;
+}
+/* ── THE SEATS ON THE WAY ARE NOT WRONG ANSWERS ──
+   Owner, 2026-09-06: *"if tab one to the left, counted as incorrect attempt, but the
+   child might only just count back one by one"*. A child asked 70 − 7 taps 69, 68,
+   67 — counting back one seat at a time, which is the right method at seven and was
+   being scored as six wrong answers. It also fired the two-miss rule and lit the
+   answer, so a child counting perfectly was corrected and then told the answer before
+   they ever reached it. The board was punishing the only strategy it had taught.
+   These are the seats a legitimate route touches. A tap on one of them is a COUNT,
+   not a guess:
+     the seats between the two numbers — the ones-at-a-time walk, counted in either
+       direction, which also contains every stop of the tens-then-ones route
+       hundredPath walks;
+     the stops of the round-a-whole-row route, when rounding a row actually saves
+       moves (|ones| ≥ 6, where one row plus a correction is shorter than counting):
+       70 − 7 as *"one row up to 60, then three seats right"* touches 60, 61 and 62,
+       none of which lies between 70 and 63, and all of which the move key beside the
+       board teaches in as many words.
+   Rounding a row is NOT forgiven for a small ones part, and that is the line: nobody
+   reaches 39 from 34 by dropping to 44 and counting back five, so a row down still
+   earns the honest "no" that is the whole lesson of the step rung. The set never
+   contains the start or the target — standing still is handled separately and the
+   target is the answer. */
+function hundredWayStops(start, delta) {
+  const target = start + delta;
+  const stops = new Set();
+  for (let n = Math.min(start, target) + 1; n < Math.max(start, target); n++) stops.add(n);
+  const tens = Math.trunc(delta / 10),
+    ones = delta - tens * 10;
+  if (Math.abs(ones) >= 6) {
+    const rows = tens + (delta > 0 ? 1 : -1),
+      rest = delta - rows * 10;
+    const seen = [];
+    let cur = start,
+      off = false;
+    const step = d => {
+      cur += d;
+      if (cur < 1 || cur > 100) off = true;else seen.push(cur);
+    };
+    for (let i = 0; i < Math.abs(rows) && !off; i++) step(rows > 0 ? 10 : -10);
+    for (let i = 0; i < Math.abs(rest) && !off; i++) step(rest > 0 ? 1 : -1);
+    /* A route that leaves the board is not a route a finger can follow, so it is
+       abandoned whole rather than contributing the seats it managed to reach. */
+    if (!off) seen.forEach(n => stops.add(n));
+  }
+  stops.delete(start);
+  stops.delete(target);
   return stops;
 }
 /* Spoken shape of a move, in board language. The words are the lesson: ten is a
@@ -9945,18 +10000,21 @@ function PairedObjects({
 
 /* The hundred board itself: numbers 1–100 in ten rows of ten, THE reusable
    teaching surface of the roadmap. States a cell can wear, in visual order of
-   strength: start (the number we stand on, blue ring), a stop on the revealed
-   path (soft glow, appearing in tap order once the answer lands or at two
-   misses — the child SEES why +10 is one row down), target (gold, on win),
-   wrong (the cell just tapped incorrectly, shakes). Everything is arithmetic
-   first: a +1 across a row edge renders as the next row's first cell because
-   that is where the number lives, not because anything wraps. */
+   strength: counted (a seat the child touched on the way — their own working,
+   kept, and the one state that never claims to be an answer), start (the number we stand on, blue
+   ring), a stop on the revealed path (soft glow, appearing in tap order once the
+   answer lands or at two misses — the child SEES why +10 is one row down),
+   target (gold, on win), wrong (the cell just tapped incorrectly, shakes).
+   Everything is arithmetic first: a +1 across a row edge renders as the next
+   row's first cell because that is where the number lives, not because anything
+   wraps. */
 function HundredBoard({
   start,
   path = [],
   target = null,
   won = false,
   wrongCell = null,
+  counted = null,
   onCell,
   disabled = false,
   compact = false
@@ -9985,7 +10043,7 @@ function HundredBoard({
     const onPath = pathIdx.has(n);
     const landed = won && n === target;
     const walking = onPath && !landed;
-    const cls = ['hb-cell', n === start ? 'hb-start' : '', walking ? 'hb-path' : '', walking && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', landed ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
+    const cls = ['hb-cell', counted && counted.has(n) ? 'hb-count' : '', n === start ? 'hb-start' : '', walking ? 'hb-path' : '', walking && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', landed ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
     return /*#__PURE__*/React.createElement("button", {
       key: n,
       className: cls,
@@ -11287,15 +11345,23 @@ function HundredGame({
   const [won, setWon] = useState(false);
   const [wrongCell, setWrongCell] = useState(null);
   const [misses, setMisses] = useState(0);
+  /* The seats the child has counted through on this question. State, not a ref,
+     because the board draws them: the walk from 70 down to 63 stays on screen as
+     the child makes it, so the counting they did is visible work rather than six
+     taps that appeared to do nothing. */
+  const [counted, setCounted] = useState(() => new Set());
   const [confetti, setConf] = useState(false);
   const mascot = useMascot();
   const wrongT = useRef(null);
+  const helped = useRef(false);
   useEffect(() => () => clearTimeout(wrongT.current), []);
   const resetForProblem = useCallback(p => {
+    helped.current = false;
     setProblem(p);
     setWon(false);
     setWrongCell(null);
     setMisses(0);
+    setCounted(new Set());
   }, []);
   const next = useCallback(() => {
     resetForProblem(makeHundredProblem(Math.random, preset, problem));
@@ -11310,13 +11376,25 @@ function HundredGame({
     if (showSettings) return;
     if (problem.kind === 'build') Voice.lines([num(`${problem.start} goes to ${problem.target}.`), `${deltaWord(problem.delta).toLowerCase()}? No — what did we add or take away?`]);else if (problem.kind === 'edge') Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. The row is full — where does the next number live?`]);else Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. Where do you land?`]);
   }, [problem, showSettings]);
+  /* Every seat this move legitimately passes through (see hundredWayStops). The
+     build rung asks for the move rather than the landing, so its board is not
+     tappable and it has no way stops at all. */
+  const way = useMemo(() => problem.kind === 'build' ? null : hundredWayStops(problem.start, problem.delta), [problem]);
+  /* WHEN THE COUNTING HAS STOPPED BEING A COUNT. Forgiving the seats on the way
+     removed the only trigger the rule had on a child who taps around the board,
+     so it gets one of its own: walking 70 down to 63 touches six seats, and going
+     up one row and across touches three, so touching MORE seats than the move is
+     long is not a route any more. It earns the same sentence a second wrong answer
+     earns — and only the sentence. `reveal` stays keyed on misses, because a
+     forgiven tap is not evidence the child needs the answer handed over. */
+  const wandered = counted.size > Math.abs(problem.delta);
   /* The rule at the second miss: name the direction IN BOARD LANGUAGE, then show
      the stops — the same schedule as the other games, with the board's own words. */
   useEffect(() => {
-    if (misses === 2) {
-      if (problem.kind === 'build') Voice.say('Count the rows between them. Each row is ten.');else if (problem.kind === 'edge') Voice.say('The row is full. One more begins the next row, at its first seat.');else Voice.say(`${deltaWord(problem.delta)} is ${hundredMoveWords(problem.delta)}.`);
-    }
-  }, [misses, problem]);
+    if (!(misses >= 2 || wandered) || helped.current) return;
+    helped.current = true;
+    if (problem.kind === 'build') Voice.say('Count the rows between them. Each row is ten.');else if (problem.kind === 'edge') Voice.say('The row is full. One more begins the next row, at its first seat.');else Voice.say(`${deltaWord(problem.delta)} is ${hundredMoveWords(problem.delta)}.`);
+  }, [misses, wandered, problem]);
   const win = useCallback(() => {
     setWon(true);
     setConf(true);
@@ -11340,15 +11418,25 @@ function HundredGame({
     if (won) return;
     if (n === problem.target) {
       win();
-    } else {
-      setWrongCell(n);
-      setMisses(m => m + 1);
-      Sound.wrong();
-      mascot.oops();
-      clearTimeout(wrongT.current);
-      wrongT.current = setTimeout(() => setWrongCell(null), 450);
+      return;
     }
-  }, [problem, won, muted, win]);
+    /* Standing still and counting are both allowed, and neither costs a miss: the
+       seat you are ON is not a guess, and a seat the move passes through is the
+       child counting. The robot reads the seat back — only when it is not already
+       talking, so a fast finger is never chased by a stutter of half-said numbers
+       and the question itself is never spoken over. */
+    if (n === problem.start || way && way.has(n)) {
+      if (way && way.has(n)) setCounted(c => c.has(n) ? c : new Set(c).add(n));
+      if (!Voice.busy()) Voice.say(num(`${n}.`));
+      return;
+    }
+    setWrongCell(n);
+    setMisses(m => m + 1);
+    Sound.wrong();
+    mascot.oops();
+    clearTimeout(wrongT.current);
+    wrongT.current = setTimeout(() => setWrongCell(null), 450);
+  }, [problem, won, muted, win, way]);
   const tapChoice = useCallback(d => {
     Sound.setMuted(muted);
     Sound.tap();
@@ -11430,6 +11518,7 @@ function HundredGame({
     target: problem.target,
     won: won,
     wrongCell: wrongCell,
+    counted: counted,
     onCell: problem.kind === 'build' ? null : tapCell,
     disabled: won,
     compact: problem.kind === 'build'

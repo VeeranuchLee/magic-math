@@ -138,7 +138,24 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        repository in the same commit. Nothing a device fetches is affected by that --
 //        the browser never asked for any of them -- so it does not change what v30
 //        delivers, only what the public tree stops carrying.
-const CACHE_NAME = "magic-math-v31";
+// v31 -- 2026-09-06, Make 100 (n3, PR #362) plus Number Toys' reward-collection row,
+//        in both math skins, taking each to 24 games. Complements to a hundred over a
+//        10 x 10 hundred block, asked both ways round.
+//        WRITTEN HERE AFTER THE FACT. The bump that armed this release (f1486642)
+//        moved the constant and added no entry, so this list said v30 while devices
+//        were served v31 -- the one thing the list exists to prevent. The entry is
+//        reconstructed from the publish record
+//        (coordination/tasks/2026-09-06-0930-claudecode-publish-make-100.md) and from
+//        the diff the release actually carried, not from memory. It claims nothing new:
+//        v31 is already in the world and this only writes down what it delivered.
+// v32 -- 2026-09-06, the Hundred Board stops marking the counting wrong (PR #365).
+//        A child asked 70 - 7 who taps 69, 68, 67 down to 63 was collecting six wrong
+//        answers on the way to being right, and the second of them fired the rule and
+//        lit the answer. The seats a real route passes through are now counted rather
+//        than guessed -- no miss, no red -- and they stay lit as the child's own trail.
+//        Both pages changed, and nothing else does: no new asset, no narration clip.
+//        An installed iPad holding v31 cannot see any of it until this name changes.
+const CACHE_NAME = "magic-math-v32";
 
 const SHELL = [
   "./",
