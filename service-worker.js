@@ -138,7 +138,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        repository in the same commit. Nothing a device fetches is affected by that --
 //        the browser never asked for any of them -- so it does not change what v30
 //        delivers, only what the public tree stops carrying.
-const CACHE_NAME = "magic-math-v30";
+const CACHE_NAME = "magic-math-v31";
 
 const SHELL = [
   "./",

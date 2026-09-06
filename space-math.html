@@ -88,6 +88,9 @@
     .gp-tf{width:10px;height:10px;border-radius:3px;border:1.5px dashed #93b7fb}
     .gp-tf.on{background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100}
     .gp-tf.gone{background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100;opacity:.45}
+    .gp-hg{display:grid;grid-template-columns:repeat(5,8px);gap:1.5px}
+    .gp-hgc{width:8px;height:8px;border-radius:2px;border:1px solid #93b7fb;background:rgba(255,255,255,.5);box-sizing:border-box}
+    .gp-hgc.on{background:linear-gradient(135deg,#8ec2ff,#4a86e8);border-color:#2f6df6}
     .gp-hc{width:9px;height:9px;border-radius:2px;border:1.5px solid #93b7fb;background:rgba(255,255,255,.5)}
     .gp-hc.on{background:linear-gradient(135deg,#8ec2ff,#4a86e8);border-color:#2f6df6}
     .gp-hc.gold{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100}
@@ -525,6 +528,81 @@
        they accompany the lit path, they never replace the question. */
     .hb-movewords{display:flex;align-items:center;justify-content:center;font-size:clamp(.95rem,3.2vw,1.35rem);font-weight:700;color:#ffd54f;text-shadow:0 2px 0 rgba(4,8,30,.45);margin:2px 0;position:relative;z-index:1}
     .hb-choices .hb-chip{width:auto;min-width:clamp(84px,20vw,120px);height:clamp(56px,13.5vw,76px);font-size:clamp(1.5rem,4.6vw,2rem)}
+    /* ── The hundred block (n3, Make 100) ──
+       A 10 × 10 whole, and every rule here is there to keep it reading as 10 × 10
+       rather than as a hundred squares. A row is a ten and fills as one; the two
+       middle lines cut the block into quarters so a part-row is SEEN (four, not
+       one-two-three-four); the ruler down the side writes what each row is worth,
+       which is what lets 64 be read as "past sixty, four more".
+       Sized so the block is the bottom half of a 768px iPad and still clears the
+       keypad on a 375px phone: `--hbk-cell` bottoms out at 21px there, where ten
+       columns plus the ruler come to ~270px. */
+    .hbk-model{--hbk-cell:clamp(21px,5.2vw,42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+    /* THE ROW GAP IS BIGGER THAN THE COLUMN GAP, and that is the whole difference
+       between a hundred block and a hundred squares. Each row reads as one strip of
+       ten — the same object as the tens rods in the counting games — while ten of
+       them still square up into the hundred. */
+    .hbk-grid{position:relative;display:grid;grid-template-columns:repeat(10,var(--hbk-cell));grid-auto-rows:var(--hbk-cell);column-gap:var(--hbk-gap);row-gap:var(--hbk-rowgap)}
+    .hbk-cell{border:1.5px solid #a9c4ee;border-radius:4px;background:rgba(255,255,255,.72);box-sizing:border-box}
+    /* At the reveal the empty half splits into its two bands — the rest of this row,
+       then the whole rows. Outlines only: the shape of the strategy without the
+       answer. These come BEFORE the filled rules on purpose, so a won cell paints
+       filled rather than outlined. */
+    .hbk-cell.hbk-up.hbk-split{border:2px dashed #e65100;background:rgba(255,213,79,.3)}
+    .hbk-cell.hbk-rows.hbk-split{border:2px dashed #f9a825;background:rgba(255,213,79,.12)}
+    /* The known part is ONE amount in ONE colour — the same blue as the tens rods in
+       the counting games — and the complement arrives in the yellow the app has always
+       used for "the piece that completes it", in two tones for the two bands. */
+    .hbk-cell.hbk-known.lit{background:linear-gradient(135deg,#8ec2ff,#4a86e8);border-color:#2f6df6}
+    /* One gold for the whole complement at the win, deliberately: 22 is ONE amount,
+       and colouring "the 2" differently from "the 20" would split the thing the win
+       is saying is whole. The two steps are still there to be seen — two squares
+       finishing a row, then two whole rows — and the outlines above are where they
+       are named, at the hint, which is where a child needs them. */
+    .hbk-cell.hbk-up.lit,.hbk-cell.hbk-rows.lit{background:linear-gradient(135deg,#ffd54f,#f9a825);border:1.5px solid #e65100;animation:tfPop .3s ease both}
+    /* The fives lines, drawn OVER the squares so they read on the filled half as
+       well as the empty one. They are what lets a part-row be seen rather than
+       counted: four is "one short of the line", six is "the line and one more". */
+    .hbk-mid{position:absolute;background:rgba(23,58,140,.5);border-radius:2px;pointer-events:none;z-index:2}
+    .hbk-mid-v{left:50%;top:-2px;bottom:-2px;width:3px;transform:translateX(-1.5px)}
+    .hbk-mid-h{top:50%;left:-2px;right:-2px;height:3px;transform:translateY(-1.5px)}
+    .hbk-ruler{display:grid;grid-template-rows:repeat(10,var(--hbk-cell));row-gap:var(--hbk-rowgap);align-items:center}
+    .hbk-tick{font-size:clamp(.66rem,1.9vw,1.05rem);font-weight:900;color:#4a6ba8;line-height:1;text-align:right;min-width:2.3em}
+    .hbk-tick-to{color:#e65100;font-size:1.15em}
+    .hbk-eq{display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);font-size:clamp(1.7rem,6vw,2.5rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);position:relative;z-index:1}
+    .hbk-eq .hbk-op{color:#ffd54f}
+    .hbk-slot{display:flex;gap:5px}
+    .hbk-box{min-width:1.05em;height:1.3em;display:flex;align-items:center;justify-content:center;padding:0 .12em;box-sizing:border-box;border:3px dashed rgba(255,213,79,.85);border-radius:13px;background:rgba(255,255,255,.14);color:#ffd54f}
+    .hbk-box.active{border-style:solid;box-shadow:0 0 0 4px rgba(255,213,79,.2)}
+    .hbk-box.wrong{animation:wrongShake .35s ease;border-color:#f44336;color:#ffcdd2}
+    .hbk-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px 8px;font-size:clamp(.9rem,3vw,1.3rem);font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(4,8,30,.45);position:relative;z-index:1}
+    .hbk-steps b{background:rgba(255,213,79,.92);color:#7a3c00;border-radius:999px;padding:1px 9px;font-size:.92em;text-shadow:none}
+    .hbk-steps i{font-style:normal;color:#ffd54f}
+    .hbk-bond{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 16px;background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:26px;padding:6px 18px;color:#2f6df6;font-size:clamp(1rem,3.6vw,1.45rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    .hbk-bond-inv{color:#5a2ed6}
+    @media (max-width:600px){
+      .hbk-model{padding:6px;gap:4px}
+      .hbk-cell{border-radius:3px;border-width:1px}
+    }
+    /* Height budget, the same idiom as .cm-screen's above: spend the viewport rather
+       than guess at it. Measured at 375x667, the smallest device in the house — the
+       page came out 744px tall inside .screen{overflow:hidden}, which put the backspace
+       key 53px BELOW the fold and out of a child's reach with no way to scroll to it.
+       These six rules bring it back inside, keeping the block the biggest thing on the
+       screen and the keys at a fingertip's height. */
+    @media (max-height:740px){
+      .hbk-screen{gap:7px}
+      .hbk-screen .count-title{padding:5px 14px}
+      .hbk-eq{font-size:clamp(1.5rem,5.4vw,2.1rem)}
+      .hbk-model{--hbk-cell:clamp(17px,4.4vw,30px);--hbk-gap:2px;--hbk-rowgap:4px;padding:6px}
+      .hbk-screen .keypad{gap:8px}
+      .hbk-screen .key-btn{height:52px}
+      /* The backspace sits bottom-LEFT in every other game, where nothing is under it.
+         Here the keypad runs to the bottom of a short screen and the corner mascot —
+         which is itself tappable — covered 71 of its 132 pixels. Measured at 375x667:
+         the mascot occupies x 10-88, and columns 4-5 start at 227. */
+      .hbk-screen .key-btn.clear{grid-column:4 / span 2}
+    }
 
     /* ── The sharing mat ──
        Division's manipulative: loose counters above, baskets below. A basket is a
@@ -3005,6 +3083,7 @@ const CARD_VOICE = {
   oe1: 'Odd or Even? Pair them up!',
   n1: 'Add to 10! Fill the frame!',
   n2: 'Take from 10! Some fly away!',
+  n3: 'Make 100! How many more make a hundred?',
   h1: 'Hundred Board! Where do you land?',
   d1: 'Share It Out! Deal them fairly!',
   q1: "What's the Fraction? Count the lit parts!",
@@ -3143,6 +3222,64 @@ function tenChoices(rng, answer, k) {
   const others = shuffleR(rng, pool.filter(x => x !== k)).slice(0, k === answer ? 3 : 2);
   const base = k === answer ? [answer] : [answer, k];
   return shuffleR(rng, [...base, ...others]);
+}
+
+/* ── Make 100 (n3) ──
+   Complements to 100 — the same bond as Make 10, one place up, and the reason it
+   needs its own generator is that `64 + ? = 100` and `100 − ? = 64` are ONE fact
+   asked two ways. They have the same known number, the same answer and the same
+   picture; only the sentence differs. A child given one shape forever learns the
+   shape, so the default rung mixes them, and the form is part of the problem rather
+   than something the screen decides on its own.
+
+   hundredBondSplit is the STRATEGY, not decoration. 36 is not thirty-six things to
+   count: it is "six more makes seventy" and then "three whole rows". Fill a 10 × 10
+   block row by row and those two parts are exactly the tail of the part-filled row
+   and the whole rows below it — which is why the block fills that way and why this
+   returns them separately. */
+const hundredBondForm = rng => rng() < .5 ? 'add' : 'take';
+/* The known number, weighted away from the facts a child gets for free. A multiple of
+   ten is one row against six and needs no ones at all, so it stays a minority (and has
+   its own rung for the child who wants only those); single digits stay in at a tenth
+   because 7 ↔ 93 is the same bond and is what bridging through 100 actually asks. The
+   two-digit non-multiples are the module's subject and get three quarters of the draws. */
+function hundredBondKnown(rng) {
+  const r = rng();
+  if (r < .10) return randR(rng, 1, 9);
+  if (r < .25) return randR(rng, 1, 9) * 10;
+  return randR(rng, 1, 9) * 10 + randR(rng, 1, 9);
+}
+/* up   how much of the known number's own row is still empty — 0 exactly when it
+        already ends a row, so "64 needs 6 to reach 70" and "40 needs nothing" are
+        the same expression rather than two cases
+   rows the whole tens under it
+   to   the ten the up-step lands on, which is always a multiple of ten
+   up + rows is always the answer. */
+function hundredBondSplit(k) {
+  const ones = k % 10;
+  const up = ones === 0 ? 0 : 10 - ones;
+  return {
+    up,
+    rows: 100 - k - up,
+    to: k + up
+  };
+}
+function makeHundredBondProblem(rng, preset, avoid) {
+  const kind = preset && preset.kind || 'mix';
+  let k = kind === 'tens' ? randR(rng, 1, 9) * 10 : hundredBondKnown(rng);
+  for (let tries = 0; tries < 40 && avoid && avoid.k === k; tries++) {
+    k = kind === 'tens' ? randR(rng, 1, 9) * 10 : hundredBondKnown(rng);
+  }
+  /* The two single-form rungs are the same maths with the mixing switched off — for
+     the child who needs one pattern at a time, and for the adult sitting beside them. */
+  const form = kind === 'add' ? 'add' : kind === 'take' ? 'take' : hundredBondForm(rng);
+  return {
+    kind,
+    k,
+    answer: 100 - k,
+    form,
+    split: hundredBondSplit(k)
+  };
 }
 
 /* ── The hundred board ──
@@ -4600,6 +4737,32 @@ function GamePreview({
   }), /*#__PURE__*/React.createElement("span", {
     className: "gp-tf on"
   })));
+  if (id === 'n3') return /*#__PURE__*/ /* Make 100 — a hundred block part filled, and the bond */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-hg"
+  }, Array.from({
+    length: 25
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: `gp-hgc${i < 16 ? ' on' : ''}`
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "64"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "?"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "100")));
   if (id === 'h1') return /*#__PURE__*/ /* Hundred Board — a mini chart with one lit jump */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -4968,7 +5131,7 @@ function ScoreRow({
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "score-row"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, score != null && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -9898,6 +10061,65 @@ function MoveKey() {
   }, /*#__PURE__*/React.createElement("i", null)));
 }
 
+/* The hundred block: the 10 × 10 whole, filled row by row. It is deliberately NOT the
+   hundred board above — that one is a hundred numbered places a child taps — and it is
+   deliberately not a hundred loose things. The structure IS the lesson, so all three of
+   its supports exist to stop one-by-one counting:
+     a row is a ten, and the block fills a row at a time;
+     the fives lines cross the middle, so a part-row is seen (four, not one-two-three-four);
+     the ruler down the side writes what each row is worth, so 64 reads as "past sixty,
+       four more" rather than being counted from one.
+   Three regions, and together they are the number bond:
+     known  the part the question gives you
+     up     the rest of the row the known part stops in — "six more makes seventy"
+     rows   the whole tens below it
+   Before the reveal, `split` is false and up + rows are simply empty seats: the SHAPE of
+   the answer is on screen from the first second, the answer is not. Byte-identical in
+   both skins; the palette lives in CSS. */
+function HundredBlock({
+  known,
+  up,
+  rows,
+  split = false,
+  filled = false,
+  label
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "hbk-model",
+    role: "img",
+    "aria-label": label
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hbk-grid"
+  }, Array.from({
+    length: 100
+  }, (_, i) => {
+    const n = i + 1;
+    const region = n <= known ? 'known' : n <= known + up ? 'up' : 'rows';
+    const lit = region === 'known' || filled;
+    return /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: `hbk-cell hbk-${region}${lit ? ' lit' : ''}${split ? ' hbk-split' : ''}`,
+      style: filled && region !== 'known' ? {
+        animationDelay: `${(n - known) * 9}ms`
+      } : null
+    });
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-mid hbk-mid-v",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-mid hbk-mid-h",
+    "aria-hidden": "true"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "hbk-ruler",
+    "aria-hidden": "true"
+  }, Array.from({
+    length: 10
+  }, (_, r) => /*#__PURE__*/React.createElement("span", {
+    key: r,
+    className: `hbk-tick${split && (r + 1) * 10 === known + up ? ' hbk-tick-to' : ''}`
+  }, (r + 1) * 10))));
+}
+
 /* The sharing mat: the division manipulative, the same counters as the ten-frame.
    A pool of loose counters above, G plates below. The share rung deals by tapping
    a plate — one counter flies into it per tap, the child CHOOSES where each goes,
@@ -10669,6 +10891,276 @@ function TenBondGame({
     onClick: () => tap(v),
     "aria-label": String(v)
   }, v))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE n3: MAKE 100 ══
+   Complements to 100, on a hundred BLOCK. It is a separate game from Make 10 rather
+   than a rung of it because the strategy is different: ten pairs can simply be known,
+   a hundred pairs cannot, and what a child actually needs is "six more makes seventy,
+   then three rows" — the two-step the block is drawn to show.
+
+   THE DEFAULT RUNG MIXES THE TWO EQUATIONS, and that is the whole design. `64 + ? = 100`
+   and `100 − ? = 64` are the same bond with the same answer and the same picture; asked
+   only one way they become a procedure ("take the number away from a hundred"), and a
+   procedure does not transfer. Mixed, the child has to read what is being asked, and the
+   two sentences printed together on the win say why they are the same fact. The single
+   forms are still one tap away for the child who wants one pattern at a time.
+
+   WHAT THIS IS BUILDING TOWARDS, and why the model is a 10 × 10 rather than a bar or a
+   number line: the same picture is 63/100, 0.63 and 63 %, and 63 + 37 = 100 is the same
+   statement as 0.63 + 0.37 = 1. None of that is taught here — this screen is fluency
+   practice and must stay fast — but the block is the surface those lessons will reuse,
+   so it is drawn correctly now rather than reinvented later.
+
+   The hint schedule is the app's usual two thresholds. Second miss: the STRATEGY —
+   the block splits into "the rest of this row" and "the whole rows", the step line
+   writes it, and the companion says it. Third miss: the answer, ghosted into the boxes.
+   Nothing is said on the first miss; a child who has just got it wrong is still trying. */
+const HUNDRED_BOND_PRESETS = [{
+  id: 'n3mix',
+  icon: ICON_GALAXY,
+  tag: 'Both ways',
+  kind: 'mix',
+  desc: '64 + ? = 100 and 100 − ? = 64'
+}, {
+  id: 'n3tens',
+  icon: ICON_EARTH,
+  tag: 'Whole rows',
+  kind: 'tens',
+  desc: '40, 70, 90 — no ones'
+}, {
+  id: 'n3add',
+  icon: ICON_ROCKET,
+  tag: 'How many more?',
+  kind: 'add',
+  desc: '64 + ? = 100'
+}, {
+  id: 'n3take',
+  icon: ICON_MARS,
+  tag: 'What went away?',
+  kind: 'take',
+  desc: '100 − ? = 64'
+}];
+function HundredBondSettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How?"), HUNDRED_BOND_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function HundredBondGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [preset, setPreset] = useState(HUNDRED_BOND_PRESETS[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [problem, setProblem] = useState(() => makeHundredBondProblem(Math.random, HUNDRED_BOND_PRESETS[0]));
+  /* One box per digit of the answer, as in Times Tables. It does say whether the
+     answer is one digit or two, which only happens above 90 and is scaffolding rather
+     than a leak: 100 − 93 really is a different shape of fact from 100 − 64. */
+  const [digits, setDigits] = useState(() => Array(String(problem.answer).length).fill(''));
+  const [won, setWon] = useState(false);
+  const [wrong, setWrong] = useState(false);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const nextIndex = digits.findIndex(d => d === '');
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setDigits(Array(String(p.answer).length).fill(''));
+    setWon(false);
+    setWrong(false);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(makeHundredBondProblem(Math.random, preset, problem));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(makeHundredBondProblem(Math.random, p));
+    setShowSettings(false);
+  }, [resetForProblem]);
+  /* The question is asked in the form's own words. The take form names the whole first —
+     subtraction starts at a hundred, and the block's frame is that hundred whichever
+     way round the sentence runs. */
+  useEffect(() => {
+    if (showSettings) return;
+    if (problem.form === 'add') Voice.lines([num(`${problem.k}.`), 'How many more make one hundred?']);else Voice.lines(['One hundred.', num(`How many go away to leave ${problem.k}?`)]);
+  }, [problem, showSettings]);
+  useEffect(() => {
+    if (misses !== 2) return;
+    const s = problem.split;
+    if (s.up > 0) Voice.lines([num(`${problem.k} and ${s.up} make ${s.to}.`), num(`Then ${s.rows} more make one hundred.`)]);else Voice.lines([num(`${problem.k} is ${problem.k / 10} whole rows.`), 'Count the empty rows. Each one is ten.']);
+  }, [misses, problem]);
+  useEffect(() => {
+    if (won || digits.some(d => d === '')) return;
+    Sound.setMuted(muted);
+    if (digits.join('') === String(problem.answer)) {
+      setWon(true);
+      setWrong(false);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(`${problem.k} and ${problem.answer} make one hundred.`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrong(true);
+      Sound.wrong();
+      mascot.oops();
+      setMisses(m => m + 1);
+      const ansStr = String(problem.answer);
+      setTimeout(() => {
+        setDigits(prev => prev.map((d, i) => d === ansStr[i] ? d : ''));
+        setWrong(false);
+      }, 650);
+    }
+  }, [digits, won, muted, problem, setScore, addProgress]);
+  const tapDigit = useCallback(n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    setDigits(prev => {
+      const idx = prev.findIndex(d => d === '');
+      if (idx < 0) return prev;
+      const out = [...prev];
+      out[idx] = String(n);
+      return out;
+    });
+  }, [muted, won]);
+  const clear = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    setDigits(prev => prev.map(() => ''));
+    setWrong(false);
+  }, [muted, won]);
+  const reveal = won || misses >= 2;
+  const s = problem.split;
+  const slot = /*#__PURE__*/React.createElement("span", {
+    className: "hbk-slot"
+  }, digits.map((d, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: `hbk-box ${nextIndex === i && !won ? 'active' : ''} ${wrong ? 'wrong' : ''}`
+  }, d || (misses >= 3 ? /*#__PURE__*/React.createElement("span", {
+    className: "ghost-hint"
+  }, String(problem.answer)[i]) : ''))));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen hbk-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(HundredBondSettings, {
+    current: preset,
+    onChange: applyPreset,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: preset.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Make 100"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, problem.form === 'add' ? 'How many more?' : 'What went away?')), /*#__PURE__*/React.createElement("div", {
+    className: "hbk-eq"
+  }, problem.form === 'add' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    className: "hbk-k"
+  }, problem.k), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-op"
+  }, "+"), slot, /*#__PURE__*/React.createElement("span", {
+    className: "hbk-op"
+  }, "="), /*#__PURE__*/React.createElement("span", null, "100")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, "100"), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-op"
+  }, "\u2212"), slot, /*#__PURE__*/React.createElement("span", {
+    className: "hbk-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-k"
+  }, problem.k))), reveal && !won ? /*#__PURE__*/React.createElement("div", {
+    className: "hbk-steps",
+    "aria-live": "polite"
+  }, s.up > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, problem.k), /*#__PURE__*/React.createElement("b", null, "+", s.up), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, s.to), /*#__PURE__*/React.createElement("b", null, "+", s.rows), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, "100")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, problem.k), /*#__PURE__*/React.createElement("b", null, "+", s.rows), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, "100"))) : null, won ? /*#__PURE__*/React.createElement("div", {
+    className: "hbk-bond"
+  }, /*#__PURE__*/React.createElement("span", null, problem.k, " + ", problem.answer, " = 100"), /*#__PURE__*/React.createElement("span", {
+    className: "hbk-bond-inv"
+  }, "100 \u2212 ", problem.answer, " = ", problem.k)) : null, /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBlock, {
+    known: problem.k,
+    up: s.up,
+    rows: s.rows,
+    split: reveal,
+    filled: won,
+    label: won ? `A hundred block, ${problem.k} and ${problem.answer} together filling all one hundred squares.` : `A hundred block with ${problem.k} of its hundred squares filled.`
+  })), !won && /*#__PURE__*/React.createElement("div", {
+    className: "keypad"
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    className: "key-btn",
+    onClick: () => tapDigit(n)
+  }, n)), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: clear,
+    "aria-label": "Clear"
+  }, /*#__PURE__*/React.createElement(BackspaceIcon, null))), won && /*#__PURE__*/React.createElement("button", {
     className: "next-btn",
     onClick: next,
     "aria-label": "Next"
@@ -12223,6 +12715,9 @@ function NumberPlayGame({
     muted: muted,
     onToggleMute: onToggleMute,
     label: "Number Toys"
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    journey: journey,
+    trophies: trophies
   }), /*#__PURE__*/React.createElement(Mascot, {
     kind: "rocket",
     mood: mascot.mood,
@@ -12535,7 +13030,7 @@ function Home({
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Make 10"), /*#__PURE__*/React.createElement("img", {
+  }, "Make 10 & 100"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/sparkle-blue.webp",
     alt: ""
@@ -12561,6 +13056,16 @@ function Home({
     className: "mode-card-label"
   }, "Take from 10"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('n3', 'mc-magic'),
+    onClick: () => pick('n3'),
+    "aria-label": "Make 100. How many more make a hundred?"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "n3"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Make 100"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -12845,6 +13350,7 @@ function App() {
     oe1: 0,
     n1: 0,
     n2: 0,
+    n3: 0,
     h1: 0,
     d1: 0,
     q1: 0,
@@ -13051,6 +13557,9 @@ function App() {
   }, shared, {
     score: scores.n2,
     setScore: setScore('n2')
+  }));else if (mode === 'n3') screen = /*#__PURE__*/React.createElement(HundredBondGame, _extends({}, shared, {
+    score: scores.n3,
+    setScore: setScore('n3')
   }));else if (mode === 'h1') screen = /*#__PURE__*/React.createElement(HundredGame, _extends({}, shared, {
     score: scores.h1,
     setScore: setScore('h1')
