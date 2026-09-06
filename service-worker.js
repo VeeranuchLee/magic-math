@@ -155,7 +155,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        than guessed -- no miss, no red -- and they stay lit as the child's own trail.
 //        Both pages changed, and nothing else does: no new asset, no narration clip.
 //        An installed iPad holding v31 cannot see any of it until this name changes.
-const CACHE_NAME = "magic-math-v32";
+const CACHE_NAME = "magic-math-v33";
 
 const SHELL = [
   "./",

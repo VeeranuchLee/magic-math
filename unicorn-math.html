@@ -557,7 +557,16 @@
        Sized so the block is the bottom half of a 768px iPad and still clears the
        keypad on a 375px phone: `--hbk-cell` bottoms out at 21px there, where ten
        columns plus the ruler come to ~270px. */
-    .hbk-model{--hbk-cell:clamp(21px,5.2vw,42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+    /* THE CELL IS SIZED BY THE VIEWPORT'S HEIGHT AS WELL AS ITS WIDTH — the same
+       "spend the viewport, do not guess" idiom as .cb-ladder above, and it became
+       necessary when the keys moved above the block: the model is now the LAST thing on
+       the page, so anything that grows above it pushes the hundredth square off the
+       bottom of a screen that cannot scroll.
+       The 720px is measured, not chosen: on the taller of the two skins at 768 x 1024 the
+       chrome above the model is 587, .screen's bottom padding is 24, the panel's own
+       border and padding are 22, and the nine row gaps are 81 — 714 of fixed cost before
+       a single cell is drawn. What is left, divided by ten rows, is what a cell may be. */
+    .hbk-model{--hbk-cell:clamp(14px,min(5.2vw,(100vh - 720px)/10),42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
     /* THE ROW GAP IS BIGGER THAN THE COLUMN GAP, and that is the whole difference
        between a hundred block and a hundred squares. Each row reads as one strip of
        ten — the same object as the tens rods in the counting games — while ten of
@@ -602,8 +611,23 @@
     .hbk-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px 8px;font-size:clamp(.9rem,3vw,1.3rem);font-weight:900;color:#7b1fa2;background:rgba(255,255,255,.85);border:2px solid #f8bbd0;border-radius:22px;padding:3px 14px;position:relative;z-index:1}
     .hbk-steps b{background:linear-gradient(135deg,#ffd54f,#f9a825);color:#7a3c00;border-radius:999px;padding:1px 9px;font-size:.92em}
     .hbk-steps i{font-style:normal;color:#e91e63}
-    .hbk-bond{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 16px;background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:26px;padding:6px 18px;color:#e91e63;font-size:clamp(1rem,3.6vw,1.45rem);font-weight:900;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1}
+    /* The reserved row. Its height is derived from the tallest thing it can hold — the
+       bond pill — rather than typed in as a number, so the two cannot drift apart: one
+       custom property drives the pill's font size and the row's height together.
+       17px is the pill's own box: 2 x 6px padding plus 2 x 2.5px border. */
+    .hbk-note{--note-font:clamp(1rem,3.6vw,1.45rem);min-height:calc(var(--note-font) * 1.3 + 17px);display:flex;align-items:center;justify-content:center;width:100%;position:relative;z-index:1}
+    .hbk-bond{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 16px;background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:26px;padding:6px 18px;color:#e91e63;font-size:var(--note-font);font-weight:900;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1}
     .hbk-bond-inv{color:#5a2ed6}
+    /* The keys live between the question and the block, so their slot has to keep its
+       height when they go: the win swaps the keypad for Next INSIDE this box, and the
+       hundred block below it does not move while it is completing. */
+    .hbk-entry{position:relative;display:flex;align-items:center;justify-content:center}
+    .keypad.spent{visibility:hidden}
+    /* Scoped through .hbk-entry on purpose: .next-btn's own rules are defined further
+       down this stylesheet, so a bare .hbk-next would lose position and the press
+       animation to them on equal specificity. */
+    .hbk-entry .hbk-next{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+    .hbk-entry .hbk-next:active{transform:translate(-50%,-50%) translateY(4px)}
     @media (max-width:600px){
       .hbk-model{padding:6px;gap:4px}
       .hbk-cell{border-radius:3px;border-width:1px}
@@ -615,18 +639,37 @@
        These six rules bring it back inside, keeping the block the biggest thing on the
        screen and the keys at a fingertip's height. */
     @media (max-height:740px){
-      .hbk-screen{gap:7px}
+      .hbk-screen{gap:5px}
       .hbk-screen .count-title{padding:5px 14px}
       .hbk-eq{font-size:clamp(1.5rem,5.4vw,2.1rem)}
-      .hbk-model{--hbk-cell:clamp(17px,4.4vw,30px);--hbk-gap:2px;--hbk-rowgap:4px;padding:6px}
+      /* No --hbk-cell here on purpose: the one formula above already answers "how big may
+         a cell be on a screen this tall", and a second, height-blind clamp overriding it
+         was exactly what made the short tier clip instead of shrink. The gaps still
+         tighten, because those are about a small screen's width, not its height. */
+      .hbk-model{--hbk-gap:2px;--hbk-rowgap:4px;padding:6px}
       .hbk-screen .keypad{gap:8px}
-      .hbk-screen .key-btn{height:52px}
-      /* The backspace sits bottom-LEFT in every other game, where nothing is under it.
-         Here the keypad runs to the bottom of a short screen and the corner mascot —
-         which is itself tappable — covered 71 of its 132 pixels. Measured at 375x667:
-         the mascot occupies x 10-88, and columns 4-5 start at 227. */
-      .hbk-screen .key-btn.clear{grid-column:4 / span 2}
+      .hbk-screen .key-btn{height:48px}
+      /* .screen's 24px bottom padding is spent below the fold on a short phone and buys
+         nothing; the block needs those pixels. With the keys at 48 and this at 10, the
+         hundred's last row lands 26px clear of the bottom instead of 2. */
+      .hbk-screen{padding-bottom:10px}
     }
+    /* THE BLOCK OUTRANKS THE MASCOT, and only on this screen. Moving the keys above the
+       model (owner, 2026-09-06) put the block at the bottom of the page, where the fixed
+       corner mascot lives — measured at 375x667, the rocket covered an 18 x 54px bite out
+       of the block's bottom-left corner, which is the last row and a bit of the row above
+       it. Centring the block elsewhere or shrinking it to clear the mascot both cost the
+       teaching object something; letting the mascot tuck behind the panel costs it
+       nothing. z-index 7 clears the mascot's 6 and stays under the modals, the top-bar
+       buttons and the confetti. The mascot is company; the hundred is the lesson.
+
+       It goes on .oe-stage, NOT on .hbk-model. The stage is `position:relative;z-index:1`,
+       which makes it a stacking context — so a z-index on the panel inside it is scoped to
+       the stage and never competes with the mascot at all. Measured, not reasoned: the
+       first attempt put 7 on the panel, computed style said 7, and elementsFromPoint still
+       returned the mascot on top. Scoped to .hbk-screen so the four other games that share
+       .oe-stage keep the stacking they have. */
+    .hbk-screen .oe-stage{z-index:7}
 
     /* ── The sharing mat ──
        Division's manipulative: loose counters above, baskets below. A basket is a
@@ -10476,7 +10519,9 @@ function HundredBondGame({
   useEffect(() => {
     if (misses !== 2) return;
     const s = problem.split;
-    if (s.up > 0) Voice.lines([num(`${problem.k} and ${s.up} make ${s.to}.`), num(`Then ${s.rows} more make one hundred.`)]);else Voice.lines([num(`${problem.k} is ${problem.k / 10} whole rows.`), 'Count the empty rows. Each one is ten.']);
+    if (s.up > 0 && s.rows > 0) Voice.lines([num(`${problem.k} and ${s.up} make ${s.to}.`), num(`Then ${s.rows} more make one hundred.`)]);
+    /* No whole rows left: everything missing is in the row the number already sits in,
+       so the rule is the ten-frame's rule — count the empty seats. */else if (s.up > 0) Voice.lines([num(`${problem.k} is in the last row.`), 'Count the empty seats in it.']);else Voice.lines([num(`${problem.k} is ${problem.k / 10} whole rows.`), 'Count the empty rows. Each one is ten.']);
   }, [misses, problem]);
   useEffect(() => {
     if (won || digits.some(d => d === '')) return;
@@ -10525,6 +10570,11 @@ function HundredBondGame({
   }, [muted, won]);
   const reveal = won || misses >= 2;
   const s = problem.split;
+  /* The steps as DATA, and only the ones that exist. 93 has no second step — its whole
+     complement finishes the row it is already in — and rendering the pair regardless
+     printed "93 +7 -> 100 +0 -> 100", which is not a step, it is a typo the child has to
+     ignore. Same reason the spoken hint below branches three ways rather than two. */
+  const steps = [[s.up, s.to], [s.rows, 100]].filter(([n]) => n > 0);
   const slot = /*#__PURE__*/React.createElement("span", {
     className: "hbk-slot"
   }, digits.map((d, i) => /*#__PURE__*/React.createElement("span", {
@@ -10578,14 +10628,39 @@ function HundredBondGame({
     className: "hbk-op"
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "hbk-k"
-  }, problem.k))), reveal && !won ? /*#__PURE__*/React.createElement("div", {
+  }, problem.k))), /*#__PURE__*/React.createElement("div", {
+    className: "hbk-note"
+  }, reveal && !won ? /*#__PURE__*/React.createElement("div", {
     className: "hbk-steps",
     "aria-live": "polite"
-  }, s.up > 0 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, problem.k), /*#__PURE__*/React.createElement("b", null, "+", s.up), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, s.to), /*#__PURE__*/React.createElement("b", null, "+", s.rows), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, "100")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, problem.k), /*#__PURE__*/React.createElement("b", null, "+", s.rows), /*#__PURE__*/React.createElement("i", null, "\u2192"), /*#__PURE__*/React.createElement("span", null, "100"))) : null, won ? /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, problem.k), steps.map(([n, to], i) => [/*#__PURE__*/React.createElement("b", {
+    key: `n${i}`
+  }, "+", n), /*#__PURE__*/React.createElement("i", {
+    key: `a${i}`
+  }, "\u2192"), /*#__PURE__*/React.createElement("span", {
+    key: `t${i}`
+  }, to)])) : null, won ? /*#__PURE__*/React.createElement("div", {
     className: "hbk-bond"
   }, /*#__PURE__*/React.createElement("span", null, problem.k, " + ", problem.answer, " = 100"), /*#__PURE__*/React.createElement("span", {
     className: "hbk-bond-inv"
-  }, "100 \u2212 ", problem.answer, " = ", problem.k)) : null, /*#__PURE__*/React.createElement("div", {
+  }, "100 \u2212 ", problem.answer, " = ", problem.k)) : null), /*#__PURE__*/React.createElement("div", {
+    className: "hbk-entry"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `keypad${won ? ' spent' : ''}`,
+    "aria-hidden": won ? 'true' : undefined
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    className: "key-btn",
+    onClick: () => tapDigit(n),
+    tabIndex: won ? -1 : undefined
+  }, n)), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: clear,
+    tabIndex: won ? -1 : undefined
+  }, "Clear")), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn hbk-next",
+    onClick: next
+  }, "Next")), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(HundredBlock, {
     known: problem.k,
@@ -10594,19 +10669,7 @@ function HundredBondGame({
     split: reveal,
     filled: won,
     label: won ? `A hundred block, ${problem.k} and ${problem.answer} together filling all one hundred squares.` : `A hundred block with ${problem.k} of its hundred squares filled.`
-  })), !won && /*#__PURE__*/React.createElement("div", {
-    className: "keypad"
-  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    className: "key-btn",
-    onClick: () => tapDigit(n)
-  }, n)), /*#__PURE__*/React.createElement("button", {
-    className: "key-btn clear",
-    onClick: clear
-  }, "Clear")), won && /*#__PURE__*/React.createElement("button", {
-    className: "next-btn",
-    onClick: next
-  }, "Next"));
+  })));
 }
 
 /* ══ MODE h1: HUNDRED BOARD ══
