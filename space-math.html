@@ -422,6 +422,80 @@
       .cmp-row{max-width:min(96vw,1000px)}
     }
 
+    /* ── MEMORY MATCH (k1 / k2 / k3) ──
+       One card shape at every board size — 3:4, the shape a physical memory card is —
+       and the GRID is what changes. The card width is worked out from BOTH axes at once
+       rather than from the width with a height cap: on a 9.7" iPad in portrait the
+       twenty-card board is height-bound, not width-bound, and a card sized from width
+       alone stops being 3:4 and pushes the bottom row off the screen. `--mm-cw` is the
+       one number, and every glyph, rule and picture on a card is a fraction of it, so
+       the three boards are the same card drawn at three sizes.
+       The face-down design is CSS, not a picture: a theme is then a palette rather than
+       a new asset to draw, encode and add to the offline cache list. */
+    .mm-board{--mm-gap:clamp(6px,1.5vw,12px);--mm-w:min(94vw,780px);--mm-h:56vh;
+      display:grid;gap:var(--mm-gap);justify-content:center;position:relative;z-index:1}
+    .mm-cols-3{--mm-cw:min(calc((var(--mm-w) - 2*var(--mm-gap))/3),calc((var(--mm-h) - 1*var(--mm-gap))*3/8));grid-template-columns:repeat(3,var(--mm-cw))}
+    .mm-cols-4{--mm-cw:min(calc((var(--mm-w) - 3*var(--mm-gap))/4),calc((var(--mm-h) - 2*var(--mm-gap))/4));grid-template-columns:repeat(4,var(--mm-cw))}
+    .mm-cols-5{--mm-cw:min(calc((var(--mm-w) - 4*var(--mm-gap))/5),calc((var(--mm-h) - 3*var(--mm-gap))*3/16));grid-template-columns:repeat(5,var(--mm-cw))}
+    .mm-card{width:var(--mm-cw);height:calc(var(--mm-cw)*4/3);padding:0;border:none;background:none;
+      font-family:inherit;cursor:pointer;perspective:900px;-webkit-tap-highlight-color:transparent}
+    .mm-card.solved{cursor:default}
+    .mm-inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .42s cubic-bezier(.4,.05,.2,1)}
+    .mm-card.up .mm-inner{transform:rotateY(180deg)}
+    .mm-down,.mm-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      border-radius:clamp(9px,calc(var(--mm-cw)*.12),20px);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+    .mm-down{background:linear-gradient(160deg,#3a5fd9,#152268);border:3px solid #6d9bf5;box-shadow:0 4px 0 #0f2e86,0 6px 14px rgba(4,8,30,.3)}
+    /* Four stars and a moon: the emblem a child looks at more than anything else here,
+       because most of the board is face down most of the time. */
+    .mm-down::before{content:'';position:absolute;inset:0;border-radius:inherit;
+      background:radial-gradient(circle at 20% 22%,rgba(255,255,255,.7) 0 1.4px,transparent 2.2px),
+                 radial-gradient(circle at 79% 17%,rgba(255,255,255,.55) 0 1.1px,transparent 1.9px),
+                 radial-gradient(circle at 27% 80%,rgba(255,255,255,.5) 0 1.1px,transparent 1.9px),
+                 radial-gradient(circle at 83% 77%,rgba(255,255,255,.6) 0 1.3px,transparent 2.1px)}
+    .mm-down::after{content:'';position:absolute;left:50%;top:50%;width:calc(var(--mm-cw)*.44);height:calc(var(--mm-cw)*.44);
+      transform:translate(-50%,-50%);border-radius:50%;
+      background:radial-gradient(circle at 36% 32%,#fff9c4,#ffd54f 44%,#f9a825 72%,rgba(249,168,37,0) 74%);
+      box-shadow:0 0 calc(var(--mm-cw)*.12) rgba(255,213,79,.5)}
+    .mm-card:not(.up):active .mm-down{filter:brightness(1.18)}
+    .mm-face{transform:rotateY(180deg);background:linear-gradient(160deg,#fff,#e8f0ff);border:3px solid #93b7fb;
+      box-shadow:0 4px 0 #6d9bf5,0 6px 14px rgba(4,8,30,.22);padding:calc(var(--mm-cw)*.06);overflow:hidden}
+    .mm-card.solved .mm-face{border-color:#f9a825;box-shadow:0 4px 0 #e65100,0 0 0 3px rgba(255,213,79,.45)}
+    /* The whole of the reward: a small bounce and a sparkle that fades. No score jump,
+       no stamp, nothing that has to be dismissed. */
+    .mm-card.pop .mm-inner{animation:mmPop .62s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes mmPop{0%{transform:rotateY(180deg) scale(1)}45%{transform:rotateY(180deg) scale(1.11)}100%{transform:rotateY(180deg) scale(1)}}
+    .mm-card.pop .mm-face::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+      background:radial-gradient(circle,rgba(255,249,196,.85),rgba(255,213,79,0) 62%);animation:mmSparkle .7s ease-out forwards}
+    @keyframes mmSparkle{from{opacity:.9;transform:scale(.55)}to{opacity:0;transform:scale(1.2)}}
+    @media (prefers-reduced-motion: reduce){
+      .mm-inner{transition:none}
+      .mm-card.pop .mm-inner{animation:none}
+      .mm-card.pop .mm-face::after{animation:none;opacity:0}
+    }
+    /* The faces. Every size is a fraction of the card, so nothing needs a media query. */
+    .mm-expr{font-size:calc(var(--mm-cw)*.185);font-weight:900;color:#2f6df6;line-height:1.05;white-space:nowrap;letter-spacing:-.01em}
+    .mm-answer{font-size:calc(var(--mm-cw)*.34);font-weight:900;color:#5a2ed6;line-height:1}
+    .mm-frac{display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .mm-frac-top,.mm-frac-bot{font-size:calc(var(--mm-cw)*.29);font-weight:900;color:#2f6df6;line-height:1.02}
+    .mm-frac-bar{width:calc(var(--mm-cw)*.4);height:calc(var(--mm-cw)*.045);min-height:2px;background:#2f6df6;border-radius:2px;margin:calc(var(--mm-cw)*.035) 0}
+    /* The fraction pictures are What's the Fraction?'s own components. Only their size
+       changes here — the palette, the parts and the highlight are the ones the child
+       already meets in q1, which is the point of reusing them rather than drawing a
+       second set of fraction pictures that agree with the first by hand. */
+    .mm-shape{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+    .mm-face .fr-bar{width:88%;height:calc(var(--mm-cw)*.34);border-width:2px;border-radius:7px;box-shadow:none;flex:none}
+    .mm-face .fr-part{border-right-width:1.5px}
+    .mm-face .fr-grid{width:calc(var(--mm-cw)*.7);height:calc(var(--mm-cw)*.7);gap:2px;max-height:none}
+    .mm-face .fr-grid .fr-cell{border-width:1.5px;border-radius:4px}
+    .mm-face .fr-pie{width:calc(var(--mm-cw)*.76);height:calc(var(--mm-cw)*.76);max-height:none}
+    /* Same as the hundred board: the stage sits above the mascot, because the mascot's
+       corner is over the bottom-left card of the twenty-card board. */
+    .mm-screen .oe-stage{z-index:7}
+    @media (max-height:740px){
+      .mm-screen .count-title{padding:5px 14px}
+      .mm-board{--mm-h:50vh}
+    }
+
     /* ── EXPANSION GAMES: odd/even + number bonds to ten ──
        The ten-frame and the pairing board are SHARED MANIPULATIVES (see the MATH
        PRIMITIVES block in the script): one visual language for two families of games.
@@ -1072,6 +1146,14 @@
     @keyframes cbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.09);opacity:.72}}
 
 
+    .gp-mm{width:26px;height:34px;border-radius:5px;border:1.5px solid #6d9bf5;background:linear-gradient(160deg,#3a5fd9,#152268);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+    .gp-mm.up{background:linear-gradient(160deg,#fff,#e8f0ff);border-color:#93b7fb}
+    .gp-mmt,.gp-mmn{font-size:.46rem;font-weight:900;color:#2f6df6;line-height:1}
+    .gp-mmb{width:11px;height:1.5px;background:#2f6df6;border-radius:1px;margin:1px 0}
+    .gp-mmp{display:flex;width:18px;height:9px;border:1.5px solid #2f4a8f;border-radius:3px;overflow:hidden}
+    .gp-mmp i{flex:1;border-right:1px solid #fff}
+    .gp-mmp i:last-child{border-right:none}
+    .gp-mmp i.on{background:linear-gradient(135deg,#ffd54f,#f9a825)}
     .gp-cellx{width:11px;height:11px;border-radius:2px;border:1.5px solid #93b7fb;background:#fff}
     .gp-cellx.on{background:linear-gradient(135deg,#93b7fb,#2f6df6);border-color:#2f6df6}
 
@@ -3238,7 +3320,10 @@ const CARD_VOICE = {
   q1: "What's the Fraction? Count the lit parts!",
   u1: 'Which Unit? Tap a picture!',
   a1: 'Cover It! How many squares?',
-  np1: 'Number Toys! Build your own number sentence!'
+  np1: 'Number Toys! Build your own number sentence!',
+  k1: 'Fraction Pairs! Find each fraction and its picture!',
+  k2: 'Times Pairs! Find each times sum and its answer!',
+  k3: 'Sharing Pairs! Find each sharing sum and its answer!'
 };
 
 /* ══ UTILITIES ══ */
@@ -4162,6 +4247,396 @@ function npEvaluate(tokens) {
     right: b
   };
 }
+
+/* ══ MEMORY MATCH ENGINE (pure) ══
+   A classic flip-card memory game, and deliberately NOT a multiplication game with
+   cards. Everything below knows about PAIRS; it knows nothing about fractions, times
+   tables or division. Adding a fourth mode is one entry in MEMORY_TOPICS plus, if it
+   needs a face nobody has drawn yet, one branch in MemoryFace. Nothing else changes.
+
+   ── THE ONE RULE THAT MAKES THIS REUSABLE ──
+   A pair is `{pairId, value, sideA, sideB, say}` and its two cards BOTH CARRY pairId.
+   Matching compares pairIds and never the thing on the card. That matters the moment
+   two answers read the same: a board holding 2 × 6 and 3 × 4 has two cards that both
+   say "12", and comparing rendered text would let either answer close either fact.
+   Comparing ids cannot, whatever the cards happen to show.
+
+   The two sides may differ in kind — `3 × 4` against `12`, a numeral against a picture —
+   which is the whole reason this is not a "find two identical cards" engine. Sides that
+   happen to be identical are legal too, so an identical-image deck (the standalone
+   memory-match-app's Space theme) would need no engine change at all.
+
+   ── AND THE ONE RULE THAT MAKES A BOARD FAIR ──
+   Matching by id is correct but it is not *readable*: a child looking at two "12"s has
+   no way to know which fact each belongs to, and turning over the right card would feel
+   like being told no. So memoryChoosePairs refuses to put two pairs on the same board
+   when either their value or a rendered face collides. `value` is the topic's statement
+   of what two pairs would have to share to be confusable — the product for a times
+   fact, the reduced fraction for a fraction — and `face` is what a card actually shows.
+   Both are needed: 1/2 and 2/4 have different faces and the same value, while 2 × 6 and
+   3 × 4 have different values on side A and the same face on side B. */
+
+const MEMORY_MISS_MS = 1400; /* how long a wrong pair stays face-up. See MemoryGame. */
+
+/* Board sizes. The grid is what changes between them, never the card's shape: a card
+   is 3:4 at every size, because a memory card is a portrait rectangle and stretching
+   it per difficulty would make the three boards read as three different games.
+   Five columns on the big board rather than four is a 9.7" iPad decision — four
+   columns of twenty cards needs five rows, and five rows of a portrait card overflows
+   the usable height of a 768 x 1024 screen. */
+const MEMORY_LEVEL_SPECS = [{
+  id: 'kSmall',
+  pairs: 3,
+  cols: 3,
+  rows: 2,
+  tag: 'Small board',
+  desc: '6 cards'
+}, {
+  id: 'kMiddle',
+  pairs: 6,
+  cols: 4,
+  rows: 3,
+  tag: 'Middle board',
+  desc: '12 cards'
+}, {
+  id: 'kBig',
+  pairs: 10,
+  cols: 5,
+  rows: 4,
+  tag: 'Big board',
+  desc: '20 cards'
+}];
+const memoryLevel = id => MEMORY_LEVEL_SPECS.find(l => l.id === id) || MEMORY_LEVEL_SPECS[0];
+
+/* Every fraction the app can draw, once per VALUE. `1/2` and `2/4` are one entry, and
+   which of the two spellings it uses is decided by the shuffle rather than fixed — a
+   child meets `2/4` as its own honest name for two of four parts, and never meets it
+   on the same board as `1/2`, where "which picture is mine?" would have two right
+   answers. Equivalence is a mode of its own, later, and is deliberately not this one. */
+const memoryGcd = (a, b) => b ? memoryGcd(b, a % b) : a;
+const memoryFracValue = (n, d) => {
+  const g = memoryGcd(n, d);
+  return `${n / g}/${d / g}`;
+};
+
+/* Which pictures a denominator may wear on a card. The grid rule is not decoration:
+   fractionGridCols(5) is 5, so a fifths grid is a single row of five slivers inside a
+   square — correct, and unreadable at card size. A denominator only gets the grid when
+   the grid actually has more than one row. */
+const memoryFracShapes = (d, shapes) => shapes.filter(s => s !== 'grid' || fractionGridCols(d) < d);
+const MEMORY_TOPICS = [{
+  id: 'fractions',
+  modeId: 'k1',
+  title: 'Fraction Pairs',
+  sub: 'Find the picture!',
+  ask: 'Find each fraction and its picture!',
+  levels: {
+    kSmall: {
+      denoms: [2, 3, 4],
+      shapes: ['bar', 'circle']
+    },
+    kMiddle: {
+      denoms: [2, 3, 4, 5, 6],
+      shapes: ['bar', 'circle', 'grid']
+    },
+    kBig: {
+      denoms: [2, 3, 4, 5, 6, 8],
+      shapes: ['bar', 'circle', 'grid']
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    cfg.denoms.forEach(d => {
+      const shapes = memoryFracShapes(d, cfg.shapes);
+      if (!shapes.length) return;
+      for (let n = 1; n < d; n++) {
+        const shape = pickR(rng, shapes);
+        out.push({
+          pairId: `frac-${n}-${d}`,
+          value: `frac:${memoryFracValue(n, d)}`,
+          say: `${n} out of ${d} equal parts.`,
+          sideA: {
+            kind: 'fraction-numeral',
+            n,
+            d,
+            face: `fn:${n}/${d}`
+          },
+          sideB: {
+            kind: 'fraction-shape',
+            n,
+            d,
+            shape,
+            cells: fractionCells(rng, n, d),
+            face: `fp:${memoryFracValue(n, d)}`
+          }
+        });
+      }
+    });
+    return out;
+  }
+}, {
+  id: 'times',
+  modeId: 'k2',
+  title: 'Times Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each times sum and its answer!',
+  /* `tables` is the axis a future "just the threes" selector would move, and it is
+     data for exactly that reason. It is not exposed yet: this screen already spends
+     its one control on the board size, and a second picker on a memory board is a
+     setting between a child and the cards. */
+  levels: {
+    kSmall: {
+      tables: [2, 5, 10],
+      upTo: 6
+    },
+    kMiddle: {
+      tables: [2, 3, 4, 5, 10],
+      upTo: 10
+    },
+    kBig: {
+      tables: [2, 3, 4, 5, 6, 7, 8, 9],
+      upTo: 12
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    cfg.tables.forEach(a => {
+      for (let b = 1; b <= cfg.upTo; b++) {
+        out.push({
+          pairId: `mul-${a}x${b}`,
+          value: `prod:${a * b}`,
+          say: `${a} times ${b} is ${a * b}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${a} × ${b}`,
+            face: `e:${a}x${b}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(a * b),
+            face: `a:${a * b}`
+          }
+        });
+      }
+    });
+    return out;
+  }
+}, {
+  id: 'division',
+  modeId: 'k3',
+  title: 'Sharing Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each sharing sum and its answer!',
+  /* Whole numbers only, no remainders — the app teaches none yet, and Share It Out
+     (d1) deals every counter out with none left over. The dividend is the product of
+     the two, so the biggest sum on the big board is 144 ÷ 12, which is the ceiling
+     Times Tables opens on. */
+  levels: {
+    kSmall: {
+      divisors: [2, 5, 10],
+      upTo: 6
+    },
+    kMiddle: {
+      divisors: [2, 3, 4, 5, 10],
+      upTo: 10
+    },
+    kBig: {
+      divisors: [2, 3, 4, 5, 6, 7, 8, 9],
+      upTo: 12
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    cfg.divisors.forEach(k => {
+      for (let q = 1; q <= cfg.upTo; q++) {
+        out.push({
+          pairId: `div-${k * q}-${k}`,
+          value: `quot:${q}`,
+          say: `${k * q} shared by ${k} is ${q}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${k * q} ÷ ${k}`,
+            face: `e:${k * q}/${k}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(q),
+            face: `a:${q}`
+          }
+        });
+      }
+    });
+    return out;
+  }
+}];
+const memoryTopic = modeId => MEMORY_TOPICS.find(t => t.modeId === modeId) || MEMORY_TOPICS[0];
+
+/* Choose `n` pairs out of a pool that is deliberately much larger, so that starting
+   again is a new set of questions rather than the same six cards in new places.
+   Rejects a pair whose value, or either of whose faces, is already on the board — see
+   the header. A pair whose two sides carry the SAME face is fine and stays fine; that
+   is what an identical-image deck looks like.
+   The fallback exists so a pool too small or too collision-dense can never hand back a
+   short board: it fills the rest by pair id alone. Matching still cannot break — the
+   board is only harder to read — and the topics above all have room to spare, so it is
+   a guard against a future mode rather than a path anything takes today. */
+function memoryChoosePairs(rng, pool, n) {
+  const order = shuffleR(rng, pool);
+  const out = [],
+    values = new Set(),
+    faces = new Set();
+  for (const p of order) {
+    if (out.length >= n) break;
+    if (values.has(p.value)) continue;
+    if (faces.has(p.sideA.face) || faces.has(p.sideB.face)) continue;
+    out.push(p);
+    values.add(p.value);
+    faces.add(p.sideA.face);
+    faces.add(p.sideB.face);
+  }
+  if (out.length < n) {
+    const taken = new Set(out.map(p => p.pairId));
+    for (const p of order) {
+      if (out.length >= n) break;
+      if (taken.has(p.pairId)) continue;
+      out.push(p);
+      taken.add(p.pairId);
+    }
+  }
+  return out;
+}
+
+/* Two cards per pair, both stamped with the pair's id, then shuffled as one deck —
+   shuffleR is a Fisher-Yates over a copy, not a random comparator. */
+function memoryDealCards(rng, pairs) {
+  const cards = [];
+  pairs.forEach(p => {
+    cards.push({
+      cardId: `${p.pairId}#a`,
+      pairId: p.pairId,
+      side: p.sideA
+    });
+    cards.push({
+      cardId: `${p.pairId}#b`,
+      pairId: p.pairId,
+      side: p.sideB
+    });
+  });
+  return shuffleR(rng, cards);
+}
+function memoryBuildBoard(rng, topic, levelId) {
+  const level = memoryLevel(levelId);
+  const pairs = memoryChoosePairs(rng, topic.pool(rng, level.id), level.pairs);
+  return {
+    topicId: topic.id,
+    levelId: level.id,
+    cols: level.cols,
+    rows: level.rows,
+    pairs,
+    cards: memoryDealCards(rng, pairs)
+  };
+}
+
+/* ── THE STATE MACHINE ──
+   `faceUp` holds the ids of the at most two cards the child has turned over this turn.
+   `solved` holds PAIR ids, so both cards of a found pair stay face-up for the rest of
+   the board with nothing to remember about which of them was tapped.
+   `resolving` is the input lock: true only between a mismatch and its flip-back.
+
+   Every function here is pure and returns a NEW state, which is what lets the tests
+   drive a whole board without a browser — and what lets the component keep the live
+   state in a ref, so two taps inside one animation frame are two transitions applied in
+   order rather than two reads of the same stale render. */
+const memoryNewState = board => ({
+  board,
+  faceUp: [],
+  solved: [],
+  turns: 0,
+  resolving: false
+});
+const memoryCard = (board, cardId) => board.cards.find(c => c.cardId === cardId) || null;
+const memoryPair = (board, pairId) => board.pairs.find(p => p.pairId === pairId) || null;
+const memoryIsSolved = (st, card) => st.solved.indexOf(card.pairId) >= 0;
+const memoryIsFaceUp = (st, card) => memoryIsSolved(st, card) || st.faceUp.indexOf(card.cardId) >= 0;
+const memoryComplete = st => st.board.pairs.length > 0 && st.solved.length === st.board.pairs.length;
+
+/* Returns `{state,event,...}`. The event is what the screen turns into sound and
+   speech, and every no-op has its own name so a caller can tell "too fast" from
+   "that one is already yours" without inspecting state itself.
+     flip    one card turned over, nothing else to do
+     match   the second card completed a pair; `pair` is it, `done` closes the board
+     miss    the second card did not; the caller must call memoryResolve after
+             MEMORY_MISS_MS, and input is locked until it does
+     locked  a tap during that window, or a third card — ignored on purpose
+     same    the child tapped the card they just turned over
+     solved  a card already found; harmless, and it must never re-open
+     unknown a card id that is not on this board */
+function memoryFlip(st, cardId) {
+  const card = memoryCard(st.board, cardId);
+  if (!card) return {
+    state: st,
+    event: 'unknown'
+  };
+  if (st.resolving || st.faceUp.length >= 2) return {
+    state: st,
+    event: 'locked'
+  };
+  if (memoryIsSolved(st, card)) return {
+    state: st,
+    event: 'solved'
+  };
+  if (st.faceUp.indexOf(cardId) >= 0) return {
+    state: st,
+    event: 'same'
+  };
+  const faceUp = st.faceUp.concat(cardId);
+  if (faceUp.length < 2) return {
+    state: {
+      ...st,
+      faceUp
+    },
+    event: 'flip',
+    card
+  };
+  const first = memoryCard(st.board, faceUp[0]);
+  if (first.pairId === card.pairId) {
+    const solved = st.solved.concat(card.pairId);
+    return {
+      state: {
+        ...st,
+        faceUp: [],
+        solved,
+        turns: st.turns + 1
+      },
+      event: 'match',
+      card,
+      pair: memoryPair(st.board, card.pairId),
+      done: solved.length === st.board.pairs.length
+    };
+  }
+  return {
+    state: {
+      ...st,
+      faceUp,
+      turns: st.turns + 1,
+      resolving: true
+    },
+    event: 'miss',
+    card
+  };
+}
+
+/* The end of the mismatch pause: both cards go back down and the lock lifts. Safe to
+   call at any time — a resolve that has already happened does nothing, which is what
+   makes it safe on a timer that outlived its board. */
+const memoryResolve = st => st.resolving ? {
+  ...st,
+  faceUp: [],
+  resolving: false
+} : st;
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
@@ -5243,6 +5718,93 @@ function GamePreview({
   }, "1"), /*#__PURE__*/React.createElement("span", {
     className: "gp-npn"
   }, "5")));
+  if (id === 'k1') return /*#__PURE__*/ /* Fraction Pairs — the fraction and its picture, turned over */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmn"
+  }, "1"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmb"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmn"
+  }, "2")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmp"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "on"
+  }), /*#__PURE__*/React.createElement("i", null))), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  })));
+  if (id === 'k2') return /*#__PURE__*/ /* Times Pairs — a times sum and its answer, turned over */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmt"
+  }, "3\xD74")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmt"
+  }, "12")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  })));
+  if (id === 'k3') return /*#__PURE__*/ /* Sharing Pairs — a sharing sum and its answer, turned over */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmt"
+  }, "12\xF73"))), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm up"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-mmt"
+  }, "4")), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-mm"
+  })));
   return null;
 }
 function Stars({
@@ -13515,6 +14077,307 @@ function NumberPlayGame({
   }, drag.value));
 }
 
+/* ══ MEMORY MATCH CARDS (shared) ══
+   The card, its two faces and the board. Byte-identical in both skins on purpose: what
+   a card SHOWS is the maths, and only the card's colours belong to a theme — those live
+   in each skin's stylesheet, and the face-down design is drawn in CSS rather than
+   fetched, so a new theme is a palette and not a new picture to encode.
+
+   A face is chosen by `side.kind`, which is the extension point: a mode that needs a
+   card nobody has drawn yet adds one branch here and nothing else. The four that exist
+   cover a numeral fraction, a fraction picture (the app's own FractionShape, the same
+   component What's the Fraction? asks about), an expression and an answer. */
+const memoryFaceLabel = side => side.kind === 'fraction-numeral' ? `${side.n} over ${side.d}` : side.kind === 'fraction-shape' ? `A picture in ${side.d} equal parts, ${side.n} coloured` : String(side.text);
+function MemoryFace({
+  side
+}) {
+  if (side.kind === 'fraction-numeral') return /*#__PURE__*/React.createElement("span", {
+    className: "mm-frac",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mm-frac-top"
+  }, side.n), /*#__PURE__*/React.createElement("span", {
+    className: "mm-frac-bar"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "mm-frac-bot"
+  }, side.d));
+  if (side.kind === 'fraction-shape') return /*#__PURE__*/React.createElement("span", {
+    className: "mm-shape",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement(FractionShape, {
+    shape: side.shape,
+    n: side.n,
+    d: side.d,
+    cells: side.cells
+  }));
+  if (side.kind === 'answer') return /*#__PURE__*/React.createElement("span", {
+    className: "mm-answer",
+    "aria-hidden": "true"
+  }, side.text);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "mm-expr",
+    "aria-hidden": "true"
+  }, side.text);
+}
+/* The card stays a button for its whole life, including once it is solved: a solved
+   card is still something a child will tap, and a control that disappears under a
+   finger is worse than one that quietly does nothing. memoryFlip returns 'solved' for
+   that tap and changes no state. */
+function MemoryCard({
+  card,
+  faceUp,
+  solved,
+  popped,
+  onFlip
+}) {
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: `mm-card${faceUp ? ' up' : ''}${solved ? ' solved' : ''}${popped ? ' pop' : ''}`,
+    "aria-label": faceUp ? memoryFaceLabel(card.side) : 'A card, face down',
+    onClick: () => onFlip(card.cardId)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mm-inner"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mm-down",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "mm-face"
+  }, /*#__PURE__*/React.createElement(MemoryFace, {
+    side: card.side
+  }))));
+}
+/* Column count comes from the level, and the card's size is worked out from BOTH axes
+   in CSS (see .mm-board) rather than from the width with a height clamp — a fixed-ratio
+   card sized from one axis stops being that ratio the moment the other one is the tight
+   one, which on a 9.7" iPad is the twenty-card board. */
+function MemoryBoard({
+  state,
+  popped,
+  onFlip
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: `mm-board mm-cols-${state.board.cols}`
+  }, state.board.cards.map(c => /*#__PURE__*/React.createElement(MemoryCard, {
+    key: c.cardId,
+    card: c,
+    faceUp: memoryIsFaceUp(state, c),
+    solved: memoryIsSolved(state, c),
+    popped: popped === c.pairId,
+    onFlip: onFlip
+  })));
+}
+
+/* ══ MODES k1 / k2 / k3: MEMORY MATCH ══
+   Cards face down, tap two, keep them if they make a pair. Three topics share one
+   screen — k1 fractions, k2 times tables, k3 sharing — because they are one game with
+   three decks. The engine and the decks are in MATH PRIMITIVES; the cards are in the
+   shared block above; what is left here is the shell.
+
+   ── WHY A MEMORY BOARD IS ALLOWED TO ASK THE CHILD TO SEARCH ──
+   "Games ask, children answer" — one question, one tap, never a hunt to prove you know
+   something — is a standing rule in this repository, and `memory-match-app/README.md`
+   explicitly left it for whoever built the maths branch to settle. It is settled here,
+   and the answer is that this screen never asks a question. It does not present `3 × 4`
+   and require `12`; it presents twelve face-down cards, and turning one over is the
+   move. A pair that is found is REWARDED with the fact spoken aloud — "3 times 4 is
+   12" — so the maths arrives as something told rather than something demanded. A child
+   who cannot yet do the fact still finds pairs, by remembering where the card was, and
+   hears the fact each time. That is practice through memory, which is what the mode is
+   for, and it is why there is no timer, no lives, no penalty and no wrong-answer sound:
+   a card that does not pair is not a mistake, it is information.
+
+   Adding a fourth topic: one entry in MEMORY_TOPICS, one mode id in App's routing, one
+   card on the Home shelf, one line in CARD_VOICE, one GamePreview branch. If its cards
+   need a face that does not exist yet, one branch in MemoryFace. */
+const MEMORY_LEVELS = MEMORY_LEVEL_SPECS.map((s, i) => ({
+  ...s,
+  icon: [ICON_EARTH, ICON_ROCKET, ICON_GALAXY][i]
+}));
+/* The middle board is the default rather than the smallest. Six cards is a board a
+   seven-year-old clears without remembering anything, and the child who wants it is one
+   tap away on the gear — the same reasoning that opens Times Tables on 12 × 12. */
+const MEMORY_DEFAULT_LEVEL = 1;
+function MemorySettings({
+  current,
+  onChange,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-box",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, "How big?"), MEMORY_LEVELS.map(p => /*#__PURE__*/React.createElement("button", {
+    key: p.id,
+    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
+    onClick: () => {
+      Sound.tap();
+      onChange(p);
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "preset-tag-img",
+    src: p.icon,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "preset-info"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "preset-name"
+  }, p.tag), /*#__PURE__*/React.createElement("div", {
+    className: "preset-range"
+  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
+    className: "modal-close",
+    onClick: onClose
+  }, "Done")));
+}
+function MemoryGame({
+  modeId,
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const topic = memoryTopic(modeId);
+  const [level, setLevel] = useState(MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL]);
+  const [showSettings, setShowSettings] = useState(false);
+  /* THE LIVE STATE LIVES IN THE REF, and the useState copy exists to draw it. Two taps
+     inside one animation frame are the normal case with a child and twenty cards, and
+     both must be judged against what the FIRST one did — a handler that read the
+     rendered state would see the same board twice and turn over three cards. Every
+     transition therefore reads stRef.current and writes both. */
+  const [st, setSt] = useState(() => memoryNewState(memoryBuildBoard(Math.random, memoryTopic(modeId), MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL].id)));
+  const stRef = useRef(st);
+  const [popped, setPopped] = useState(null);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const missT = useRef(null),
+    popT = useRef(null);
+  useEffect(() => () => {
+    clearTimeout(missT.current);
+    clearTimeout(popT.current);
+  }, []);
+  const apply = useCallback(next => {
+    stRef.current = next;
+    setSt(next);
+  }, []);
+  const newBoard = useCallback(lv => {
+    clearTimeout(missT.current);
+    clearTimeout(popT.current);
+    setPopped(null);
+    setConf(false);
+    apply(memoryNewState(memoryBuildBoard(Math.random, topic, lv.id)));
+  }, [topic, apply]);
+  const again = useCallback(() => {
+    Sound.tap();
+    newBoard(level);
+  }, [level, newBoard]);
+  const applyLevel = useCallback(lv => {
+    setLevel(lv);
+    newBoard(lv);
+    setShowSettings(false);
+  }, [newBoard]);
+  useEffect(() => {
+    if (!showSettings) Voice.say(topic.ask);
+  }, [topic, showSettings, st.board]);
+  const flip = useCallback(cardId => {
+    Sound.setMuted(muted);
+    const r = memoryFlip(stRef.current, cardId);
+    /* Every refusal sounds like an ordinary tap. A child drumming on the board while a
+       wrong pair is still showing is not doing anything wrong, and the app has exactly
+       one cue for "I heard you and there is nothing to do". */
+    if (r.event === 'unknown') return;
+    if (r.event === 'locked' || r.event === 'solved' || r.event === 'same') {
+      Sound.tap();
+      return;
+    }
+    apply(r.state);
+    if (r.event === 'flip') {
+      Sound.hop();
+      return;
+    }
+    if (r.event === 'miss') {
+      /* The second card turning over sounds exactly like the first one did, and the
+         pair not matching sounds like NOTHING AT ALL. There is no wrong-answer cue in
+         this game to soften, because there was never a wrong answer: two cards that do
+         not go together are the information the child came for. (Sound.reveal(), which
+         was here first, is also a space-only cue — the unicorn skin's Sound object does
+         not define it, and calling it there threw. Caught by test-math-interact.js.) */
+      Sound.hop();
+      clearTimeout(missT.current);
+      missT.current = setTimeout(() => apply(memoryResolve(stRef.current)), MEMORY_MISS_MS);
+      return;
+    }
+    Sound.ding();
+    mascot.happy();
+    setPopped(r.pair.pairId);
+    clearTimeout(popT.current);
+    popT.current = setTimeout(() => setPopped(null), 760);
+    setScore(s => s + 1);
+    const arrived = addProgress();
+    if (r.done) {
+      setConf(true);
+      setTimeout(() => Sound.celebrate(), 240);
+      setTimeout(() => setConf(false), 2600);
+      Voice.lines([arrived ? null : praise(), num(r.pair.say), 'Every pair found!']);
+    } else {
+      Voice.lines([num(r.pair.say)]);
+    }
+  }, [muted, apply, mascot, setScore, addProgress]);
+  const done = memoryComplete(st);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen mm-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), showSettings && /*#__PURE__*/React.createElement(MemorySettings, {
+    current: level,
+    onChange: applyLevel,
+    onClose: () => setShowSettings(false)
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    onSettings: () => setShowSettings(true),
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: level.tag
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, topic.title), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, done ? 'Every pair found!' : topic.sub)), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(MemoryBoard, {
+    state: st,
+    popped: popped,
+    onFlip: flip
+  })), done && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: again,
+    "aria-label": "Play again with new cards"
+  }, /*#__PURE__*/React.createElement(RefreshIcon, null)));
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -13916,6 +14779,52 @@ function Home({
     className: "home-section-heading"
   }, /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
+    src: "assets-runtime/space/icons/orb-blue.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Memory Match"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/orb-purple.webp",
+    alt: ""
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('k1', 'mc-magic'),
+    onClick: () => pick('k1'),
+    "aria-label": "Fraction Pairs. Find each fraction and its picture"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "k1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Fraction Pairs"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('k2', 'mc-purple'),
+    onClick: () => pick('k2'),
+    "aria-label": "Times Pairs. Find each times sum and its answer"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "k2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Times Pairs"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('k3', 'mc-rose'),
+    onClick: () => pick('k3'),
+    "aria-label": "Sharing Pairs. Find each sharing sum and its answer"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "k3"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Sharing Pairs"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
     src: "assets-runtime/space/icons/satellite.webp",
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
@@ -14046,7 +14955,10 @@ function App() {
     h1: 0,
     d1: 0,
     q1: 0,
-    a1: 0
+    a1: 0,
+    k1: 0,
+    k2: 0,
+    k3: 0
   });
   const [muted, setMutedState] = useState(() => {
     try {
@@ -14264,7 +15176,22 @@ function App() {
   }));else if (mode === 'u1') screen = /*#__PURE__*/React.createElement(UnitChart, shared);else if (mode === 'a1') screen = /*#__PURE__*/React.createElement(AreaGame, _extends({}, shared, {
     score: scores.a1,
     setScore: setScore('a1')
-  }));else if (mode === 'np1') screen = /*#__PURE__*/React.createElement(NumberPlayGame, shared);else screen = /*#__PURE__*/React.createElement(Home, {
+  }));else if (mode === 'np1') screen = /*#__PURE__*/React.createElement(NumberPlayGame, shared);else if (mode === 'k1') screen = /*#__PURE__*/React.createElement(MemoryGame, _extends({
+    modeId: "k1"
+  }, shared, {
+    score: scores.k1,
+    setScore: setScore('k1')
+  }));else if (mode === 'k2') screen = /*#__PURE__*/React.createElement(MemoryGame, _extends({
+    modeId: "k2"
+  }, shared, {
+    score: scores.k2,
+    setScore: setScore('k2')
+  }));else if (mode === 'k3') screen = /*#__PURE__*/React.createElement(MemoryGame, _extends({
+    modeId: "k3"
+  }, shared, {
+    score: scores.k3,
+    setScore: setScore('k3')
+  }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
     journey: journey
