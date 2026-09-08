@@ -155,7 +155,42 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        than guessed -- no miss, no red -- and they stay lit as the child's own trail.
 //        Both pages changed, and nothing else does: no new asset, no narration clip.
 //        An installed iPad holding v31 cannot see any of it until this name changes.
-const CACHE_NAME = "magic-math-v35";
+// v33 -- 2026-09-06, Make 100's keys move to sit between the question and the block
+//        (1e899054), in both math skins.
+//        RECONSTRUCTED 2026-09-08 from the bump (4d2a6214), the diff it carried and the
+//        publish record, coordination/tasks/2026-09-06-1208-claudecode-publish-make100-layout.md.
+//        It claims nothing new: v33 is already in the world.
+// v34 -- 2026-09-06, Read Fractions gets a number line, a grid and a tray of stars
+//        (d7e6cf56): one whole shown four ways, in both math skins.
+//        RECONSTRUCTED 2026-09-08 from the bump (830316f0) and the publish record,
+//        coordination/tasks/2026-09-06-2055-claudecode-publish-read-fractions.md.
+// v35 -- 2026-09-08, Memory Match: a reusable pair engine and three maths decks
+//        (c685f57c), in both math skins, taking each to 27 cards. Published from
+//        9b33ea1f by dispatch 34184578599 at 03:44 UTC.
+//        RECONSTRUCTED 2026-09-08 from the bump (aadc4844) and that run.
+//
+//        THE SAME MISTAKE AS v31, THREE TIMES RUNNING. Each of those three bumps moved
+//        the constant and added no entry, so this list said v32 while devices were served
+//        v33, then v34, then v35 -- the one thing it exists to prevent, and the thing the
+//        v31 note above was written to stop happening again. A bump is not finished when
+//        the constant changes; the entry is the deliverable.
+// v36 -- 2026-09-08, the two change sets that were stranded under v35's name: the six
+//        arithmetic cards fold into three, each carrying an operation ribbon (d942f31c),
+//        and Memory Match merges onto ONE card with a five-deck ribbon that adds + and -
+//        (1887e6e2). Both math skins, taking each from 27 cards to 22.
+//        WHY THIS BUMP EXISTS AT ALL: both of those merged to main WITHOUT moving the
+//        constant, so candidate and live both named v35 while their contents differed.
+//        publish-app.sh gate [5] refused it outright -- two change sets under one cache
+//        name -- and `release-intent.sh prepare math-app` reported "nothing armed", which
+//        reads like "already live" and was the opposite. The ribbon work was invisible in
+//        production for hours: the string `ribbon` appeared 26 times in main's
+//        space-math.html and 0 times in the live file.
+//        Carries the re-rendered `sh-card-k1` line -- "Memory Match! Turn two over and
+//        find the pairs!" -- which replaced three per-deck lines. That audio was
+//        re-rendered for the new wording in d70121c9, AFTER the text changed in 1887e6e2,
+//        so the clip and the words it speaks ship together. An installed iPad holding v35
+//        cannot see or hear any of this until this name changes.
+const CACHE_NAME = "magic-math-v36";
 
 const SHELL = [
   "./",

@@ -125,6 +125,11 @@
        colour repeats the operation and the star count repeats the difficulty, so the
        two redundant channels carry different axes instead of the same one. */
     .gp-op.gp-big{font-size:1.45rem}
+    /* The merged column cards print BOTH operators where one used to sit. The card deals
+       either question, and a picture showing only a + would be telling half the truth. */
+    .gp-ops2{display:inline-flex;flex-direction:column;align-items:center;gap:1px;margin-right:1px}
+    .gp-ops2 .gp-op.gp-big{font-size:.95rem}
+    .gp-ops2 .gp-take{width:14px;height:14px;font-size:.8rem}
     .gp-take{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:900;line-height:1;color:#fff;background:#c62828}
     .gp-carry{width:12px;height:12px;border-radius:3px;border:1.5px dashed #ce93d8;background:#fff;font-size:.52rem;font-weight:900;color:#e65100;display:flex;align-items:center;justify-content:center;line-height:1}
     .gp-carry-row{margin-right:19px}
@@ -435,7 +440,7 @@
       .cmp-row{max-width:min(96vw,1000px)}
     }
 
-    /* ── MEMORY MATCH (k1 / k2 / k3) ──
+    /* ── MEMORY MATCH (k1) ──
        One card shape at every board size — 3:4, the shape a physical memory card is —
        and the GRID is what changes. The card width is worked out from BOTH axes at once
        rather than from the width with a height cap: on a 9.7" iPad in portrait the
@@ -445,7 +450,12 @@
        the three boards are the same card drawn at three sizes.
        The face-down design is CSS, not a picture: a theme is then a palette rather than
        a new asset to draw, encode and add to the offline cache list. */
-    .mm-board{--mm-gap:clamp(6px,1.5vw,12px);--mm-w:min(94vw,780px);--mm-h:56vh;
+    /* `--mm-h` pays for the ribbon in pixels rather than in vh, because the ribbon is a
+       fixed 44px button in a 2.5px border and 6px of padding whatever the screen is —
+       subtracting a percentage would over-charge a tall screen and under-charge a short
+       one, and under-charging pushes the bottom row of the twenty-card board off the
+       9.7" iPad. Measured at 768x1024: 513px of budget, a 90px card, four rows. */
+    .mm-board{--mm-gap:clamp(6px,1.5vw,12px);--mm-w:min(94vw,780px);--mm-h:calc(56vh - 60px);
       display:grid;gap:var(--mm-gap);justify-content:center;position:relative;z-index:1}
     .mm-cols-3{--mm-cw:min(calc((var(--mm-w) - 2*var(--mm-gap))/3),calc((var(--mm-h) - 1*var(--mm-gap))*3/8));grid-template-columns:repeat(3,var(--mm-cw))}
     .mm-cols-4{--mm-cw:min(calc((var(--mm-w) - 3*var(--mm-gap))/4),calc((var(--mm-h) - 2*var(--mm-gap))/4));grid-template-columns:repeat(4,var(--mm-cw))}
@@ -1346,6 +1356,32 @@
        whole screen already uses for "this one is on". */
     .fm-btn.on{background:linear-gradient(160deg,#e91e63,#7b1fa2);border-color:#7b1fa2;color:#fff;
       box-shadow:0 3px 0 #4a148c}
+
+    /* ── THE OPERATION RIBBON: WHERE THE CARD COLOUR WENT ──
+       Column Maths used to say the operation twice: adding wore the two blues, taking
+       away the two purples, so a pre-reader found "take away" by colour before reading
+       a word. Merging each pair onto one card spends that channel — one card cannot be
+       two colours — so the operation keeps its colour HERE, on the control that now
+       carries it. These two are literally .mc-pink and .mc-purple, the card gradients
+       the child was already reading.
+       Mix keeps the plain .fm-btn.on, and that is not a fallback: that gradient runs
+       from the adding colour to the taking-away colour, so the default tab wears both
+       operations at once, which is exactly what it asks for. */
+    .fm-btn.op-plus.on {background:linear-gradient(160deg,#f48fb1,#e91e63);border-color:#ad1457;
+      box-shadow:0 3px 0 #ad1457}
+    .fm-btn.op-minus.on{background:linear-gradient(160deg,#ce93d8,#7b1fa2);border-color:#4a148c;
+      box-shadow:0 3px 0 #4a148c}
+    /* The strip is a row of its own under the title, the same as f1's model strip. */
+    .op-strip{margin:-2px 0 2px}
+    /* ── THE MEMORY RIBBON WEARS NO PER-DECK COLOUR, AND THAT IS THE DIFFERENCE ──
+       Column Maths needed the gradients above because its operation is INVISIBLE until
+       you read the sum: one card deals either, so the ribbon is the only place a
+       pre-reader can see which. A memory deck is not hidden that way — its sign is on
+       the ribbon the whole time, and the chosen tab's glyph is the answer to "which
+       maths is this?" So all five tabs share the plain .fm-btn.on, exactly as f1's
+       five-button model strip does, and colour goes back to meaning only "this one is
+       on". Five gradients here would be decoration competing with the glyphs. */
+    .mm-strip{margin:-2px 0 4px}
 
     /* ── FRACTIONS, NUMBER LINE ──
        Rows reuse .fw-row's 76px | 1fr | 88px grid, which is what makes 1/2, 2/4 and 3/6 land
@@ -2690,6 +2726,71 @@ const COLUMN_SUB_HARD_PRESETS = [{
   tag: '>100 − >100',
   desc: 'Biggest borrow'
 }];
+/* ══ THE RUNGS OF A MERGED CARD ══
+   Each column card now holds two operations, and their four rungs were already the same
+   four steps in both lists — the comment on COLUMN_RANGES says so itself about c3: "the
+   same four rungs as c1, in the other operation". So the rung is chosen ONCE, by index,
+   and the operation is chosen separately by the ribbon: picking "under 20" means the
+   same size of number whether the next question adds or takes away.
+   The tag names the SIZE and not the sum, because "<20 + <20" would be a lie half the
+   time on a card that also takes away. */
+const COLUMN_EASY_RUNGS = [{
+  id: 'ce0',
+  emoji: '🌸',
+  tag: 'Under 10',
+  desc: '3 + 4, 9 − 5'
+}, {
+  id: 'ce1',
+  emoji: '🌷',
+  tag: 'Under 20',
+  desc: '12 + 6, 17 − 4'
+}, {
+  id: 'ce2',
+  emoji: '🌺',
+  tag: 'Under 100',
+  desc: 'No carrying, no borrowing'
+}, {
+  id: 'ce3',
+  emoji: '💜',
+  tag: 'Over 100',
+  desc: '244 + 35, 386 − 42'
+}];
+const COLUMN_HARD_RUNGS = [{
+  id: 'ch0',
+  emoji: '🌸',
+  tag: 'Two columns',
+  desc: 'One little box'
+}, {
+  id: 'ch1',
+  emoji: '🌷',
+  tag: 'Under 100',
+  desc: '47 + 38, 52 − 27'
+}, {
+  id: 'ch2',
+  emoji: '🌺',
+  tag: 'Over 100',
+  desc: '236 + 87, 314 − 68'
+}, {
+  id: 'ch3',
+  emoji: '💜',
+  tag: 'Biggest',
+  desc: '478 + 265, 631 − 274'
+}];
+/* Make 10's two rungs are the PICTURE, not the operation — they were already identical
+   in both halves, so merging them needed nothing but dropping the duplicate. */
+const TEN_RUNGS = [{
+  id: 't0',
+  emoji: '🌸',
+  tag: 'With frame',
+  show: 'frame',
+  desc: 'See it in the ten frame'
+}, {
+  id: 't1',
+  emoji: '🌈',
+  tag: 'Numbers',
+  show: 'numbers',
+  desc: '6 + ? = 10, 10 − 3 = ?'
+}];
 /* ── WHICH IS BIGGER? (g1) ──
    The ladder runs concrete → abstract, which is the owner's decision of 2026-08-17:
    the easy end compares two piles of blocks with no numerals on screen at all, then
@@ -2784,34 +2885,7 @@ const ODD_EVEN_PRESETS = [{
 /* ── MAKE 10 (n1 add / n2 sub) ──
    Two rungs each: the manipulative first, the bare equation second. The frame rung is
    where the bond is SEEN; the numbers rung is where it is recalled. */
-const TEN_BOND_PRESETS = {
-  n1: [{
-    id: 'n1f',
-    emoji: '🌸',
-    tag: 'With frame',
-    show: 'frame',
-    desc: 'Count the seats'
-  }, {
-    id: 'n1n',
-    emoji: '🌈',
-    tag: 'Numbers',
-    show: 'numbers',
-    desc: '6 + ? = 10'
-  }],
-  n2: [{
-    id: 'n2f',
-    emoji: '🌸',
-    tag: 'With frame',
-    show: 'frame',
-    desc: 'Watch them fly'
-  }, {
-    id: 'n2n',
-    emoji: '🌈',
-    tag: 'Numbers',
-    show: 'numbers',
-    desc: '10 − 3 = ?'
-  }]
-};
+
 /* ── WHAT'S MISSING? (b3) ──
    The missing addend, played as a balance. Owner request, 2026-08-19: "23 + ? = 30 …
    I want blocks to count, not in number format, but two sides of blocks to count",
@@ -3885,10 +3959,13 @@ function npEvaluate(tokens) {
 }
 
 /* ══ MEMORY MATCH ENGINE (pure) ══
-   A classic flip-card memory game, and deliberately NOT a multiplication game with
-   cards. Everything below knows about PAIRS; it knows nothing about fractions, times
-   tables or division. Adding a fourth mode is one entry in MEMORY_TOPICS plus, if it
-   needs a face nobody has drawn yet, one branch in MemoryFace. Nothing else changes.
+   A classic flip-card memory game, and deliberately NOT an arithmetic game with cards.
+   Everything below knows about PAIRS; it knows nothing about fractions, times tables,
+   sharing, adding or taking away. Adding a sixth deck is one entry in MEMORY_TOPICS,
+   one tab in MEMORY_TABS, and — only if its cards need a face nobody has drawn yet —
+   one branch in MemoryFace. Nothing else changes, which is what the 2026-09-08 merge
+   spent: five decks now share ONE home card and the ribbon picks between them, so a
+   deck costs a tab rather than a card, a preview, a voice line and a route.
 
    ── THE ONE RULE THAT MAKES THIS REUSABLE ──
    A pair is `{pairId, value, sideA, sideB, say}` and its two cards BOTH CARRY pairId.
@@ -3960,9 +4037,202 @@ const memoryFracValue = (n, d) => {
    square — correct, and unreadable at card size. A denominator only gets the grid when
    the grid actually has more than one row. */
 const memoryFracShapes = (d, shapes) => shapes.filter(s => s !== 'grid' || fractionGridCols(d) < d);
+
+/* THE FIVE DECKS, IN THE RIBBON'S ORDER. `id` is the tab id as well as the deck's
+   name — there is no mode id any more, because there is no longer a mode per deck.
+
+   ── WHY + AND − ARE BOUNDED BY THEIR ADDENDS AND NOT BY THEIR TOTAL ──
+   `maxAdd` is the biggest number that may appear as an addend, which is the thing that
+   makes a sum easy or hard, and it is the axis Column Maths' rungs already move ("Under
+   10", "Under 20"). Bounding the TOTAL instead looks equivalent and is not: ordered
+   pairs cluster towards the top of a total range — there are 19 ways to make 20 and one
+   to make 2 — so a board capped at a total would show almost nothing but its biggest
+   sums, and a child would never meet 4 + 5 on it.
+
+   Take away is the same deck read backwards: every `a + b = t` is also `t − b = a`, so
+   one `maxAdd` describes both and the two tabs are the same three rungs in the two
+   operations. That is the shape Column Maths found on 2026-09-08, arrived at again here
+   from the other direction. */
 const MEMORY_TOPICS = [{
+  id: 'plus',
+  title: 'Adding Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each adding sum and its answer!',
+  levels: {
+    kSmall: {
+      maxAdd: 5
+    },
+    kMiddle: {
+      maxAdd: 10
+    },
+    kBig: {
+      maxAdd: 20
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    for (let a = 1; a <= cfg.maxAdd; a++) {
+      for (let b = 1; b <= cfg.maxAdd; b++) {
+        out.push({
+          pairId: `add-${a}+${b}`,
+          value: `sum:${a + b}`,
+          say: `${a} plus ${b} is ${a + b}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${a} + ${b}`,
+            face: `e:${a}+${b}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(a + b),
+            face: `a:${a + b}`
+          }
+        });
+      }
+    }
+    return out;
+  }
+}, {
+  id: 'minus',
+  title: 'Take Away Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each take away sum and its answer!',
+  /* Never below zero and never a bare `a − a`: the answer is chosen FIRST, from 1 up,
+     and the minuend is worked out from it. So the deck cannot contain a sum this app
+     has no answer card for, and `maxAdd` means the same thing it means for adding —
+     the biggest number a child has to hold — even though the minuend is larger. */
+  levels: {
+    kSmall: {
+      maxAdd: 5
+    },
+    kMiddle: {
+      maxAdd: 10
+    },
+    kBig: {
+      maxAdd: 20
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    for (let ans = 1; ans <= cfg.maxAdd; ans++) {
+      for (let b = 1; b <= cfg.maxAdd; b++) {
+        out.push({
+          pairId: `sub-${ans + b}-${b}`,
+          value: `diff:${ans}`,
+          say: `${ans + b} take away ${b} is ${ans}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${ans + b} − ${b}`,
+            face: `e:${ans + b}-${b}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(ans),
+            face: `a:${ans}`
+          }
+        });
+      }
+    }
+    return out;
+  }
+}, {
+  id: 'times',
+  title: 'Times Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each times sum and its answer!',
+  /* `tables` is the axis a future "just the threes" selector would move, and it is
+     data for exactly that reason. It is still not exposed: the screen now spends its
+     controls on the deck (the ribbon) and the board size (the gear), and a third
+     picker on a memory board is a setting standing between a child and the cards. */
+  levels: {
+    kSmall: {
+      tables: [2, 5, 10],
+      upTo: 6
+    },
+    kMiddle: {
+      tables: [2, 3, 4, 5, 10],
+      upTo: 10
+    },
+    kBig: {
+      tables: [2, 3, 4, 5, 6, 7, 8, 9],
+      upTo: 12
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    cfg.tables.forEach(a => {
+      for (let b = 1; b <= cfg.upTo; b++) {
+        out.push({
+          pairId: `mul-${a}x${b}`,
+          value: `prod:${a * b}`,
+          say: `${a} times ${b} is ${a * b}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${a} × ${b}`,
+            face: `e:${a}x${b}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(a * b),
+            face: `a:${a * b}`
+          }
+        });
+      }
+    });
+    return out;
+  }
+}, {
+  id: 'division',
+  title: 'Sharing Pairs',
+  sub: 'Find the answer!',
+  ask: 'Find each sharing sum and its answer!',
+  /* Whole numbers only, no remainders — the app teaches none yet, and Share It Out
+     (d1) deals every counter out with none left over. The dividend is the product of
+     the two, so the biggest sum on the big board is 144 ÷ 12, which is the ceiling
+     Times Tables opens on. */
+  levels: {
+    kSmall: {
+      divisors: [2, 5, 10],
+      upTo: 6
+    },
+    kMiddle: {
+      divisors: [2, 3, 4, 5, 10],
+      upTo: 10
+    },
+    kBig: {
+      divisors: [2, 3, 4, 5, 6, 7, 8, 9],
+      upTo: 12
+    }
+  },
+  pool(rng, levelId) {
+    const cfg = this.levels[levelId] || this.levels.kSmall;
+    const out = [];
+    cfg.divisors.forEach(k => {
+      for (let q = 1; q <= cfg.upTo; q++) {
+        out.push({
+          pairId: `div-${k * q}-${k}`,
+          value: `quot:${q}`,
+          say: `${k * q} shared by ${k} is ${q}.`,
+          sideA: {
+            kind: 'expression',
+            text: `${k * q} ÷ ${k}`,
+            face: `e:${k * q}/${k}`
+          },
+          sideB: {
+            kind: 'answer',
+            text: String(q),
+            face: `a:${q}`
+          }
+        });
+      }
+    });
+    return out;
+  }
+}, {
   id: 'fractions',
-  modeId: 'k1',
   title: 'Fraction Pairs',
   sub: 'Find the picture!',
   ask: 'Find each fraction and its picture!',
@@ -4011,104 +4281,13 @@ const MEMORY_TOPICS = [{
     });
     return out;
   }
-}, {
-  id: 'times',
-  modeId: 'k2',
-  title: 'Times Pairs',
-  sub: 'Find the answer!',
-  ask: 'Find each times sum and its answer!',
-  /* `tables` is the axis a future "just the threes" selector would move, and it is
-     data for exactly that reason. It is not exposed yet: this screen already spends
-     its one control on the board size, and a second picker on a memory board is a
-     setting between a child and the cards. */
-  levels: {
-    kSmall: {
-      tables: [2, 5, 10],
-      upTo: 6
-    },
-    kMiddle: {
-      tables: [2, 3, 4, 5, 10],
-      upTo: 10
-    },
-    kBig: {
-      tables: [2, 3, 4, 5, 6, 7, 8, 9],
-      upTo: 12
-    }
-  },
-  pool(rng, levelId) {
-    const cfg = this.levels[levelId] || this.levels.kSmall;
-    const out = [];
-    cfg.tables.forEach(a => {
-      for (let b = 1; b <= cfg.upTo; b++) {
-        out.push({
-          pairId: `mul-${a}x${b}`,
-          value: `prod:${a * b}`,
-          say: `${a} times ${b} is ${a * b}.`,
-          sideA: {
-            kind: 'expression',
-            text: `${a} × ${b}`,
-            face: `e:${a}x${b}`
-          },
-          sideB: {
-            kind: 'answer',
-            text: String(a * b),
-            face: `a:${a * b}`
-          }
-        });
-      }
-    });
-    return out;
-  }
-}, {
-  id: 'division',
-  modeId: 'k3',
-  title: 'Sharing Pairs',
-  sub: 'Find the answer!',
-  ask: 'Find each sharing sum and its answer!',
-  /* Whole numbers only, no remainders — the app teaches none yet, and Share It Out
-     (d1) deals every counter out with none left over. The dividend is the product of
-     the two, so the biggest sum on the big board is 144 ÷ 12, which is the ceiling
-     Times Tables opens on. */
-  levels: {
-    kSmall: {
-      divisors: [2, 5, 10],
-      upTo: 6
-    },
-    kMiddle: {
-      divisors: [2, 3, 4, 5, 10],
-      upTo: 10
-    },
-    kBig: {
-      divisors: [2, 3, 4, 5, 6, 7, 8, 9],
-      upTo: 12
-    }
-  },
-  pool(rng, levelId) {
-    const cfg = this.levels[levelId] || this.levels.kSmall;
-    const out = [];
-    cfg.divisors.forEach(k => {
-      for (let q = 1; q <= cfg.upTo; q++) {
-        out.push({
-          pairId: `div-${k * q}-${k}`,
-          value: `quot:${q}`,
-          say: `${k * q} shared by ${k} is ${q}.`,
-          sideA: {
-            kind: 'expression',
-            text: `${k * q} ÷ ${k}`,
-            face: `e:${k * q}/${k}`
-          },
-          sideB: {
-            kind: 'answer',
-            text: String(q),
-            face: `a:${q}`
-          }
-        });
-      }
-    });
-    return out;
-  }
 }];
-const memoryTopic = modeId => MEMORY_TOPICS.find(t => t.modeId === modeId) || MEMORY_TOPICS[0];
+const memoryTopic = id => MEMORY_TOPICS.find(t => t.id === id) || MEMORY_TOPICS[0];
+/* Owner, 2026-09-08: the merged card opens on adding. The ribbon then shows a child
+   there are four more decks behind it, which a card called "Fraction Pairs" never
+   could. Named rather than an index into the list above, so reordering the ribbon
+   cannot silently change which deck a child lands on. */
+const MEMORY_DEFAULT_TOPIC = 'plus';
 
 /* Choose `n` pairs out of a pool that is deliberately much larger, so that starting
    again is a new set of questions rather than the same six cards in new places.
@@ -4398,18 +4577,22 @@ function GamePreview({
   }), /*#__PURE__*/React.createElement("span", {
     className: "gp-o gp-empty"
   })));
-  if (id === 'c1') return /*#__PURE__*/ /* Column Add — the stacked sum and its rule */React.createElement("div", {
+  if (id === 'c1') return /*#__PURE__*/ /* Add & Take Away — one stacked sum, either sign */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
   }, /*#__PURE__*/React.createElement("div", {
     className: "gp-row"
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
-  }, "24")), /*#__PURE__*/React.createElement("div", {
+  }, "47")), /*#__PURE__*/React.createElement("div", {
     className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-ops2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-op gp-big"
   }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-take"
+  }, "\u2212")), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "13")), /*#__PURE__*/React.createElement("span", {
     className: "gp-line"
@@ -4563,72 +4746,38 @@ function GamePreview({
   }, "/"), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "4")));
-  if (id === 'c2') return /*#__PURE__*/ /* Carry Add — the little box is the signature */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row gp-carry-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-carry"
-  }, "1")), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "27")), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-op gp-big"
-  }, "+"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "15")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-line"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, box, box));
-  if (id === 'c3') return /*#__PURE__*/ /* Take Away — the same stack, the minus in a coin */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "47")), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-take"
-  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "13")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-line"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, box, box));
-  if (id === 'c4') return /*#__PURE__*/ /* Borrow Take Away — a crossed digit, the one that moved, the coin */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row gp-carry-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-carry"
-  }, "1")), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-small"
-  }, "2"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-num gp-strike"
-  }, "3"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "4")), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-take"
-  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-num"
-  }, "8")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-line"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, box, box));
+  if (id === 'c2') return (
+    /*#__PURE__*/
+    /* Carry & Borrow — the little box is the signature of BOTH:
+       the one that arrived, from the right when adding and from
+       the left when taking away. */
+    React.createElement("div", {
+      className: "gp gp-tight",
+      "aria-hidden": "true"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "gp-row gp-carry-row"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-carry"
+    }, "1")), /*#__PURE__*/React.createElement("div", {
+      className: "gp-row"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-num"
+    }, "27")), /*#__PURE__*/React.createElement("div", {
+      className: "gp-row"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-ops2"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-op gp-big"
+    }, "+"), /*#__PURE__*/React.createElement("span", {
+      className: "gp-take"
+    }, "\u2212")), /*#__PURE__*/React.createElement("span", {
+      className: "gp-num"
+    }, "15")), /*#__PURE__*/React.createElement("span", {
+      className: "gp-line"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "gp-row"
+    }, box, box))
+  );
   if (id === 'g1') return /*#__PURE__*/ /* Which is Bigger? — two piles, and the sign that reads them */React.createElement("div", {
     className: "gp",
     "aria-hidden": "true"
@@ -4724,68 +4873,42 @@ function GamePreview({
   })), /*#__PURE__*/React.createElement("span", {
     className: "gp-pd gp-lone"
   }, "?")));
-  if (id === 'n1') return /*#__PURE__*/ /* Add to 10 — a part-filled ten-frame asking to be finished */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row",
-    style: {
-      marginTop: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf"
-  })));
-  if (id === 'n2') return /*#__PURE__*/ /* Take from 10 — a nearly full frame, one counter leaving */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf gone"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row",
-    style: {
-      marginTop: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-tf on"
-  })));
+  if (id === 'n1') return (
+    /*#__PURE__*/
+    /* Make 10 — ONE frame asking both of its questions: two empty
+       seats waiting to be filled, and one counter already leaving */
+    React.createElement("div", {
+      className: "gp gp-tight",
+      "aria-hidden": "true"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "gp-row"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf gone"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "gp-row",
+      style: {
+        marginTop: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf on"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "gp-tf"
+    })))
+  );
   if (id === 'n3') return /*#__PURE__*/ /* Make 100 — a hundred block part filled, and the bond */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -5005,40 +5128,11 @@ function GamePreview({
   }, "1"), /*#__PURE__*/React.createElement("span", {
     className: "gp-npn"
   }, "5")));
-  if (id === 'k1') return /*#__PURE__*/ /* Fraction Pairs — the fraction and its picture, turned over */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm up"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmn"
-  }, "1"), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmb"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmn"
-  }, "2")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row",
-    style: {
-      marginTop: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm up"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmp"
-  }, /*#__PURE__*/React.createElement("i", {
-    className: "on"
-  }), /*#__PURE__*/React.createElement("i", null))), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  })));
-  if (id === 'k2') return /*#__PURE__*/ /* Times Pairs — a times sum and its answer, turned over */React.createElement("div", {
+  /* Memory Match — six cards, two of them turned over and paired. It shows the ADDING
+     deck because that is the board the card opens on: a preview is a miniature of the
+     screen behind the card, and the three decks it used to show are now one tap further
+     in. The move is what the picture is really for, and every deck makes the same one. */
+  if (id === 'k1') return /*#__PURE__*/React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
   }, /*#__PURE__*/React.createElement("div", {
@@ -5047,7 +5141,7 @@ function GamePreview({
     className: "gp-mm up"
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-mmt"
-  }, "3\xD74")), /*#__PURE__*/React.createElement("span", {
+  }, "8+4")), /*#__PURE__*/React.createElement("span", {
     className: "gp-mm"
   }), /*#__PURE__*/React.createElement("span", {
     className: "gp-mm"
@@ -5063,33 +5157,6 @@ function GamePreview({
   }, /*#__PURE__*/React.createElement("span", {
     className: "gp-mmt"
   }, "12")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  })));
-  if (id === 'k3') return /*#__PURE__*/ /* Sharing Pairs — a sharing sum and its answer, turned over */React.createElement("div", {
-    className: "gp gp-tight",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "gp-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm up"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmt"
-  }, "12\xF73"))), /*#__PURE__*/React.createElement("div", {
-    className: "gp-row",
-    style: {
-      marginTop: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm up"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "gp-mmt"
-  }, "4")), /*#__PURE__*/React.createElement("span", {
-    className: "gp-mm"
-  }), /*#__PURE__*/React.createElement("span", {
     className: "gp-mm"
   })));
   return null;
@@ -5756,6 +5823,169 @@ function GroupIcon() {
     strokeWidth: "1.7"
   }));
 }
+/* The three operation tabs. `+` and `−` are the glyphs the game already prints between
+   the two rows, so nothing new has to be learned to read them. Mix is drawn as both at
+   once — a plus above, a minus below — rather than as a symbol like ±, which a
+   seven-year-old has never met. */
+function PlusOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12 4.8v14.4M4.8 12h14.4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "3.4",
+    strokeLinecap: "round"
+  }));
+}
+function MinusOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M4.8 12h14.4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "3.4",
+    strokeLinecap: "round"
+  }));
+}
+function BothOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M7 3.6v8.2M2.9 7.7h8.2",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.9",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12.8 16.3h8.3",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.9",
+    strokeLinecap: "round"
+  }));
+}
+function TimesOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M6.9 6.9l10.2 10.2M17.1 6.9L6.9 17.1",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "3.4",
+    strokeLinecap: "round"
+  }));
+}
+function ShareOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M4.8 12h14.4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "3.4",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "6.5",
+    r: "1.9",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "17.5",
+    r: "1.9",
+    fill: "currentColor"
+  }));
+}
+function HalfOpIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12 3.9a8.1 8.1 0 0 0 0 16.2z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "8.1",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.6"
+  }));
+}
+
+/* ══ THE OPERATION RIBBON ══
+   Owner, 2026-09-08, on merging Column Add with Take Away and Carry Add with Borrow:
+   *"I think we can default at Mix for both. and if they want specialize, no + or no -,
+   they can choose."*
+
+   MIX IS THE DEFAULT, AND THAT IS THE TEACHING CLAIM, not a tidy-up. Make 100 has argued
+   it on this same shelf since it was built: asked only one way, a bond becomes a
+   procedure — "take the number away from a hundred" — and a procedure does not transfer.
+   Mixed, the child has to read what is actually being asked before they can answer it.
+   Merging the cards is what lets the two operations sit behind one default at all.
+
+   THREE TABS, NOT A TOGGLE. Two states could be one button that swaps its own face, but
+   there are three, and f1's model strip already settled the argument for showing them
+   all at once: a child cannot choose what they cannot see, and a cycling button asks
+   them to remember an order.
+
+   SWITCHING TABS STARTS A NEW QUESTION, which is the one place this differs from f1's
+   strip. There the five models are five views of one state and switching keeps every
+   piece you took, because it IS the same whole. Here the tabs are not views of one
+   question — `62 + 19` cannot be redrawn as a take-away — so the honest thing is to
+   deal a fresh problem in the chosen operation rather than pretend the old one carried
+   over. The rung, the score and the journey all survive; only the question is new. */
+const OP_TABS = [{
+  id: 'mix',
+  Icon: BothOpIcon,
+  label: 'Adding and taking away'
+}, {
+  id: 'plus',
+  Icon: PlusOpIcon,
+  label: 'Only adding'
+}, {
+  id: 'minus',
+  Icon: MinusOpIcon,
+  label: 'Only taking away'
+}];
+function OpRibbon({
+  value,
+  onChange,
+  muted
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip op-strip",
+    role: "group",
+    "aria-label": "Choose adding, taking away, or both"
+  }, OP_TABS.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: `fm-btn op-${t.id} ${value === t.id ? 'on' : ''}`,
+    "aria-label": t.label,
+    "aria-pressed": value === t.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onChange(t.id);
+    }
+  }, /*#__PURE__*/React.createElement(t.Icon, null))));
+}
+/* Which operation the NEXT question uses. Mix flips a coin every time rather than
+   alternating: a strict alternation is a pattern, and a child who spots it stops
+   reading the question, which is the exact habit Mix exists to prevent. */
+const pickOp = (tab, rnd = Math.random) => tab === 'mix' ? rnd() < 0.5 ? 'plus' : 'minus' : tab;
 function SpeakerOnIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
@@ -7131,61 +7361,17 @@ const tens = n => Math.floor(n % 100 / 10);
 function isNoCarry(a, b) {
   return ones(a) + ones(b) <= 9 && tens(a) + tens(b) <= 9;
 }
-function buildColumnAddProblems(preset) {
-  const valid = [];
-  const ranges = {
-    tiny: {
-      aMin: 1,
-      aMax: 9,
-      bMin: 1,
-      bMax: 9
-    },
-    small20: {
-      aMin: 1,
-      aMax: 19,
-      bMin: 1,
-      bMax: 19
-    },
-    twoDigit: {
-      aMin: 1,
-      aMax: 99,
-      bMin: 1,
-      bMax: 99
-    },
-    big: {
-      aMin: 100,
-      aMax: 999,
-      bMin: 1,
-      bMax: 99
-    }
-  };
-  const r = ranges[preset.id] || ranges.big;
-  for (let a = r.aMin; a <= r.aMax; a++) {
-    for (let b = r.bMin; b <= r.bMax; b++) {
-      if (preset.id === 'tiny' && a + b > 9) continue;
-      if (preset.id !== 'tiny' && !isNoCarry(a, b)) continue;
-      valid.push({
-        a,
-        b,
-        answer: a + b
-      });
-    }
-  }
-  return valid;
-}
-function makeColumnAddProblem(preset = COLUMN_ADD_PRESETS[3]) {
-  const valid = buildColumnAddProblems(preset);
-  return valid[rand(0, valid.length - 1)];
-}
 function toColumnDigits(n, colCount) {
   const chars = String(n).split('');
   return [...Array(Math.max(0, colCount - chars.length)).fill(''), ...chars];
 }
 
-/* ══ MODES c2 / c3 / c4: COLUMN MATHS WITH CARRY AND BORROW ══
-   c1 above is untouched: it fills left to right and checks the whole answer at the end.
-   These three fill RIGHT TO LEFT and check every box the instant it is typed, because
-   the point of a scaffold is that each small step is verifiable.
+/* ══ MODES c1 / c2 / c3 / c4: COLUMN MATHS ══
+   All four fill RIGHT TO LEFT and check every box the instant it is typed, because the
+   point of a scaffold is that each small step is verifiable. c1 was the exception until
+   2026-09-08 — it filled left to right and checked the whole answer at the end — and it
+   stopped being one when Column Add and Take Away became a single card: see the note on
+   c1 in COLUMN_MODES for why one card cannot hold two ways of answering.
    Carry and borrow are one widget — a little dashed box meaning "the one that arrived
    into this column", from the right when adding, from the left when taking away. The
    child types it; nothing is filled in for them. */
@@ -7377,6 +7563,35 @@ function topStruck(op, hard, a, colCount, marks) {
    Ranges are keyed by preset id and live here, not in the theme-specific preset arrays,
    so the maths is one shared block that a parity diff can check. */
 const COLUMN_RANGES = {
+  /* c1 — adding with no carry at all. `tinySum` is the one rung whose rule is not
+     "no carry" but "the answer stays under ten", which is a stricter thing and is what
+     makes the first rung a single column. Lifted verbatim from buildColumnAddProblems,
+     which is what generated c1's problems before c1 joined this component. */
+  tiny: {
+    aMin: 1,
+    aMax: 9,
+    bMin: 1,
+    bMax: 9,
+    tinySum: true
+  },
+  small20: {
+    aMin: 1,
+    aMax: 19,
+    bMin: 1,
+    bMax: 19
+  },
+  twoDigit: {
+    aMin: 1,
+    aMax: 99,
+    bMin: 1,
+    bMax: 99
+  },
+  big: {
+    aMin: 100,
+    aMax: 999,
+    bMin: 1,
+    bMax: 99
+  },
   /* c2. carryTiny caps the carries at one so it is always two columns and three taps:
      the entire rung is "does a ten arrive — yes or no". */
   carryTiny: {
@@ -7501,6 +7716,32 @@ function makeColumnProblem(cfg, preset, avoid) {
    `fits` carries the whole difference between the three modes, which is why there is
    one component below and not three. */
 const COLUMN_MODES = {
+  /* c1 JOINED THIS COMPONENT ON 2026-09-08, and it had to. Merging Column Add with Take
+     Away onto one card means one card can deal either question, and c1's old screen
+     answered a different way from c3's — type the whole answer left to right, check it
+     at the end, against c3's right-to-left cursor that checks every box as it is typed.
+     Two input models behind one ribbon is not one game, and Mix — where the operation
+     changes every question — would have swapped the way you answer under the child's
+     finger. So c1 is now the fourth `fits` in this table and its own component is gone.
+     What changes for a child playing Column Add: the answer is checked a column at a
+     time instead of all at once, which is how the other three already work and how the
+     column method is actually taught.
+     `intro` is null rather than 'Adding!': every other intro here is a rendered clip and
+     that one is not, and a line with no clip would speak in the robot voice beside three
+     that do not. The opening still names the operation — "24 plus 13" — so nothing is
+     lost but the announcement. */
+  c1: {
+    key: 'c1',
+    op: '+',
+    hard: false,
+    startIdx: 3,
+    title: 'Column Add',
+    sub: 'Tap the answer!',
+    opWord: 'plus',
+    intro: null,
+    presets: COLUMN_ADD_PRESETS,
+    fits: (a, b, hot, r) => r.tinySum ? a + b <= 9 : isNoCarry(a, b)
+  },
   c2: {
     key: 'c2',
     op: '+',
@@ -7551,219 +7792,34 @@ const COLUMN_MODES = {
     }
   }
 };
-function ColumnAddSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "Column Add"), COLUMN_ADD_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-      onClose();
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
-function ColumnAdd({
-  onBack,
-  flowers,
-  gardenFull,
-  setFlowers,
-  setGardenFull,
-  score,
-  setScore,
-  bouquets,
-  addBouquet,
-  muted,
-  onToggleMute
-}) {
-  const [preset, setPreset] = useState(COLUMN_ADD_PRESETS[3]);
-  const [showSettings, setShowSettings] = useState(false);
-  const [problem, setProblem] = useState(() => makeColumnAddProblem(COLUMN_ADD_PRESETS[3]));
-  const colCount = useMemo(() => Math.max(String(problem.a).length, String(problem.b).length, String(problem.answer).length), [problem]);
-  const [digits, setDigits] = useState(() => Array(colCount).fill(''));
-  const [won, setWon] = useState(false);
-  const [wrong, setWrong] = useState(false);
-  const [confetti, setConf] = useState(false);
-  const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
-  const mascot = useMascot();
-  const [misses, setMisses] = useState(0);
-  /* Nothing until the third miss -- see MISS_HINT. The faint ghost answer appears on
-     that same beat and used to appear in silence; this is the line that belongs under it. */
-  useEffect(() => {
-    if (misses && misses % 3 === 0) Voice.say(missHint());
-  }, [misses]);
-  const aDigits = toColumnDigits(problem.a, colCount);
-  const bDigits = toColumnDigits(problem.b, colCount);
-  const nextIndex = digits.findIndex(d => d === '');
-  const resetForProblem = useCallback(p => {
-    setProblem(p);
-    const nextCols = Math.max(String(p.a).length, String(p.b).length, String(p.answer).length);
-    setDigits(Array(nextCols).fill(''));
-    setWon(false);
-    setWrong(false);
-    setMisses(0);
-  }, []);
-  useEffect(() => {
-    Voice.lines([num(`${problem.a} plus ${problem.b}.`), 'Tap the answer!']);
-  }, [problem]);
-  const next = useCallback(() => {
-    if (flowers === MAX_FLOWERS) {
-      setFlowers(0);
-      setGardenFull(false);
-      addBouquet();
-    }
-    resetForProblem(makeColumnAddProblem(preset));
-  }, [flowers, setFlowers, setGardenFull, preset, resetForProblem]);
-  const applyPreset = useCallback(p => {
-    setPreset(p);
-    resetForProblem(makeColumnAddProblem(p));
-    setShowSettings(false);
-  }, [resetForProblem]);
-  const clear = useCallback(() => {
-    Sound.setMuted(muted);
-    Sound.tap();
-    if (won) return;
-    setDigits(Array(colCount).fill(''));
-    setWrong(false);
-  }, [muted, won, colCount]);
-  const tapDigit = useCallback(n => {
-    Sound.setMuted(muted);
-    Sound.tap();
-    if (won) return;
-    setDigits(prev => {
-      const idx = prev.findIndex(d => d === '');
-      if (idx < 0) return prev;
-      const out = [...prev];
-      out[idx] = String(n);
-      return out;
-    });
-  }, [muted, won]);
-  useEffect(() => {
-    if (won || digits.some(d => d === '')) return;
-    const guess = digits.join('');
-    Sound.setMuted(muted);
-    if (guess === String(problem.answer)) {
-      setWon(true);
-      setWrong(false);
-      setConf(true);
-      Sound.ding();
-      setTimeout(() => Sound.celebrate(), 200);
-      mascot.happy();
-      Voice.lines([praise(), num(`${problem.answer}!`), num(`${problem.a} plus ${problem.b} is ${problem.answer}.`)]);
-      setScore(s => s + 1);
-      addFlower();
-      setTimeout(() => setConf(false), 2500);
-    } else {
-      setWrong(true);
-      Sound.wrong();
-      mascot.oops();
-      setMisses(m => m + 1);
-      const ansStr = String(problem.answer);
-      setTimeout(() => {
-        setDigits(prev => prev.map((d, i) => d === ansStr[i] ? d : ''));
-        setWrong(false);
-      }, 650);
-    }
-  }, [digits, won, muted, problem, setScore, addFlower, colCount]);
-  return /*#__PURE__*/React.createElement("div", {
-    className: "screen column-screen"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(ColumnAddSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
-  }), /*#__PURE__*/React.createElement(Confetti, {
-    active: confetti
-  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
-    onBack: onBack,
-    onSettings: () => setShowSettings(true),
-    muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
-    score: score,
-    flowers: flowers,
-    bouquets: bouquets
-  }), /*#__PURE__*/React.createElement(Mascot, {
-    kind: "unicorn",
-    mood: mascot.mood,
-    stamp: mascot.stamp,
-    onPoke: mascot.poke
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "count-title"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "count-title-main"
-  }, "Column Add"), /*#__PURE__*/React.createElement("div", {
-    className: "count-title-sub"
-  }, "Tap the answer!")), /*#__PURE__*/React.createElement("div", {
-    className: "column-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "column-grid",
-    style: {
-      '--col-count': colCount
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "column-blank"
-  }), aDigits.map((d, i) => /*#__PURE__*/React.createElement("div", {
-    key: `a${i}`,
-    className: "column-digit"
-  }, d)), /*#__PURE__*/React.createElement("div", {
-    className: "column-plus"
-  }, "+"), bDigits.map((d, i) => /*#__PURE__*/React.createElement("div", {
-    key: `b${i}`,
-    className: "column-digit"
-  }, d)), /*#__PURE__*/React.createElement("div", {
-    className: "column-line"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "column-blank"
-  }), digits.map((d, i) => /*#__PURE__*/React.createElement("div", {
-    key: `ans${i}`,
-    className: `column-answer-box ${nextIndex === i && !won ? 'active' : ''} ${wrong ? 'wrong' : ''}`
-  }, d || (misses >= 3 ? /*#__PURE__*/React.createElement("span", {
-    className: "ghost-hint"
-  }, String(problem.answer)[i]) : '_'))), /*#__PURE__*/React.createElement("div", {
-    className: "column-final-line"
-  }))), won && /*#__PURE__*/React.createElement("div", {
-    className: "column-celebrate"
-  }, problem.a, " + ", problem.b, " = ", problem.answer, "!"), !won && /*#__PURE__*/React.createElement("div", {
-    className: "keypad"
-  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    className: "key-btn",
-    onClick: () => tapDigit(n)
-  }, n)), /*#__PURE__*/React.createElement("button", {
-    className: "key-btn clear",
-    onClick: clear
-  }, "Clear")), won && /*#__PURE__*/React.createElement("button", {
-    className: "next-btn",
-    onClick: next
-  }, "Next"));
-}
 
-/* One modal for all three new modes; c1's ColumnAddSettings is untouched. */
+/* ══ THE TWO COLUMN CARDS ══
+   Owner, 2026-09-08: *"column add and take away. carry add and borrow take away."* — the
+   four cards become two, each holding one difficulty in both operations. It is the split
+   the 2x2 above already described: difficulty ran down the grid and operation ran across,
+   so the rows became the cards and the columns became the ribbon's tabs.
+
+   THE CARD KEEPS THE ID ITS FIRST HALF HAD. Card `c1` holds op configs c1 and c3; card
+   `c2` holds c2 and c4. Reusing the id rather than minting a new one means the saved
+   score, the journey and the `#play-c1` QA bootstrap all carry over untouched, and the
+   parity check's "every game the home screen offers is routed" stays exactly true. */
+const COLUMN_PAIRS = {
+  c1: {
+    plus: 'c1',
+    minus: 'c3',
+    title: 'Add & Take Away',
+    rungs: COLUMN_EASY_RUNGS
+  },
+  c2: {
+    plus: 'c2',
+    minus: 'c4',
+    title: 'Carry & Borrow',
+    rungs: COLUMN_HARD_RUNGS
+  }
+};
+
+/* One modal for both column cards. It lists the RUNGS, which are now the same four
+   sizes whichever operation the ribbon is set to. */
 function ColumnMathSettings({
   cfg,
   current,
@@ -7800,7 +7856,7 @@ function ColumnMathSettings({
   }, "Done")));
 }
 function ColumnMath({
-  modeId,
+  cardId,
   onBack,
   flowers,
   gardenFull,
@@ -7813,10 +7869,33 @@ function ColumnMath({
   muted,
   onToggleMute
 }) {
-  const cfg = COLUMN_MODES[modeId];
-  const [preset, setPreset] = useState(() => cfg.presets[cfg.startIdx]);
+  const pair = COLUMN_PAIRS[cardId];
+  /* THREE THINGS, AND THEY HAVE DIFFERENT OWNERS. The ribbon's tab and the rung are the
+     child's standing choices and survive every question. The VARIANT — which of the
+     pair's two operations this is — belongs to the QUESTION, because under Mix it changes
+     with every one, so it rides on the problem object and everything downstream reads it
+     from there. `cfg` is therefore the config of the sum currently on screen, which is
+     what every line below this already assumed it was. */
+  const [tab, setTab] = useState('mix');
+  const [rungIdx, setRungIdx] = useState(() => COLUMN_MODES[pair.plus].startIdx);
+  /* One question, dealt: the tab picks the operation, then that operation's own preset
+     for the chosen rung picks the numbers. `avoid` only bites within the same operation,
+     because the "never the same problem twice running" rule is about repeating a SUM,
+     and 12 − 5 after 12 + 5 is a different question, not a repeat. */
+  const deal = useCallback((t, idx, avoid) => {
+    const v = pair[pickOp(t)];
+    const c = COLUMN_MODES[v];
+    return {
+      ...makeColumnProblem(c, c.presets[idx], avoid && avoid.variant === v ? avoid : null),
+      variant: v
+    };
+  }, [pair]);
   const [showSettings, setShowSettings] = useState(false);
-  const [problem, setProblem] = useState(() => makeColumnProblem(cfg, cfg.presets[cfg.startIdx], null));
+  const [problem, setProblem] = useState(() => deal('mix', COLUMN_MODES[pair.plus].startIdx, null));
+  const cfg = COLUMN_MODES[problem.variant];
+  /* The pill and the modal show the RUNG — a size, which means the same thing in both
+     operations — while the generator above uses that rung's operation-specific preset. */
+  const preset = pair.rungs[rungIdx];
   const colCount = useMemo(() => columnCount(cfg.op, problem), [cfg.op, problem]);
   const ansCols = String(problem.answer).length;
   const [ansDigits, setAns] = useState(() => Array(colCount).fill('')); // by COLUMN, '' until filled
@@ -7851,7 +7930,7 @@ function ColumnMath({
      twenty-one buzzes on one problem. */
   const ghostAll = problemMiss >= 6;
   const resetForProblem = useCallback(p => {
-    const n = columnCount(cfg.op, p);
+    const n = columnCount(COLUMN_MODES[p.variant].op, p);
     setProblem(p);
     setAns(Array(n).fill(''));
     setMarks(Array(n).fill(''));
@@ -7862,20 +7941,28 @@ function ColumnMath({
     setShake(false);
     setNudge(false);
     setWon(false);
-  }, [cfg]);
+  }, []);
   const next = useCallback(() => {
     if (flowers === MAX_FLOWERS) {
       setFlowers(0);
       setGardenFull(false);
       addBouquet();
     }
-    resetForProblem(makeColumnProblem(cfg, preset, problem));
-  }, [flowers, setFlowers, setGardenFull, addBouquet, cfg, preset, problem, resetForProblem]);
+    resetForProblem(deal(tab, rungIdx, problem));
+  }, [flowers, setFlowers, setGardenFull, addBouquet, deal, tab, rungIdx, problem, resetForProblem]);
+
+  /* A new rung and a new tab both deal a fresh question — see OpRibbon on why a tab
+     cannot carry the old one over. */
   const applyPreset = useCallback(p => {
-    setPreset(p);
-    resetForProblem(makeColumnProblem(cfg, p, null));
+    const i = Math.max(0, pair.rungs.indexOf(p));
+    setRungIdx(i);
+    resetForProblem(deal(tab, i, null));
     setShowSettings(false);
-  }, [cfg, resetForProblem]);
+  }, [pair, deal, tab, resetForProblem]);
+  const applyTab = useCallback(t => {
+    setTab(t);
+    resetForProblem(deal(t, rungIdx, null));
+  }, [deal, rungIdx, resetForProblem]);
 
   /* The one place the child is TOLD what a box is for. The glow alone is enough for an
      answer box — every other game in this app works that way — but the little box is a
@@ -8015,7 +8102,10 @@ function ColumnMath({
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
   }), showSettings && /*#__PURE__*/React.createElement(ColumnMathSettings, {
-    cfg: cfg,
+    cfg: {
+      title: pair.title,
+      presets: pair.rungs
+    },
     current: preset,
     onChange: applyPreset,
     onClose: () => setShowSettings(false)
@@ -8040,9 +8130,13 @@ function ColumnMath({
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
     className: "count-title-main"
-  }, cfg.title), /*#__PURE__*/React.createElement("div", {
+  }, pair.title), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, cfg.sub)), /*#__PURE__*/React.createElement("div", {
+  }, cfg.sub)), /*#__PURE__*/React.createElement(OpRibbon, {
+    value: tab,
+    onChange: applyTab,
+    muted: muted
+  }), /*#__PURE__*/React.createElement("div", {
     className: "column-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: `column-grid cm-grid ${colCount >= 4 ? 'cm-4' : ''}`,
@@ -11225,6 +11319,12 @@ function OddEvenGame({
    their seats (subtraction begins at the whole), and flies them away when the answer
    lands. On the numbers rung the equation is the question and the frame arrives only
    with the answer — the bond has to be imagined before it is seen. */
+/* Which reading is which. makeTenProblem already stamps `kind` onto every problem it
+   makes, so the card needs nothing else to know what is on screen. */
+const TEN_PAIR = {
+  plus: 'n1',
+  minus: 'n2'
+};
 const TEN_CFG = {
   n1: {
     title: 'Add to 10',
@@ -11242,7 +11342,6 @@ const TEN_CFG = {
   }
 };
 function TenBondSettings({
-  modeId,
   current,
   onChange,
   onClose
@@ -11255,7 +11354,7 @@ function TenBondSettings({
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
     className: "modal-title"
-  }, "How?"), TEN_BOND_PRESETS[modeId].map(p => /*#__PURE__*/React.createElement("button", {
+  }, "How?"), TEN_RUNGS.map(p => /*#__PURE__*/React.createElement("button", {
     key: p.id,
     className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
     onClick: () => {
@@ -11276,7 +11375,6 @@ function TenBondSettings({
   }, "Done")));
 }
 function TenBondGame({
-  modeId,
   onBack,
   flowers,
   gardenFull,
@@ -11289,22 +11387,35 @@ function TenBondGame({
   muted,
   onToggleMute
 }) {
-  const cfg = TEN_CFG[modeId];
-  const presets = TEN_BOND_PRESETS[modeId];
+  /* MERGED ON 2026-09-08 (owner: "add to 10 + take from 10 ... merge them"). This screen
+     was always one generator, one frame and two readings — the shelf's own comment says
+     so — and the two cards were the last thing insisting they were two games. The tab is
+     the child's standing choice; the KIND belongs to the question, and makeTenProblem
+     stamps it onto every problem, so `cfg` follows the sum on screen rather than the
+     card that was tapped. */
+  const [tab, setTab] = useState('mix');
   /* Opens on the frame rung: the bond is SEEN before it is recalled. */
-  const [preset, setPreset] = useState(presets[0]);
+  const [preset, setPreset] = useState(TEN_RUNGS[0]);
   const [showSettings, setShowSettings] = useState(false);
   /* Problem, its choices and the equation's shape are one question and are generated
      together — deriving choices in a second initializer could pair this problem's
      answer with another problem's distractors. */
   const [q, setQ] = useState(() => {
-    const p = makeTenProblem(Math.random, modeId);
+    const p = makeTenProblem(Math.random, TEN_PAIR[pickOp('mix')]);
     return {
       p,
       choices: tenChoices(Math.random, p.answer, p.k),
       form: tenForm(Math.random)
     };
   });
+  const cfg = TEN_CFG[q.p.kind];
+  /* `avoid` only bites within the same reading: "10 − 3" straight after "7 + ? = 10" is
+     the same BOND said the other way round, which is the whole point of mixing, not a
+     repeat to be suppressed. */
+  const deal = useCallback((t, avoid) => {
+    const kind = TEN_PAIR[pickOp(t)];
+    return makeTenProblem(Math.random, kind, avoid && avoid.kind === kind ? avoid : undefined);
+  }, []);
   const [won, setWon] = useState(false);
   const [wrongTile, setWrongTile] = useState(null);
   const [misses, setMisses] = useState(0);
@@ -11331,17 +11442,22 @@ function TenBondGame({
       setGardenFull(false);
       addBouquet();
     }
-    resetForProblem(makeTenProblem(Math.random, modeId, q.p));
-  }, [flowers, setFlowers, setGardenFull, addBouquet, modeId, q.p, resetForProblem]);
+    resetForProblem(deal(tab, q.p));
+  }, [flowers, setFlowers, setGardenFull, addBouquet, deal, tab, q.p, resetForProblem]);
   const applyPreset = useCallback(p => {
     setPreset(p);
-    resetForProblem(makeTenProblem(Math.random, modeId));
+    resetForProblem(deal(tab));
     setShowSettings(false);
-  }, [modeId, resetForProblem]);
+  }, [deal, tab, resetForProblem]);
+  /* Switching reading deals a fresh question — see OpRibbon. */
+  const applyTab = useCallback(t => {
+    setTab(t);
+    resetForProblem(deal(t));
+  }, [deal, resetForProblem]);
   useEffect(() => {
     if (showSettings) return;
-    if (modeId === 'n1') Voice.lines([num(`${q.p.k}.`), 'How many more make ten?']);else Voice.say(num(`10 take away ${q.p.k}?`));
-  }, [q, showSettings, modeId]);
+    if (q.p.kind === 'n1') Voice.lines([num(`${q.p.k}.`), 'How many more make ten?']);else Voice.say(num(`10 take away ${q.p.k}?`));
+  }, [q, showSettings]);
   useEffect(() => {
     if (misses === 2) Voice.say(cfg.hint);
   }, [misses, cfg]);
@@ -11374,7 +11490,6 @@ function TenBondGame({
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
   }), showSettings && /*#__PURE__*/React.createElement(TenBondSettings, {
-    modeId: modeId,
     current: preset,
     onChange: applyPreset,
     onClose: () => setShowSettings(false)
@@ -11399,13 +11514,17 @@ function TenBondGame({
     className: "count-title"
   }, /*#__PURE__*/React.createElement("div", {
     className: "count-title-main"
-  }, cfg.title), /*#__PURE__*/React.createElement("div", {
+  }, "Make 10"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, cfg.sub)), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
+  }, cfg.sub)), /*#__PURE__*/React.createElement(OpRibbon, {
+    value: tab,
+    onChange: applyTab,
+    muted: muted
+  }), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
     className: "nb-eq nb-eq-frame"
-  }, modeId === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
+  }, q.p.kind === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
     className: "nb-slot"
   }, "+"), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
@@ -11423,7 +11542,7 @@ function TenBondGame({
     className: "nb-slot"
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
-  }, won ? q.p.answer : '?'))), modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+  }, won ? q.p.answer : '?'))), q.p.kind === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
     key: round,
     kept: q.p.k,
     added: won ? q.p.answer : 0,
@@ -11440,7 +11559,7 @@ function TenBondGame({
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
     className: "nb-eq"
-  }, modeId === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
+  }, q.p.kind === 'n1' ? q.form === 'end' ? /*#__PURE__*/React.createElement(React.Fragment, null, q.p.k, /*#__PURE__*/React.createElement("span", {
     className: "nb-slot"
   }, "+"), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
@@ -11458,7 +11577,7 @@ function TenBondGame({
     className: "nb-slot"
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "nb-slot nb-q"
-  }, won ? q.p.answer : '?'))), won && (modeId === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
+  }, won ? q.p.answer : '?'))), won && (q.p.kind === 'n1' ? /*#__PURE__*/React.createElement(TenFrame, {
     kept: q.p.k,
     added: q.p.answer
   }) : /*#__PURE__*/React.createElement(TenFrame, {
@@ -13553,11 +13672,74 @@ function MemoryBoard({
   })));
 }
 
-/* ══ MODES k1 / k2 / k3: MEMORY MATCH ══
-   Cards face down, tap two, keep them if they make a pair. Three topics share one
-   screen — k1 fractions, k2 times tables, k3 sharing — because they are one game with
-   three decks. The engine and the decks are in MATH PRIMITIVES; the cards are in the
-   shared block above; what is left here is the shell.
+/* ══ THE DECK RIBBON ══
+   Owner, 2026-09-08: *"right now we have these... I want to merge them in to one, with a
+   ribbon to choose mode. also i want to add (+) and (-) too."*
+
+   Three home cards became one and the deck moved onto this ribbon, which is the same
+   fold Column Maths made the same day: what the three cards had in common was the MOVE,
+   and the thing that differed between them ran along a single axis, so that axis stopped
+   needing a card of its own. Here the fold is worth more than it was there, because it
+   is what makes a deck cheap: + and − arrived as two tabs and two entries in
+   MEMORY_TOPICS, where under the old shape they would have been two more cards on a
+   shelf that was already the widest on the home screen.
+
+   THE LABELS ARE FOR SCREEN READERS AND THE GLYPHS ARE FOR THE CHILD. A pre-reader
+   picks a deck by its sign, which is why the fraction tab is a half-coloured circle
+   rather than the characters "1/2": it is the picture its own cards show. */
+const MEMORY_TABS = [{
+  id: 'plus',
+  Icon: PlusOpIcon,
+  label: 'Adding pairs'
+}, {
+  id: 'minus',
+  Icon: MinusOpIcon,
+  label: 'Take away pairs'
+}, {
+  id: 'times',
+  Icon: TimesOpIcon,
+  label: 'Times pairs'
+}, {
+  id: 'division',
+  Icon: ShareOpIcon,
+  label: 'Sharing pairs'
+}, {
+  id: 'fractions',
+  Icon: HalfOpIcon,
+  label: 'Fraction pairs'
+}];
+function MemoryRibbon({
+  value,
+  onChange,
+  muted
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip mm-strip",
+    role: "group",
+    "aria-label": "Choose which pairs to find"
+  }, MEMORY_TABS.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: `fm-btn ${value === t.id ? 'on' : ''}`,
+    "aria-label": t.label,
+    "aria-pressed": value === t.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onChange(t.id);
+    }
+  }, /*#__PURE__*/React.createElement(t.Icon, null))));
+}
+
+/* ══ MODE k1: MEMORY MATCH ══
+   Cards face down, tap two, keep them if they make a pair. FIVE decks share one screen
+   AND, since 2026-09-08, one home card: adding, taking away, times, sharing and
+   fractions, picked by the ribbon. The engine and the decks are in MATH PRIMITIVES; the
+   cards and the ribbon are in the shared block above; what is left here is the shell.
+
+   THE CARD KEEPS THE ID ITS FIRST DECK HAD — k1, which was Fraction Pairs — for the
+   reason Column Maths kept c1: the score, the journey and the `#play-k1` QA bootstrap
+   carry over untouched, and the parity check's "every game the home screen offers is
+   routed" stays true without a new id having to be minted and threaded through.
 
    ── WHY A MEMORY BOARD IS ALLOWED TO ASK THE CHILD TO SEARCH ──
    "Games ask, children answer" — one question, one tap, never a hunt to prove you know
@@ -13572,9 +13754,10 @@ function MemoryBoard({
    for, and it is why there is no timer, no lives, no penalty and no wrong-answer sound:
    a card that does not pair is not a mistake, it is information.
 
-   Adding a fourth topic: one entry in MEMORY_TOPICS, one mode id in App's routing, one
-   card on the Home shelf, one line in CARD_VOICE, one GamePreview branch. If its cards
-   need a face that does not exist yet, one branch in MemoryFace. */
+   Adding a sixth deck: one entry in MEMORY_TOPICS and one tab in MEMORY_TABS. That is
+   the whole of it now — no route, no home card, no CARD_VOICE line and no GamePreview
+   branch, because the card and its one voice line already cover every deck behind it.
+   If its cards need a face that does not exist yet, one branch in MemoryFace. */
 const MEMORY_LEVELS = MEMORY_LEVEL_SPECS.map((s, i) => ({
   ...s,
   emoji: ['🌸', '🎀', '🌈'][i]
@@ -13617,7 +13800,6 @@ function MemorySettings({
   }, "Done")));
 }
 function MemoryGame({
-  modeId,
   onBack,
   flowers,
   gardenFull,
@@ -13630,7 +13812,10 @@ function MemoryGame({
   muted,
   onToggleMute
 }) {
-  const topic = memoryTopic(modeId);
+  /* Which deck the ribbon is set to. It is state and not a prop because the card no
+     longer routes per deck — one route reaches this screen and the child chooses here. */
+  const [tabId, setTabId] = useState(MEMORY_DEFAULT_TOPIC);
+  const topic = memoryTopic(tabId);
   const [level, setLevel] = useState(MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL]);
   const [showSettings, setShowSettings] = useState(false);
   /* THE LIVE STATE LIVES IN THE REF, and the useState copy exists to draw it. Two taps
@@ -13638,7 +13823,7 @@ function MemoryGame({
      both must be judged against what the FIRST one did — a handler that read the
      rendered state would see the same board twice and turn over three cards. Every
      transition therefore reads stRef.current and writes both. */
-  const [st, setSt] = useState(() => memoryNewState(memoryBuildBoard(Math.random, memoryTopic(modeId), MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL].id)));
+  const [st, setSt] = useState(() => memoryNewState(memoryBuildBoard(Math.random, memoryTopic(MEMORY_DEFAULT_TOPIC), MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL].id)));
   const stRef = useRef(st);
   const [popped, setPopped] = useState(null);
   const [confetti, setConf] = useState(false);
@@ -13654,22 +13839,34 @@ function MemoryGame({
     stRef.current = next;
     setSt(next);
   }, []);
-  const newBoard = useCallback(lv => {
+  /* THE DECK IS AN ARGUMENT, NOT A CLOSURE. A tab tap has to build the board from the
+     topic being SWITCHED TO, and `topic` in this render is still the one being switched
+     away from — reading it here would deal one last board of the old deck and only
+     correct itself on the tap after. Same reason ColumnMath's deal() takes its tab. */
+  const newBoard = useCallback((tp, lv) => {
     clearTimeout(missT.current);
     clearTimeout(popT.current);
     setPopped(null);
     setConf(false);
-    apply(memoryNewState(memoryBuildBoard(Math.random, topic, lv.id)));
-  }, [topic, apply]);
+    apply(memoryNewState(memoryBuildBoard(Math.random, tp, lv.id)));
+  }, [apply]);
   const again = useCallback(() => {
     Sound.tap();
-    newBoard(level);
-  }, [level, newBoard]);
+    newBoard(topic, level);
+  }, [topic, level, newBoard]);
   const applyLevel = useCallback(lv => {
     setLevel(lv);
-    newBoard(lv);
+    newBoard(topic, lv);
     setShowSettings(false);
-  }, [newBoard]);
+  }, [topic, newBoard]);
+  /* A new deck is a new board, always. There is nothing on a memory board that could
+     survive the change — every card is a card of the old deck — so unlike the fraction
+     model strip, which redraws ONE question five ways, this tab genuinely deals again.
+     Turns and score are the child's and are untouched; only the cards are new. */
+  const applyTab = useCallback(id => {
+    setTabId(id);
+    newBoard(memoryTopic(id), level);
+  }, [level, newBoard]);
   useEffect(() => {
     if (!showSettings) Voice.say(topic.ask);
   }, [topic, showSettings, st.board]);
@@ -13749,7 +13946,11 @@ function MemoryGame({
     className: "count-title-main"
   }, topic.title), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, done ? 'Every pair found!' : topic.sub)), /*#__PURE__*/React.createElement("div", {
+  }, done ? 'Every pair found!' : topic.sub)), /*#__PURE__*/React.createElement(MemoryRibbon, {
+    value: tabId,
+    onChange: applyTab,
+    muted: muted
+  }), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(MemoryBoard, {
     state: st,
@@ -13975,20 +14176,9 @@ function Home({
     id: "n1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Add to 10"), /*#__PURE__*/React.createElement("div", {
+  }, "Make 10"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
-  }, "Fill the frame!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-purple",
-    onClick: () => onSelect('n2')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "n2"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Take from 10"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Some fly away!"), /*#__PURE__*/React.createElement(Stars, {
+  }, "Fill it up, or fly away!"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
   })), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-magic",
@@ -14046,28 +14236,6 @@ function Home({
   }, "Hear it read"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
   })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-magic",
-    onClick: () => onSelect('f1')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "f1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Fractions"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Tap the pieces"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-rose",
-    onClick: () => onSelect('q1')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "q1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "What's the Fraction?"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Count the lit parts"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
     className: "mode-card mc-rose",
     onClick: () => onSelect('oe1')
   }, /*#__PURE__*/React.createElement(GamePreview, {
@@ -14089,39 +14257,6 @@ function Home({
     className: "mode-card-sub"
   }, "Where do you land?"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-magic",
-    onClick: () => onSelect('d1')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "d1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Share It Out"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Deal them fairly!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-pink",
-    onClick: () => onSelect('u1')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "u1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Which Unit?"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Tap a picture!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-purple",
-    onClick: () => onSelect('a1')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "a1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Cover It"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "How many squares?"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -14136,7 +14271,7 @@ function Home({
     }
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Times Tables"), /*#__PURE__*/React.createElement("img", {
+  }, "Times & Sharing"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/unicorn/icons/heart-purple.webp",
     alt: "",
@@ -14179,6 +14314,109 @@ function Home({
     className: "mode-card-sub"
   }, "Tap a square"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic",
+    onClick: () => onSelect('d1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "d1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Share It Out"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Deal them fairly!"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/petal-pink.webp",
+    alt: "",
+    style: {
+      width: 26,
+      height: 26
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Fractions"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/petal-purple.webp",
+    alt: "",
+    style: {
+      width: 24,
+      height: 24
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic",
+    onClick: () => onSelect('f1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "f1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Fractions"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Tap the pieces"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-rose",
+    onClick: () => onSelect('q1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "q1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "What's the Fraction?"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Count the lit parts"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/cloud-blue.webp",
+    alt: "",
+    style: {
+      width: 30,
+      height: 22
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Measuring & Space"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/unicorn/icons/cloud-pink.webp",
+    alt: "",
+    style: {
+      width: 30,
+      height: 22
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-pink",
+    onClick: () => onSelect('u1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "u1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Which Unit?"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Tap a picture!"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-purple",
+    onClick: () => onSelect('a1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "a1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Cover It"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "How many squares?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -14210,31 +14448,9 @@ function Home({
     id: "k1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Fraction Pairs"), /*#__PURE__*/React.createElement("div", {
+  }, "Memory Match"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
-  }, "Fraction and picture"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-purple",
-    onClick: () => onSelect('k2')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "k2"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Times Pairs"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Sum and answer"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-rose",
-    onClick: () => onSelect('k3')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "k3"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Sharing Pairs"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Sum and answer"), /*#__PURE__*/React.createElement(Stars, {
+  }, "Turn two over"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
@@ -14267,42 +14483,20 @@ function Home({
     id: "c1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Column Add"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Big Add"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-purple",
-    onClick: () => onSelect('c3')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "c3"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Take Away"), /*#__PURE__*/React.createElement("div", {
+  }, "Add & Take Away"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
   }, "Column style"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-pink",
+    className: "mode-card mc-magic",
     onClick: () => onSelect('c2')
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "c2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Carry Add"), /*#__PURE__*/React.createElement("div", {
+  }, "Carry & Borrow"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
-  }, "Carry the one!"), /*#__PURE__*/React.createElement(Stars, {
-    count: 3
-  }), /*#__PURE__*/React.createElement(BigKidBadge, null)), /*#__PURE__*/React.createElement("button", {
-    className: "mode-card mc-magic",
-    onClick: () => onSelect('c4')
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "c4"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Borrow Take Away"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-sub"
-  }, "Borrow one!"), /*#__PURE__*/React.createElement(Stars, {
+  }, "For big kids!"), /*#__PURE__*/React.createElement(Stars, {
     count: 3
   }), /*#__PURE__*/React.createElement(BigKidBadge, null)))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14351,22 +14545,17 @@ function App() {
     l2: 0,
     c1: 0,
     c2: 0,
-    c3: 0,
-    c4: 0,
     m1: 0,
     s1: 0,
     g1: 0,
     oe1: 0,
     n1: 0,
-    n2: 0,
     n3: 0,
     h1: 0,
     d1: 0,
     q1: 0,
     a1: 0,
-    k1: 0,
-    k2: 0,
-    k3: 0
+    k1: 0
   });
   const [bouquets, setBouquets] = useState(() => {
     try {
@@ -14457,27 +14646,17 @@ function App() {
     score: scores.l2,
     setScore: setScore('l2')
   }));
-  if (mode === 'c1') return /*#__PURE__*/React.createElement(ColumnAdd, _extends({}, shared, {
+  if (mode === 'c1') return /*#__PURE__*/React.createElement(ColumnMath, _extends({
+    cardId: "c1"
+  }, shared, {
     score: scores.c1,
     setScore: setScore('c1')
   }));
   if (mode === 'c2') return /*#__PURE__*/React.createElement(ColumnMath, _extends({
-    modeId: "c2"
+    cardId: "c2"
   }, shared, {
     score: scores.c2,
     setScore: setScore('c2')
-  }));
-  if (mode === 'c3') return /*#__PURE__*/React.createElement(ColumnMath, _extends({
-    modeId: "c3"
-  }, shared, {
-    score: scores.c3,
-    setScore: setScore('c3')
-  }));
-  if (mode === 'c4') return /*#__PURE__*/React.createElement(ColumnMath, _extends({
-    modeId: "c4"
-  }, shared, {
-    score: scores.c4,
-    setScore: setScore('c4')
   }));
   if (mode === 'm1') return /*#__PURE__*/React.createElement(MultiplicationGame, _extends({}, shared, {
     score: scores.m1,
@@ -14498,17 +14677,9 @@ function App() {
     score: scores.oe1,
     setScore: setScore('oe1')
   }));
-  if (mode === 'n1') return /*#__PURE__*/React.createElement(TenBondGame, _extends({
-    modeId: "n1"
-  }, shared, {
+  if (mode === 'n1') return /*#__PURE__*/React.createElement(TenBondGame, _extends({}, shared, {
     score: scores.n1,
     setScore: setScore('n1')
-  }));
-  if (mode === 'n2') return /*#__PURE__*/React.createElement(TenBondGame, _extends({
-    modeId: "n2"
-  }, shared, {
-    score: scores.n2,
-    setScore: setScore('n2')
   }));
   if (mode === 'n3') return /*#__PURE__*/React.createElement(HundredBondGame, _extends({}, shared, {
     score: scores.n3,
@@ -14532,23 +14703,9 @@ function App() {
     setScore: setScore('a1')
   }));
   if (mode === 'np1') return /*#__PURE__*/React.createElement(NumberPlayGame, shared);
-  if (mode === 'k1') return /*#__PURE__*/React.createElement(MemoryGame, _extends({
-    modeId: "k1"
-  }, shared, {
+  if (mode === 'k1') return /*#__PURE__*/React.createElement(MemoryGame, _extends({}, shared, {
     score: scores.k1,
     setScore: setScore('k1')
-  }));
-  if (mode === 'k2') return /*#__PURE__*/React.createElement(MemoryGame, _extends({
-    modeId: "k2"
-  }, shared, {
-    score: scores.k2,
-    setScore: setScore('k2')
-  }));
-  if (mode === 'k3') return /*#__PURE__*/React.createElement(MemoryGame, _extends({
-    modeId: "k3"
-  }, shared, {
-    score: scores.k3,
-    setScore: setScore('k3')
   }));
   return /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
