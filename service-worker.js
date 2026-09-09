@@ -190,7 +190,16 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        re-rendered for the new wording in d70121c9, AFTER the text changed in 1887e6e2,
 //        so the clip and the words it speaks ship together. An installed iPad holding v35
 //        cannot see or hear any of this until this name changes.
-const CACHE_NAME = "magic-math-v36";
+// v37 -- 2026-09-09, the back arrow on both games' home screens now lands on THIS app's
+//        own front door (index.html) instead of jumping the child out to Children Games.
+//        The owner merged the two maths cards on the hub into one Magic Math card that
+//        opens index.html, so the way out has to match the way in -- game, world picker,
+//        Children Games. index.html gains the arrow that leaves, labelled in words as
+//        well as drawn, and the "Pick your world and play" line the hub's card promises.
+//        NO NEW ASSET, and index.html was already in SHELL, so this bump exists purely
+//        to evict three cached pages. An installed iPad holding v36 would otherwise keep
+//        sending the child a level too far up, from a hub card that no longer exists.
+const CACHE_NAME = "magic-math-v37";
 
 const SHELL = [
   "./",

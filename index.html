@@ -27,12 +27,68 @@
     .c-space  {background:linear-gradient(160deg,#5b8cf8,#1f54d6);box-shadow:0 8px 0 #0f2e86,0 14px 28px rgba(31,84,214,.35)}
     .c-unicorn{background:linear-gradient(160deg,#f48fb1,#c2185b);box-shadow:0 8px 0 #880e4f,0 14px 28px rgba(194,24,91,.35)}
     footer{font-size:.8rem;font-weight:700;opacity:.75}
+
+    /* ── Back to Children Games ──
+       Top-left, which is where every game in this project puts its back arrow, and
+       60px tall because the target device is a 9.7" iPad and this is a child's finger.
+       It carries BOTH an arrow and the words: the arrow is for the child who cannot
+       read yet and already knows what it does, the words are for the one who can and
+       wants to know where it goes. This is the only page in the app that leaves it, so
+       being unmistakable matters more here than being quiet. */
+    .hub-btn{
+      position:fixed;z-index:9;
+      top:calc(14px + env(safe-area-inset-top));
+      left:calc(14px + env(safe-area-inset-left));
+      display:inline-flex;align-items:center;gap:9px;
+      min-height:60px;padding:0 20px 0 16px;
+      border-radius:50px;
+      background:linear-gradient(135deg,#fff,#e8f0ff);
+      border:2.5px solid #93b7fb;box-shadow:0 4px 0 #93b7fb;
+      color:#2f6df6;text-decoration:none;
+      font-family:inherit;font-weight:900;font-size:1rem;line-height:1;
+      white-space:nowrap;-webkit-tap-highlight-color:transparent;
+      transition:transform .1s;
+    }
+    .hub-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
+    .hub-btn:focus-visible{outline:4px solid #ffd54f;outline-offset:3px}
+    .hub-btn svg{width:24px;height:24px;flex:none}
+    /* Narrow phones get the arrow alone. The words are the first thing to go, not the
+       target: the button keeps its height and the tap area with it. */
+    @media (max-width:420px){
+      .hub-btn{padding:0;width:60px;justify-content:center;gap:0}
+      .hub-btn span{display:none}
+    }
+    /* The heading clears the button on a narrow screen, where they would otherwise
+       share the top line. */
+    .wrap{padding-top:max(32px,calc(86px + env(safe-area-inset-top)))}
+    .sub{font-weight:800;font-size:clamp(1rem,3.4vw,1.3rem);opacity:.9;margin-top:-14px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
   </style>
 </head>
 <body>
 <div class="bg"></div>
+
+<!-- Owner, 2026-09-09: "the Magic Math hub itself should have a clear way back to
+     Children Games". The URL is absolute for the same reason the games' arrows are:
+     published, the hub is a sibling of this app (/magic-math/ -> /children-apps/), but
+     in the repo it lives under site/, so a relative link would work live and 404 in
+     every local preview. -->
+<a class="hub-btn" href="https://veeranuchlee.github.io/children-apps/" aria-label="Back to Children Games">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M15 5 8 12l7 7"/>
+  </svg>
+  <span>Children Games</span>
+</a>
+
 <div class="wrap">
   <h1>Magic <span>Math</span></h1>
+  <!-- The same words the Magic Math card on Children Games promises, so the page a
+       child lands on says what the card they tapped said it would. -->
+  <p class="sub">Pick your world and play</p>
+  <!-- THE LIST IS THE POINT OF THIS PAGE. Since 2026-09-09 Children Games shows one
+       Magic Math card instead of one card per world, and it links here rather than to a
+       game. A third world -- Dinosaur is the one on the roadmap -- is a card added
+       below and nothing else: the grid is auto-fit, and the hub does not have to be
+       touched, republished or even know about it. -->
   <div class="cards">
     <a class="card c-space" href="space-math.html">
       <img src="assets-runtime/space/icons/rocket.webp" alt=""/>

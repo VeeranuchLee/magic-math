@@ -13968,7 +13968,16 @@ function Home({
   bouquets = 0
 }) {
   const [music, setMusic] = useState(() => Music.enabled());
-  const title = 'Magic Math!'.split('');
+  /* "Unicorn Math!", not "Magic Math!", since 2026-09-09. This screen called itself
+     by the app's name while its browser title, and every card that reaches it, called
+     it Unicorn Math -- harmless while the child arrived here from a card on Children
+     Games that said Unicorn Math and nothing else was named Magic Math. It stopped
+     being harmless the day the hub merged the two maths cards: the child now taps
+     "Unicorn Math" ON a page titled Magic Math and lands on another page titled Magic
+     Math, which reads as the tap having done nothing. Space Math's home has always
+     said "Space Math!"; this is the skin that was out of step. No audio says the
+     title, so nothing was re-rendered for this. */
+  const title = 'Unicorn Math!'.split('');
   return /*#__PURE__*/React.createElement("div", {
     className: "home"
   }, /*#__PURE__*/React.createElement("button", {
@@ -13982,8 +13991,8 @@ function Home({
     }
   }, "\uD83C\uDFB5"), /*#__PURE__*/React.createElement("a", {
     className: "back-btn hub-btn",
-    href: "https://veeranuchlee.github.io/children-apps/",
-    "aria-label": "Back to Children Games"
+    href: "index.html",
+    "aria-label": "Back to Magic Math"
   }, "\u2190"), /*#__PURE__*/React.createElement("div", {
     className: "home-bg"
   }), /*#__PURE__*/React.createElement("div", {
