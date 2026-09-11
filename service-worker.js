@@ -199,7 +199,44 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        NO NEW ASSET, and index.html was already in SHELL, so this bump exists purely
 //        to evict three cached pages. An installed iPad holding v36 would otherwise keep
 //        sending the child a level too far up, from a hub card that no longer exists.
-const CACHE_NAME = "magic-math-v37";
+// v38 -- 2026-09-09, Magic Spelling teaches British spellings (owner decision): "mom" ->
+//        "mum", "airplane" -> "aeroplane", "color" -> "colour", "sled" -> "sledge". The
+//        four words are spelled differently, sound different in three cases out of four,
+//        and each carries a newly rendered clip -- so the page, the word list and the
+//        narration index all changed together.
+//        THIS BUMP IS LOAD-BEARING TWICE OVER, and the second reason is the sharper one.
+//        The first is the v15 rule above: a device holding the old clips.json never asks
+//        for sp-w-colour and would keep speaking these four words in the engine voice.
+//        The second is that the four American clips are DELETED from this release, so the
+//        stale index does not merely miss the new files -- it names four .m4a that no
+//        longer exist on the server, which is the 404-on-a-deleted-clip case v15 recorded
+//        seeing locally. An installed iPad holding v37 asks a child to spell "color" and
+//        marks "colour" wrong, so this name has to change.
+//        WHAT ELSE v38 CARRIES, recorded 2026-09-11 when the release was finally cut.
+//        v38 was armed on 09-09 and live stayed on v37 for two days, so three more change
+//        sets joined it and every one of them ships under this single name:
+//          - The menu bed plays on the Magic Math hub (index.html). The playhead is shared
+//            through sm_music_t, so the 52-second piece does not restart when a child
+//            crosses between the hub and either world -- which also fixes world -> hub ->
+//            other world, broken before the hub had any music. No new audio was rendered.
+//          - "Nine Magic and Make It!": two cards that show the move, not the shortcut.
+//            Child-visible, and it was not recorded here when it landed.
+//          - Magic Spelling's back arrow returns to Our Word Book instead of the main hub,
+//            which is the level the child actually came in from.
+//        Measured while cutting this release, so nobody re-derives it: menu-bed.m4a is in
+//        the ship list and serves fine online, but it is NEVER in Cache Storage. A media
+//        element asks with "Range: bytes=0-", the server answers 206, and cache.put()
+//        rejects a partial response -- the fetch handler's "response.ok && type basic"
+//        gate lets a 206 through and the put throws unhandled. So the bed is SILENT
+//        offline on all three pages. This is not new in v38: the worlds have shipped it
+//        since v14. Do not "fix" it by adding the file to cache-list.js -- that path never
+//        runs. It needs a deliberate re-fetch without the Range header, weighed against
+//        the 656 KB launch cost the v14 entry describes.
+//        One more trap: Music.state().playing is !el.paused, which stays true while the
+//        element is stalled at readyState 0. It reports playing on a silent page. Only a
+//        currentTime that advances proves sound.
+//        A bump is not finished when the constant changes; the entry is the deliverable.
+const CACHE_NAME = "magic-math-v38";
 
 const SHELL = [
   "./",

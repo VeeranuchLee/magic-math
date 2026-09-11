@@ -544,6 +544,219 @@
     .nb-tile:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
     .nb-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .nb-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    /* ── A RIBBON TAB THAT CARRIES A WORD ──
+       The five glyph tabs this strip was built for say their whole meaning in a sign a
+       pre-reader can read. "Make 10" cannot be drawn that way — the target IS a number —
+       so these two cards' tabs carry the words, and the button gives up only its fixed
+       width to fit them. Height stays 44px, which is the floor, not a starting point. */
+    .fm-btn.fm-word{width:auto;min-width:66px;padding:0 15px;font-family:inherit;
+      font-size:1.02rem;font-weight:900;letter-spacing:.4px}
+
+    /* ── NINE MAGIC (x1) ── */
+    /* The question, and the one line under the model. Both are white pills rather than
+       text laid straight on the journey background: this screen's backdrop changes with
+       the journey and a caption the child has to read mid-round cannot take its chances
+       against Saturn. */
+    .nm-eq,.mk-eq{display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);
+      font-size:clamp(1.6rem,5.5vw,2.3rem);font-weight:900;color:#5a2ed6;
+      background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:26px;
+      padding:5px clamp(12px,3vw,22px);box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    .nm-op,.mk-op{color:#2f6df6}
+    .nm-q{color:#2f6df6}
+    .nm-note,.mk-note{min-height:36px;display:flex;align-items:center;justify-content:center;
+      position:relative;z-index:1}
+    .nm-note:not(:empty),.mk-note:not(:empty){font-size:clamp(1.02rem,3.2vw,1.3rem);font-weight:900;
+      color:#5a2ed6;background:rgba(255,255,255,.9);border:2px solid #93b7fb;border-radius:50px;padding:3px 18px}
+    .nm-stage,.mk-stage{gap:10px}
+    /* .celebrate-text is drawn straight onto the background in the accent colour, which is
+       built for the dark half of a journey stop. This sentence is the card's whole point --
+       `2 × 9 = 10 + 8 = 18`, the method the child just watched -- and over the Earth stop it
+       came out blue on blue. It gets the same white pill the question and the caption wear,
+       so it reads at every stop. Scoped to this card; nothing else on .celebrate-text moves. */
+    .nm-win{font-size:clamp(1.05rem,4vw,1.7rem);background:rgba(255,255,255,.92);
+      border:2.5px solid #93b7fb;border-radius:50px;padding:6px clamp(14px,3.5vw,26px);
+      box-shadow:0 4px 0 #93b7fb;text-shadow:none;color:#5a2ed6}
+    /* THE ANSWER ROW IS THIS CARD'S OWN, and not Make 10's .nb-tile, which it started as.
+       .nb-tile is byte-identical in both skins and that identical value is BLUE — four
+       cornflower tiles that have sat unremarked at the bottom of unicorn's Make 10 for as
+       long as it has existed. Borrowing it put them at the bottom of two more pink screens,
+       which is how one skin's palette spreads into the other: not by anyone writing a
+       colour down twice, but by reuse. Same geometry, same idiom, each skin's own colours. */
+    .nm-tiles{display:flex;flex-wrap:wrap;gap:clamp(10px,3vw,18px);justify-content:center;
+      position:relative;z-index:1}
+    .nm-ans{width:clamp(82px,19vw,112px);height:clamp(82px,19vw,112px);display:flex;align-items:center;
+      justify-content:center;border-radius:24px;border:3px solid #93b7fb;
+      background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;
+      font-size:clamp(2rem,7vw,2.7rem);font-weight:900;cursor:pointer;box-shadow:0 5px 0 #93b7fb;
+      transition:transform .1s}
+    .nm-ans:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .nm-ans.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .nm-ans.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    /* Four digits in a tile built for two. The tile does not shrink — it is an answer a
+       finger has to land on — so the numeral does, and only on the rung that needs it. */
+    .nm-wide .nm-ans{font-size:clamp(1.3rem,4.2vw,1.9rem);padding:0 5px}
+
+    /* THE FINGERS. Every finger is a button at least 46px wide and roughly a hundred
+       tall, and a FOLDED finger is still 46px tall, because a control that shrinks out
+       from under a child's finger is the tap-target bug this repository keeps finding.
+       Two colours carry the split: the tens run wears the screen's own accent, the ones
+       run wears the gold of a counter, and the folded finger goes grey — so which run is
+       which is legible before the labels under them are read. */
+    .nm-hands{display:flex;gap:clamp(14px,4vw,34px);align-items:flex-end;justify-content:center;
+      flex-wrap:wrap;position:relative;z-index:1}
+    .nm-hand{display:flex;flex-direction:column;align-items:center}
+    .nm-fingers{display:flex;gap:6px;align-items:flex-end}
+    .nm-finger{width:clamp(46px,9vw,58px);height:clamp(96px,17vw,122px);padding:8px 0 10px;
+      display:flex;flex-direction:column;align-items:center;
+      border:3px solid #93b7fb;border-radius:26px 26px 9px 9px;
+      background:linear-gradient(180deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;
+      cursor:pointer;transition:height .24s ease,background .24s,border-color .24s}
+    .nm-finger:active{transform:translateY(3px)}
+    .nm-nail{width:56%;height:13px;border-radius:9px;background:#93b7fb;opacity:.6}
+    .nm-fnum{margin-top:auto;font-size:1.2rem;font-weight:900}
+    .nm-finger.nm-tens{border-color:#2f6df6;color:#2f6df6}
+    .nm-finger.nm-tens .nm-nail{background:#2f6df6;opacity:.85}
+    .nm-finger.nm-ones{border-color:#e6a700;background:linear-gradient(180deg,#fffdf3,#ffeaa9);color:#8a6100}
+    .nm-finger.nm-ones .nm-nail{background:#e6a700;opacity:.9}
+    .nm-finger.nm-down{height:clamp(46px,8vw,58px);background:linear-gradient(180deg,#eef1f6,#d7dde8);
+      border-color:#b2bbcc;color:#79839a}
+    .nm-finger.nm-down .nm-nail{background:#b2bbcc;opacity:.8}
+    .nm-palm{width:100%;height:clamp(26px,5vw,34px);margin-top:-3px;border:3px solid #93b7fb;
+      border-radius:0 0 22px 22px;background:linear-gradient(180deg,#e8f0ff,#fff)}
+    .nm-split{flex:0 0 100%;display:flex;justify-content:space-between;align-items:center;
+      gap:12px;width:min(94vw,560px);margin:6px auto 0}
+    .nm-sp{background:rgba(255,255,255,.94);border-radius:50px;padding:4px 15px;font-weight:900;
+      font-size:1.02rem}
+    .nm-sp b{font-size:1.35rem;margin-right:5px}
+    .nm-sp-tens{border:2.5px solid #2f6df6;color:#2f6df6}
+    .nm-sp-ones{border:2.5px solid #e6a700;color:#8a6100}
+
+    /* THE GROUPS. At ×9 a group is ten counters and is drawn as ten counters — the trick
+       rests on "each of these is one ten", so a group has to be countable, and a tile
+       with 10 written on it would be the shortcut wearing a picture. At ×99 a group is
+       the hundred square Make 100 already teaches. The counter that leaves is marked
+       before it goes, in the accent colour with a ring around it, and the ring is what
+       makes one cell of a hundred findable without pretending it is bigger than a
+       hundredth. */
+    .nm-groups{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+      gap:clamp(5px,1.5vw,10px);max-width:min(94vw,700px);position:relative;z-index:1}
+    .nm-g10 .nm-group{display:flex;flex-direction:column;gap:3px;padding:5px 4px;border-radius:12px;
+      background:rgba(255,255,255,.6);border:2px solid #93b7fb}
+    .nm-dot{width:clamp(12px,2.3vw,16px);height:clamp(12px,2.3vw,16px);border-radius:50%;
+      background:#ffd54f;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+    .nm-dot.nm-give{background:#2f6df6;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 5px #2f6df6}
+    .nm-gone .nm-dot.nm-give{background:transparent;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 0 5px #93b7fb;
+      opacity:.45;animation:nmGive .5s ease}
+    /* A hundred square is laid out on a grid whose tile size the GAME works out from the
+       number of groups (see nineTiles): a tile sized for three would put twenty-five of
+       them off the bottom of a screen that does not scroll, and a tile sized for
+       twenty-five makes the cell that leaves four pixels across at three. */
+    .nm-g100{display:grid;grid-template-columns:repeat(var(--nm-cols,7),var(--nm-tile,82px));
+      gap:clamp(6px,1.4vw,10px);max-width:none}
+    .nm-hundred{position:relative;display:block;width:var(--nm-tile,82px);height:var(--nm-tile,82px);
+      border-radius:8px;border:2px solid #5a2ed6;background-color:rgba(255,255,255,.88);
+      background-image:linear-gradient(to right,#93b7fb 1px,transparent 1px),linear-gradient(to bottom,#93b7fb 1px,transparent 1px);
+      background-size:10% 10%}
+    /* ONE CELL OF A HUNDRED IS NINE PIXELS ACROSS, and nine pixels of accent colour laid
+       on a pale blue mesh is not something a seven-year-old finds. It is not made bigger
+       — it is one hundredth and has to stay one hundredth — it is made FINDABLE: a white
+       halo and a ring around it, which is about twenty pixels of target on an
+       eighty-two pixel tile and reads as a mark ON the square rather than as part of
+       its grid. Set in from the corner by one cell so the ring sits inside the tile; the
+       first version put it at 0,0 and the ring hung off the corner as a stray dashed arc.
+       Emptying the centre and greying the ring is then what "it left" looks like. */
+    .nm-cell{position:absolute;left:10%;top:10%;width:10%;height:10%;background:#2f6df6;border-radius:2px;
+      box-shadow:0 0 0 3px #fff,0 0 0 5.5px #2f6df6}
+    .nm-gone .nm-cell{background:rgba(255,255,255,.95);box-shadow:0 0 0 3px #fff,0 0 0 5.5px #93b7fb;
+      animation:nmGive .5s ease}
+    /* The pile of what was handed back, at counter size and counted. */
+    .nm-pile{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px;
+      max-width:min(92vw,620px);padding:6px 10px 6px 12px;border-radius:50px;
+      background:rgba(255,255,255,.9);border:2.5px solid #2f6df6;position:relative;z-index:1}
+    .nm-tdot{width:16px;height:16px;border-radius:50%;background:#2f6df6;
+      box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);animation:nmDrop .34s ease both}
+    .nm-tnum{margin-left:6px;font-size:1.3rem;font-weight:900;color:#2f6df6;
+      border-left:2.5px solid #93b7fb;padding-left:12px}
+    @keyframes nmDrop{from{transform:translateY(-14px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+    @keyframes nmGive{0%{transform:translateY(0) scale(1);opacity:1}
+      55%{transform:translateY(-14px) scale(1.3);opacity:.85}
+      100%{transform:translateY(0) scale(1);opacity:.5}}
+    .nm-do{margin-top:2px}
+
+    /* ── THE MASCOT'S CORNER IS WHERE BOTH OF THESE SCREENS PUT A CONTROL ──
+       The mascot is fixed at the bottom left, z-index 6, and its poke button takes
+       pointer events. On a 768x1024 iPad it lands exactly on the first tile of Make It!'s
+       tray: measured with elementFromPoint, the tap was swallowed and the leftmost number
+       on the tray could not be chosen at all. Nine Magic's answer row misses the corner by
+       five pixels, which is not a margin worth trusting a finger to.
+
+       IT IS FIXED BY MOVING THE MASCOT, NOT THE ROW, and that is the part worth writing
+       down. .hbk-screen and .mm-screen already try the other way round -- `.oe-stage
+       {z-index:7}` -- and those two rules DO NOT WORK: the blanket `.screen>*:not(...)`
+       near the top of this stylesheet carries six :not() classes, so it is (0,7,0) and
+       outranks them, and getComputedStyle on a shipped Make 100 still reports z-index 1.
+       (Nothing is broken on those two screens; their models simply do not reach the
+       corner.) Rather than mint a selector heavy enough to outrank that blanket, these two
+       push the mascot BEHIND their own content: one rule, which beats
+       `.screen>.mascot-corner` (0,2,0) on specificity alone and cannot quietly stop
+       working the next time the blanket grows a :not(). Checked in Chrome at 768x1024 --
+       computed z-index 0, every control reachable at its centre AND at its left edge, and
+       the mascot still 116px and fully drawn except where the row crosses it. */
+    .screen.nm-screen>.mascot-corner,.screen.mk-screen>.mascot-corner{z-index:0}
+
+    /* ── MAKE IT! (y1) ── */
+    /* The sentence being built. A slot is dashed while it is empty and solid once a tile
+       is in it, which is the same "this is where something goes" the column games draw
+       round an empty box. */
+    .mk-slot{min-width:clamp(54px,12vw,74px);height:clamp(46px,10vw,58px);display:inline-flex;
+      align-items:center;justify-content:center;padding:0 8px;border-radius:16px;
+      border:3px dashed #93b7fb;background:rgba(255,255,255,.55);color:#2f6df6}
+    .mk-slot.on{border-style:solid;background:linear-gradient(160deg,#fff,#e8f0ff);box-shadow:0 3px 0 #93b7fb}
+    .mk-target{color:#5a2ed6}
+    /* The seats. Ten is two rows of five, twenty two rows of ten, a hundred the ten-by-ten
+       block — the shelf's own three pictures, so nothing here is new to a child arriving
+       from Make 10 or Make 100. The first pick fills in gold and the second in the accent,
+       which is what makes a full frame visibly made of two numbers rather than merely
+       full. */
+    .mk-frame{display:grid;gap:clamp(3px,.8vw,6px);justify-content:center;padding:9px;
+      border-radius:18px;background:rgba(255,255,255,.55);border:2.5px solid #93b7fb;
+      position:relative;z-index:1}
+    .mk-cols-5{grid-template-columns:repeat(5,clamp(30px,6.6vw,46px))}
+    .mk-cols-5 .mk-seat{height:clamp(30px,6.6vw,46px)}
+    .mk-cols-10{grid-template-columns:repeat(10,clamp(20px,4.2vw,30px))}
+    .mk-cols-10 .mk-seat{height:clamp(20px,4.2vw,30px)}
+    .mk-seat{border-radius:50%;border:2px solid #93b7fb;background:rgba(255,255,255,.8)}
+    .mk-kept{background:#ffd54f;border-color:#e6a700}
+    .mk-add{background:#2f6df6;border-color:#5a2ed6}
+    /* The gap glows, not the fill: what the second miss has to make countable is what is
+       MISSING. A softer pulse than hint-glow, because ninety-four seats doing hint-glow's
+       scale-and-flare at once is a light show rather than a hint. */
+    @keyframes mkGap{0%,100%{box-shadow:0 0 0 0 rgba(255,213,79,0)}
+      50%{box-shadow:0 0 0 4px rgba(255,213,79,.9)}}
+    .mk-glow .mk-off{animation:mkGap 1.3s ease-in-out infinite}
+    .mk-burst{border-color:#f44336;animation:wrongShake .35s ease}
+    .mk-tray{display:flex;flex-wrap:wrap;gap:clamp(8px,2.2vw,16px);justify-content:center;
+      padding:0 6px;position:relative;z-index:1}
+    .mk-tile{min-width:clamp(64px,14vw,92px);height:clamp(58px,12vw,78px);border-radius:20px;
+      border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;
+      font-family:inherit;font-size:clamp(1.5rem,5vw,2.1rem);font-weight:900;cursor:pointer;
+      box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    .mk-tile:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
+    .mk-tile.down{background:linear-gradient(160deg,#2f6df6,#5a2ed6);color:#fff;border-color:#5a2ed6;
+      box-shadow:0 5px 0 #371a92}
+    .mk-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .mk-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    /* A 9.7" iPad in portrait is the target and both screens fit it with room; a phone in
+       landscape is the case .screen{overflow:hidden} punishes, so the two tallest pieces
+       — the fingers and the hundred block — give height back first. */
+    @media (max-height:700px){
+      .nm-screen .count-title,.mk-screen .count-title{padding:5px 14px}
+      .nm-finger{height:clamp(78px,14vw,96px)}
+      .nm-g100{grid-template-columns:repeat(var(--nm-cols,7),calc(var(--nm-tile,82px) * .74))}
+      .nm-hundred{width:calc(var(--nm-tile,82px) * .74);height:calc(var(--nm-tile,82px) * .74)}
+      .mk-cols-10{grid-template-columns:repeat(10,clamp(18px,3.6vw,24px))}
+      .mk-cols-10 .mk-seat{height:clamp(18px,3.6vw,24px)}
+    }
     /* ── Odd or Even: the pairing board ──
        Objects hold hands in twos. A pair-unit is two dots joined by an arc, and pairs
        wrap as WHOLE PAIRS — never split across lines, because a pair cut in half is
@@ -2613,10 +2826,22 @@ const Clips = (() => {
    DUCKING IS POLLED, not wired into Voice. The alternative is a callback threaded through
    every path in Voice that starts and stops sound — four of them, each with its own
    cancellation rules — to serve one volume change on one screen. A 180 ms poll that only
-   runs while music is actually playing is the smaller thing to be wrong about. */
+   runs while music is actually playing is the smaller thing to be wrong about.
+
+   THE PLAYHEAD IS SHARED, ADDED 2026-09-11 WITH THE HUB'S BED. `menu-bed.m4a` is 52
+   seconds of written music, not a four-second loop, and every Magic Math screen is its
+   own document: index.html, this world, the other world. A fresh <audio> element per
+   document means the same opening bars every time a child crosses a page boundary —
+   which this app did before today, audibly, on world -> hub -> other world.
+
+   So the playhead is parked in `sm_music_t` when the document goes away and picked up
+   there when the element is built. The bed is one continuous piece across the whole of
+   Magic Math. `posTaken` is the guard: a page that never actually loaded the audio must
+   not write its currentTime of 0 over the position another page left behind. */
 const Music = (() => {
   const SRC = 'assets-runtime/audio/menu-bed.m4a';
   const KEY = 'sm_music';
+  const TKEY = 'sm_music_t'; // the playhead every Magic Math page shares
   const FULL = 0.20; // resting level: present, and well under a spoken line
   const DUCKED = 0.055; // while anything is being said
   const RAMP_MS = 420,
@@ -2638,6 +2863,11 @@ const Music = (() => {
   let ramp = 0,
     poll = 0,
     armed = false;
+  /* The shared playhead. `seekTo` is where the last Magic Math page stopped; `posTaken`
+     says whether this page has actually taken it up, and so whether it has earned the
+     right to write it back. */
+  let seekTo = 0,
+    posTaken = true;
   const want = () => pref && wanted && !muted;
   const fadeTo = (v, thenPause) => {
     if (!el) return;
@@ -2664,6 +2894,37 @@ const Music = (() => {
       }
     }, STEP_MS);
   };
+  const readPos = () => {
+    let t = 0;
+    try {
+      t = parseFloat(localStorage.getItem(TKEY));
+    } catch (e) {}
+    return isFinite(t) && t > 0 ? t : 0;
+  };
+  /* Seeking needs metadata, and `preload:'none'` means there is none until something
+     asks. Called both from loadedmetadata and after play() resolves; does nothing until
+     one of them has produced a duration. */
+  const takePos = () => {
+    if (posTaken || !el || !(el.readyState >= 1)) return;
+    try {
+      if (seekTo < el.duration) el.currentTime = seekTo;
+    } catch (e) {}
+    posTaken = true;
+  };
+  const savePos = () => {
+    if (!el || !posTaken) return;
+    try {
+      localStorage.setItem(TKEY, String(el.currentTime || 0));
+    } catch (e) {}
+  };
+  /* `pagehide` is the one that fires on iOS when the child taps back to the hub;
+     `visibilitychange` catches the iPad sleeping or the app being swapped away, where
+     pagehide does not come. The paused position counts: a child who walks out of a game
+     saves where the bed stopped when they walked in. */
+  window.addEventListener('pagehide', savePos);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) savePos();
+  });
   const startPoll = () => {
     if (poll) return;
     poll = setInterval(() => {
@@ -2700,6 +2961,10 @@ const Music = (() => {
       el.loop = true;
       el.preload = 'none';
       el.volume = 0;
+      seekTo = readPos();
+      posTaken = seekTo === 0;
+      el.addEventListener('loadedmetadata', takePos);
+      takePos();
     }
     el.volume = 0;
     let p;
@@ -2710,9 +2975,11 @@ const Music = (() => {
       return;
     }
     if (p && p.then) p.then(() => {
+      takePos();
       fadeTo(FULL, false);
       startPoll();
     }).catch(() => arm());else {
+      takePos();
       fadeTo(FULL, false);
       startPoll();
     }
@@ -2747,6 +3014,9 @@ const Music = (() => {
     /* Read-only, for verification. The element is never added to the document, so
        there is otherwise no way to observe from outside whether the bed is actually
        playing or merely intended to be. */
+    save() {
+      savePos();
+    },
     state() {
       return {
         pref,
@@ -2755,7 +3025,9 @@ const Music = (() => {
         exists: !!el,
         playing: !!(el && !el.paused),
         volume: el ? +el.volume.toFixed(3) : null,
-        armed
+        armed,
+        currentTime: el ? +el.currentTime.toFixed(2) : null,
+        posTaken
       };
     }
   };
@@ -4821,6 +5093,208 @@ const memoryResolve = st => st.resolving ? {
   resolving: false
 } : st;
 
+/* ── NINE MAGIC (x1) ──
+   Three tricks and one idea: nine is ten with one group handed back, and ninety-nine is
+   a hundred with one group handed back. The generator's job is not only to choose `a` —
+   it carries the SPLIT each trick draws, because the split is the whole lesson. A card
+   that prints `7 × 9 = 70 − 7` has told a child a shortcut; what teaches the trick is
+   seven groups of ten with one counter leaving every single group, and that is a shape,
+   so it is computed here rather than described in a caption.
+
+     fingers   a × 9, a from 2 to 10. Fold finger a: `tens` fingers stand to its left and
+               `ones` to its right. tens + ones is nine for every a, because exactly one
+               finger is down — and THAT is why the trick works. The screen can show it
+               without ever having to say it.
+     ten       a × 9 = a × 10 − a. a groups of ten, each giving one counter back, so what
+               leaves is one group's worth: a.
+     hundred   a × 99 = a × 100 − a. The same sentence one place up. `each` is the only
+               thing that changes between these two, which is the reason they are one
+               card and not two.
+
+   THE ANSWER IS NEVER WRITTEN BY THE MODEL. `70 − 7` is as far as the caption goes, at
+   every threshold including the second miss, because a picture that has already been
+   reduced to its answer has stopped being a picture. The child reads the answer off the
+   counters that are left; the full sentence is printed once, on the win. */
+const NINE_TRICKS = [{
+  id: 'fingers',
+  tag: 'Fingers',
+  aria: 'The finger trick',
+  sub: 'Fold a finger down!',
+  min: 2,
+  max: 10,
+  b: 9
+}, {
+  id: 'ten',
+  tag: '× 9',
+  aria: 'Nine times',
+  sub: 'Ten, then give one back!',
+  min: 2,
+  max: 12,
+  b: 9
+}, {
+  id: 'hundred',
+  tag: '× 99',
+  aria: 'Ninety-nine times',
+  sub: 'A hundred, then give one back!',
+  min: 2,
+  max: 25,
+  b: 99
+}];
+const nineTrick = id => NINE_TRICKS.find(t => t.id === id) || NINE_TRICKS[0];
+/* `each` is one whole group BEFORE anything is handed back — ten at ×9, a hundred at
+   ×99 — and `whole` is what a groups of it come to. The fingers trick has no groups to
+   draw, so it carries the two standing runs instead; both are on every problem because
+   the ribbon can change trick under a screen that is mid-render. */
+function nineProblem(trick, a) {
+  const t = nineTrick(trick);
+  const each = t.b === 99 ? 100 : 10;
+  return {
+    trick: t.id,
+    a,
+    b: t.b,
+    answer: a * t.b,
+    each,
+    whole: a * each,
+    taken: a,
+    tens: a - 1,
+    ones: 10 - a
+  };
+}
+function makeNineProblem(rng, trick, avoid) {
+  const t = nineTrick(trick);
+  for (let tries = 0; tries < 40; tries++) {
+    const a = randR(rng, t.min, t.max);
+    if (avoid && avoid.trick === t.id && avoid.a === a) continue;
+    return nineProblem(t.id, a);
+  }
+  return nineProblem(t.id, t.min);
+}
+/* Four tiles, and the three near misses are the three ways this trick is actually got
+   wrong rather than three random numbers: stopping at the ten (or at the hundred),
+   handing back ONE instead of one GROUP, and handing the group back twice. A child who
+   taps one of those has made a mistake the screen is already showing the cure for.
+   The pad loop is a guard and not a fifth idea — for every a this game asks, the four
+   are distinct — but a generator that can return three tiles would be a blank hole in
+   the answer row, and the harness checks the shape rather than trusting the arithmetic. */
+function nineChoices(rng, p) {
+  const out = [p.answer];
+  [p.whole, p.whole - 1, p.answer - p.a].forEach(n => {
+    if (n > 0 && out.indexOf(n) < 0) out.push(n);
+  });
+  let pad = p.answer + 1;
+  while (out.length < 4) {
+    if (out.indexOf(pad) < 0) out.push(pad);
+    pad++;
+  }
+  return shuffleR(rng, out);
+}
+/* A round is the problem and the tiles that go with it, made together: the tiles are
+   derived from the problem, so drawing them in a second piece of state would let a
+   re-render pair this round's question with last round's answers. */
+function newNineRound(trick, avoid, rng) {
+  const r = rng || Math.random;
+  const p = makeNineProblem(r, trick, avoid);
+  return {
+    p,
+    choices: nineChoices(r, p)
+  };
+}
+
+/* ── MAKE IT! (y1) ──
+   Number play rather than a drill: a target, a tray of numbers, and two of them that
+   reach it. Owner: *"This should feel more like number play than an exam."*
+
+   THE TRAY HOLDS EXACTLY ONE WORKING PAIR, and that is what keeps the screen a question
+   instead of a hunt. A tray where several pairs worked would reward tapping about until
+   something landed — and the tiles a child REJECTS are the ones doing the teaching, so
+   they have to be genuinely wrong. Every decoy is checked against every tile already on
+   the tray, both ways round.
+
+   WHAT IS DELIBERATELY NOT ARCHITECTED AWAY. The owner's later levels are more than two
+   numbers, taking away as well as adding, several right answers, and a timed-free mode.
+   So a round carries a LIST of picks and judges on the list's TOTAL, never on `a + b`;
+   the tray is a list of values with no seats; and the only thing that says "two" is the
+   length check in the game's tap handler. None of those levels is built here. None of
+   them needs this rewritten. */
+const MAKE_LEVELS = [{
+  id: 'mk10',
+  target: 10,
+  min: 1,
+  max: 9,
+  cols: 5,
+  tag: 'Make 10',
+  desc: '7 + 3'
+}, {
+  id: 'mk20',
+  target: 20,
+  min: 2,
+  max: 18,
+  cols: 10,
+  tag: 'Make 20',
+  desc: '12 + 8'
+}, {
+  id: 'mk100',
+  target: 100,
+  min: 5,
+  max: 95,
+  cols: 10,
+  tag: 'Make 100',
+  desc: '37 + 63'
+}];
+const makeLevel = id => MAKE_LEVELS.find(l => l.id === id) || MAKE_LEVELS[0];
+const MAKE_TRAY = 6;
+function makeItProblem(rng, levelId, avoid) {
+  const lv = makeLevel(levelId);
+  for (let tries = 0; tries < 60; tries++) {
+    const a = randR(rng, lv.min, lv.max);
+    const b = lv.target - a;
+    if (b < lv.min || b > lv.max) continue;
+    if (avoid && avoid.level === lv.id && avoid.a === a) continue;
+    const tray = [a, b];
+    /* A decoy may not reach the target with ANY tile already down — which rules out the
+       partner of the solution pair as well as the partner of an earlier decoy. */
+    let guard = 0;
+    while (tray.length < MAKE_TRAY && guard++ < 400) {
+      const d = randR(rng, lv.min, lv.max);
+      if (tray.indexOf(d) >= 0) continue;
+      if (tray.some(t => t + d === lv.target)) continue;
+      tray.push(d);
+    }
+    if (tray.length < MAKE_TRAY) continue;
+    return {
+      level: lv.id,
+      target: lv.target,
+      a,
+      b,
+      tray: shuffleR(rng, tray)
+    };
+  }
+  /* The fallback is a real round, not a placeholder: every target here has a smallest
+     pair that always exists, and the decoys are then walked deterministically. */
+  const a = lv.min,
+    b = lv.target - lv.min,
+    tray = [a, b];
+  for (let d = lv.min; d <= lv.max && tray.length < MAKE_TRAY; d++) {
+    if (tray.indexOf(d) >= 0 || tray.some(t => t + d === lv.target)) continue;
+    tray.push(d);
+  }
+  return {
+    level: lv.id,
+    target: lv.target,
+    a,
+    b,
+    tray
+  };
+}
+/* How many tiles on the tray could still finish the job, given what is already picked.
+   The game uses it for the third-miss glow; it is here rather than in the screen because
+   "which tile completes this" is the puzzle's own question, and the levels that allow
+   three picks will ask it in exactly the same words. */
+function makeItCompleters(problem, picked) {
+  const sum = picked.reduce((t, i) => t + problem.tray[i], 0);
+  return problem.tray.map((n, i) => i).filter(i => picked.indexOf(i) < 0 && sum + problem.tray[i] === problem.target);
+}
+
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
   const items = useMemo(() => DECO_IMGS.map((src, i) => ({
@@ -6039,6 +6513,50 @@ function GamePreview({
   }, "12")), /*#__PURE__*/React.createElement("span", {
     className: "gp-mm"
   })));
+  if (id === 'x1') return /*#__PURE__*/ /* Nine Magic — the trick itself: the ten, and the group handed back */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "7"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "\xD7"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "9")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "70"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "7")));
+  if (id === 'y1') return /*#__PURE__*/ /* Make It! — two tiles off the tray, and what they reach */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "7"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "3")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "10")));
   return null;
 }
 function Stars({
@@ -14584,6 +15102,635 @@ function MemoryGame({
   }, /*#__PURE__*/React.createElement(RefreshIcon, null)));
 }
 
+/* ══ MODE x1: NINE MAGIC ══
+   Owner: *"A small collection of satisfying number tricks based around 9 ... The
+   emphasis should be on showing WHY the trick works visually, not just giving children
+   a shortcut."*
+
+   That last sentence decided everything on this screen. A card that prints `7 × 9 = 70
+   − 7` and moves on has handed over a shortcut, and a shortcut is a thing you either
+   remember or do not; there is nothing in it to think with. So the three tricks share
+   one move, which the child performs and then watches: SOMETHING IS TAKEN AWAY, and the
+   screen shows what and how many.
+
+     Fingers   ten fingers, and the child folds down the one the question names. The
+               fingers standing to its left are tens and the ones standing to its right
+               are ones — and the reason the trick works is visible without a word of
+               explanation: exactly one finger is down, so the two runs always come to
+               nine. That is what "the digits of every nine fact add to nine" looks like
+               before it is a sentence.
+     × 9       a groups of ten, drawn as a columns of ten counters. One counter leaves
+               EVERY column. A child who is only told "take away seven" has to be told;
+               a child who watches seven counters go, one from each of seven groups, has
+               been shown why it is seven and not one.
+     × 99      the same sentence one place up: a hundreds, and one square leaves every
+               hundred. Nothing about the move changes, which is the point of putting it
+               on the same card — ×99 is not a second trick to learn.
+
+   THE MODEL NEVER PRINTS THE ANSWER. The caption stops at `70 − 7` at every threshold,
+   including the second miss, because a picture that has been reduced to its own answer
+   has stopped being a picture. What is left on screen after the take IS the answer, and
+   reading it off is the child's job. The full sentence is printed once, on the win.
+
+   THE TWO THRESHOLDS. Second miss: the trick is performed for the child and the
+   companion says the rule in the trick's own words. Third miss: the right tile glows.
+   The gap is the app's standing one and it is deliberate — a child who has just got it
+   wrong twice needs the method, not the answer.
+
+   Nothing here counts a miss except a wrong ANSWER. Tapping the wrong finger is not a
+   wrong answer, it is a child working out which finger is the seventh, so it costs a
+   nudge and nothing else. */
+/* The sentence the win prints and speaks. Two readings, because the fingers trick does
+   not take anything away — it splits ten fingers into tens and ones — and printing
+   `10 × 9 = 90 − 10` under a pair of hands would describe a move the child did not just
+   watch. Interpolated on purpose: the numbers are the line. */
+const nineWinWords = p => p.trick === 'fingers' ? `${p.tens} tens and ${p.ones} ${p.ones === 1 ? 'one' : 'ones'} make ${p.answer}.` : `${p.whole} take away ${p.taken} is ${p.answer}.`;
+const nineWinSum = p => p.trick === 'fingers' ? `${p.a} × ${p.b} = ${p.tens * 10} + ${p.ones} = ${p.answer}` : `${p.a} × ${p.b} = ${p.whole} − ${p.taken} = ${p.answer}`;
+/* Ten fingers, numbered left to right across two hands, each one a button. They are
+   buttons and not a picture because folding one is the trick — a child who is shown a
+   hand with a finger already down has been shown a diagram, and a child who folds it has
+   done the thing. Only the finger the question names folds; any other gets a nudge and
+   costs nothing, because working out which one is the seventh is the counting this rung
+   is for. Every finger is a full-height tap target and stays one after it folds.
+   `folded` is the screen's state and not the button's: the second miss folds it too. */
+function NineHands({
+  p,
+  folded,
+  onFold
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "nm-hands",
+    role: "group",
+    "aria-label": "Ten fingers, ready to count the nine times table"
+  }, [0, 1].map(h => /*#__PURE__*/React.createElement("div", {
+    className: "nm-hand",
+    key: h
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nm-fingers"
+  }, Array.from({
+    length: 5
+  }, (_, i) => {
+    const n = h * 5 + i + 1;
+    const down = folded && n === p.a;
+    const side = !folded ? '' : n < p.a ? 'nm-tens' : n > p.a ? 'nm-ones' : '';
+    return /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      key: n,
+      className: `nm-finger ${down ? 'nm-down' : ''} ${side}`,
+      "aria-label": down ? `Finger ${n}, folded down` : `Finger ${n}`,
+      onClick: () => onFold(n)
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "nm-nail",
+      "aria-hidden": "true"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "nm-fnum"
+    }, n));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "nm-palm",
+    "aria-hidden": "true"
+  }))), folded && /*#__PURE__*/React.createElement("div", {
+    className: "nm-split",
+    "aria-live": "polite"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "nm-sp nm-sp-tens"
+  }, /*#__PURE__*/React.createElement("b", null, p.tens), " ", p.tens === 1 ? 'ten' : 'tens'), /*#__PURE__*/React.createElement("span", {
+    className: "nm-sp nm-sp-ones"
+  }, /*#__PURE__*/React.createElement("b", null, p.ones), " ", p.ones === 1 ? 'one' : 'ones')));
+}
+/* a groups of `each`, and the counter that leaves every one of them.
+
+   AT ×9 A GROUP IS TEN COUNTERS AND IS DRAWN AS TEN COUNTERS. The whole trick rests on
+   "each of these is one ten", so a group has to be countable; a tile with `10` written
+   on it would be the shortcut wearing a picture. At ×99 a hundred counters a group is
+   neither drawable nor countable, so a group becomes the hundred SQUARE the Make 100
+   shelf already teaches, and what leaves is one of its cells. The move is identical in
+   both, which is the argument for one card rather than two.
+
+   The counter that leaves is marked BEFORE it goes — it is the top counter of every
+   column, in its own colour — so the child can see what is about to happen and then see
+   it happen, rather than discovering afterwards that the picture has changed. */
+/* How big a hundred square can be, and how many fit a row. It is worked out from the
+   COUNT because one cell of a hundred is the thing the child has to see leave, and a
+   tile sized for twenty-five is a tile whose cell is four pixels across at three. Sizes
+   chosen against the stage at 768x1024 and MEASURED there, which is the only reason the
+   widest rung is seven columns and not five: twenty-five groups in five columns is five
+   rows, the model comes out 480px tall, and the answer tiles land 32px below the bottom
+   of a screen that does not scroll. Seven columns is four rows and 634px wide, which the
+   stage has in both skins.
+
+   EIGHTY-TWO IS THE UNICORN NUMBER. Eighty-eight also fitted -- but only by eleven pixels
+   on the tighter skin, because unicorn's flower garden is 42px taller than space's journey
+   track and every row below it starts that much lower. Eleven pixels is not a margin, it
+   is a coincidence, so the widest rung gives back six pixels per tile and clears by
+   twenty-three (measured, at every a from 20 to 25, in both skins).
+   The cell that leaves is then 8.2px rather than 8.8px and is found by its halo either
+   way, which is the trade being made. */
+const nineTiles = a => a <= 6 ? {
+  t: 132,
+  c: 3
+} : a <= 12 ? {
+  t: 112,
+  c: 4
+} : {
+  t: 82,
+  c: 7
+};
+function NineGroups({
+  p,
+  taken
+}) {
+  const tens = p.each === 10;
+  const {
+    t,
+    c
+  } = nineTiles(p.a);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: `nm-groups ${tens ? 'nm-g10' : 'nm-g100'} ${taken ? 'nm-gone' : ''}`,
+    role: "img",
+    style: tens ? null : {
+      '--nm-tile': `${t}px`,
+      '--nm-cols': c
+    },
+    "aria-label": taken ? `${p.a} groups of ${p.each}, with one taken out of every group` : `${p.a} groups of ${p.each}, each with one counter marked`
+  }, Array.from({
+    length: p.a
+  }, (_, g) => /*#__PURE__*/React.createElement("span", {
+    className: "nm-group",
+    key: g
+  }, tens ? Array.from({
+    length: 10
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: `nm-dot${i === 0 ? ' nm-give' : ''}`
+  })) : /*#__PURE__*/React.createElement("span", {
+    className: "nm-hundred"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "nm-give nm-cell"
+  }))))), taken && /*#__PURE__*/React.createElement("div", {
+    className: "nm-pile",
+    "aria-label": `${p.taken} taken away — one out of every group`
+  }, Array.from({
+    length: p.taken
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "nm-tdot",
+    style: {
+      animationDelay: `${i * 14}ms`
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "nm-tnum"
+  }, p.taken)));
+}
+function NineRibbon({
+  value,
+  onChange,
+  muted
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip nm-strip",
+    role: "group",
+    "aria-label": "Choose a nine trick"
+  }, NINE_TRICKS.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    className: `fm-btn fm-word ${value === t.id ? 'on' : ''}`,
+    "aria-label": t.aria,
+    "aria-pressed": value === t.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onChange(t.id);
+    }
+  }, t.tag)));
+}
+function NineMagicGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  /* The ribbon is this card's only control, so there is no gear: the three tricks are
+     not three difficulties of one screen, they are the three tricks the card is for,
+     and hiding them behind a modal would hide the card's whole content. */
+  const [trickId, setTrickId] = useState(NINE_TRICKS[0].id);
+  const [round, setRound] = useState(() => newNineRound(NINE_TRICKS[0].id));
+  /* Whether the trick has been PERFORMED on screen. One flag for all three, because
+     what it means is the same in all three: the thing that was going to be taken away
+     has been taken away, and the child is now looking at what is left. */
+  const [shown, setShown] = useState(false);
+  const [won, setWon] = useState(false);
+  const [wrongN, setWrongN] = useState(null);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const p = round.p;
+  const trick = nineTrick(trickId);
+  const resetRound = useCallback(r => {
+    setRound(r);
+    setShown(false);
+    setWon(false);
+    setWrongN(null);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetRound(newNineRound(trickId, round.p));
+  }, [trickId, round, resetRound]);
+  /* A new trick is a new round, always: every part of the screen belongs to the trick
+     it was drawn for, and carrying a question across would leave `23 × 99` under a pair
+     of hands. Turns and score are the child's and are untouched. */
+  const applyTrick = useCallback(id => {
+    setTrickId(id);
+    resetRound(newNineRound(id));
+  }, [resetRound]);
+  useEffect(() => {
+    Voice.lines([num(`${p.a} times ${p.b}?`)]);
+  }, [p]);
+  useEffect(() => {
+    if (misses !== 2) return;
+    setShown(true);
+    if (p.trick === 'fingers') Voice.lines([num(`Fold down finger ${p.a}.`), num(`${p.tens} fingers stand on one side and ${p.ones} on the other.`)]);else Voice.lines([num(`${p.a} groups of ${p.each} is ${p.whole}.`), num(`Give one back out of every group. That is ${p.a}.`)]);
+  }, [misses, p]);
+  /* Performing the trick. The fingers rung takes the finger's number, the other two
+     take nothing at all — their move is "take one out of every group", and there is
+     only one way to do it. */
+  const perform = useCallback(n => {
+    Sound.setMuted(muted);
+    if (won || shown) return;
+    if (p.trick === 'fingers' && n !== p.a) {
+      Sound.tap();
+      Voice.say(num(`Count along to ${p.a}.`));
+      return;
+    }
+    Sound.hop();
+    setShown(true);
+    if (p.trick === 'fingers') Voice.say(num(`${p.tens} tens and ${p.ones} ${p.ones === 1 ? 'one' : 'ones'}.`));else Voice.say(num(`One out of every group. That is ${p.a}.`));
+  }, [p, won, shown, muted]);
+  const tap = useCallback(n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (n === p.answer) {
+      /* The trick is performed on the win whether or not the child asked for it, so the
+         picture and the sentence printed under it are always saying the same thing. */
+      setWon(true);
+      setShown(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${p.answer}!`), num(nineWinWords(p))]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrongN(n);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrongN(null), 450);
+    }
+  }, [p, won, muted, addProgress, setScore]);
+  /* ONE RESERVED LINE under the model, for the same reason Make 100 keeps one: the two
+     captions are mutually exclusive, and a line that appears would shove the model down
+     at the exact moment the child is watching it. `−` is the app's minus glyph
+     everywhere else on this screen, so it is the one used here. */
+  const caption = p.trick === 'fingers' ? shown ? null : `Fold down finger ${p.a}` : shown ? `${p.whole} − ${p.taken}` : `${p.a} × ${p.each} = ${p.whole}`;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen nm-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Nine Magic"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, trick.sub)), /*#__PURE__*/React.createElement(NineRibbon, {
+    value: trickId,
+    onChange: applyTrick,
+    muted: muted
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "nm-eq"
+  }, /*#__PURE__*/React.createElement("span", null, p.a), /*#__PURE__*/React.createElement("span", {
+    className: "nm-op"
+  }, "\xD7"), /*#__PURE__*/React.createElement("span", null, p.b), /*#__PURE__*/React.createElement("span", {
+    className: "nm-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "nm-q"
+  }, won ? p.answer : '?')), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage nm-stage"
+  }, p.trick === 'fingers' ? /*#__PURE__*/React.createElement(NineHands, {
+    p: p,
+    folded: shown,
+    onFold: perform
+  }) : /*#__PURE__*/React.createElement(NineGroups, {
+    p: p,
+    taken: shown
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "nm-note",
+    "aria-live": "polite"
+  }, caption), !shown && p.trick !== 'fingers' && /*#__PURE__*/React.createElement("button", {
+    className: "oe-pair-btn nm-do",
+    onClick: () => perform(0)
+  }, "Take one out of every group")), won ? /*#__PURE__*/React.createElement("div", {
+    className: "celebrate-text nm-win"
+  }, nineWinSum(p)) : /*#__PURE__*/React.createElement("div", {
+    className: `nm-tiles${p.b === 99 ? ' nm-wide' : ''}`
+  }, round.choices.map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    className: `nm-ans ${wrongN === n ? 'wrong' : ''} ${misses >= 3 && n === p.answer ? 'hint-glow' : ''}`,
+    onClick: () => tap(n),
+    "aria-label": String(n)
+  }, n))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
+/* ══ MODE y1: MAKE IT! ══
+   Owner: *"A simple number-combination game ... Children are given numbers and combine
+   them to reach the selected target ... This should feel more like number play than an
+   exam."*
+
+   WHAT MAKES IT PLAY RATHER THAN AN EXAM, given that it still has a right answer. Three
+   things, and none of them is decoration:
+
+     Nothing is taken from the child. There is no timer, no lives, and a pair that does
+     not reach the target is answered with the number it DID reach — `12. That is too
+     many.` — and the tiles go back on the tray. A wrong pair is information, which is
+     the same argument Memory Match makes about a card that does not match.
+
+     The first tile can always be taken back out. Tapping a chosen tile returns it, so a
+     child can try a number, look at the frame, and change their mind without ever being
+     wrong. Most of the thinking on this screen happens in that gap.
+
+     The frame answers the question the child is actually asking. Once one tile is down,
+     the empty seats ARE "how many more", countable, at all three targets. The screen
+     never has to say the missing number, because it is already showing it.
+
+   THE MODEL IS THE SHELF'S OWN MODEL. Ten is two rows of five, twenty is two rows of
+   ten, a hundred is the ten-by-ten block — so a child arriving from Make 10 or Make 100
+   is handed nothing new to learn, and the two picks land in two colours exactly as the
+   ten-frame's docstring describes: `7 + 3 = 10` reads as two colours making one full
+   frame.
+
+   THE TWO THRESHOLDS. Second miss: the rule — tap one, then count the empty seats — and
+   the gap starts glowing as soon as a tile is down. Third miss: the tile that finishes
+   the job glows. The gap between them is the app's standing one.
+
+   LATER LEVELS, NOT BUILT AND NOT ARCHITECTED OUT. More than two numbers, taking away,
+   several right answers, a timed-free mode. The round carries a LIST of picks and is
+   judged on that list's total (see makeItProblem and makeItCompleters, which already
+   speak in lists); what says "two" is one length check in tap(), and one ribbon that
+   offers three targets rather than three shapes of round. */
+/* The seats. `kept` is the first pick and `added` the second, in two colours, so a full
+   frame is visibly made of two numbers rather than merely full. `glow` lights the EMPTY
+   seats and not the full ones: what the second miss has to make countable is the gap.
+   `burst` is the over-the-target state, and it deliberately still shows a full frame —
+   the frame did fill, there was simply too much, and shrinking it would hide that. */
+function MakeFrame({
+  target,
+  kept,
+  added,
+  cols,
+  glow = false,
+  burst = false
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: `mk-frame mk-cols-${cols}${glow ? ' mk-glow' : ''}${burst ? ' mk-burst' : ''}`,
+    role: "img",
+    "aria-label": `${Math.min(kept + added, target)} of ${target} seats filled`
+  }, Array.from({
+    length: target
+  }, (_, i) => {
+    const s = i < kept ? 'kept' : i < kept + added ? 'add' : 'off';
+    return /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: `mk-seat mk-${s}`
+    });
+  }));
+}
+function MakeRibbon({
+  value,
+  onChange,
+  muted
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip mk-strip",
+    role: "group",
+    "aria-label": "Choose what to make"
+  }, MAKE_LEVELS.map(l => /*#__PURE__*/React.createElement("button", {
+    key: l.id,
+    className: `fm-btn fm-word ${value === l.id ? 'on' : ''}`,
+    "aria-label": l.tag,
+    "aria-pressed": value === l.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onChange(l.id);
+    }
+  }, l.tag)));
+}
+function MakeItGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [levelId, setLevelId] = useState(MAKE_LEVELS[0].id);
+  const [problem, setProblem] = useState(() => makeItProblem(Math.random, MAKE_LEVELS[0].id));
+  /* Tray INDICES and not values, because a tray may legitimately hold the same number
+     twice (5 and 5 make ten, and that is a bond worth meeting). */
+  const [picks, setPicks] = useState([]);
+  const [judged, setJudged] = useState(null); /* the total of a pair that did not work */
+  const [won, setWon] = useState(false);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const lv = makeLevel(levelId);
+  const sum = picks.reduce((t, i) => t + problem.tray[i], 0);
+  const resetRound = useCallback(pr => {
+    setProblem(pr);
+    setPicks([]);
+    setJudged(null);
+    setWon(false);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetRound(makeItProblem(Math.random, levelId, problem));
+  }, [levelId, problem, resetRound]);
+  const applyLevel = useCallback(id => {
+    setLevelId(id);
+    resetRound(makeItProblem(Math.random, id));
+  }, [resetRound]);
+  useEffect(() => {
+    Voice.say(num(`Make ${problem.target}!`));
+  }, [problem]);
+  useEffect(() => {
+    if (misses !== 2) return;
+    Voice.lines([num(`Tap one number. Then count the empty seats up to ${problem.target}.`)]);
+  }, [misses, problem]);
+  const tap = useCallback(i => {
+    Sound.setMuted(muted);
+    if (won || judged != null) return;
+    if (picks.indexOf(i) >= 0) {
+      /* Taking a tile back out. It is not an undo button somewhere else on the screen:
+         the tile the child put down is the thing they want to change, so it is the
+         thing they tap. */
+      Sound.tap();
+      setPicks(picks.filter(x => x !== i));
+      return;
+    }
+    const now = [...picks, i];
+    setPicks(now);
+    if (now.length < 2) {
+      Sound.hop();
+      if (misses >= 2) Voice.say(num(`${problem.tray[i]} is down. How many more make ${problem.target}?`));
+      return;
+    }
+    const total = now.reduce((t, k) => t + problem.tray[k], 0);
+    if (total === problem.target) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${problem.target}!`), num(`${problem.tray[now[0]]} and ${problem.tray[now[1]]} make ${problem.target}.`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      /* The pair is answered with what it actually came to, said and shown, and then it
+         goes back on the tray. Nothing is scored against the child and nothing
+         disappears — 900 ms is long enough to read the number and watch the frame. */
+      setJudged(total);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      Voice.say(num(total > problem.target ? `${total}. That is too many.` : `${total}. That is not enough.`));
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => {
+        setJudged(null);
+        setPicks([]);
+      }, 900);
+    }
+  }, [picks, problem, won, judged, misses, muted, addProgress, setScore]);
+  /* Which tile the third miss glows. It is worked out from what is ALREADY down rather
+     than from the round's stored pair, so a child who has put a decoy in place is shown
+     the tile that would finish THAT — and when nothing finishes it, the untouched half
+     of the pair that does. */
+  const completers = makeItCompleters(problem, picks);
+  const hintIdx = misses < 3 || won || judged != null ? -1 : completers.length ? completers[0] : problem.tray.findIndex((n, k) => picks.indexOf(k) < 0 && (n === problem.a || n === problem.b));
+  const over = Math.max(0, sum - problem.target);
+  const kept = picks.length ? Math.min(problem.tray[picks[0]], problem.target) : 0;
+  const added = picks.length > 1 ? Math.min(problem.tray[picks[1]], problem.target - kept) : 0;
+  const note = won ? `${problem.target}!` : judged != null ? judged > problem.target ? 'Too many!' : 'Not enough!' : picks.length ? `${sum} so far` : `Tap two numbers that make ${problem.target}`;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen mk-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute
+  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Make It!"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, lv.tag)), /*#__PURE__*/React.createElement(MakeRibbon, {
+    value: levelId,
+    onChange: applyLevel,
+    muted: muted
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mk-eq"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `mk-slot${picks.length > 0 ? ' on' : ''}`
+  }, picks.length > 0 ? problem.tray[picks[0]] : ''), /*#__PURE__*/React.createElement("span", {
+    className: "mk-op"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: `mk-slot${picks.length > 1 ? ' on' : ''}`
+  }, picks.length > 1 ? problem.tray[picks[1]] : ''), /*#__PURE__*/React.createElement("span", {
+    className: "mk-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "mk-target"
+  }, problem.target)), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage mk-stage"
+  }, /*#__PURE__*/React.createElement(MakeFrame, {
+    target: problem.target,
+    kept: kept,
+    added: added,
+    cols: lv.cols,
+    glow: misses >= 2 && picks.length > 0 && !won && judged == null,
+    burst: over > 0
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mk-note",
+    "aria-live": "polite"
+  }, note)), /*#__PURE__*/React.createElement("div", {
+    className: "mk-tray"
+  }, problem.tray.map((n, i) => {
+    const down = picks.indexOf(i) >= 0;
+    return /*#__PURE__*/React.createElement("button", {
+      key: i,
+      className: `mk-tile${down ? ' down' : ''}${down && judged != null ? ' wrong' : ''}${hintIdx === i ? ' hint-glow' : ''}`,
+      onClick: () => tap(i),
+      "aria-label": down ? `${n}, chosen. Tap to take it back` : String(n)
+    }, n);
+  })), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -14600,7 +15747,13 @@ function Home({
   const pick = id => {
     if (launching) return;
     Sound.tap();
-    Voice.say(CARD_VOICE[id]);
+    /* A card whose name has no rendered clip yet stays SILENT rather than being
+       read out by the engine. Voice.say(undefined) reaches speechSynthesis with the
+       string "undefined", which is what a child would have heard; and unicorn-math
+       has no CARD_VOICE at all, so a silent card here is the shape that skin already
+       ships. Nine Magic and Make It! are the two: their lines are unrendered, and
+       --verify gates a manifest entry on the clip existing. */
+    if (CARD_VOICE[id]) Voice.say(CARD_VOICE[id]);
     setLaunching(id);
     clearTimeout(launchT.current);
     launchT.current = setTimeout(() => onSelect(id), 1050);
@@ -14817,6 +15970,16 @@ function Home({
     className: "mode-card-label"
   }, "Make 100"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('y1', 'mc-rose'),
+    onClick: () => pick('y1'),
+    "aria-label": "Make It. Tap two numbers that make the target"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "y1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Make It!"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -14928,6 +16091,32 @@ function Home({
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Share It Out"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/sparkle-blue.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Nine Magic"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/fourstar-gold.webp",
+    alt: ""
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('x1', 'mc-purple'),
+    onClick: () => pick('x1'),
+    "aria-label": "Nine Magic. Tricks with nine"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "x1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Nine Magic"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
@@ -15141,7 +16330,9 @@ function App() {
     d1: 0,
     q1: 0,
     a1: 0,
-    k1: 0
+    k1: 0,
+    x1: 0,
+    y1: 0
   });
   const [muted, setMutedState] = useState(() => {
     try {
@@ -15347,6 +16538,12 @@ function App() {
   }));else if (mode === 'np1') screen = /*#__PURE__*/React.createElement(NumberPlayGame, shared);else if (mode === 'k1') screen = /*#__PURE__*/React.createElement(MemoryGame, _extends({}, shared, {
     score: scores.k1,
     setScore: setScore('k1')
+  }));else if (mode === 'x1') screen = /*#__PURE__*/React.createElement(NineMagicGame, _extends({}, shared, {
+    score: scores.x1,
+    setScore: setScore('x1')
+  }));else if (mode === 'y1') screen = /*#__PURE__*/React.createElement(MakeItGame, _extends({}, shared, {
+    score: scores.y1,
+    setScore: setScore('y1')
   }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,

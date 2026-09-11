@@ -61,6 +61,32 @@
     /* The heading clears the button on a narrow screen, where they would otherwise
        share the top line. */
     .wrap{padding-top:max(32px,calc(86px + env(safe-area-inset-top)))}
+    /* ── Menu music toggle ──
+       The worlds' control, on the door they are behind: the same pill, the same 22px
+       note, the same words in the label, and the same `sm_music` key underneath it.
+       Top-right, opposite the back arrow, which is where both worlds put it.
+
+       48px square rather than the worlds' 43px. Their padding and icon come out a
+       whisker under the 44px a child's finger needs; the pill is copied, the target is
+       not, because a tap target is the one measurement that never shrinks to match. */
+    .music-btn{
+      position:fixed;z-index:9;
+      top:calc(14px + env(safe-area-inset-top));
+      right:calc(14px + env(safe-area-inset-right));
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:48px;min-height:48px;padding:8px 13px;
+      background:linear-gradient(135deg,#fff,#ecebff);
+      border:2.5px solid #ab97f5;border-radius:50px;box-shadow:0 4px 0 #ab97f5;
+      color:#5a2ed6;font-family:inherit;font-size:1.1rem;font-weight:900;line-height:1;
+      cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s;
+    }
+    .music-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #ab97f5}
+    .music-btn:focus-visible{outline:4px solid #ffd54f;outline-offset:3px}
+    .music-btn.music-off{opacity:.45;filter:grayscale(1)}
+    .music-btn svg{width:22px;height:22px;display:block}
+    .music-btn .m-off{display:none}
+    .music-btn.music-off .m-on{display:none}
+    .music-btn.music-off .m-off{display:block}
     .sub{font-weight:800;font-size:clamp(1rem,3.4vw,1.3rem);opacity:.9;margin-top:-14px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
   </style>
 </head>
@@ -78,6 +104,14 @@
   </svg>
   <span>Children Games</span>
 </a>
+
+<!-- The two note glyphs are both in the button and CSS shows one, so turning music on
+     and off never reaches for the DOM: it is one class on one element. Same drawings
+     the worlds use, down to the stroke width. -->
+<button class="music-btn" type="button" aria-label="Menu music off">
+  <svg class="m-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor" stroke="none"/><circle cx="16.5" cy="16" r="2.6" fill="currentColor" stroke="none"/></svg>
+  <svg class="m-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12" opacity=".45"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor" stroke="none" opacity=".45"/><circle cx="16.5" cy="16" r="2.6" fill="currentColor" stroke="none" opacity=".45"/><path d="M3 3l18 18"/></svg>
+</button>
 
 <div class="wrap">
   <h1>Magic <span>Math</span></h1>
@@ -109,6 +143,165 @@
   </div>
   <footer>Made with love for little learners</footer>
 </div>
+<script>
+/* ══ MENU MUSIC ══
+   The bed the two worlds already play, on the door they are behind. Same file, same
+   `sm_music` key, same 0.20 resting level, so music is ONE preference across Magic
+   Math: a child who turns it off inside Unicorn Math does not walk back out to it
+   playing here. Opt-in and remembered, exactly as in the worlds — a front door that
+   starts singing the first time the app opens is a thing you turn off, not a thing you
+   enjoy.
+
+   NO DUCKING. The worlds drop the bed to 0.055 while a line is spoken, and poll every
+   180 ms to know when. Nothing on this page speaks — there is no Voice here and nothing
+   to duck under — so there is no second level and no poll. FULL is the only volume this
+   module has.
+
+   NO `wanted` EITHER. In a world that flag means "the child is on the menu screen, not
+   in a game". This page IS the menu screen and has nowhere else to be.
+
+   ── WHAT HAPPENS ON THE iPAD, HONESTLY ──
+   A browser will not start audio before the child has touched the document, and this
+   page is where the child LANDS: no tap has happened yet. So the bed does not play on
+   arrival, and that is the decision, not an oversight.
+
+   The worlds solve this by arming the next pointerdown, because in a world the next
+   pointerdown is a mode card and the child stays to hear the result. Here almost every
+   control LEAVES — two world cards and a back arrow — so arming is copied MINUS the
+   taps that land on a link. Starting a 420 ms fade-in on the tap that unloads the
+   document buys a swell cut off mid-breath, then a silent page load, then the same
+   fade-in again on the other side. That is worse than silence, so a tap on a link is
+   allowed through and the listener stays up for one that keeps the child here.
+
+   What is left is the music button, a tap on the sky or the title, and browsers that
+   permit autoplay outright (desktop Chrome does, once the child has used the site).
+   On a 9.7" iPad that means: this page is quiet until the child presses the note, and
+   the bed then plays on every Magic Math screen that wants it.
+
+   ── AND WHY IT DOES NOT RESTART THE TRACK ──
+   `menu-bed.m4a` is 52 seconds of written music, not a four-second loop. A fresh
+   <audio> element starting at 0:00 every time a child crosses a page boundary means the
+   same opening bars over and over, which is audibly broken and is the one way adding
+   music here could make Magic Math WORSE than leaving the hub silent.
+
+   So every Magic Math page now parks the playhead in `sm_music_t` on the way out and
+   picks it up there on the way in. Hub → world → hub → world is one continuous piece.
+   The two worlds carry the same few lines; this is not a hub-only trick, and it fixes
+   world → hub → other world, which restarted the bed before today too. */
+var Music=(function(){
+  var SRC='assets-runtime/audio/menu-bed.m4a';
+  var KEY='sm_music';
+  var TKEY='sm_music_t';   // the shared playhead, in seconds
+  var FULL=0.20;           // the worlds' resting level, unchanged
+  var RAMP_MS=420, STEP_MS=40;
+  var el=null, ramp=0, armed=false;
+  var seekTo=0, posTaken=true;
+  var pref=(function(){try{return localStorage.getItem(KEY)==='1';}catch(e){return false;}})();
+
+  function fadeTo(v,thenPause){
+    if(!el)return;
+    if(ramp){clearInterval(ramp);ramp=0;}
+    var from=el.volume, steps=Math.max(1,Math.round(RAMP_MS/STEP_MS)), i=0;
+    ramp=setInterval(function(){
+      i++;
+      try{el.volume=Math.max(0,Math.min(1,from+(v-from)*(i/steps)));}catch(e){}
+      if(i>=steps){
+        clearInterval(ramp);ramp=0;
+        if(thenPause&&el){try{el.pause();}catch(e){}}
+      }
+    },STEP_MS);
+  }
+
+  function readPos(){
+    var t=0;try{t=parseFloat(localStorage.getItem(TKEY));}catch(e){}
+    return (isFinite(t)&&t>0)?t:0;
+  }
+  /* Seeking needs metadata, and `preload:'none'` means there is none until something
+     asks for it. So this is called both from the loadedmetadata event and after play()
+     resolves, and does nothing until one of them has produced a duration. */
+  function takePos(){
+    if(posTaken||!el||!(el.readyState>=1))return;
+    try{if(seekTo<el.duration)el.currentTime=seekTo;}catch(e){}
+    posTaken=true;
+  }
+  /* `posTaken` is the guard that matters. If the child arrives, never touches the page
+     and taps straight into a world, the element was built but never loaded a byte and
+     its currentTime is 0 — writing that would throw away the position the world they
+     came from left behind, and the restart this whole mechanism exists to prevent would
+     happen anyway. A page that never took the playhead does not get to move it. */
+  function savePos(){
+    if(!el||!posTaken)return;
+    try{localStorage.setItem(TKEY,String(el.currentTime||0));}catch(e){}
+  }
+
+  function arm(){
+    if(armed)return;
+    armed=true;
+    var go=function(e){
+      if(e.target&&e.target.closest&&e.target.closest('a'))return;
+      window.removeEventListener('pointerdown',go,true);
+      armed=false;
+      apply();
+    };
+    window.addEventListener('pointerdown',go,true);
+  }
+
+  function apply(){
+    if(!pref){
+      if(el&&!el.paused)fadeTo(0,true);
+      return;
+    }
+    if(!el){
+      try{el=new Audio(SRC);}catch(e){return;}
+      el.loop=true; el.preload='none'; el.volume=0;
+      seekTo=readPos(); posTaken=(seekTo===0);
+      el.addEventListener('loadedmetadata',takePos);
+      takePos();
+    }
+    el.volume=0;
+    var p;
+    try{p=el.play();}catch(e){arm();return;}
+    if(p&&p.then)p.then(function(){takePos();fadeTo(FULL,false);}).catch(arm);
+    else{takePos();fadeTo(FULL,false);}
+  }
+
+  return{
+    init:function(){apply();},
+    enabled:function(){return pref;},
+    /* The toggle. Its own click is the user gesture, so this is the one path on this
+       page where play() is reliably allowed. */
+    setEnabled:function(v){pref=!!v;try{localStorage.setItem(KEY,pref?'1':'0');}catch(e){}apply();},
+    save:savePos,
+    /* Read-only, for verification. The element is never added to the document, so there
+       is otherwise no way to observe from outside whether the bed is actually playing or
+       merely intended to be. */
+    state:function(){return{pref:pref,exists:!!el,playing:!!(el&&!el.paused),
+      volume:el?+el.volume.toFixed(3):null,readyState:el?el.readyState:null,
+      currentTime:el?+el.currentTime.toFixed(2):null,armed:armed,posTaken:posTaken,src:SRC};}
+  };
+})();
+
+(function(){
+  var btn=document.querySelector('.music-btn');
+  function paint(){
+    btn.classList.toggle('music-off',!Music.enabled());
+    btn.setAttribute('aria-label',Music.enabled()?'Menu music on':'Menu music off');
+  }
+  /* Turning it on starts the bed on this very click, which is the feedback: the worlds
+     answer a tap with a blip from their Sound module, and this page has no Sound module
+     to borrow. Music arriving says the button worked; the fade-out says so too. */
+  btn.addEventListener('click',function(){Music.setEnabled(!Music.enabled());paint();});
+  paint();
+  Music.init();
+
+  /* Park the playhead before this document goes. `pagehide` is the one that fires on
+     iOS when the child taps into a world; `visibilitychange` catches the iPad being
+     put to sleep or the app swapped away, where pagehide does not come. */
+  window.addEventListener('pagehide',Music.save);
+  document.addEventListener('visibilitychange',function(){if(document.hidden)Music.save();});
+})();
+</script>
+
 <script>
   /* Offline support. Registration is best-effort: opened straight from a file
      the browser refuses it, and the games must still run. */
