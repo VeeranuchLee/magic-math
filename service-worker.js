@@ -236,7 +236,20 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        element is stalled at readyState 0. It reports playing on a silent page. Only a
 //        currentTime that advances proves sound.
 //        A bump is not finished when the constant changes; the entry is the deliverable.
-const CACHE_NAME = "magic-math-v38";
+//
+// v39 -- 2026-09-12, the activity mode ribbon replaces every pop-up difficulty and
+//        question-type selector (owner instruction). One shared ActivityRibbon serves 19
+//        game screens in each skin; `modal-overlay` went 17 -> 1 (the survivor is the
+//        gear's settings modal) and `modal-close` 18 -> 0, so no game still has a "Done"
+//        button for difficulty. Curated presets only -- the From/To panels and the custom
+//        operation branch are DELETED, not hidden. The gear keeps sound and narration.
+//        Two defects the 768px browser pass found are fixed here too, and neither was the
+//        ribbon's chips: Make 100 ran 43px off the bottom of UNICORN only (its score row is
+//        42px taller than space's, which is why one skin showed it and the other did not),
+//        and the top bar's .back-btn and .sound-btn measured 54x42 / 52x39 -- under the 48px
+//        floor. Every ribbon chip already measured 48x48 in both skins.
+//        No narration line was added, removed or re-worded, so nothing new needed a render.
+const CACHE_NAME = "magic-math-v39";
 
 const SHELL = [
   "./",

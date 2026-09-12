@@ -159,52 +159,39 @@
     .screen{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px;gap:11px;background:transparent;overflow:hidden}
     .screen-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(255,245,255,.16),rgba(255,245,255,.16)),var(--game-bg),var(--screen-fallback,#fce4ec);background-size:cover,cover,cover;background-position:var(--game-bg-position,center center);background-repeat:no-repeat;z-index:0;pointer-events:none}
     /* Every :not() here adds specificity, so this rule outweighs a plain class rule on
-       any child. The settings overlay is a child of .screen and must stay position:fixed
-       to cover the viewport — without this exclusion it lays out inline in the column,
-       squeezed to the flex width instead of centred over the game. */
-    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.modal-overlay):not(.tc-panel){position:relative;z-index:1}
+       any child. The exclusions are the things that must NOT be laid out inline in the
+       column: a fixed backdrop, the confetti, the mascot, the times-chart panel. It used
+       to exclude .modal-overlay too; the settings overlay it was written for is gone
+       (2026-09-12), and so is every other modal on a game screen. */
+    .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.tc-panel){position:relative;z-index:1}
     .blocks-screen {--game-bg:url('assets-runtime/unicorn/bg-what-number.webp');--screen-fallback:linear-gradient(160deg,#fce4ec,#f8bbd0,#fce4ec)}
     .choose-screen {--game-bg:url('assets-runtime/unicorn/bg-fill-right-block.webp');--screen-fallback:linear-gradient(160deg,#f3e5f5,#e1bee7,#f3e5f5)}
     .addsub-screen {--game-bg:url('assets-runtime/unicorn/bg-add-subtract.webp');--screen-fallback:linear-gradient(160deg,#fff3e0,#fce4ec,#f3e5f5)}
 
     /* ── TOP BAR ── */
     .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
-    .back-btn{background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:8px 14px;font-family:inherit;font-size:1.2rem;font-weight:900;color:#e91e63;cursor:pointer;box-shadow:0 4px 0 #f48fb1;transition:transform .1s;white-space:nowrap;line-height:1;min-width:52px}
+    /* 48px MINIMUM HEIGHT, measured rather than assumed (2026-09-12). Both of these
+       were sized by padding + line-height alone, which at 768px came out 54 x 42 for the
+       back arrow and 52 x 42 for sound on space, and 52 x 39 for the back arrow on
+       unicorn -- under the tap floor in the short direction on EVERY game screen in the
+       app. They sit in the same row as the ribbon, whose chips are 48, so the row was
+       also visibly uneven. min-height rather than height: the pill still grows if its
+       glyph ever needs more. */
+    .back-btn{min-height:48px;background:linear-gradient(135deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:8px 14px;font-family:inherit;font-size:1.2rem;font-weight:900;color:#e91e63;cursor:pointer;box-shadow:0 4px 0 #f48fb1;transition:transform .1s;white-space:nowrap;line-height:1;min-width:52px}
     .back-btn:active{transform:translateY(3px)}
     .music-btn{position:fixed;top:14px;right:14px;z-index:9}
     .hub-btn{position:fixed;top:14px;left:14px;z-index:9;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
     .music-btn.music-off{opacity:.45;filter:grayscale(1)}
-    .settings-btn,.sound-btn,.music-btn{background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#7b1fa2;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1;min-width:48px}
-    .settings-btn:active,.sound-btn:active,.music-btn:active{transform:translateY(3px)}
+    .sound-btn,.music-btn{min-height:48px;background:linear-gradient(135deg,#fff,#f3e5f5);border:2.5px solid #ce93d8;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#7b1fa2;cursor:pointer;box-shadow:0 4px 0 #ce93d8;transition:transform .1s;line-height:1;min-width:48px}
+    .sound-btn:active,.music-btn:active{transform:translateY(3px)}
     .icon-svg{width:22px;height:22px;display:block}
 
-    /* ── MODALS ── */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
-    .modal-box{background:#fff;border-radius:28px;padding:22px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:3px solid #f48fb1;max-height:90vh;overflow-y:auto}
-    .modal-title{font-size:1.2rem;font-weight:900;color:#7b1fa2;text-align:center;margin-bottom:14px}
-    .preset-btn{width:100%;padding:12px 16px;border-radius:14px;border:3px solid;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:10px;transition:transform .1s;margin-bottom:7px}
-    .preset-btn:active{transform:scale(.97)}
-    .preset-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff}
-    .preset-btn.inactive{background:#fff;border-color:#f8bbd0;color:#7b1fa2}
-    .preset-tag{font-size:1.2rem}
-    .preset-info{text-align:left;flex:1}
-    .preset-name{font-size:.95rem;font-weight:900}
-    .preset-range{font-size:.74rem;opacity:.7;font-weight:700}
-    .modal-close{margin-top:8px;width:100%;padding:11px;border-radius:50px;border:none;background:linear-gradient(135deg,#f48fb1,#e91e63);color:#fff;font-family:inherit;font-size:.95rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #ad1457}
-    .modal-close:active{transform:translateY(3px)}
-    /* custom range inputs */
-    .custom-range-box{background:#fce4ec;border-radius:14px;padding:14px;margin-top:4px;border:2px solid #f48fb1}
-    .custom-range-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-    .custom-range-row label{font-size:.85rem;font-weight:900;color:#7b1fa2;display:flex;align-items:center;gap:6px}
-    .custom-input{width:68px;padding:6px 8px;border-radius:8px;border:2px solid #f48fb1;font-family:inherit;font-size:1rem;font-weight:900;color:#333;text-align:center}
-    .custom-apply{background:linear-gradient(135deg,#ce93d8,#7b1fa2);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-family:inherit;font-size:.9rem;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #4a148c}
-    .custom-error{font-size:.8rem;font-weight:900;color:#c62828;background:#ffcdd2;border-radius:8px;padding:5px 10px;margin-bottom:6px}
-    /* add/sub custom op */
-    .op-toggle-row{display:flex;gap:8px;margin-bottom:10px}
-    .op-toggle{flex:1;padding:9px;border-radius:10px;border:2px solid #f8bbd0;font-family:inherit;font-size:.9rem;font-weight:900;cursor:pointer;background:#fff;color:#7b1fa2}
-    .op-toggle.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff}
-    .section-label{font-size:.78rem;font-weight:900;color:#9c27b0;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-    .mode-toggle-row{display:flex;gap:8px;margin-bottom:10px}
+    /* THE SETTINGS MODAL IS GONE, and with it every rule that dressed one (2026-09-12).
+       Fifteen games each had a picker behind the gear: an overlay, a box, a list of
+       preset rows, and for two of them a panel of typed number inputs. The rungs are on
+       the ribbon inside the game now — see ActivityRibbon — so none of that has a caller
+       left. The equivalence overlay below is a different thing (its own classes) and the
+       garden overlay draws itself; neither used any of this. */
 
     /* ── EQUIVALENCE MODAL ── */
     .equiv-modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.55)}
@@ -560,10 +547,13 @@
     /* ── A RIBBON TAB THAT CARRIES A WORD ──
        The five glyph tabs this strip was built for say their whole meaning in a sign a
        pre-reader can read. "Make 10" cannot be drawn that way — the target IS a number —
-       so these two cards' tabs carry the words, and the button gives up only its fixed
-       width to fit them. Height stays 44px, which is the floor, not a starting point. */
-    .fm-btn.fm-word{width:auto;min-width:66px;padding:0 15px;font-family:inherit;
-      font-size:1.02rem;font-weight:900;letter-spacing:.4px}
+       and nor can "Whole rows" or "1 – 999", so most rungs carry the word instead and the
+       button gives up only its fixed width to fit it. Height stays 48px, which is the tap
+       floor, and the type size is fixed: a ribbon that does not fit is shortened by its
+       words. min-width is the same 48px floor so a one-digit chip (Count By's) stays
+       square rather than becoming a sliver. */
+    .fm-btn.fm-word{width:auto;min-width:48px;padding:0 12px;font-family:inherit;
+      font-size:1.02rem;font-weight:900;letter-spacing:.4px;white-space:nowrap}
 
     /* ── NINE MAGIC (x1) ── */
     /* The question, and the one line under the model. Both are white pills rather than
@@ -859,11 +849,33 @@
        necessary when the keys moved above the block: the model is now the LAST thing on
        the page, so anything that grows above it pushes the hundredth square off the
        bottom of a screen that cannot scroll.
-       The 720px is measured, not chosen: on the taller of the two skins at 768 x 1024 the
-       chrome above the model is 587, .screen's bottom padding is 24, the panel's own
-       border and padding are 22, and the nine row gaps are 81 — 714 of fixed cost before
-       a single cell is drawn. What is left, divided by ten rows, is what a cell may be. */
-    .hbk-model{--hbk-cell:clamp(14px,min(5.2vw,(100vh - 720px)/10),42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+       The constant is measured, not chosen, and it is re-measured whenever anything above
+       the model changes size. On the taller of the two skins at 768 x 1024, WITH the
+       activity ribbon and the tightened screen gap (see the note below): the chrome above
+       the model is 631, .screen's bottom padding is 24, the panel's own border and padding
+       are 22, and the nine row gaps are 81 — 758 of fixed cost before a single cell is
+       drawn, which is the 760 below. What is left, divided by ten rows, is what a cell may
+       be. It read 587 / 714 / 720 until 2026-09-12, when the ribbon added a row and the
+       arithmetic stopped describing the screen. */
+    /* THE HEIGHT BUDGET HAD TO PAY FOR THE RIBBON (2026-09-12). The 720px constant below
+       is "everything on this screen that is not the block", and it was calibrated before
+       Make 100 carried an ActivityRibbon. The ribbon costs 75px here -- a 64px strip plus
+       the column gap, less its -2px top margin -- and the budget did not know, so the
+       block kept its full size and the page grew past the viewport. Measured in Chrome at
+       768 x 1024: space ran 13px over (padding only, nothing hidden) and unicorn ran 67px
+       over, with 43px of the hundred BELOW THE FOLD -- unicorn's score row is 42px taller
+       than space's, so it had less to give. Both skins were exactly 1024 before the
+       ribbon landed.
+       Two changes, in the order that costs the teaching object least. The gap goes first
+       because it is the cheaper 25px: six children at 11px, tightened to 6px, and the
+       block never notices. Only what is left comes out of the budget, 720 -> 760. The
+       block goes 407px -> 367px rather than the 297px a budget-only fix would have cost.
+       Measured after: contentBottom 1000 and scrollHeight 1024 on BOTH skins -- the page
+       does not scroll at all, which is the state the ribbon interrupted. The tighter gap
+       is unconditional so the iPad tier gets it; @media (max-height:740px) still takes it
+       to 5px below, and that rule is further down so it still wins there. */
+    .hbk-screen{gap:6px}
+    .hbk-model{--hbk-cell:clamp(14px,min(5.2vw,(100vh - 760px)/10),42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
     /* THE ROW GAP IS BIGGER THAN THE COLUMN GAP, and that is the whole difference
        between a hundred block and a hundred squares. Each row reads as one strip of
        ten — the same object as the tens rods in the counting games — while ten of
@@ -1331,27 +1343,14 @@
     .multiply-answer-box.active{border-color:#e91e63;box-shadow:0 0 0 4px rgba(233,30,99,.16),0 3px 0 #ad1457}
     .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #f48fb1;border-radius:999px;padding:8px 18px;color:#e91e63;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #f48fb1;position:relative;z-index:1}
-    .times-picker-label{font-size:.82rem;font-weight:900;color:#9c27b0;text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;text-align:center}
-
-    /* ── PICK YOUR NUMBER ──
-       The child chooses the difficulty, so the choice is the biggest thing on screen:
-       one tap on a number IS the setting, no confirm step and no grown-up gesture.
-       Tiles are 60px so a 4-year-old's fingertip cannot miss between them. */
-    .pick-box{max-width:440px}
-    .pick-question{font-size:clamp(1.25rem,5.5vw,1.7rem);font-weight:900;color:#7b1fa2;text-align:center;line-height:1.15}
-    .pick-question span{color:#e91e63}
-    .pick-hint{font-size:.9rem;font-weight:900;color:#9c27b0;opacity:.75;text-align:center;margin-top:3px}
-    .pick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
-    .pick-btn{height:60px;border-radius:18px;border:3px solid #f48fb1;background:linear-gradient(160deg,#fff,#fce4ec);color:#7b1fa2;font-family:inherit;font-size:1.6rem;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #f48fb1;transition:transform .1s}
-    .pick-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #f48fb1}
-    .pick-btn.active{background:linear-gradient(135deg,#f48fb1,#e91e63);border-color:#e91e63;color:#fff;box-shadow:0 4px 0 #ad1457}
-    @media (max-width:430px){.pick-grid{grid-template-columns:repeat(4,1fr)}}
-    /* The difficulty pill in the top bar is the way back to the picker, so it has to
-       look pressable — it is a wider target than the gear beside it. */
-    .level-chip{display:flex;align-items:center;gap:5px;font-family:inherit;font-size:.85rem;font-weight:900;color:#e91e63;background:linear-gradient(160deg,#fff,#fce4ec);border:2.5px solid #f48fb1;border-radius:50px;padding:6px 13px;cursor:pointer;box-shadow:0 3px 0 #f48fb1;white-space:nowrap}
-    .level-chip:active{transform:translateY(2px);box-shadow:0 1px 0 #f48fb1}
-    .level-chip-caret{font-size:.7rem;opacity:.8}
-    .level-chip.static{background:rgba(255,255,255,.65);border-color:transparent;box-shadow:none;color:#9c27b0;cursor:default}
+    /* The 1–30 tap grid that Times Tables and Count By opened on lived here, behind a
+       Play! button. Both are ribbons of curated rungs now (TIMES_PRESETS,
+       COUNT_BY_PRESETS), so the grid, its label and its own breakpoint are gone.
+       The pill in the top bar is the last survivor and it no longer opens anything: it
+       names the four screens that have no ribbon of their own, so it is drawn flat and
+       is not a button. */
+    .level-chip{display:flex;align-items:center;gap:5px;font-family:inherit;font-size:.85rem;font-weight:900;border-radius:50px;padding:6px 13px;white-space:nowrap;
+      background:rgba(255,255,255,.65);border:2.5px solid transparent;box-shadow:none;color:#9c27b0;cursor:default}
 
     /* ── COUNT BY: the same numbers read two ways at once ──
        Top strip = the skip-counting chant (12, 24, 36, ?).
@@ -1553,14 +1552,22 @@
     .gp-piece{width:13px;height:16px;border-radius:3px;border:1.5px solid #f48fb1;background:#fce4ec}
     .gp-piece.on{background:linear-gradient(160deg,#e91e63,#7b1fa2);border-color:#7b1fa2}
 
-    /* ── FRACTIONS: THE MODEL STRIP ──
-       Its own row under the title. Five 46px buttons plus gaps is 270px, which will not fit
-       beside a 410px title block and Start Over on a 768px iPad -- and a control row that
-       wraps reads as two unrelated rows to a child who cannot read the labels. */
+    /* ── THE RIBBON STRIP ──
+       Built for f1's five models; since 2026-09-12 it is what every game's mode ribbon is
+       made of. Its own row under the title: five 48px buttons plus gaps is 280px, which
+       will not fit beside a 410px title block and Start Over on a 768px iPad -- and a
+       control row that wraps reads as two unrelated rows to a child who cannot read the
+       labels, so it never wraps. .screen is 12px padded either side, so a strip has 744px
+       to live in and the widest one in the app (What's Missing?'s six rungs) measures
+       about 711px. A ribbon that outgrows that is shortened by its words, never by its
+       type size and never by hiding a chip behind a scroll. */
     .fm-strip{display:flex;align-items:center;gap:8px;padding:6px 9px;background:rgba(255,255,255,.9);
       border:2px solid #f8bbd0;border-radius:20px;box-shadow:0 3px 10px rgba(90,46,214,.12);
-      position:relative;z-index:1}
-    .fm-btn{width:46px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;
+      position:relative;z-index:1;flex-wrap:nowrap}
+    /* 48px in both directions. It is a FLOOR and not a size -- a word chip grows past it
+       to fit its word -- and it is 48 rather than the 46 x 44 this was until 2026-09-12,
+       which was under the tap-target floor in both directions on every ribbon in the app. */
+    .fm-btn{min-width:48px;height:48px;display:flex;align-items:center;justify-content:center;padding:0;
       border:2.5px solid #ce93d8;border-radius:14px;background:linear-gradient(135deg,#fff,#fce4ec);
       color:#f48fb1;cursor:pointer;transition:transform .1s,color .14s,border-color .14s}
     .fm-btn svg{width:26px;height:26px}
@@ -1569,6 +1576,18 @@
        whole screen already uses for "this one is on". */
     .fm-btn.on{background:linear-gradient(160deg,#e91e63,#7b1fa2);border-color:#7b1fa2;color:#fff;
       box-shadow:0 3px 0 #4a148c}
+
+    /* ── WHERE A RIBBON SITS ──
+       Its own row, directly under the title and above the game, on every screen that has
+       one. .ar-strip is the default margin and the two named strips below only adjust it.
+       .ar-row is for the three screens that carry TWO ribbons: the operation and the rung
+       on Column Maths and on Make 10, the deck and the board size on Memory Match. That
+       is one row holding two controls, which is what those screens have always had — the
+       shape deliberately NOT taken is a second row, which would push the board or the
+       column card below the fold on a 768 x 1024 iPad. */
+    .ar-strip{margin:-2px 0 4px;max-width:100%}
+    .ar-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:nowrap}
+    .ar-row .ar-strip{margin:0}
 
     /* ── THE OPERATION RIBBON: WHERE THE CARD COLOUR WENT ──
        Column Maths used to say the operation twice: adding wore the two blues, taking
@@ -2870,13 +2889,6 @@ const BLOCKS_PRESETS = [{
   min: 1,
   max: 1000,
   desc: '1 – 1000'
-}, {
-  id: 'bcustom',
-  emoji: '✏️',
-  tag: 'Custom',
-  min: null,
-  max: null,
-  desc: 'Set your own'
 }];
 const LINE_PRESETS = [{
   id: 'l10',
@@ -2906,13 +2918,6 @@ const LINE_PRESETS = [{
   min: 1,
   max: 30,
   desc: '1 – 30'
-}, {
-  id: 'lcustom',
-  emoji: '✏️',
-  tag: 'Custom',
-  min: null,
-  max: null,
-  desc: 'Set your own'
 }];
 const COLUMN_ADD_PRESETS = [{
   id: 'tiny',
@@ -3279,6 +3284,39 @@ const DEFAULT_TIMES_RANGE = {
   rowMax: 12,
   colMax: 12
 };
+/* ── HOW BIG SHALL WE GO? (m1) — THE RUNGS THE RIBBON OFFERS ──
+   TIMES_MAX_OPTIONS above is untouched and is NOT a picker: it is the number space the
+   voice was rendered for, and tools/build-narration-manifest.py reads it to decide which
+   clips exist. What WAS a picker — a 1 to 30 tap grid behind a Play! button — was thirty
+   free numbers with nothing tying any of them to what the screen can draw, and the
+   owner's rule of 2026-09-12 is curated rungs only.
+   6, 10 and 12 are the ceilings this app already treats as a times table's size: they
+   are the three the memory deck's times pairs are built from. 12 is also HINT_BLOCKS_MAX,
+   the last size whose groups the second-miss hint can actually draw, so the first three
+   rungs are the ones with a picture behind them and the last two are the ones that are
+   numerals by nature. 30 is the rendered ceiling and cannot rise without paying for the
+   clips — see the note above TIMES_MAX_OPTIONS. */
+const TIMES_PRESETS = [{
+  id: 'm6',
+  tag: '6 × 6',
+  max: 6
+}, {
+  id: 'm10',
+  tag: '10 × 10',
+  max: 10
+}, {
+  id: 'm12',
+  tag: '12 × 12',
+  max: 12
+}, {
+  id: 'm20',
+  tag: '20 × 20',
+  max: 20
+}, {
+  id: 'm30',
+  tag: '30 × 30',
+  max: 30
+}];
 /* Count By: the skip-counting chant and the times table are the same list of numbers,
    so this game writes both at once. step = what we count by, upTo = how many jumps. */
 const COUNT_BY_STEP_OPTIONS = Array.from({
@@ -3294,6 +3332,17 @@ const DEFAULT_COUNT_BY = {
   step: 12,
   upTo: 30
 };
+/* The steps the ribbon offers, and the same story as TIMES_PRESETS: COUNT_BY_STEP_OPTIONS
+   stays as the rendered set, and the 1 to 30 tap grid it used to draw is replaced by the
+   eleven steps that are actually a chant — the times tables, 2 through 12. Counting by 1
+   is not skip counting, and 13 upwards is a list a child reads off the ladder rather than
+   one they recite. Their clips are rendered and waiting if the owner wants them back. */
+const COUNT_BY_PRESETS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => ({
+  id: `s${n}`,
+  tag: String(n),
+  aria: `Count by ${n}`,
+  step: n
+}));
 const GAME_BACKGROUNDS = {
   whatNumber: 'assets-runtime/unicorn/bg-what-number.webp',
   fillRightBlock: 'assets-runtime/unicorn/bg-fill-right-block.webp',
@@ -5873,323 +5922,16 @@ function useFlowerReward(flowers, setFlowers, setGardenFull, muted, onBouquet) {
   }, [muted, setFlowers, setGardenFull, onBouquet]);
 }
 
-/* ══ SETTINGS MODAL: BLOCKS ══ */
-function BlocksSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  const [showCustom, setShowCustom] = useState(current.id === 'bcustom');
-  const [cMin, setCMin] = useState(current.id === 'bcustom' ? current.min ?? 1 : 1);
-  const [cMax, setCMax] = useState(current.id === 'bcustom' ? current.max ?? 100 : 100);
-  const [err, setErr] = useState('');
-  const apply = () => {
-    const mn = parseInt(cMin),
-      mx = parseInt(cMax);
-    if (isNaN(mn) || isNaN(mx) || mn < 1 || mx > 1000 || mx <= mn) {
-      setErr('Min ≥ 1, Max ≤ 1000, Max > Min');
-      return;
-    }
-    onChange({
-      id: 'bcustom',
-      emoji: '✏️',
-      tag: `${mn}–${mx}`,
-      min: mn,
-      max: mx,
-      desc: 'Custom range'
-    });
-    onClose();
-  };
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "Number Range"), BLOCKS_PRESETS.filter(p => p.id !== 'bcustom').map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-      onClose();
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: `preset-btn ${current.id === 'bcustom' ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      setShowCustom(true);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, "\u270F\uFE0F"), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, "Custom"), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, "Set your own range")), current.id === 'bcustom' && /*#__PURE__*/React.createElement("span", null, "\u2713")), showCustom && /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-box"
-  }, err && /*#__PURE__*/React.createElement("div", {
-    className: "custom-error"
-  }, err), /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-row"
-  }, /*#__PURE__*/React.createElement("label", null, "From: ", /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: cMin,
-    onChange: e => setCMin(e.target.value),
-    min: "1",
-    max: "999"
-  })), /*#__PURE__*/React.createElement("label", null, "To: ", /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: cMax,
-    onChange: e => setCMax(e.target.value),
-    min: "2",
-    max: "1000"
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "custom-apply",
-    onClick: apply
-  }, "Set \u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
+/* ══ THE TWO TYPED PANELS THAT USED TO LIVE HERE ══
+   BlocksSettings and LineSettings were the only two selectors in the app that let anyone
+   type a number: a From/To range box on both, and on Add & Subtract a whole second panel
+   for a custom operation with four more typed fields. They are gone (owner, 2026-09-12:
+   *"Use only the existing curated presets — no custom numbers — because each range/mode
+   is deliberately tied to a suitable difficulty and visual representation"*), and with
+   them the `bcustom` and `lcustom` presets they wrote into, and makeProbFromPreset's
+   custom-operation branch. Both games now show BLOCKS_PRESETS and LINE_PRESETS on a
+   ribbon, which is what the typed boxes were always sitting underneath. */
 
-/* ══ SETTINGS MODAL: NUMBER LINE + ADD/SUB ══ */
-function LineSettings({
-  current,
-  onChange,
-  customOp,
-  onCustomOp,
-  isAddSub,
-  lineMax,
-  onClose
-}) {
-  const [showLineCustom, setShowLineCustom] = useState(current.id === 'lcustom');
-  const [lcMin, setLcMin] = useState(current.id === 'lcustom' ? current.min ?? 1 : 1);
-  const [lcMax, setLcMax] = useState(current.id === 'lcustom' ? current.max ?? 20 : 20);
-  const [lcErr, setLcErr] = useState('');
-  const [opMode, setOpMode] = useState(customOp ? 'custom' : 'random');
-  const [cop, setCop] = useState(customOp?.op || '+');
-  const [bMin, setBMin] = useState(customOp?.baseMin ?? 1);
-  const [bMax, setBMax] = useState(customOp?.baseMax ?? 10);
-  const [aMin, setAMin] = useState(customOp?.amtMin ?? 1);
-  const [aMax, setAMax] = useState(customOp?.amtMax ?? 5);
-  const [opErr, setOpErr] = useState('');
-  const typedPanelOpen = showLineCustom || opMode === 'custom';
-  const applyLine = () => {
-    const mn = parseInt(lcMin),
-      mx = parseInt(lcMax);
-    if (isNaN(mn) || isNaN(mx) || mn < 1 || mx > 30 || mx <= mn) {
-      setLcErr('Min ≥ 1, Max ≤ 30, Max > Min');
-      return;
-    }
-    onChange({
-      id: 'lcustom',
-      emoji: '✏️',
-      tag: `${mn}–${mx}`,
-      min: mn,
-      max: mx,
-      desc: 'Custom'
-    });
-    setLcErr('');
-    if (!isAddSub) onClose();
-  };
-  const applyOp = () => {
-    const activeLine = current.id === 'lcustom' ? {
-      min: parseInt(lcMin),
-      max: parseInt(lcMax)
-    } : {
-      min: current.min,
-      max: current.max
-    };
-    const mn = activeLine.min,
-      mx = activeLine.max;
-    const bm = parseInt(bMin),
-      bx = parseInt(bMax),
-      am = parseInt(aMin),
-      ax = parseInt(aMax);
-    if ([mn, mx, bm, bx, am, ax].some(Number.isNaN) || bm > bx || am > ax) {
-      setOpErr('Check the from-to ranges.');
-      return;
-    }
-    const valid = [];
-    for (let s = bm; s <= bx; s++) {
-      for (let a = am; a <= ax; a++) {
-        if (cop === '+' && s + a <= mx && s + a >= mn) valid.push(1);
-        if (cop === '-' && s - a >= mn && s - a <= mx) valid.push(1);
-      }
-    }
-    if (valid.length === 0) {
-      setOpErr('No valid problems in this range. Try smaller numbers.');
-      return;
-    }
-    onCustomOp(opMode === 'custom' ? {
-      op: cop,
-      baseMin: bm,
-      baseMax: bx,
-      amtMin: am,
-      amtMax: ax
-    } : null);
-    onClose();
-  };
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "Settings"), /*#__PURE__*/React.createElement("div", {
-    className: "section-label"
-  }, "Number Range"), LINE_PRESETS.filter(p => p.id !== 'lcustom').map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-      if (!typedPanelOpen) onClose();
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: `preset-btn ${current.id === 'lcustom' ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      setShowLineCustom(true);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, "\u270F\uFE0F"), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, "Custom"), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, "Set your own")), current.id === 'lcustom' && /*#__PURE__*/React.createElement("span", null, "\u2713")), showLineCustom && /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-box"
-  }, lcErr && /*#__PURE__*/React.createElement("div", {
-    className: "custom-error"
-  }, lcErr), /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-row"
-  }, /*#__PURE__*/React.createElement("label", null, "From: ", /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: lcMin,
-    onChange: e => setLcMin(e.target.value),
-    min: "1",
-    max: "29"
-  })), /*#__PURE__*/React.createElement("label", null, "To: ", /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: lcMax,
-    onChange: e => setLcMax(e.target.value),
-    min: "2",
-    max: "30"
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "custom-apply",
-    onClick: applyLine
-  }, "Set \u2713"))), isAddSub && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "section-label",
-    style: {
-      marginTop: 12
-    }
-  }, "Problem Type"), /*#__PURE__*/React.createElement("div", {
-    className: "mode-toggle-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: `op-toggle ${opMode === 'random' ? 'active' : ''}`,
-    onClick: () => setOpMode('random')
-  }, "\uD83C\uDFB2 Random"), /*#__PURE__*/React.createElement("button", {
-    className: `op-toggle ${opMode === 'custom' ? 'active' : ''}`,
-    onClick: () => setOpMode('custom')
-  }, "\u270F\uFE0F Custom Range")), opMode === 'custom' && /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-box"
-  }, opErr && /*#__PURE__*/React.createElement("div", {
-    className: "custom-error"
-  }, opErr), /*#__PURE__*/React.createElement("div", {
-    className: "op-toggle-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: `op-toggle ${cop === '+' ? 'active' : ''}`,
-    onClick: () => setCop('+')
-  }, "\u2795 Add"), /*#__PURE__*/React.createElement("button", {
-    className: `op-toggle ${cop === '-' ? 'active' : ''}`,
-    onClick: () => setCop('-')
-  }, "\u2796 Subtract")), /*#__PURE__*/React.createElement("div", {
-    className: "section-label"
-  }, "Start number: from \u2013 to"), /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-row",
-    style: {
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: bMin,
-    onChange: e => setBMin(e.target.value)
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: '#9c27b0',
-      fontWeight: 900
-    }
-  }, "\u2013"), /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: bMax,
-    onChange: e => setBMax(e.target.value)
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "section-label"
-  }, cop === '+' ? 'Add' : 'Subtract', " amount: from \u2013 to"), /*#__PURE__*/React.createElement("div", {
-    className: "custom-range-row"
-  }, /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: aMin,
-    onChange: e => setAMin(e.target.value)
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: '#9c27b0',
-      fontWeight: 900
-    }
-  }, "\u2013"), /*#__PURE__*/React.createElement("input", {
-    className: "custom-input",
-    type: "number",
-    value: aMax,
-    onChange: e => setAMax(e.target.value)
-  }))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    style: {
-      marginTop: 10
-    },
-    onClick: applyOp
-  }, "Apply")), !isAddSub && /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
-
-/* The gear used to need a 1200 ms press-and-hold so that only a grown-up could change
-   the difficulty. The owner reversed that (2026-08-14): the child is meant to choose.
-   So one tap opens the panel, and the difficulty pill opens it too — a much bigger
-   target than the gear, and the one place a child is already looking. */
 /* Owner, 2026-08-27: the last 🔊 in this app's chrome. An emoji is drawn by the operating
    system -- grey metal on macOS, a different shape again on the iPad -- so it never matched
    the button it sat in and never looked the same twice. These take `currentColor`, so they
@@ -6444,6 +6186,69 @@ function HalfOpIcon() {
   }));
 }
 
+/* ══ THE ACTIVITY RIBBON (shared) ══
+   Owner, 2026-09-12: *"Replace the current pop-up activity selectors with a persistent
+   mode ribbon above the game, so children can change difficulty/mode in one tap without
+   opening a modal or pressing Done ... Use this consistently across Magic Math as the
+   standard activity mode ribbon."*
+
+   ONE COMPONENT FOR EVERY GAME. Fifteen screens each carried their own settings modal,
+   and each of them cost a child four moves to change one thing: open the gear, read a
+   list, pick, press Done. The list was always the same handful of curated rungs, so it
+   was a page of chrome wrapped around a row of buttons — and the row of buttons is what
+   x1, y1, k1 and the operation tabs were already doing on screen, in one tap, with no
+   modal at all. This is that row, made once and used everywhere.
+
+   CURATED PRESETS ONLY, WHICH IS A TEACHING RULE AND NOT A LAYOUT ONE. Every rung is
+   tied to a picture the screen can actually draw: 1–100 is rods and ones, 1–1000 is
+   numerals with no blocks behind them, "Whole rows" is a hundred block with no ones in
+   it. A typed number has no rung behind it and no picture to draw, which is why the two
+   custom-range panels and the two 1–30 tap grids are gone rather than moved here.
+
+   PICKING IS APPLYING. There is no Done and no confirm: onPick sets the mode AND deals a
+   fresh question in it. Most rungs cannot redraw the question already on screen — a take
+   away is not an add, and two piles of four are not 855 against 736 — so carrying it
+   over would leave the old question sitting under the new label.
+
+   A CHIP CARRIES A WORD OR A GLYPH, NEVER BOTH. `label` is the word a reader sees and a
+   screen reader says. `Icon` replaces the word with the sign a pre-reader reads instead,
+   and then `label` is what the screen reader gets. `aria` overrides it for a tag that is
+   a sign rather than a sentence. `cls` exists for the two operation tabs that wear their
+   card's own gradient — see .fm-btn.op-plus.on. */
+function ActivityRibbon({
+  chips,
+  value,
+  onPick,
+  muted,
+  label,
+  className
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: `fm-strip ar-strip${className ? ' ' + className : ''}`,
+    role: "group",
+    "aria-label": label
+  }, chips.map(c => /*#__PURE__*/React.createElement("button", {
+    key: c.id,
+    className: `fm-btn${c.Icon ? '' : ' fm-word'}${c.cls ? ' ' + c.cls : ''}${value === c.id ? ' on' : ''}`,
+    "aria-label": c.aria || c.label,
+    "aria-pressed": value === c.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onPick(c.id);
+    }
+  }, c.Icon ? /*#__PURE__*/React.createElement(c.Icon, null) : c.label)));
+}
+/* A preset list is already a chip list: the id the game keys on, and the tag it was
+   printing in the modal. The `desc` line the modal showed underneath is not carried —
+   a rung either names itself in its tag or the tag is wrong. */
+const chipsOf = list => list.map(p => ({
+  id: p.id,
+  label: p.tag,
+  aria: p.aria
+}));
+const byId = (list, id) => list.find(p => p.id === id) || list[0];
+
 /* ══ THE OPERATION RIBBON ══
    Owner, 2026-09-08, on merging Column Add with Take Away and Carry Add with Borrow:
    *"I think we can default at Mix for both. and if they want specialize, no + or no -,
@@ -6469,36 +6274,35 @@ function HalfOpIcon() {
 const OP_TABS = [{
   id: 'mix',
   Icon: BothOpIcon,
+  cls: 'op-mix',
   label: 'Adding and taking away'
 }, {
   id: 'plus',
   Icon: PlusOpIcon,
+  cls: 'op-plus',
   label: 'Only adding'
 }, {
   id: 'minus',
   Icon: MinusOpIcon,
+  cls: 'op-minus',
   label: 'Only taking away'
 }];
+/* It is the shared ActivityRibbon wearing the two card gradients. Kept as a named
+   component rather than spelled out at both call sites so that the aria-label and the
+   strip class stay in one place for the two games that carry it. */
 function OpRibbon({
   value,
   onChange,
   muted
 }) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "fm-strip op-strip",
-    role: "group",
-    "aria-label": "Choose adding, taking away, or both"
-  }, OP_TABS.map(t => /*#__PURE__*/React.createElement("button", {
-    key: t.id,
-    className: `fm-btn op-${t.id} ${value === t.id ? 'on' : ''}`,
-    "aria-label": t.label,
-    "aria-pressed": value === t.id,
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      onChange(t.id);
-    }
-  }, /*#__PURE__*/React.createElement(t.Icon, null))));
+  return /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: OP_TABS,
+    value: value,
+    onPick: onChange,
+    muted: muted,
+    label: "Choose adding, taking away, or both",
+    className: "op-strip"
+  });
 }
 /* Which operation the NEXT question uses. Mix flips a coin every time rather than
    alternating: a strict alternation is a pattern, and a child who spots it stops
@@ -6550,9 +6354,22 @@ function SpeakerOffIcon() {
     y2: "15"
   }));
 }
+
+/* THE GEAR IS GONE (owner, 2026-09-12: keep "the gear icon only for true app settings
+   such as sound/narration; difficulty and question type belong in the ribbon"). It only
+   ever opened the difficulty, and difficulty now lives on the ActivityRibbon inside the
+   game — on screen the whole time, one tap, no Done — so the gear would open an empty
+   box. What is left up here is the app's own business: the way home, and sound. Sound is
+   a direct toggle rather than a panel, which is one tap instead of three, so nothing in
+   this bar needs a modal at all and there is no gear to put one behind.
+   The pill stays for the four screens that have no ribbon of their own — the times
+   chart, Big Numbers, Read Fractions and the sandbox — where it NAMES the screen rather
+   than offering a choice. A game with a ribbon does not repeat its active rung up here;
+   that is the convention x1 and y1 already had, and now every game follows it.
+   (The 1200 ms press-and-hold this gear once needed went in 2026-08-14, when the owner
+   decided the child is meant to choose. The ribbon is where that decision ends up.) */
 function TopBar({
   onBack,
-  onSettings,
   muted,
   onToggleMute,
   label
@@ -6561,10 +6378,6 @@ function TopBar({
      nowhere else, so its unmount is the one place that reliably means "the child has
      left". Without this a three-line answer keeps talking over the home screen. */
   useEffect(() => () => Voice.stop(), []);
-  const open = () => {
-    Sound.tap();
-    onSettings();
-  };
   return /*#__PURE__*/React.createElement("div", {
     className: "top-bar"
   }, /*#__PURE__*/React.createElement("div", {
@@ -6590,16 +6403,9 @@ function TopBar({
       Sound.tap();
       onBack();
     }
-  }, "\u2190")), label && (onSettings ? /*#__PURE__*/React.createElement("button", {
-    className: "level-chip",
-    "aria-label": `${label}. Tap to change`,
-    onClick: open
-  }, label, /*#__PURE__*/React.createElement("span", {
-    className: "level-chip-caret",
-    "aria-hidden": "true"
-  }, "\u25BC")) : /*#__PURE__*/React.createElement("div", {
-    className: "level-chip static"
-  }, label)), /*#__PURE__*/React.createElement("div", {
+  }, "\u2190")), label && /*#__PURE__*/React.createElement("div", {
+    className: "level-chip"
+  }, label), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6
@@ -6611,11 +6417,7 @@ function TopBar({
       onToggleMute();
       Sound.tap();
     }
-  }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)), onSettings && /*#__PURE__*/React.createElement("button", {
-    className: "settings-btn",
-    "aria-label": "Change the numbers",
-    onClick: open
-  }, "\u2699\uFE0F")));
+  }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null))));
 }
 function SimpleNumberCard({
   value,
@@ -6662,7 +6464,6 @@ function BlocksGuided({
     const n = rand(min, max);
     return decompose(n, isCounting(p));
   }, []);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeProblem(BLOCKS_PRESETS[3]));
   const [selectedH, setSelectedH] = useState(() => Array(problem.h).fill(false));
   const [selectedT, setSelectedT] = useState(() => Array(problem.t).fill(false));
@@ -6696,7 +6497,6 @@ function BlocksGuided({
   const applyPreset = p => {
     setPreset(p);
     resetForProblem(makeProblem(p));
-    setShowSettings(false);
   };
   const toggle = useCallback((type, i) => {
     Sound.tap();
@@ -6773,18 +6573,12 @@ function BlocksGuided({
     className: "screen blocks-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(BlocksSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -6800,7 +6594,13 @@ function BlocksGuided({
     className: "count-title-main"
   }, "What Number?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Tap the blocks!")), /*#__PURE__*/React.createElement(SimpleNumberCard, {
+  }, "Tap the blocks!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(BLOCKS_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(BLOCKS_PRESETS, id)),
+    muted: muted,
+    label: "Choose how big the number is"
+  }), /*#__PURE__*/React.createElement(SimpleNumberCard, {
     value: currentNumber,
     label: "Number"
   }), !won && /*#__PURE__*/React.createElement("div", {
@@ -6833,7 +6633,6 @@ function BlocksFill({
 }) {
   const [preset, setPreset] = useState(BLOCKS_PRESETS[3]);
   const visiblePlaces = useMemo(() => getVisiblePlaces(preset), [preset]);
-  const [showSettings, setShowSettings] = useState(false);
   const makeFillTarget = useCallback(p => {
     const max = Math.min(999, p.max);
     const min = Math.min(Math.max(1, p.min), max);
@@ -6946,18 +6745,12 @@ function BlocksFill({
     className: "screen choose-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(BlocksSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -6967,6 +6760,12 @@ function BlocksFill({
     mood: mascot.mood,
     stamp: mascot.stamp,
     onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(BLOCKS_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(BLOCKS_PRESETS, id)),
+    muted: muted,
+    label: "Choose how big the number is"
   }), /*#__PURE__*/React.createElement(SimpleNumberCard, {
     value: built,
     target: target,
@@ -7323,39 +7122,6 @@ function MissingEq({
     className: "ms-eq-num"
   }, p.b));
 }
-function MissingSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "Which kind?"), MISSING_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function MissingGame({
   onBack,
   flowers,
@@ -7374,7 +7140,6 @@ function MissingGame({
      just go with the easy one" — and the mix-of-all opening they want eventually is a
      later change to this one line. The other five rungs are one tap on the level pill. */
   const [preset, setPreset] = useState(MISSING_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeMissingProblem(MISSING_PRESETS[0]));
   const [filled, setFilled] = useState(0);
   /* How many given blocks the child has counted on each side. This is the counting
@@ -7470,14 +7235,12 @@ function MissingGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeMissingProblem(p));
-    setShowSettings(false);
   }, [resetForProblem]);
 
   /* Two prompts, one per stage. The question the game is actually about is not asked
      until the child knows what each side holds — asking it over two uncounted piles is
      the version that produced shape-matching. */
   useEffect(() => {
-    if (showSettings) return;
     if (counting) {
       Voice.say('Count each side. Tap a row to count ten!');
       return;
@@ -7486,7 +7249,7 @@ function MissingGame({
        other four are nothing but numbers and belong to the console. */
     const q = missingQuestion(problem, preset.show);
     Voice.say(preset.show === 'blocks' ? q : num(q));
-  }, [problem, showSettings, preset, counting]);
+  }, [problem, preset, counting]);
 
   /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
      to the one touched, and tapping a filled box takes it and everything after it back.
@@ -7530,18 +7293,12 @@ function MissingGame({
     className: "screen ms-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(MissingSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -7557,7 +7314,13 @@ function MissingGame({
     className: "count-title-main"
   }, "What's Missing?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Make both sides the same!")), !counting && showNumBase && /*#__PURE__*/React.createElement(MissingEq, {
+  }, "Make both sides the same!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(MISSING_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(MISSING_PRESETS, id)),
+    muted: muted,
+    label: "Choose which kind of sum"
+  }), !counting && showNumBase && /*#__PURE__*/React.createElement(MissingEq, {
     p: problem,
     filled: filled,
     won: won
@@ -7604,39 +7367,15 @@ function MissingGame({
 }
 
 /* ══ MODE l2: ADD & SUBTRACT ══ */
-function makeProbFromPreset(preset, customOp) {
+/* The typed custom-operation generator that used to open this function has gone with the
+   panel that fed it (owner, 2026-09-12: curated presets only). It let a grown-up type
+   four numbers — a start range and an amount range — and generate sums for a rung nobody
+   had drawn a number line for. What the game asks now always comes from the preset. */
+function makeProbFromPreset(preset) {
   const {
     min,
     max
   } = preset;
-  if (customOp) {
-    const {
-      op,
-      baseMin,
-      baseMax,
-      amtMin,
-      amtMax
-    } = customOp;
-    const valid = [];
-    for (let s = baseMin; s <= baseMax; s++) {
-      for (let a = amtMin; a <= amtMax; a++) {
-        if (op === '+' && s + a <= max && s + a >= min) valid.push({
-          start: s,
-          op: '+',
-          amount: a,
-          answer: s + a
-        });
-        if (op === '-' && s - a >= min && s - a <= max) valid.push({
-          start: s,
-          op: '-',
-          amount: a,
-          answer: s - a
-        });
-      }
-    }
-    if (valid.length > 0) return valid[rand(0, valid.length - 1)];
-    return makeProbFromPreset(preset, null); // fallback
-  }
   const range = max - min,
     maxHop = Math.min(5, Math.max(1, Math.floor(range / 3)));
   const op = Math.random() < .5 ? '+' : '-';
@@ -7674,9 +7413,7 @@ function NumberLineAddSub({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(LINE_PRESETS[3]);
-  const [customOp, setCustomOp] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [prob, setProb] = useState(() => makeProbFromPreset(LINE_PRESETS[3], null));
+  const [prob, setProb] = useState(() => makeProbFromPreset(LINE_PRESETS[3]));
   const [celebrating, setCel] = useState(false);
   const [wrongId, setWrong] = useState(null);
   const [misses, setMisses] = useState(0);
@@ -7694,19 +7431,13 @@ function NumberLineAddSub({
       setGardenFull(false);
       addBouquet();
     }
-    setProb(makeProbFromPreset(preset, customOp));
+    setProb(makeProbFromPreset(preset));
     setCel(false);
     setWrong(null);
-  }, [preset, customOp, flowers, setFlowers, setGardenFull]);
+  }, [preset, flowers, setFlowers, setGardenFull]);
   const applyPreset = p => {
     setPreset(p);
-    setProb(makeProbFromPreset(p, customOp));
-    setCel(false);
-    setWrong(null);
-  };
-  const applyCustomOp = op => {
-    setCustomOp(op);
-    setProb(makeProbFromPreset(preset, op));
+    setProb(makeProbFromPreset(p));
     setCel(false);
     setWrong(null);
   };
@@ -7763,7 +7494,6 @@ function NumberLineAddSub({
     length: prob.amount
   }, (_, i) => prob.start - 1 - i);
   const charPos = celebrating ? prob.answer : prob.start;
-  const topLabel = customOp ? `Custom ✏️` : preset.tag;
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -7778,26 +7508,22 @@ function NumberLineAddSub({
     className: "screen addsub-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(LineSettings, {
-    current: preset,
-    onChange: applyPreset,
-    customOp: customOp,
-    onCustomOp: applyCustomOp,
-    isAddSub: true,
-    lineMax: max,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: topLabel
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
     bouquets: bouquets
+  }), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(LINE_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(LINE_PRESETS, id)),
+    muted: muted,
+    label: "Choose how long the number line is"
   }), celebrating ? /*#__PURE__*/React.createElement("div", {
     className: "celebrate-text"
   }, prob.start, " ", prob.op, " ", prob.amount, " = ", prob.answer, "!") : /*#__PURE__*/React.createElement("div", {
@@ -8336,43 +8062,9 @@ const COLUMN_PAIRS = {
   }
 };
 
-/* One modal for both column cards. It lists the RUNGS, which are now the same four
-   sizes whichever operation the ribbon is set to. */
-function ColumnMathSettings({
-  cfg,
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, cfg.title), cfg.presets.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-      onClose();
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
+/* The rung modal both column cards shared is gone (2026-09-12). The rungs are the same
+   four sizes whichever operation the ribbon is set to, so they are now a second ribbon
+   beside the operation one — one row, two controls, and pair.rungs is what fills it. */
 function ColumnMath({
   cardId,
   onBack,
@@ -8408,7 +8100,6 @@ function ColumnMath({
       variant: v
     };
   }, [pair]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => deal('mix', COLUMN_MODES[pair.plus].startIdx, null));
   const cfg = COLUMN_MODES[problem.variant];
   /* The pill and the modal show the RUNG — a size, which means the same thing in both
@@ -8475,7 +8166,6 @@ function ColumnMath({
     const i = Math.max(0, pair.rungs.indexOf(p));
     setRungIdx(i);
     resetForProblem(deal(tab, i, null));
-    setShowSettings(false);
   }, [pair, deal, tab, resetForProblem]);
   const applyTab = useCallback(t => {
     setTab(t);
@@ -8490,7 +8180,7 @@ function ColumnMath({
      cursor, so a wrong tap (which does not move the cursor) never re-triggers it, and
      an undo does. */
   useEffect(() => {
-    if (won || showSettings || cursor >= slots.length) return;
+    if (won || cursor >= slots.length) return;
     const s = slots[cursor];
     const ask = s.kind === 'mark' ? solution.askMark[s.col] : null;
     /* When the very first box is a little box (every c4 problem), the ask IS the
@@ -8498,7 +8188,7 @@ function ColumnMath({
     const open = cursor === 0 ? [cfg.intro, num(`${problem.a} ${cfg.opWord} ${problem.b}.`), ask ? null : 'Start with the glowing box.'] : [];
     const list = [...open, ...(ask || [])].filter(Boolean);
     if (list.length) Voice.lines(list);
-  }, [problem, cursor, won, showSettings, slots, solution, cfg]);
+  }, [problem, cursor, won, slots, solution, cfg]);
   const tapDigit = useCallback(n => {
     Sound.setMuted(muted);
     if (won || !slot) {
@@ -8619,22 +8309,12 @@ function ColumnMath({
     className: "screen column-screen cm-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(ColumnMathSettings, {
-    cfg: {
-      title: pair.title,
-      presets: pair.rungs
-    },
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -8650,11 +8330,19 @@ function ColumnMath({
     className: "count-title-main"
   }, pair.title), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, cfg.sub)), /*#__PURE__*/React.createElement(OpRibbon, {
+  }, cfg.sub)), /*#__PURE__*/React.createElement("div", {
+    className: "ar-row"
+  }, /*#__PURE__*/React.createElement(OpRibbon, {
     value: tab,
     onChange: applyTab,
     muted: muted
-  }), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(pair.rungs),
+    value: preset.id,
+    onPick: id => applyPreset(byId(pair.rungs, id)),
+    muted: muted,
+    label: "Choose how big the numbers are"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "column-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: `column-grid cm-grid ${colCount >= 4 ? 'cm-4' : ''}`,
@@ -8835,9 +8523,6 @@ function GroupsHint({
 }
 
 /* ══ MODE m1: TIMES TABLES ══ */
-function timesRangeLabel(range) {
-  return `${range.rowMax} × ${range.colMax}`;
-}
 function makeMultiplicationProblem(range = DEFAULT_TIMES_RANGE) {
   const a = rand(1, range.rowMax);
   const b = rand(1, range.colMax);
@@ -8848,44 +8533,10 @@ function makeMultiplicationProblem(range = DEFAULT_TIMES_RANGE) {
   };
 }
 
-/* One number, tapped once. This used to be two grids (Rows and Columns) behind a
-   Done button; a child asked for "the twelves" does not think in rows and columns,
-   they think "how big". The tap sets both sides of the table and starts the game. */
-function MultiplicationPicker({
-  range,
-  onChange,
-  onClose
-}) {
-  useEffect(() => {
-    Voice.say('How big shall we go? Tap a number!');
-  }, []);
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box pick-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "pick-question"
-  }, "How big? ", /*#__PURE__*/React.createElement("span", null, range.rowMax, " \xD7 ", range.colMax)), /*#__PURE__*/React.createElement("div", {
-    className: "pick-hint"
-  }, "Tap a number"), /*#__PURE__*/React.createElement("div", {
-    className: "pick-grid"
-  }, TIMES_MAX_OPTIONS.map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    className: `pick-btn ${range.rowMax === n && range.colMax === n ? 'active' : ''}`,
-    onClick: () => {
-      Sound.tap();
-      onChange({
-        rowMax: n,
-        colMax: n
-      });
-    }
-  }, n))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Play!")));
-}
+/* The 1–30 tap grid that lived here went with every other pop-up on 2026-09-12. It was
+   already one tap rather than two grids — a child asked for "the twelves" thinks "how
+   big", not in rows and columns — but it was still a page in front of the game, and
+   thirty free numbers rather than rungs. TIMES_PRESETS is the ribbon that replaced it. */
 function MultiplicationGame({
   onBack,
   flowers,
@@ -8904,7 +8555,6 @@ function MultiplicationGame({
      the picker for three days; unlike Count By, whose tiles *are* its question, Times
      Tables has a working default, so the picker was a screen between a child and the
      thing they came for. It is still one tap away on the gear or the "12 x 12" pill. */
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeMultiplicationProblem(DEFAULT_TIMES_RANGE));
   const answerLength = String(problem.answer).length;
   const mascot = useMascot();
@@ -8935,9 +8585,8 @@ function MultiplicationGame({
 
   // Silent while the picker is up, so it does not talk over "How big shall we go?".
   useEffect(() => {
-    if (showSettings) return;
     Voice.say(num(`${problem.a} times ${problem.b}?`));
-  }, [problem, showSettings]);
+  }, [problem]);
   const next = useCallback(() => {
     if (flowers === MAX_FLOWERS) {
       setFlowers(0);
@@ -8949,7 +8598,6 @@ function MultiplicationGame({
   const applyRange = useCallback(nextRange => {
     setRange(nextRange);
     resetForProblem(makeMultiplicationProblem(nextRange));
-    setShowSettings(false);
   }, [resetForProblem]);
   const clear = useCallback(() => {
     Sound.setMuted(muted);
@@ -9001,18 +8649,12 @@ function MultiplicationGame({
     className: "screen multiply-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(MultiplicationPicker, {
-    range: range,
-    onChange: applyRange,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: timesRangeLabel(range)
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -9028,7 +8670,19 @@ function MultiplicationGame({
     className: "count-title-main"
   }, "Times Tables"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Tap the answer!")), /*#__PURE__*/React.createElement("div", {
+  }, "Tap the answer!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(TIMES_PRESETS),
+    value: `m${range.rowMax}`,
+    muted: muted,
+    onPick: id => {
+      const n = byId(TIMES_PRESETS, id).max;
+      applyRange({
+        rowMax: n,
+        colMax: n
+      });
+    },
+    label: "Choose how big the table is"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "multiply-problem"
@@ -9071,51 +8725,14 @@ function MultiplicationGame({
    the very same numbers are written underneath as multiplication. The child
    types the missing number straight into the table, so "count on one more jump"
    and "one more group of 3" are the same action. */
-const countByLabel = cfg => `Count by ${cfg.step}`;
-
 /* "The child should be able to click the number they want to count, then get that
-   setting" (owner, 2026-08-14). So the number tiles are the whole screen and the tap
-   is the whole interaction — no Done button to find, no hold gesture to learn.
-   There was a "how many jumps" row here too. The owner watched their children use
-   this for a day (2026-08-15): they never touched it, and to change the number they
-   leave the game and come straight back to these tiles. Dead UI, so it is gone —
-   one screen, one question, one tap. */
-function CountByPicker({
-  config,
-  onChange,
-  onClose
-}) {
-  useEffect(() => {
-    Voice.say('Which number shall we count by? Tap it!');
-  }, []);
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box pick-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "pick-question"
-  }, "Count by\u2026"), /*#__PURE__*/React.createElement("div", {
-    className: "pick-hint"
-  }, "Tap your number"), /*#__PURE__*/React.createElement("div", {
-    className: "pick-grid"
-  }, COUNT_BY_STEP_OPTIONS.map(n => /*#__PURE__*/React.createElement("button", {
-    key: n,
-    className: `pick-btn ${config.step === n ? 'active' : ''}`,
-    onClick: () => {
-      Sound.tap();
-      Voice.say(num(`Count by ${n}!`));
-      onChange({
-        step: n,
-        upTo: config.upTo
-      });
-    }
-  }, n))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Play!")));
-}
+   setting" (owner, 2026-08-14). That is still exactly what happens; what changed on
+   2026-09-12 is where the numbers are. They were a screen the game OPENED ON, a 1–30
+   grid behind a Play! button, so a child who wanted a different number had to leave the
+   ladder to get one. They are the ribbon now — on screen while the ladder is, one tap,
+   and the ladder restarts on the new number. COUNT_BY_PRESETS says which numbers.
+   (There was a "how many jumps" row on that screen too. The owner watched their children
+   use it for a day in 2026-08-15 and they never touched it, so it went then.) */
 function CountByGame({
   onBack,
   flowers,
@@ -9129,9 +8746,10 @@ function CountByGame({
   muted,
   onToggleMute
 }) {
+  // Opens PLAYING, on the twelves, with the ribbon of steps above the ladder. It used to
+  // open on the picker so the child named their number first; the ribbon is that choice
+  // without the screen in front of it, so the first rung is now the first thing they see.
   const [cfg, setCfg] = useState(DEFAULT_COUNT_BY);
-  // Opens on the picker: the child names their number before the first rung.
-  const [showSettings, setShowSettings] = useState(true);
   const [filled, setFilled] = useState(0); // rungs finished and moved past
   const [won, setWon] = useState(false); // current rung solved, waiting for Next
   const [digits, setDigits] = useState(() => Array(String(DEFAULT_COUNT_BY.step).length).fill(''));
@@ -9178,7 +8796,6 @@ function CountByGame({
   /* Only restart the ladder when the numbers really moved — closing the picker on
      the same settings must not throw away the rungs already counted. */
   const applyConfig = useCallback(nextCfg => {
-    setShowSettings(false);
     if (nextCfg.step === cfg.step && nextCfg.upTo === cfg.upTo) return;
     setCfg(nextCfg);
     goToRung(0, nextCfg);
@@ -9206,7 +8823,6 @@ function CountByGame({
   /* Ask by chanting what is already on the ladder: "12, 24, 36. What comes next?"
      Silent while the picker is up, so it does not talk over the choosing prompt. */
   useEffect(() => {
-    if (showSettings) return;
     if (filled === 0) {
       Voice.say(num(`Let's count by ${cfg.step}. What number comes first?`));
       return;
@@ -9216,7 +8832,7 @@ function CountByGame({
       length: back
     }, (_, i) => (filled - back + 1 + i) * cfg.step);
     Voice.say(num(`${tail.join(', ')}. What comes next?`));
-  }, [filled, cfg, showSettings]);
+  }, [filled, cfg]);
   useEffect(() => {
     if (won || digits.some(d => d === '')) return;
     Sound.setMuted(muted);
@@ -9299,18 +8915,12 @@ function CountByGame({
     className: "screen countby-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(CountByPicker, {
-    config: cfg,
-    onChange: applyConfig,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: countByLabel(cfg)
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -9326,7 +8936,16 @@ function CountByGame({
     className: "count-title-main"
   }, "Count by ", cfg.step), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "same as the ", cfg.step, " times table")), /*#__PURE__*/React.createElement("div", {
+  }, "same as the ", cfg.step, " times table")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(COUNT_BY_PRESETS),
+    value: `s${cfg.step}`,
+    muted: muted,
+    onPick: id => applyConfig({
+      step: byId(COUNT_BY_PRESETS, id).step,
+      upTo: cfg.upTo
+    }),
+    label: "Choose the number to count by"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card countby-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "cb-chain",
@@ -10420,21 +10039,13 @@ function FractionWall({
     onClick: clear,
     disabled: !any,
     "aria-label": "Start over"
-  }, "Start Over")), /*#__PURE__*/React.createElement("div", {
-    className: "fm-strip",
-    role: "group",
-    "aria-label": "Choose how to see the fraction"
-  }, FRACTION_MODELS.map(m => /*#__PURE__*/React.createElement("button", {
-    key: m.id,
-    className: `fm-btn ${model === m.id ? 'on' : ''}`,
-    "aria-label": m.label,
-    "aria-pressed": model === m.id,
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      setModel(m.id);
-    }
-  }, /*#__PURE__*/React.createElement(m.Icon, null)))), /*#__PURE__*/React.createElement("div", {
+  }, "Start Over")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: FRACTION_MODELS,
+    value: model,
+    onPick: setModel,
+    muted: muted,
+    label: "Choose how to see the fraction"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card fw-card"
   }, model === 'pie' ? /*#__PURE__*/React.createElement("div", {
     className: "fp-grid"
@@ -10824,39 +10435,6 @@ function CompareSide({
     className: `cmp-num ${show === 'numbers' ? '' : 'small'}`
   }, n));
 }
-function CompareSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How big?"), COMPARE_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function CompareGame({
   onBack,
   flowers,
@@ -10879,7 +10457,6 @@ function CompareGame({
      thing this game is for, so that is where it now starts. The other rungs are one
      tap away on the level pill. */
   const [preset, setPreset] = useState(COMPARE_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[0]));
   const [won, setWon] = useState(false);
   const [wrongSign, setWrongSign] = useState(null);
@@ -10911,10 +10488,8 @@ function CompareGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeCompareProblem(p));
-    setShowSettings(false);
   }, [resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     // See the note above the mode: naming the numbers here would give the blocks
     // rung away, because that rung is the one where they are not on screen.
     if (preset.show === 'blocks') {
@@ -10922,7 +10497,7 @@ function CompareGame({
       return;
     }
     Voice.lines([num(`${problem.a}, or ${problem.b}.`), 'Which is bigger?']);
-  }, [problem, showSettings, preset]);
+  }, [problem, preset]);
 
   /* The rule, said once, after the second miss — and it states both halves, because
      a child who is stuck on an equals is not helped by being told about bigger. */
@@ -10956,18 +10531,12 @@ function CompareGame({
     className: "screen cmp-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(CompareSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -10983,7 +10552,13 @@ function CompareGame({
     className: "count-title-main"
   }, "Which is Bigger?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Feed the hungry mouth!")), preset.show !== 'numbers' && !won && /*#__PURE__*/React.createElement("div", {
+  }, "Feed the hungry mouth!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(COMPARE_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(COMPARE_PRESETS, id)),
+    muted: muted,
+    label: "Choose how big the numbers are"
+  }), preset.show !== 'numbers' && !won && /*#__PURE__*/React.createElement("div", {
     className: "tap-hint"
   }, "Tap the blocks to count them"), /*#__PURE__*/React.createElement("div", {
     className: "cmp-row"
@@ -11605,39 +11180,6 @@ function AreaGrid({
    numeral beside the pairs; numeral alone with pairing one tap away — the button keeps
    the model available rather than retiring it, which is the whole difference between
    "you used to be able to check" and "you can always check". */
-function OddEvenSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How big?"), ODD_EVEN_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function OddEvenGame({
   onBack,
   flowers,
@@ -11655,7 +11197,6 @@ function OddEvenGame({
      Bigger? does: the rung above can be won by reading a digit, while this one has to
      be paired and counted, which is the thing this game is for. */
   const [preset, setPreset] = useState(ODD_EVEN_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeOddEvenProblem(Math.random, ODD_EVEN_PRESETS[0]));
   const [won, setWon] = useState(false);
   const [wrongKey, setWrongKey] = useState(null);
@@ -11684,10 +11225,8 @@ function OddEvenGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeOddEvenProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     /* Same rule as Which is Bigger?'s blocks rung: at the pairs rung the app must not
        say the number, or the game is won by listening rather than by pairing and
        counting. The number is named once the child has answered. */
@@ -11696,7 +11235,7 @@ function OddEvenGame({
       return;
     }
     Voice.lines([num(`${problem.n}.`), 'Odd or even?']);
-  }, [problem, showSettings, preset]);
+  }, [problem, preset]);
   /* The rule, said once at the second miss, states BOTH halves — CompareGame's hint
      schedule and for the same reason: a child stuck on "even" is not helped by a hint
      about "odd". */
@@ -11732,18 +11271,12 @@ function OddEvenGame({
     className: "screen oe-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(OddEvenSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -11759,7 +11292,13 @@ function OddEvenGame({
     className: "count-title-main"
   }, "Odd or Even?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Pair them up!")), /*#__PURE__*/React.createElement("div", {
+  }, "Pair them up!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(ODD_EVEN_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(ODD_EVEN_PRESETS, id)),
+    muted: muted,
+    label: "Choose how big the numbers are"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, preset.show === 'numbers' ? /*#__PURE__*/React.createElement("div", {
     className: "oe-numrow"
@@ -11859,39 +11398,6 @@ const TEN_CFG = {
     line: p => `10 − ${p.k} = ${p.answer}`
   }
 };
-function TenBondSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), TEN_RUNGS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function TenBondGame({
   onBack,
   flowers,
@@ -11914,7 +11420,6 @@ function TenBondGame({
   const [tab, setTab] = useState('mix');
   /* Opens on the frame rung: the bond is SEEN before it is recalled. */
   const [preset, setPreset] = useState(TEN_RUNGS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   /* Problem, its choices and the equation's shape are one question and are generated
      together — deriving choices in a second initializer could pair this problem's
      answer with another problem's distractors. */
@@ -11965,7 +11470,6 @@ function TenBondGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(deal(tab));
-    setShowSettings(false);
   }, [deal, tab, resetForProblem]);
   /* Switching reading deals a fresh question — see OpRibbon. */
   const applyTab = useCallback(t => {
@@ -11973,9 +11477,8 @@ function TenBondGame({
     resetForProblem(deal(t));
   }, [deal, resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     if (q.p.kind === 'n1') Voice.lines([num(`${q.p.k}.`), 'How many more make ten?']);else Voice.say(num(`10 take away ${q.p.k}?`));
-  }, [q, showSettings]);
+  }, [q]);
   useEffect(() => {
     if (misses === 2) Voice.say(cfg.hint);
   }, [misses, cfg]);
@@ -12007,18 +11510,12 @@ function TenBondGame({
     className: "screen nb-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(TenBondSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -12034,11 +11531,19 @@ function TenBondGame({
     className: "count-title-main"
   }, "Make 10"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, cfg.sub)), /*#__PURE__*/React.createElement(OpRibbon, {
+  }, cfg.sub)), /*#__PURE__*/React.createElement("div", {
+    className: "ar-row"
+  }, /*#__PURE__*/React.createElement(OpRibbon, {
     value: tab,
     onChange: applyTab,
     muted: muted
-  }), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(TEN_RUNGS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(TEN_RUNGS, id)),
+    muted: muted,
+    label: "Choose the frame or the numbers"
+  })), preset.show === 'frame' ? /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
     className: "nb-eq nb-eq-frame"
@@ -12165,39 +11670,6 @@ const HUNDRED_BOND_PRESETS = [{
   kind: 'take',
   desc: '100 − ? = 64'
 }];
-function HundredBondSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), HUNDRED_BOND_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function HundredBondGame({
   onBack,
   flowers,
@@ -12212,7 +11684,6 @@ function HundredBondGame({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(HUNDRED_BOND_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeHundredBondProblem(Math.random, HUNDRED_BOND_PRESETS[0]));
   /* One box per digit of the answer, as in Times Tables. It does say whether the
      answer is one digit or two, which only happens above 90 and is scaffolding rather
@@ -12243,15 +11714,13 @@ function HundredBondGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeHundredBondProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   /* The question is asked in the form's own words. The take form names the whole first —
      subtraction starts at a hundred, and the block's frame is that hundred whichever
      way round the sentence runs. */
   useEffect(() => {
-    if (showSettings) return;
     if (problem.form === 'add') Voice.lines([num(`${problem.k}.`), 'How many more make one hundred?']);else Voice.lines(['One hundred.', num(`How many go away to leave ${problem.k}?`)]);
-  }, [problem, showSettings]);
+  }, [problem]);
   useEffect(() => {
     if (misses !== 2) return;
     const s = problem.split;
@@ -12323,18 +11792,12 @@ function HundredBondGame({
     className: "screen hbk-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(HundredBondSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -12350,7 +11813,13 @@ function HundredBondGame({
     className: "count-title-main"
   }, "Make 100"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, problem.form === 'add' ? 'How many more?' : 'What went away?')), /*#__PURE__*/React.createElement("div", {
+  }, problem.form === 'add' ? 'How many more?' : 'What went away?')), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(HUNDRED_BOND_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(HUNDRED_BOND_PRESETS, id)),
+    muted: muted,
+    label: "Choose how the bond is asked"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "hbk-eq"
   }, problem.form === 'add' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     className: "hbk-k"
@@ -12476,39 +11945,6 @@ const HUNDRED_OP_WORDS = {
   '-9': 'Take away nine',
   '-11': 'Take away eleven'
 };
-function HundredSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), HUNDRED_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function HundredGame({
   onBack,
   flowers,
@@ -12523,7 +11959,6 @@ function HundredGame({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(HUNDRED_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [problem, setProblem] = useState(() => makeHundredProblem(Math.random, HUNDRED_PRESETS[0]));
   const [won, setWon] = useState(false);
   const [wrongCell, setWrongCell] = useState(null);
@@ -12558,13 +11993,11 @@ function HundredGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeHundredProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   const deltaWord = d => HUNDRED_OP_WORDS[String(d)] || `${d > 0 ? 'Add ' : 'Take away '}${Math.abs(d)}`;
   useEffect(() => {
-    if (showSettings) return;
     if (problem.kind === 'build') Voice.lines([num(`${problem.start} goes to ${problem.target}.`), `${deltaWord(problem.delta).toLowerCase()}? No — what did we add or take away?`]);else if (problem.kind === 'edge') Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. The row is full — where does the next number live?`]);else Voice.lines([num(`${problem.start}.`), `${deltaWord(problem.delta)}. Where do you land?`]);
-  }, [problem, showSettings]);
+  }, [problem]);
   /* Every seat this move legitimately passes through (see hundredWayStops). The
      build rung asks for the move rather than the landing, so its board is not
      tappable and it has no way stops at all. */
@@ -12648,18 +12081,12 @@ function HundredGame({
     className: "screen hb-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(HundredSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -12675,7 +12102,13 @@ function HundredGame({
     className: "count-title-main"
   }, "Hundred Board"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, preset.kind === 'build' ? 'Which move was it?' : 'Where do you land?')), problem.kind === 'build' ? /*#__PURE__*/React.createElement("div", {
+  }, preset.kind === 'build' ? 'Which move was it?' : 'Where do you land?')), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(HUNDRED_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(HUNDRED_PRESETS, id)),
+    muted: muted,
+    label: "Choose which moves to make"
+  }), problem.kind === 'build' ? /*#__PURE__*/React.createElement("div", {
     className: "hb-question"
   }, /*#__PURE__*/React.createElement("span", {
     className: "hb-qnum"
@@ -12766,39 +12199,6 @@ const DIVISION_PRESETS = [{
   kind: 'nums',
   desc: '9 ÷ 3 = ?'
 }];
-function DivisionSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), DIVISION_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function DivisionGame({
   onBack,
   flowers,
@@ -12813,7 +12213,6 @@ function DivisionGame({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(DIVISION_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   /* Problem and its deal travel together — the dealt array's length IS problem.g,
      so it is born in the same initializer (the 2026-08-29 browser QA caught a first
      version whose hardcoded three plates outlived problems with two or five). */
@@ -12913,12 +12312,10 @@ function DivisionGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeDivisionProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     if (problem.kind === 'share') Voice.lines([num(`${problem.total}.`), `Share them between ${problem.g} baskets. Tap a basket to give out one.`]);else if (problem.kind === 'each') Voice.lines([num(`${problem.total}.`), `Shared equally between ${problem.g} baskets. How many in each?`]);else if (problem.kind === 'nums') Voice.lines([num(`${problem.total} divided by ${problem.g}. How many each?`)]);else Voice.lines([num(`${problem.total}.`), `Groups of ${problem.e}. How many groups?`]);
-  }, [problem, showSettings]);
+  }, [problem]);
   useEffect(() => {
     if (misses === 2) {
       if (problem.kind === 'share') Voice.say('Deal them round and round — one to this basket, one to that one. Fair shares are equal.');else if (problem.kind === 'each') Voice.say('Count the counters in one basket.');else if (problem.kind === 'nums') Voice.say('See baskets in your head. Deal them out fairly — one to each.');else Voice.say(`Count in ${problem.e}s. Each full group is ${problem.e}.`);
@@ -13002,18 +12399,12 @@ function DivisionGame({
     className: "screen dv-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(DivisionSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -13029,7 +12420,13 @@ function DivisionGame({
     className: "count-title-main"
   }, "Share It Out"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, preset.kind === 'groups' ? `Groups of ${problem.e}` : preset.kind === 'each' ? 'Equal baskets!' : preset.kind === 'nums' ? 'Just numbers!' : 'Deal them fairly!')), /*#__PURE__*/React.createElement("div", {
+  }, preset.kind === 'groups' ? `Groups of ${problem.e}` : preset.kind === 'each' ? 'Equal baskets!' : preset.kind === 'nums' ? 'Just numbers!' : 'Deal them fairly!')), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(DIVISION_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(DIVISION_PRESETS, id)),
+    muted: muted,
+    label: "Choose how the sharing is asked"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement("div", {
     className: "nb-eq dv-eq"
@@ -13126,39 +12523,6 @@ const FRACTION_PRESETS = [{
   shapes: ['bar', 'grid', 'group'],
   desc: 'Bigger families'
 }];
-function FractionSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), FRACTION_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function FractionGame({
   onBack,
   flowers,
@@ -13173,7 +12537,6 @@ function FractionGame({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(FRACTION_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [q, setQ] = useState(() => {
     const p = makeFractionProblem(Math.random, FRACTION_PRESETS[0]);
     return {
@@ -13209,15 +12572,13 @@ function FractionGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeFractionProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     /* The parts are never named in the ask — counting them IS the question. The
        group representation asks its own words: a fraction OF THE SET, so the
        child is not left mapping pie language onto loose objects. */
     Voice.say(q.p.shape === 'group' ? 'What fraction of the objects are lit?' : 'What fraction is highlighted?');
-  }, [q, showSettings]);
+  }, [q]);
   useEffect(() => {
     if (misses === 2) Voice.say('Count the lit parts for the top number. Count all the parts for the bottom number.');
   }, [misses]);
@@ -13248,18 +12609,12 @@ function FractionGame({
     className: "screen fr-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(FractionSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -13275,7 +12630,13 @@ function FractionGame({
     className: "count-title-main"
   }, "What's the Fraction?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Count the lit parts!")), /*#__PURE__*/React.createElement("div", {
+  }, "Count the lit parts!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(FRACTION_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(FRACTION_PRESETS, id)),
+    muted: muted,
+    label: "Choose which fractions to meet"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(FractionShape, {
     shape: q.p.shape,
@@ -13474,39 +12835,6 @@ const AREA_PRESETS = [{
   max: 20,
   desc: 'Count the squares'
 }];
-function AreaSettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How?"), AREA_PRESETS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function AreaGame({
   onBack,
   flowers,
@@ -13521,7 +12849,6 @@ function AreaGame({
   onToggleMute
 }) {
   const [preset, setPreset] = useState(AREA_PRESETS[0]);
-  const [showSettings, setShowSettings] = useState(false);
   const [q, setQ] = useState(() => {
     const p = makeAreaProblem(Math.random, AREA_PRESETS[0]);
     return {
@@ -13559,12 +12886,10 @@ function AreaGame({
   const applyPreset = useCallback(p => {
     setPreset(p);
     resetForProblem(makeAreaProblem(Math.random, p));
-    setShowSettings(false);
   }, [resetForProblem]);
   useEffect(() => {
-    if (showSettings) return;
     Voice.say('How many squares does the shape cover? Tap them to count!');
-  }, [q, showSettings]);
+  }, [q]);
   useEffect(() => {
     if (misses === 2) Voice.say('Count every square the shape sits on. One tap, one square.');
   }, [misses]);
@@ -13596,18 +12921,12 @@ function AreaGame({
     className: "screen ag-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(AreaSettings, {
-    current: preset,
-    onChange: applyPreset,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: preset.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -13623,7 +12942,13 @@ function AreaGame({
     className: "count-title-main"
   }, "Cover It"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "How many squares?")), /*#__PURE__*/React.createElement("div", {
+  }, "How many squares?")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(AREA_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(AREA_PRESETS, id)),
+    muted: muted,
+    label: "Choose the shape"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(AreaGrid, {
     key: round,
@@ -14231,21 +13556,14 @@ function MemoryRibbon({
   onChange,
   muted
 }) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "fm-strip mm-strip",
-    role: "group",
-    "aria-label": "Choose which pairs to find"
-  }, MEMORY_TABS.map(t => /*#__PURE__*/React.createElement("button", {
-    key: t.id,
-    className: `fm-btn ${value === t.id ? 'on' : ''}`,
-    "aria-label": t.label,
-    "aria-pressed": value === t.id,
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      onChange(t.id);
-    }
-  }, /*#__PURE__*/React.createElement(t.Icon, null))));
+  return /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: MEMORY_TABS,
+    value: value,
+    onPick: onChange,
+    muted: muted,
+    label: "Choose which pairs to find",
+    className: "mm-strip"
+  });
 }
 
 /* ══ MODE k1: MEMORY MATCH ══
@@ -14284,39 +13602,6 @@ const MEMORY_LEVELS = MEMORY_LEVEL_SPECS.map((s, i) => ({
    seven-year-old clears without remembering anything, and the child who wants it is one
    tap away on the gear — the same reasoning that opens Times Tables on 12 × 12. */
 const MEMORY_DEFAULT_LEVEL = 1;
-function MemorySettings({
-  current,
-  onChange,
-  onClose
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "modal-overlay",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-box",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-title"
-  }, "How big?"), MEMORY_LEVELS.map(p => /*#__PURE__*/React.createElement("button", {
-    key: p.id,
-    className: `preset-btn ${current.id === p.id ? 'active' : 'inactive'}`,
-    onClick: () => {
-      Sound.tap();
-      onChange(p);
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "preset-tag"
-  }, p.emoji), /*#__PURE__*/React.createElement("div", {
-    className: "preset-info"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "preset-name"
-  }, p.tag), /*#__PURE__*/React.createElement("div", {
-    className: "preset-range"
-  }, p.desc)), current.id === p.id && /*#__PURE__*/React.createElement("span", null, "\u2713"))), /*#__PURE__*/React.createElement("button", {
-    className: "modal-close",
-    onClick: onClose
-  }, "Done")));
-}
 function MemoryGame({
   onBack,
   flowers,
@@ -14335,7 +13620,6 @@ function MemoryGame({
   const [tabId, setTabId] = useState(MEMORY_DEFAULT_TOPIC);
   const topic = memoryTopic(tabId);
   const [level, setLevel] = useState(MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL]);
-  const [showSettings, setShowSettings] = useState(false);
   /* THE LIVE STATE LIVES IN THE REF, and the useState copy exists to draw it. Two taps
      inside one animation frame are the normal case with a child and twenty cards, and
      both must be judged against what the FIRST one did — a handler that read the
@@ -14375,7 +13659,6 @@ function MemoryGame({
   const applyLevel = useCallback(lv => {
     setLevel(lv);
     newBoard(topic, lv);
-    setShowSettings(false);
   }, [topic, newBoard]);
   /* A new deck is a new board, always. There is nothing on a memory board that could
      survive the change — every card is a card of the old deck — so unlike the fraction
@@ -14386,8 +13669,8 @@ function MemoryGame({
     newBoard(memoryTopic(id), level);
   }, [level, newBoard]);
   useEffect(() => {
-    if (!showSettings) Voice.say(topic.ask);
-  }, [topic, showSettings, st.board]);
+    Voice.say(topic.ask);
+  }, [topic, st.board]);
   const flip = useCallback(cardId => {
     Sound.setMuted(muted);
     const r = memoryFlip(stRef.current, cardId);
@@ -14437,18 +13720,12 @@ function MemoryGame({
     className: "screen mm-screen"
   }, /*#__PURE__*/React.createElement("div", {
     className: "screen-bg"
-  }), showSettings && /*#__PURE__*/React.createElement(MemorySettings, {
-    current: level,
-    onChange: applyLevel,
-    onClose: () => setShowSettings(false)
   }), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
-    onSettings: () => setShowSettings(true),
     muted: muted,
-    onToggleMute: onToggleMute,
-    label: level.tag
+    onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement(ScoreRow, {
     score: score,
     flowers: flowers,
@@ -14464,11 +13741,23 @@ function MemoryGame({
     className: "count-title-main"
   }, topic.title), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, done ? 'Every pair found!' : topic.sub)), /*#__PURE__*/React.createElement(MemoryRibbon, {
+  }, done ? 'Every pair found!' : topic.sub)), /*#__PURE__*/React.createElement("div", {
+    className: "ar-row"
+  }, /*#__PURE__*/React.createElement(MemoryRibbon, {
     value: tabId,
     onChange: applyTab,
     muted: muted
-  }), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: MEMORY_LEVELS.map(l => ({
+      id: l.id,
+      label: l.desc,
+      aria: l.tag
+    })),
+    value: level.id,
+    onPick: id => applyLevel(byId(MEMORY_LEVELS, id)),
+    muted: muted,
+    label: "Choose how many cards"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(MemoryBoard, {
     state: st,
@@ -14659,27 +13948,6 @@ function NineGroups({
     className: "nm-tnum"
   }, p.taken)));
 }
-function NineRibbon({
-  value,
-  onChange,
-  muted
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "fm-strip nm-strip",
-    role: "group",
-    "aria-label": "Choose a nine trick"
-  }, NINE_TRICKS.map(t => /*#__PURE__*/React.createElement("button", {
-    key: t.id,
-    className: `fm-btn fm-word ${value === t.id ? 'on' : ''}`,
-    "aria-label": t.aria,
-    "aria-pressed": value === t.id,
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      onChange(t.id);
-    }
-  }, t.tag)));
-}
 function NineMagicGame({
   onBack,
   flowers,
@@ -14813,10 +14081,12 @@ function NineMagicGame({
     className: "count-title-main"
   }, "Nine Magic"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, trick.sub)), /*#__PURE__*/React.createElement(NineRibbon, {
+  }, trick.sub)), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(NINE_TRICKS),
     value: trickId,
-    onChange: applyTrick,
-    muted: muted
+    onPick: applyTrick,
+    muted: muted,
+    label: "Choose a nine trick"
   }), /*#__PURE__*/React.createElement("div", {
     className: "nm-eq"
   }, /*#__PURE__*/React.createElement("span", null, p.a), /*#__PURE__*/React.createElement("span", {
@@ -14917,27 +14187,6 @@ function MakeFrame({
       className: `mk-seat mk-${s}`
     });
   }));
-}
-function MakeRibbon({
-  value,
-  onChange,
-  muted
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "fm-strip mk-strip",
-    role: "group",
-    "aria-label": "Choose what to make"
-  }, MAKE_LEVELS.map(l => /*#__PURE__*/React.createElement("button", {
-    key: l.id,
-    className: `fm-btn fm-word ${value === l.id ? 'on' : ''}`,
-    "aria-label": l.tag,
-    "aria-pressed": value === l.id,
-    onClick: () => {
-      Sound.setMuted(muted);
-      Sound.tap();
-      onChange(l.id);
-    }
-  }, l.tag)));
 }
 function MakeItGame({
   onBack,
@@ -15073,10 +14322,12 @@ function MakeItGame({
     className: "count-title-main"
   }, "Make It!"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, lv.tag)), /*#__PURE__*/React.createElement(MakeRibbon, {
+  }, lv.tag)), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(MAKE_LEVELS),
     value: levelId,
-    onChange: applyLevel,
-    muted: muted
+    onPick: applyLevel,
+    muted: muted,
+    label: "Choose what to make"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mk-eq"
   }, /*#__PURE__*/React.createElement("span", {
