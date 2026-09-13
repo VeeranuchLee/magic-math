@@ -1035,7 +1035,26 @@
     .np-btn:disabled{opacity:.45;box-shadow:none;cursor:default}
     .np-check{border-color:#81c784;background:linear-gradient(160deg,#fff,#e2f6e3);color:#2e7d32;box-shadow:0 5px 0 #81c784}
     .np-check:active{box-shadow:0 1px 0 #81c784}
-    .np-rail-wrap{width:min(96vw,1000px);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 4px;position:relative;z-index:1}
+    /* ── The sentence rail, once it outgrows the screen ──
+       Owner, 2026-09-13: "earlier input disappears ... there is no reliable way to move
+       backward through the expression". The scroll box was already here; what was
+       missing was any way for a CHILD to work it. Every tile sets touch-action:none --
+       which is what makes pointer-drag work on iPad Safari at all -- so a finger on a
+       tile can never become a native pan, and a long sentence leaves almost no rail
+       background to pan on instead. Hence the two chevrons either side, which are the
+       one mechanism that works with a finger, a mouse and a trackpad alike, and hence
+       the flick handling in onMove for the tiles themselves.
+       The row is three parts so the rail keeps the same total width it always had; the
+       chevrons take their space from the scroll box, not from the screen. */
+    .np-rail-outer{display:flex;align-items:center;gap:6px;width:min(96vw,1000px);position:relative;z-index:1}
+    .np-rail-wrap{flex:1 1 auto;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:14px 4px;position:relative;z-index:1}
+    /* 44px floor on both axes: this is a control a child aims at, and it sits beside a
+       rail of moving pieces, so it cannot be a decorative arrow. It stays in the layout
+       when there is nothing off that edge -- dimmed and inert rather than removed, so
+       the rail never changes width under the finger that is using it. */
+    .np-nudge{width:clamp(44px,7vw,54px);height:clamp(44px,7vw,54px);flex:0 0 auto;border-radius:50%;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;font-weight:900;font-size:1.7rem;line-height:1;display:flex;align-items:center;justify-content:center;padding:0 0 4px;cursor:pointer;box-shadow:0 4px 0 #93b7fb,0 5px 12px rgba(0,0,0,.28);transition:opacity .18s,transform .1s}
+    .np-nudge:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
+    .np-nudge-off{opacity:.22;pointer-events:none;box-shadow:none}
     .np-rail{display:flex;align-items:center;gap:12px;min-width:max-content;min-height:calc(var(--np-tile) + 26px);padding:0 4px}
     .np-num{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.13);border:3px solid #ff5c5c;border-radius:16px;padding:5px 7px;min-height:calc(var(--np-tile) + 10px);transition:border-color .15s,box-shadow .15s}
     .np-num.np-active{border-color:#ff8a80;animation:npBreath 1.6s ease-in-out infinite}
@@ -1049,6 +1068,15 @@
     .np-swap-target{outline:4px solid #ffd54f;outline-offset:2px}
     .np-caret{width:0;align-self:stretch;border-left:5px solid #ffd54f;border-radius:3px;margin:0 2px;box-shadow:0 0 10px rgba(255,213,79,.85);animation:npCaretPulse .65s ease-in-out infinite alternate}
     @keyframes npCaretPulse{from{opacity:.45}to{opacity:1}}
+    /* A number that has reached NP_MAX_DIGITS ends in a little gold stop. It is the
+       caret's shape deliberately -- the caret says "a digit goes HERE", so the same bar
+       standing still at the end of a full box says "and no more go here" -- but it is
+       calm: no glow, no pulse, nothing that reads as an error. */
+    .np-cap{width:0;align-self:stretch;border-left:4px solid rgba(255,213,79,.55);border-radius:3px;margin:0 1px 0 3px}
+    /* The refusal, seen. Small, quick, and over: the voice carries the explanation, this
+       only has to say WHICH box could not take the digit. */
+    .np-num.np-blocked{border-color:#ffd54f;animation:npNudgeBack .42s ease both}
+    @keyframes npNudgeBack{0%,100%{transform:translateX(0)}22%{transform:translateX(-5px)}45%{transform:translateX(5px)}70%{transform:translateX(-3px)}}
     .np-feedback{font-size:clamp(.95rem,2.6vw,1.2rem);font-weight:900;padding:7px 20px;border-radius:50px;position:relative;z-index:1;background:rgba(255,255,255,.85)}
     .np-fb-true{color:#2e7d32;border:2.5px solid #81c784;animation:npPopIn .3s ease both}
     .np-fb-false{color:#ef6c00;border:2.5px solid #ffcc80;animation:npPopIn .3s ease both}
@@ -1063,12 +1091,21 @@
     .np-history{width:min(96vw,560px);display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;z-index:1}
     .np-history-label{font-size:.76rem;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.88);text-shadow:0 2px 5px rgba(4,8,30,.6)}
     .np-history-empty{font-size:.85rem;font-weight:700;color:rgba(255,255,255,.75);text-shadow:0 2px 5px rgba(4,8,30,.6)}
-    .np-history-row{display:flex;align-items:center;gap:12px;font-family:inherit;font-weight:900;font-size:clamp(.95rem,2.6vw,1.1rem);color:#fff;background:rgba(255,255,255,.15);border:2px solid rgba(129,199,132,.6);border-radius:14px;padding:7px 18px;cursor:pointer;animation:npPopIn .3s ease both}
-    .np-history-row:active{transform:scale(.97)}
+    /* A kept sentence is TWO controls now: the pill that puts it back on the board, and
+       the speaker that reads it out. The row is the tray they sit in and has no
+       behaviour of its own, so the pill keeps exactly the area it always had. */
+    .np-history-row{display:flex;align-items:center;gap:8px;animation:npPopIn .3s ease both}
+    .np-history-restore{display:flex;align-items:center;gap:12px;min-height:46px;font-family:inherit;font-weight:900;font-size:clamp(.95rem,2.6vw,1.1rem);color:#fff;background:rgba(255,255,255,.15);border:2px solid rgba(129,199,132,.6);border-radius:14px;padding:7px 18px;cursor:pointer}
+    .np-history-restore:active{transform:scale(.97)}
+    /* 46px, the same circle as the arrival replay button this glyph already wears, and it
+       keeps that size in the short-viewport rule below: the history gives up a ROW before
+       a tap target gives up a millimetre. */
+    .np-history-say{width:46px;height:46px;min-width:46px;flex:0 0 auto;border-radius:50%;border:2.5px solid #93b7fb;background:linear-gradient(135deg,#fff,#e8f0ff);color:#2f6df6;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 4px 0 #93b7fb;transition:transform .1s}
+    .np-history-say:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}
     .np-history-tick{font-size:1rem}
     .np-ghost{position:fixed;z-index:80;width:var(--np-tile);height:var(--np-tile);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:calc(var(--np-tile)*.5);pointer-events:none;transform:translate(-50%,-58%) rotate(-4deg) scale(1.08);color:#c62828;background:linear-gradient(160deg,#fff8f6,#ffe3dc);box-shadow:0 10px 24px rgba(0,0,0,.4),0 4px 0 #ffb4a2}
     .np-ghost-op{width:calc(var(--np-tile)*.84);font-size:calc(var(--np-tile)*.44);color:#2f6df6;background:linear-gradient(160deg,#f0f5ff,#d9e7ff);box-shadow:0 10px 24px rgba(0,0,0,.4),0 4px 0 #9db9ff}
-    @media (max-height:640px){.np-screen{--np-tile:clamp(46px,9vw,56px);--np-tray-tile:clamp(38px,7.5vw,46px);gap:7px}.np-history-row{padding:4px 14px}}
+    @media (max-height:640px){.np-screen{--np-tile:clamp(46px,9vw,56px);--np-tray-tile:clamp(38px,7.5vw,46px);gap:7px}.np-history-restore{padding:4px 14px}.np-rail-wrap{padding:9px 4px}.np-nudge{width:44px;height:44px;font-size:1.45rem}}
     /* ── The move key ──
        The board's four rules, drawn, sitting beside it on every rung (see MoveKey).
        It is a legend, not a control, so it takes horizontal room and never vertical:
@@ -1324,8 +1361,9 @@
     .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
     /* The 1–30 tap grid that Times Tables and Count By opened on lived here, behind a
-       Play! button. Both are ribbons of curated rungs now (TIMES_PRESETS,
-       COUNT_BY_PRESETS), so the grid, its label and its own breakpoint are gone.
+       Play! button. Times Tables is a ribbon of curated rungs now (TIMES_PRESETS) and
+       Count By's numbers are a slider (.cb-strip below, 2026-09-13), so the grid, its
+       label and its own breakpoint are gone.
        The pill in the top bar is the last survivor and it no longer opens anything: it
        names the four screens that have no ribbon of their own, so it is drawn flat and
        is not a button. */
@@ -1366,6 +1404,43 @@
     .cb-box{width:34px;height:40px;display:flex;align-items:center;justify-content:center;background:#fff;border:2.5px solid #ab97f5;border-radius:11px;color:#2f6df6;font-size:1.3rem;font-weight:900;box-shadow:0 2px 0 #ab97f5}
     .cb-box.active{border-color:#2f6df6;box-shadow:0 0 0 3px rgba(47,109,246,.18),0 2px 0 #1746b8}
     @keyframes cbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.09);opacity:.72}}
+
+    /* ── THE COUNT-BY SLIDER (owner, 2026-09-13) ──
+       The eleven-step ribbon became a slider across 2..30: clips exist for every step,
+       and a child who has outgrown the times tables can now reach 13..30 without a
+       second control. It rides in the same ribbon chrome (.fm-strip.ar-strip), so
+       everything else about the ribbon row — where it sits, its height, its 744px
+       budget at 768px — is unchanged.
+       The ‹ › buttons are the fine control a fat drag needs, and everything a finger
+       lands on here is drawn at the app's 44px tap-target floor. The thumb's size is
+       set on the DRAWN thumb (::-webkit-slider-thumb), not on the input's box — and
+       the track is the same 44px tall as the thumb on purpose, because WebKit centers
+       the thumb on the track's top edge unless nudged, and equal heights are the one
+       recipe that needs no margin-top fudge to sit true. */
+    /* Two classes on purpose: .fm-strip sits later in this stylesheet than this block,
+       so a single-class override would lose the cascade and the strip's padding and gap
+       would be the chip strip's. */
+    .fm-strip.cb-strip{gap:10px;padding:7px 12px;width:min(720px,100%);box-sizing:border-box}
+    /* The strip shrink-wraps its content and a range input only asks for ~129px, so without a width
+       the track was 129px for 29 values (~3px a number) at 768px. Filling the row gives ~14px a
+       number, the widest a finger gets here, and matches the eleven-chip row it replaced. */
+    .cb-strip-label{font-size:.92rem;font-weight:900;color:#5a2ed6;white-space:nowrap}
+    .cb-step-btn{flex:0 0 auto;min-width:48px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+      border:2.5px solid #ab97f5;border-radius:14px;background:linear-gradient(135deg,#fff,#e8f0ff);
+      color:#2f6df6;font-size:1.7rem;font-weight:900;cursor:pointer;transition:transform .1s,color .14s,border-color .14s}
+    .cb-step-btn:active{transform:scale(.93)}
+    .cb-step-btn[disabled]{opacity:.38;cursor:default}
+    .cb-slider{-webkit-appearance:none;appearance:none;flex:1 1 auto;min-width:0;height:52px;background:transparent;cursor:pointer}
+    .cb-slider::-webkit-slider-runnable-track{height:44px;border-radius:999px;
+      background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;box-shadow:0 3px 0 #93b7fb}
+    .cb-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:44px;height:44px;margin-top:0;
+      border-radius:50%;background:linear-gradient(160deg,#2f6df6,#5a2ed6);border:2.5px solid #5a2ed6;
+      box-shadow:0 3px 0 #371a92}
+    .cb-slider::-moz-range-track{height:44px;border-radius:999px;background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb}
+    .cb-slider::-moz-range-thumb{width:39px;height:39px;border-radius:50%;background:linear-gradient(160deg,#2f6df6,#5a2ed6);border:2.5px solid #5a2ed6}
+    .cb-step-value{flex:0 0 auto;min-width:64px;text-align:center;font-size:1.9rem;font-weight:900;color:#2f6df6;
+      background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:14px;
+      padding:6px 10px;box-shadow:0 3px 0 #93b7fb;font-variant-numeric:tabular-nums}
 
 
     .gp-mm{width:26px;height:34px;border-radius:5px;border:1.5px solid #6d9bf5;background:linear-gradient(160deg,#3a5fd9,#152268);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
@@ -3678,17 +3753,16 @@ const DEFAULT_COUNT_BY = {
   step: 12,
   upTo: 30
 };
-/* The steps the ribbon offers, and the same story as TIMES_PRESETS: COUNT_BY_STEP_OPTIONS
-   stays as the rendered set, and the 1 to 30 tap grid it used to draw is replaced by the
-   eleven steps that are actually a chant — the times tables, 2 through 12. Counting by 1
-   is not skip counting, and 13 upwards is a list a child reads off the ladder rather than
-   one they recite. Their clips are rendered and waiting if the owner wants them back. */
-const COUNT_BY_PRESETS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => ({
-  id: `s${n}`,
-  tag: String(n),
-  aria: `Count by ${n}`,
-  step: n
-}));
+/* SUPERSEDED, 2026-09-13 (owner, recorded in MATH-RIBBON-SPEC.md): the eleven-step
+   ribbon below — the 2026-09-12 narrowing of Count By to the times tables 2..12 — is
+   gone. Every step 2..30 is offered again, on a SLIDER, because the child the narrowing
+   was for has outgrown the times tables and the clips for 13..30 are already rendered.
+   The bounds are named constants rather than literals on the <input> so the slider, the
+   clamps and the arrows below can never disagree about where the range ends.
+   COUNT_BY_STEP_OPTIONS stays exactly as it is: it is not the picker any more, but the
+   narration manifest reads its length to know which count-by clips exist. */
+const COUNT_BY_MIN = 2,
+  COUNT_BY_MAX = 30;
 const CARD_VOICE = {
   b1: 'What Number? Count the blocks!',
   b2: 'Fill the Right Block!',
@@ -4441,12 +4515,68 @@ const npClone = tokens => tokens.map(t => t.type === 'number' ? {
 const npNumValue = t => parseInt(t.digits.map(d => d.value).join(''), 10) || 0;
 const npRelationCount = tokens => tokens.reduce((n, t) => n + (t.type === 'op' && npIsRelation(t.value) ? 1 : 0), 0);
 const npStatementText = tokens => tokens.map(t => t.type === 'number' ? t.digits.map(d => d.value).join('') : ` ${t.value} `).join('').trim();
+/* ── THE TWO CEILINGS, AND WHY THEY ARE THESE NUMBERS ──
+   Owner, 2026-09-13: "the app must never permit the child to build an expression
+   that the app itself cannot reliably read". Until this change there was no limit
+   at all, and both ceilings below were MEASURED against the shipped code rather
+   than guessed. tools/test-math-games.js repeats the measurement, so the day
+   either path changes its range the constant fails rather than the child.
+
+     THE READER, numberToWords(), is correct to 21 digits. SCALES runs out at
+     quintillion, and from 22 the leading group silently loses its scale name --
+     a 1 followed by twenty-one zeros is read aloud as the single word "one".
+     It does not throw. It does not stop. It just says the wrong number, which
+     is the worst of the three failures the brief describes.
+
+     THE EVALUATOR is exact to 15 digits. npNumValue() is a parseInt of the whole
+     digit string, so at 16 it passes Number.MAX_SAFE_INTEGER (9007199254740991)
+     and two DIFFERENT sixteen-digit numbers compare equal -- the app says
+     "That's true!" about a sentence that is false.
+
+   min(15, 21) = 15. The evaluator binds, and the reader keeps six digits of
+   headroom, so no number a child can build is ever mis-read. If this mode ever
+   moves to BigInt the ceiling is reconsidered on its own; nothing below assumes
+   15 beyond the constant.
+
+   THE BOARD ceiling is the speech path rather than the screen -- the rail scrolls,
+   so width stopped being the limit. 45 digits is the longest sentence that still
+   reads aloud inside about thirty-five seconds however the child spends them:
+   three fifteen-digit numbers is ~83 spoken words, forty-five single digits with
+   operators between them is ~89, and both sit around 35s at the robot's rate.
+   Past that the readout stops being something a child listens to the end of. */
+const NP_MAX_DIGITS = 15;
+const NP_MAX_TOTAL_DIGITS = 45;
+/* Exactly-representable values only. The per-number cap keeps every OPERAND safe;
+   this is about the RESULT, which a legal pair of operands can still push out of
+   range all on its own -- 999999999999999 x 999999999999999 is nowhere near exact,
+   and an evaluator that answered it would be inventing the answer. */
+const NP_EXACT_MAX = Number.MAX_SAFE_INTEGER;
+const npExact = v => typeof v === 'number' && isFinite(v) && Math.abs(v) <= NP_EXACT_MAX;
+const npTotalDigits = tokens => tokens.reduce((n, t) => n + (t.type === 'number' ? t.digits.length : 0), 0);
+/* WHY a digit would be refused, or null when it is allowed. The component asks this
+   BEFORE it acts, because refusing has to say a different sentence depending on which
+   ceiling was reached; every reducer asks it too, so no path -- tap, stamp or move --
+   can get a digit past a ceiling even if a caller forgets. `numberId` null means the
+   active container at the end of the rail, which is where a tray tap lands. */
+function npDigitRefusal(tokens, numberId) {
+  const t = numberId == null ? tokens[tokens.length - 1] : tokens.filter(x => x.type === 'number' && x.id === numberId)[0];
+  if (t && t.type === 'number' && t.digits.length >= NP_MAX_DIGITS) return 'number';
+  if (npTotalDigits(tokens) >= NP_MAX_TOTAL_DIGITS) return 'board';
+  return null;
+}
+/* An operator adds no digits, so only the BOARD ceiling can refuse one -- and it has
+   to, because a full board can never fill the container the operator opens, and an
+   empty container is a sentence that can never be finished. Reaching the PER-NUMBER
+   cap deliberately leaves operators working: that is how the child carries on, with a
+   second number, which the brief asks for in as many words. */
+const npOperatorRefusal = tokens => npTotalDigits(tokens) >= NP_MAX_TOTAL_DIGITS ? 'board' : null;
 /* Every reducer returns the NEXT token list, or null when the action is refused --
    the component's contract is that null means "bounce it back gently" and the
    board is left exactly as it was, so a refused drop can never strand a half
    state. mkId('n'|'o'|'d') mints the fresh ids; passing it in keeps these pure. */
 function npAddDigit(tokens, digit, mkId) {
   if (NP_DIGITS.indexOf(digit) < 0) return null;
+  if (npDigitRefusal(tokens, null)) return null;
   const next = npClone(tokens);
   let last = next[next.length - 1];
   if (!last || last.type !== 'number') {
@@ -4464,6 +4594,7 @@ function npAddDigit(tokens, digit, mkId) {
   return next;
 }
 function npAddOperator(tokens, op, mkId) {
+  if (npOperatorRefusal(tokens)) return null;
   const last = tokens[tokens.length - 1];
   if (!last || last.type !== 'number' || last.digits.length === 0) return null; /* never two ops in a row */
   if (npIsRelation(op) && npRelationCount(tokens) > 0) return null; /* v1: ONE relation per statement */
@@ -4500,6 +4631,7 @@ function npFindNumber(tokens, numberId) {
    Index is clamped, so a drop computed against a moving caret can never escape. */
 function npInsertDigit(tokens, numberId, index, digit, mkId) {
   if (NP_DIGITS.indexOf(digit) < 0) return null;
+  if (npDigitRefusal(tokens, numberId)) return null;
   const next = npClone(tokens);
   const ti = npFindNumber(next, numberId);
   if (ti === null) return null;
@@ -4517,6 +4649,14 @@ function npInsertDigit(tokens, numberId, index, digit, mkId) {
 function npMoveDigit(tokens, digitId, toNumberId, index) {
   const at = npFindDigit(tokens, digitId);
   if (at === null) return null;
+  /* A move changes no TOTAL, so the board ceiling cannot bite -- but it can overfill
+     the DESTINATION, and without this two full numbers could be merged into one that
+     is over the per-number ceiling by dragging their digits across one at a time.
+     Reordering inside one container is always allowed; it is already at its size. */
+  if (toNumberId !== tokens[at.ti].id) {
+    const dest = tokens.filter(t => t.type === 'number' && t.id === toNumberId)[0];
+    if (dest && dest.digits.length >= NP_MAX_DIGITS) return null;
+  }
   const next = npClone(tokens);
   const src = next[at.ti];
   const destTi = npFindNumber(next, toNumberId);
@@ -4586,13 +4726,26 @@ function npFreshIds(tokens, mkId) {
    is a spoiler. Precedence is real maths (× ÷ before + −); the brief is explicit
    that 2 + 3 × 4 = 14 must check TRUE. ÷ by zero is div0, never Infinity or NaN
    in anyone's UI. Anything structurally unexpected is malformed, never a crash. */
+/* npEvalSide's FOURTH answer, beside a number, null (malformed) and NaN (share by
+   zero): the arithmetic left the range this evaluator can be honest about. A sentinel
+   object rather than a number, because every number is a legal answer and Infinity is
+   not what happened -- 999999999999999 x 999999999999999 is finite, it is simply not
+   the value JavaScript hands back. Checked before NaN by npEvaluate; isNaN(object) is
+   false, so the order is belt and braces rather than load-bearing. */
+const NP_OVER = {
+  over: true
+};
 function npEvalSide(tokens) {
   if (!tokens.length || tokens[0].type !== 'number' || tokens[tokens.length - 1].type !== 'number') return null;
   const nums = [],
     ops = [];
   for (let i = 0; i < tokens.length; i++) {
     const t = tokens[i];
-    if (t.type === 'number') nums.push(npNumValue(t));else {
+    if (t.type === 'number') {
+      const v = npNumValue(t);
+      if (!npExact(v)) return NP_OVER; /* legacy history, or a board built before the cap */
+      nums.push(v);
+    } else {
       if (i === 0 || i === tokens.length - 1) return null;
       ops.push(t.value);
     }
@@ -4608,9 +4761,15 @@ function npEvalSide(tokens) {
       rest.push(ops[i]);
       vals.push(nums[i + 1]);
     }
+    /* INTERMEDIATE results count. A product can leave the safe range and be brought
+       back by a later division, and an answer that passed through a lie is a lie. */
+    if (!npExact(vals[vals.length - 1])) return NP_OVER;
   }
   let out = vals[0];
-  for (let i = 0; i < rest.length; i++) out += rest[i] === '+' ? vals[i + 1] : -vals[i + 1];
+  for (let i = 0; i < rest.length; i++) {
+    out += rest[i] === '+' ? vals[i + 1] : -vals[i + 1];
+    if (!npExact(out)) return NP_OVER;
+  }
   return out;
 }
 function npEvaluate(tokens) {
@@ -4630,6 +4789,9 @@ function npEvaluate(tokens) {
   const ri = tokens.indexOf(rels[0]);
   const a = npEvalSide(tokens.slice(0, ri)),
     b = npEvalSide(tokens.slice(ri + 1));
+  if (a === NP_OVER || b === NP_OVER) return {
+    status: 'toobig'
+  }; /* never guess, and never pretend */
   if (a === null || b === null) return {
     status: 'malformed'
   };
@@ -9326,10 +9488,12 @@ function MultiplicationGame({
    and "one more group of 3" are the same action. */
 /* "The child should be able to click the number they want to count, then get that
    setting" (owner, 2026-08-14). That is still exactly what happens; what changed on
-   2026-09-12 is where the numbers are. They were a screen the game OPENED ON, a 1–30
+   2026-09-13 is where the numbers are. They were a screen the game OPENED ON, a 1–30
    grid behind a Play! button, so a child who wanted a different number had to leave the
-   ladder to get one. They are the ribbon now — on screen while the ladder is, one tap,
-   and the ladder restarts on the new number. COUNT_BY_PRESETS says which numbers.
+   ladder to get one; the 2026-09-12 pass made them a ribbon of eleven chips. They are a
+   SLIDER now (owner's decision, recorded in MATH-RIBBON-SPEC.md): every count 2..30
+   under one thumb, the chosen number printed beside it, and the ladder restarts on the
+   new number the moment it moves.
    (There was a "how many jumps" row on that screen too. The owner watched their children
    use it for a day in 2026-08-15 and they never touched it, so it went then.) */
 function CountByGame({
@@ -9343,8 +9507,8 @@ function CountByGame({
   muted,
   onToggleMute
 }) {
-  // Opens PLAYING, on the twelves, with the ribbon of steps above the ladder. It used to
-  // open on the picker so the child named their number first; the ribbon is that choice
+  // Opens PLAYING, on the twelves, with the step slider above the ladder. It used to
+  // open on the picker so the child named their number first; the slider is that choice
   // without the screen in front of it, so the first rung is now the first thing they see.
   const [cfg, setCfg] = useState(DEFAULT_COUNT_BY);
   const [filled, setFilled] = useState(0); // rungs finished and moved past
@@ -9358,6 +9522,10 @@ function CountByGame({
   }, [misses]);
   const [wrong, setWrong] = useState(false);
   const [confetti, setConf] = useState(false);
+  /* True from the finger's down to its up on the slider. The chant waits for the
+     release (see the chant effect below) while the ladder and the printed number
+     follow every tick, so a drag is silent but never still. */
+  const [scrubbing, setScrubbing] = useState(false);
   const mascot = useMascot();
   const ladderRef = useRef(null);
   const chainRef = useRef(null);
@@ -9384,13 +9552,35 @@ function CountByGame({
     goToRung(tableDone ? 0 : filled + 1);
   }, [muted, tableDone, filled, goToRung]);
 
-  /* Only restart the ladder when the number really moved — tapping the chip that is
-     already on must not throw away the rungs already counted. */
+  /* Only restart the ladder when the number really moved — tapping the arrow that is
+     already at the wall, or dropping the thumb where it started, must not throw away
+     the rungs already counted. */
   const applyConfig = useCallback(nextCfg => {
     if (nextCfg.step === cfg.step && nextCfg.upTo === cfg.upTo) return;
     setCfg(nextCfg);
     goToRung(0, nextCfg);
   }, [cfg, goToRung]);
+
+  /* The slider's number. Clamp first — a dragged value, or a stale prop, never lands
+     outside 2..30 — then hand it to applyConfig, which no-ops an unmoved step. This
+     runs on EVERY tick of the drag, not only on release: React maps a range input's
+     onChange to the native `input` event (its `change` semantics), so the printed
+     number, the title and the ladder all follow the thumb as it moves. */
+  const setStep = useCallback(n => {
+    const step = Math.max(COUNT_BY_MIN, Math.min(COUNT_BY_MAX, Math.round(Number(n) || COUNT_BY_MIN)));
+    applyConfig({
+      step,
+      upTo: cfg.upTo
+    });
+  }, [applyConfig, cfg]);
+
+  /* The ‹ › pair is the fine control: one number at a time, with the button at each
+     wall drawn disabled so the range's edge is visible, not just discovered. */
+  const nudgeStep = useCallback(d => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    setStep(cfg.step + d);
+  }, [muted, cfg, setStep]);
   const clear = useCallback(() => {
     Sound.setMuted(muted);
     Sound.tap();
@@ -9412,8 +9602,11 @@ function CountByGame({
   }, [muted, won]);
 
   /* Ask by chanting what is already on the ladder: "12, 24, 36. What comes next?"
-     Silent while the picker is up, so it does not talk over the choosing prompt. */
+     Gated on !scrubbing: Voice.say cancels whatever is still playing, so a sentence
+     per drag tick would be a chatter of cut-off numbers. The drag stays silent, the
+     ladder keeps up underneath it, and the one sentence lands when the thumb does. */
   useEffect(() => {
+    if (scrubbing) return;
     if (filled === 0) {
       Voice.say(num(`Let's count by ${cfg.step}. What number comes first?`));
       return;
@@ -9423,7 +9616,7 @@ function CountByGame({
       length: back
     }, (_, i) => (filled - back + 1 + i) * cfg.step);
     Voice.say(num(`${tail.join(', ')}. What comes next?`));
-  }, [filled, cfg]);
+  }, [filled, cfg, scrubbing]);
   useEffect(() => {
     if (won || digits.some(d => d === '')) return;
     Sound.setMuted(muted);
@@ -9530,16 +9723,43 @@ function CountByGame({
     className: "count-title-main"
   }, "Count by ", cfg.step), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "same as the ", cfg.step, " times table")), /*#__PURE__*/React.createElement(ActivityRibbon, {
-    chips: chipsOf(COUNT_BY_PRESETS),
-    value: `s${cfg.step}`,
-    muted: muted,
-    onPick: id => applyConfig({
-      step: byId(COUNT_BY_PRESETS, id).step,
-      upTo: cfg.upTo
-    }),
-    label: "Choose the number to count by"
-  }), /*#__PURE__*/React.createElement("div", {
+  }, "same as the ", cfg.step, " times table")), /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip ar-strip cb-strip",
+    role: "group",
+    "aria-label": "Choose the number to count by"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cb-strip-label",
+    id: "cb-step-label"
+  }, "Count by"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "cb-step-btn",
+    onClick: () => nudgeStep(-1),
+    disabled: cfg.step <= COUNT_BY_MIN,
+    "aria-label": "One number smaller"
+  }, "\u2039"), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    className: "cb-slider",
+    min: COUNT_BY_MIN,
+    max: COUNT_BY_MAX,
+    step: 1,
+    value: cfg.step,
+    "aria-labelledby": "cb-step-label",
+    onChange: e => setStep(e.target.value),
+    onPointerDown: () => setScrubbing(true),
+    onPointerUp: () => setScrubbing(false),
+    onPointerCancel: () => setScrubbing(false),
+    onLostPointerCapture: () => setScrubbing(false),
+    onBlur: () => setScrubbing(false)
+  }), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "cb-step-btn",
+    onClick: () => nudgeStep(1),
+    disabled: cfg.step >= COUNT_BY_MAX,
+    "aria-label": "One number bigger"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "cb-step-value",
+    "aria-hidden": "true"
+  }, cfg.step)), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card countby-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "cb-chain",
@@ -10756,16 +10976,23 @@ const compareSentence = p => p.sign === '=' ? `${p.a} equals ${p.b}. They are th
    the two digits are drawn independently and redrawn on a tie, so which side is
    bigger is a coin toss with no overflow case to patch. */
 const PLACE_WEIGHTS = [['h', 45], ['t', 33], ['o', 22]];
-function makePlaceProblem(preset, avoid) {
+function makePlaceProblem(preset, avoid, rng) {
+  /* rng is a TRAILING optional, not the leading parameter the primitives' generators
+     take (makeOddEvenProblem(rng, preset, avoid)). CompareGame's two call sites were
+     already written as (preset, problem) and one of them is pinned byte-for-byte by
+     tools/check-math-parity.js, which cannot be edited — so the seeded rng the tests
+     need goes on the end, and the page's calls simply leave it off. */
+  rng = rng || Math.random;
   const places = preset.max >= 1000 ? 3 : 2; // the 1 - 100 rung has no hundreds to tie
   const opts = PLACE_WEIGHTS.slice(3 - places);
   const weight = opts.reduce((s, o) => s + o[1], 0);
   for (let tries = 0; tries < 40; tries++) {
-    /* One pair in four is equal, the same rule and the same reason as below. */
-    const same = Math.random() < .25;
+    /* Equal pairs at the 2026-09-13 rate — same coin, same gate, same reason as the
+       full note in makeCompareProblem below. */
+    const same = rng() < .15 / .85 && !(avoid && avoid.sign === '=');
     let decide = 0;
     if (!same) {
-      let r = rand(1, weight);
+      let r = randR(rng, 1, weight);
       for (let i = 0; i < opts.length; i++) {
         r -= opts[i][1];
         if (r <= 0) {
@@ -10778,18 +11005,18 @@ function makePlaceProblem(preset, avoid) {
       B = [];
     for (let i = 0; i < places; i++) {
       if (same || i < decide) {
-        const d = rand(0, 9);
+        const d = randR(rng, 0, 9);
         A.push(d);
         B.push(d);
       } else if (i === decide) {
-        const x = rand(0, 9);
-        let y = rand(0, 9);
-        while (y === x) y = rand(0, 9);
+        const x = randR(rng, 0, 9);
+        let y = randR(rng, 0, 9);
+        while (y === x) y = randR(rng, 0, 9);
         A.push(x);
         B.push(y);
       } else {
-        A.push(rand(0, 9));
-        B.push(rand(0, 9));
+        A.push(randR(rng, 0, 9));
+        B.push(randR(rng, 0, 9));
       }
     }
     const value = d => d.reduce((n, x) => n * 10 + x, 0);
@@ -10809,19 +11036,37 @@ function makePlaceProblem(preset, avoid) {
     sign: '<'
   };
 }
-function makeCompareProblem(preset, avoid) {
-  if (preset.places) return makePlaceProblem(preset, avoid);
+function makeCompareProblem(preset, avoid, rng) {
+  rng = rng || Math.random; // trailing optional — see makePlaceProblem
+  if (preset.places) return makePlaceProblem(preset, avoid, rng);
   const {
     min,
     max
   } = preset;
   for (let tries = 0; tries < 40; tries++) {
-    const a = rand(min, max);
+    const a = randR(rng, min, max);
     let b;
-    /* One pair in four is equal. Rarer than that and a child learns that "same" is
-       never the answer and stops considering it; at one in three the three buttons
-       become equally likely and the game rewards guessing. */
-    if (Math.random() < .25) {
+    /* EQUAL PAIRS, RE-RULED 2026-09-13 (owner; recorded in MATH-RIBBON-SPEC.md).
+       Until today this comment said: one pair in four is equal — rarer than that and
+       a child learns that "same" is never the answer and stops considering it; at one
+       in three the three buttons become equally likely and the game rewards guessing.
+       That reasoning was shown to the owner and overridden: a quarter of all problems
+       asking the middle button is too often, and the felt rate is 15% now, one pair
+       in about 6.7. (The clip-set is untouched — only the rate moved.)
+        Two things about the coin below are deliberate:
+        1. NO TWO IN A ROW. An equal pair straight after an equal pair asks the same
+          button twice for nothing, so the gate reads the threaded avoid problem's
+          sign — the same parameter the no-repeat check further down uses. A
+          session's FIRST problem has no previous problem to avoid, and its callers
+          pass no avoid, which is the convention every other generator's first draw
+          already follows (see makeOddEvenProblem's own call sites).
+        2. THE COIN IS .15/.85, NOT .15. With the gate above, the generator is a
+          two-state machine: from an unequal problem it draws equal with probability
+          p, from an equal one it never does. The long-run share is therefore
+          p/(1+p), not p. Solving p/(1+p)=.15 gives p=.15/.85 — the expression
+          written below — and the share lands on exactly 15%. A raw .15 would land
+          on .15/1.15 ≈ 13%. */
+    if (rng() < .15 / .85 && !(avoid && avoid.sign === '=')) {
       b = a;
     } else {
       /* Half the unequal pairs are deliberately close together. If every pair were
@@ -10839,15 +11084,15 @@ function makeCompareProblem(preset, avoid) {
          So the direction is chosen FIRST, among the sides that actually have room,
          and the gap is then drawn inside that room. There is no overflow case left
          to patch, which is why this one cannot lean. */
-      const span = Math.random() < .5 ? Math.max(1, Math.round((max - min) / 12)) : max - min;
+      const span = rng() < .5 ? Math.max(1, Math.round((max - min) / 12)) : max - min;
       const roomUp = Math.min(span, max - a),
         roomDown = Math.min(span, a - min);
       if (roomUp < 1 && roomDown < 1) {
         b = a;
       } // only reachable if a preset ever had max===min
       else {
-        const up = roomUp > 0 && (roomDown < 1 || Math.random() < .5);
-        b = up ? a + rand(1, roomUp) : a - rand(1, roomDown);
+        const up = roomUp > 0 && (roomDown < 1 || rng() < .5);
+        b = up ? a + randR(rng, 1, roomUp) : a - randR(rng, 1, roomDown);
       }
     }
     if (avoid && avoid.a === a && avoid.b === b) continue;
@@ -10857,8 +11102,8 @@ function makeCompareProblem(preset, avoid) {
       sign: a > b ? '>' : a < b ? '<' : '='
     };
   }
-  const a = rand(min, max),
-    b = rand(min, max);
+  const a = randR(rng, min, max),
+    b = randR(rng, min, max);
   return {
     a,
     b,
@@ -11051,6 +11296,8 @@ function CompareGame({
      thing this game is for, so that is where it now starts. The other rungs are one
      tap away on the level pill. */
   const [preset, setPreset] = useState(COMPARE_PRESETS[0]);
+  /* First problem of a session: nothing to avoid, so no avoid is passed — the same
+     convention makeOddEvenProblem's mount call already follows. */
   const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[0]));
   const [won, setWon] = useState(false);
   const [wrongSign, setWrongSign] = useState(null);
@@ -11073,10 +11320,14 @@ function CompareGame({
   const next = useCallback(() => {
     resetForProblem(makeCompareProblem(preset, problem));
   }, [preset, problem, resetForProblem]);
+  /* rung switches thread the current problem as avoid (2026-09-13), closing the gap
+     that let a switch deal the same pair twice or an equal pair twice in a row — next
+     above already threaded it, and a child mid-round who changes rungs deserves the
+     same no-repeat the Next button gives them. */
   const applyPreset = useCallback(p => {
     setPreset(p);
-    resetForProblem(makeCompareProblem(p));
-  }, [resetForProblem]);
+    resetForProblem(makeCompareProblem(p, problem));
+  }, [problem, resetForProblem]);
   useEffect(() => {
     // See the note above the mode: naming the numbers here would give the blocks
     // rung away, because that rung is the one where they are not on screen.
@@ -13569,8 +13820,28 @@ const npSentenceWords = tokens => tokens.map(t => t.type === 'number' ? numberTo
 const NP_FEEDBACK = {
   true: "✓ That's true!",
   false: 'Not true yet — try changing something.',
-  hmm: 'Finish your sentence first.'
+  hmm: 'Finish your sentence first.',
+  big: 'That one is too big for me!'
 };
+/* The three ceiling lines speak in the ROBOT's voice, and that is not a stylistic
+   choice twice over. np1 is not in Clips's VOICED set, so a num() line resolves to no
+   clip and reaches the ship's computer -- which means (a) these lines cost nothing to
+   add, where a companion line is a paid render, and (b) the child hears the limit from
+   the machine that does the reading, which is what the brief asked for: a robot saying
+   what it cannot do, never a game telling a child they did something wrong. */
+const NP_LIMIT_NUMBER = 'Oops! That number is too long for me to read. Try a shorter number!';
+const NP_LIMIT_BOARD = 'Oops! That sentence is too long for me to read. Try a shorter one!';
+const NP_LIMIT_RESULT = 'That answer is too big for me to work out!';
+/* Five kept, never fewer than three shown. The count that actually fits is measured
+   rather than guessed -- see the fit effect in the component. */
+const NP_HIST_KEEP = 5,
+  NP_HIST_MIN = 3;
+/* A board gesture that crosses the drag threshold inside this long is a FLICK and pans
+   the rail; slower than this and it picks the digit up, exactly as before. The window is
+   only consulted when the rail actually overflows, so a sentence that fits on screen
+   behaves identically to the way it always has -- nothing about the toy changes until
+   the child builds something longer than the screen. */
+const NP_FLICK_MS = 200;
 function NumberPlayGame({
   onBack,
   journey,
@@ -13589,13 +13860,34 @@ function NumberPlayGame({
   const [history, setHistory] = useState(() => {
     try {
       const v = JSON.parse(localStorage.getItem(NP_HIST_KEY) || '[]');
-      return Array.isArray(v) ? v.filter(h => h && typeof h.text === 'string' && Array.isArray(h.tokens) && h.tokens.length) : [];
+      /* The size test is not decoration: this app shipped with no ceiling at all, so a
+         child's own localStorage can hold a forty-digit sentence. Dropping those rows
+         is better than clamping them -- a restored-but-shortened sentence would be a
+         different sentence wearing the child's tick. */
+      return Array.isArray(v) ? v.filter(h => h && typeof h.text === 'string' && Array.isArray(h.tokens) && h.tokens.length && npTotalDigits(h.tokens) <= NP_MAX_TOTAL_DIGITS && h.tokens.every(t => t.type !== 'number' || t.digits.length <= NP_MAX_DIGITS)).slice(0, NP_HIST_KEEP) : [];
     } catch (e) {
       return [];
     }
   });
-  const [feedback, setFeedback] = useState(null); /* 'true' | 'false' | 'hmm' */
+  const [feedback, setFeedback] = useState(null); /* 'true' | 'false' | 'hmm' | 'big' */
   const [confetti, setConfetti] = useState(false);
+  /* The number box that just refused a digit, flashed for a moment so the child sees
+     WHERE the refusal happened -- the voice says what, the box says where. */
+  const [blocked, setBlocked] = useState(null);
+  const blockT = useRef(0);
+  /* Repetition control. One spoken reminder per run of blocked taps; an enthusiastic
+     child hammering the 9 gets one sentence and then thuds, not five overlapping
+     sentences. Cleared by act(), so the next successful edit -- any digit moved, any
+     number cleared, any new number started -- earns the reminder back. */
+  const limitSaidRef = useRef(false);
+  /* Which ends of the rail have more sentence on them. Drives the two nudge buttons,
+     which are how a child reliably travels a rail that is wider than the screen. */
+  const [ends, setEnds] = useState({
+    left: false,
+    right: false
+  });
+  const [histShown, setHistShown] = useState(NP_HIST_KEEP);
+  const screenRef = useRef(null);
   const [drag, setDragState] = useState(null);
   const dragRef = useRef(null);
   const setDrag = useCallback(v => {
@@ -13615,6 +13907,7 @@ function NumberPlayGame({
     }
     Sound.setMuted(muted);
     Sound.tap();
+    limitSaidRef.current = false;
     setUndoStack(u => [...u.slice(-99), tokensRef.current]);
     setTokens(next);
     setFeedback(null);
@@ -13624,13 +13917,107 @@ function NumberPlayGame({
      end is scrolled into view. Widths alone are not enough on iPad -- the rail
      is a scroll box precisely so long sentences never wrap. */
   const lastLen = tokens[tokens.length - 1] ? tokens[tokens.length - 1].digits.length : 0;
+  /* Does the rail have more sentence off either edge? Read from the scroll box rather
+     than computed from the tokens, because the answer depends on the rendered widths
+     and on wherever the child has scrolled to. */
+  const syncEnds = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEnds({
+      left: el.scrollLeft > 4,
+      right: el.scrollLeft < max - 4
+    });
+  }, []);
   useEffect(() => {
     const el = railRef.current;
     if (el) el.scrollTo({
       left: el.scrollWidth,
       behavior: 'smooth'
     });
-  }, [tokens.length, lastLen]);
+    /* The smooth scroll fires its own scroll events, which keep syncEnds current the
+       whole way; this first call covers the case where nothing moved at all. */
+    const r = requestAnimationFrame(syncEnds);
+    return () => cancelAnimationFrame(r);
+  }, [tokens.length, lastLen, syncEnds]);
+  useEffect(() => {
+    window.addEventListener('resize', syncEnds);
+    return () => window.removeEventListener('resize', syncEnds);
+  }, [syncEnds]);
+  /* Travel one screenful. A child who taps this three times has walked their whole
+     sentence, which is the acceptance test the brief spells out -- and unlike a swipe
+     it works from a rail that is wall-to-wall tiles, with a mouse, and with a finger.
+      WHY THE TARGET IS REMEMBERED. scrollBy() measures from where the rail IS, never from
+     where a smooth scroll already running is GOING, so taps in quick succession each
+     restart the same journey instead of adding to it. Measured in Chrome on 2026-09-13:
+     three taps issued before the first frame travelled 483px of the 1482px they asked
+     for. A child taps an arrow like a child, so the last target is kept and the next tap
+     is measured from THERE while the rail is still on its way to it. Anything else that
+     moved the rail -- a flick, a new token, a hand scroll -- leaves it outside that run,
+     and the live position is used instead. */
+  const nudgeRef = useRef(null);
+  const nudge = useCallback(dir => {
+    const el = railRef.current;
+    if (!el) return;
+    Sound.setMuted(muted);
+    Sound.tap();
+    const live = el.scrollLeft,
+      p = nudgeRef.current,
+      max = Math.max(0, el.scrollWidth - el.clientWidth);
+    const enRoute = !!p && Date.now() - p.t < 600 && live >= Math.min(p.from, p.to) - 1 && live <= Math.max(p.from, p.to) + 1;
+    const to = Math.max(0, Math.min(max, (enRoute ? p.to : live) + dir * Math.max(120, el.clientWidth * .8)));
+    nudgeRef.current = {
+      from: live,
+      to,
+      t: Date.now()
+    };
+    el.scrollTo({
+      left: to,
+      behavior: 'smooth'
+    });
+  }, [muted]);
+  /* HOW MANY history rows FIT, measured rather than tabulated against device heights.
+     It needs no constant that can go stale when a row is added above it, and it answers
+     the only question that matters -- is the workbench still comfortable -- by asking
+     the layout instead of a lookup table.
+      MEASURED AGAINST THE WINDOW, NOT THE BOX. `.screen` is min-height:100vh with an auto
+     height, so it GROWS past the viewport instead of scrolling inside it: scrollHeight
+     can never exceed clientHeight, and the first version of this effect -- which asked
+     exactly that -- could never fire at all. Measured in Chrome on 2026-09-13 at 768x600
+     with five sentences kept: the screen stood 814px tall in a 600px window, all five
+     rows rendered, and the bottom 214px of the workbench -- two of those rows among it --
+     sat below the fold.
+      AND IT GROWS BACK. Shrinking alone ratchets: one transient tall moment -- the
+     feedback pill, a rail that briefly wanted a scrollbar -- took the history down to
+     three and left it there on a 1024px-tall iPad with room to spare, because the only
+     thing that reset it was a window resize. Growing ONLY when there is a whole row of
+     slack to grow into is what keeps the two arms from oscillating: after a grow the
+     column is still inside the window, so the shrink arm cannot fire on the next pass. */
+  useEffect(() => {
+    const el = screenRef.current,
+      hist = el && el.querySelector('.np-history');
+    if (!hist) return;
+    /* WHERE THE WORKBENCH ENDS, in document coordinates. Neither scrollHeight nor
+       clientHeight can answer this: the screen is min-height:100vh with an auto height,
+       so BOTH are clamped to the 100vh box while the column is shorter than it, and both
+       grow WITH the column when it is taller. The bottom of the last thing in the column
+       is the only honest measure, and the padding under it is part of what has to fit. */
+    const pad = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+    const over = hist.getBoundingClientRect().bottom + (window.scrollY || 0) + pad - window.innerHeight;
+    if (over > 2) {
+      if (histShown > NP_HIST_MIN) setHistShown(histShown - 1);
+      return;
+    }
+    if (histShown >= NP_HIST_KEEP) return;
+    const row = el.querySelector('.np-history-row');
+    if (row && -over >= row.getBoundingClientRect().height + 8) setHistShown(histShown + 1);
+  });
+  useEffect(() => {
+    const reset = () => setHistShown(NP_HIST_KEEP);
+    window.addEventListener('resize', reset);
+    return () => window.removeEventListener('resize', reset);
+  }, []);
+  useEffect(() => () => clearTimeout(blockT.current), []);
   useEffect(() => {
     Voice.say("Build any sentence you like, then tap the check mark!");
   }, []);
@@ -13706,7 +14093,10 @@ function NumberPlayGame({
       opId: kind === 'op' ? id : null,
       sx: e.clientX,
       sy: e.clientY,
-      moved: false
+      moved: false,
+      t0: Date.now(),
+      pan: false,
+      sl: 0
     };
   }, []);
   const onMove = useCallback(e => {
@@ -13715,7 +14105,18 @@ function NumberPlayGame({
     if (!g.moved) {
       if (Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 6) return;
       g.moved = true;
-      if (g.source === 'board') setDrag({
+      /* THE ONE AMBIGUOUS GESTURE IN THIS MODE. Every tile sets touch-action:none so
+         that pointer-drag works on iPad at all, which means a finger on a tile can
+         never be a native scroll -- and once the sentence is wider than the screen the
+         rail is wall-to-wall tiles with almost no background left to pan on. So the
+         gesture decides for itself: a FLICK (threshold crossed inside NP_FLICK_MS)
+         pans, anything slower picks the digit up. Only consulted when the rail really
+         does overflow, so a sentence that fits behaves exactly as it always did. */
+      const rail = railRef.current;
+      if (g.source === 'board' && rail && rail.scrollWidth > rail.clientWidth + 4 && Date.now() - g.t0 < NP_FLICK_MS) {
+        g.pan = true;
+        g.sl = rail.scrollLeft;
+      } else if (g.source === 'board') setDrag({
         kind: g.kind,
         value: g.value,
         source: 'board',
@@ -13725,6 +14126,11 @@ function NumberPlayGame({
         y: e.clientY,
         over: null
       });
+    }
+    if (g.pan) {
+      const rail = railRef.current;
+      if (rail) rail.scrollLeft = g.sl - (e.clientX - g.sx);
+      return;
     }
     const d = dragRef.current;
     if (d) {
@@ -13742,17 +14148,51 @@ function NumberPlayGame({
     mascot.oops();
     Voice.say("Just one! Equals, less than, or greater than.");
   }, [muted, mascot]);
+  /* Reaching a ceiling is not an error and not a wrong answer, so it is not dressed as
+     one: nothing is added, nothing already on the rail changes, the box that could not
+     take the digit flashes, and the robot explains itself -- once. */
+  const refuse = useCallback((why, numId) => {
+    Sound.setMuted(muted);
+    Sound.wrong();
+    mascot.oops();
+    setBlocked(numId || null);
+    clearTimeout(blockT.current);
+    blockT.current = setTimeout(() => setBlocked(null), 460);
+    if (limitSaidRef.current) return;
+    limitSaidRef.current = true;
+    Voice.say(num(why === 'board' ? NP_LIMIT_BOARD : NP_LIMIT_NUMBER));
+  }, [muted, mascot]);
+  const activeId = useCallback(() => {
+    const t = tokensRef.current[tokensRef.current.length - 1];
+    return t && t.type === 'number' ? t.id : null;
+  }, []);
   const onUp = useCallback(e => {
     const g = gestureRef.current;
     if (!g || e.pointerId !== g.id) return;
     gestureRef.current = null;
     const d = dragRef.current;
     setDrag(null);
+    /* A pan moved the view, not the sentence: no tap, no drop, nothing to undo. */
+    if (g.pan) {
+      syncEnds();
+      return;
+    }
     /* ── TAP (fast construction) ── */
     if (!g.moved || !d) {
       if (g.source === 'tray') {
         if (g.kind === 'digit') {
+          const why = npDigitRefusal(tokensRef.current, null);
+          if (why) {
+            refuse(why, activeId());
+            return;
+          }
           act(npAddDigit(tokensRef.current, g.value, mkId));
+          return;
+        }
+        /* The per-number ceiling deliberately leaves operators working -- that is how
+           the child carries on with a second number. Only a full BOARD stops one. */
+        if (npOperatorRefusal(tokensRef.current)) {
+          refuse('board', activeId());
           return;
         }
         if (npIsRelation(g.value) && npRelationCount(tokensRef.current) > 0) {
@@ -13770,12 +14210,30 @@ function NumberPlayGame({
     /* ── DROP ── */
     const over = d.over;
     if (g.kind === 'digit') {
-      if (over && over.numId) act(g.source === 'tray' ? npInsertDigit(tokensRef.current, over.numId, over.index, g.value, mkId) : npMoveDigit(tokensRef.current, g.digitId, over.numId, over.index));else if (over === 'trash' && g.source === 'board') act(npRemoveDigit(tokensRef.current, g.digitId));else {
+      if (over && over.numId) {
+        const next = g.source === 'tray' ? npInsertDigit(tokensRef.current, over.numId, over.index, g.value, mkId) : npMoveDigit(tokensRef.current, g.digitId, over.numId, over.index);
+        /* A stamp is refused by whichever ceiling the container has reached; a MOVE can
+           only ever be refused by the destination being full, since moving changes no
+           total. Either way the sentence is untouched and the box says which one. */
+        if (!next) {
+          const why = g.source === 'tray' ? npDigitRefusal(tokensRef.current, over.numId) : 'number';
+          if (why) refuse(why, over.numId);else {
+            Sound.setMuted(muted);
+            Sound.wrong();
+          }
+          return;
+        }
+        act(next);
+      } else if (over === 'trash' && g.source === 'board') act(npRemoveDigit(tokensRef.current, g.digitId));else {
         Sound.setMuted(muted);
         Sound.wrong();
       } /* gentle bounce-back */
     } else {
       if (g.source === 'tray' && over && over.append) {
+        if (npOperatorRefusal(tokensRef.current)) {
+          refuse('board', activeId());
+          return;
+        }
         if (npIsRelation(g.value) && npRelationCount(tokensRef.current) > 0) {
           relationRefused();
           return;
@@ -13788,7 +14246,7 @@ function NumberPlayGame({
         Sound.wrong();
       }
     }
-  }, [act, mkId, muted, mascot, relationRefused, setDrag]);
+  }, [act, mkId, muted, mascot, relationRefused, setDrag, refuse, activeId, syncEnds]);
   const onCancel = useCallback(e => {
     const g = gestureRef.current;
     if (g && e.pointerId === g.id) {
@@ -13810,6 +14268,19 @@ function NumberPlayGame({
   const restore = useCallback(entry => {
     act(npFreshIds(entry.tokens, mkId));
   }, [act, mkId]);
+  /* Replay one kept sentence -- the owner's 2026-09-10 backlog, item 2.4, which the
+     2026-09-13 rewrite of that brief lost. Words come from the stored TOKENS and go
+     through num(), so it is the ship's computer reading a value out: the same voice, the
+     same pipeline and therefore the same pronunciation as the readout a true check
+     earns. Never the row's text -- that is the compact form ("12 + 3 = 15"), and reading
+     what is on the screen rather than what is in the data is the exact defect this whole
+     brief exists to kill. np1 is not in Clips's VOICED set, so this resolves to no clip
+     and costs no paid render. */
+  const sayEntry = useCallback(entry => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    Voice.say(num(npSentenceWords(entry.tokens) + '.'));
+  }, [muted]);
   /* ── Check: the only place judgement happens ── */
   const doCheck = useCallback(() => {
     Sound.setMuted(muted);
@@ -13829,6 +14300,16 @@ function NumberPlayGame({
       Voice.say("We can't share by zero. Try another number!");
       return;
     }
+    /* Individually legal numbers can still multiply their way out of the range this
+       evaluator is exact in. The one thing that must never happen is an answer given
+       confidently and wrongly, so nothing is claimed: no true, no false, no tick. */
+    if (v.status === 'toobig') {
+      Sound.wrong();
+      mascot.oops();
+      setFeedback('big');
+      Voice.say(num(NP_LIMIT_RESULT));
+      return;
+    }
     const text = npStatementText(tokensRef.current);
     const words = npSentenceWords(tokensRef.current);
     if (v.truth) {
@@ -13846,7 +14327,7 @@ function NumberPlayGame({
         const nh = [{
           text,
           tokens: npClone(tokensRef.current)
-        }, ...history].slice(0, 3);
+        }, ...history].slice(0, NP_HIST_KEEP);
         setHistory(nh);
         try {
           localStorage.setItem(NP_HIST_KEY, JSON.stringify(nh));
@@ -13873,6 +14354,7 @@ function NumberPlayGame({
     style: {
       '--game-bg': `url('${journeyBg}')`
     },
+    ref: screenRef,
     onPointerMove: onMove,
     onPointerUp: onUp,
     onPointerCancel: onCancel
@@ -13915,14 +14397,22 @@ function NumberPlayGame({
     onClick: doCheck,
     "aria-label": "Check"
   }, "\u2713 Check")), /*#__PURE__*/React.createElement("div", {
+    className: "np-rail-outer"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: `np-nudge ${ends.left ? '' : 'np-nudge-off'}`,
+    onClick: () => nudge(-1),
+    "aria-label": "See the start of your sentence",
+    "aria-hidden": !ends.left
+  }, "\u2039"), /*#__PURE__*/React.createElement("div", {
     className: "np-rail-wrap",
-    ref: railRef
+    ref: railRef,
+    onScroll: syncEnds
   }, /*#__PURE__*/React.createElement("div", {
     className: "np-rail"
   }, tokens.map((t, ti) => t.type === 'number' ? /*#__PURE__*/React.createElement("div", {
     key: t.id,
     "data-np-num": t.id,
-    className: `np-num ${ti === tokens.length - 1 ? 'np-active' : ''} ${overNum && overNum.numId === t.id ? 'np-over' : ''}`
+    className: `np-num ${ti === tokens.length - 1 ? 'np-active' : ''} ${overNum && overNum.numId === t.id ? 'np-over' : ''} ${blocked === t.id ? 'np-blocked' : ''}`
   }, t.digits.map((d, di) => /*#__PURE__*/React.createElement(React.Fragment, {
     key: d.id
   }, caretAt(t.id, di) && /*#__PURE__*/React.createElement("span", {
@@ -13936,13 +14426,21 @@ function NumberPlayGame({
     className: "np-caret"
   }), t.digits.length === 0 && /*#__PURE__*/React.createElement("span", {
     className: "np-hole"
-  }, "?")) : /*#__PURE__*/React.createElement("button", {
+  }, "?"), t.digits.length >= NP_MAX_DIGITS && /*#__PURE__*/React.createElement("span", {
+    className: "np-cap",
+    "aria-hidden": "true"
+  })) : /*#__PURE__*/React.createElement("button", {
     key: t.id,
     "data-np-op": t.id,
     className: `np-tile np-op ${drag && drag.opId === t.id ? 'np-lifted' : ''} ${swapTarget === t.id ? 'np-swap-target' : ''}`,
     onPointerDown: e => beginBoard(e, 'op', t.value, t.id),
     "aria-label": t.value
-  }, t.value)))), feedback && /*#__PURE__*/React.createElement("div", {
+  }, t.value)))), /*#__PURE__*/React.createElement("button", {
+    className: `np-nudge ${ends.right ? '' : 'np-nudge-off'}`,
+    onClick: () => nudge(1),
+    "aria-label": "See the end of your sentence",
+    "aria-hidden": !ends.right
+  }, "\u203A")), feedback && /*#__PURE__*/React.createElement("div", {
     className: `np-feedback np-fb-${feedback === 'true' ? 'true' : feedback === 'false' ? 'false' : 'hmm'}`
   }, NP_FEEDBACK[feedback]), /*#__PURE__*/React.createElement("div", {
     className: "np-trays"
@@ -13974,16 +14472,28 @@ function NumberPlayGame({
     className: "np-history-label"
   }, "My true sentences"), history.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "np-history-empty"
-  }, "Tap numbers and math signs to build one!") : history.map(h => /*#__PURE__*/React.createElement("button", {
+  }, "Tap numbers and math signs to build one!") : history.slice(0, histShown).map(h =>
+  /*#__PURE__*/
+  /* TWO TARGETS, SIDE BY SIDE, never nested -- a button inside a button is not
+     a thing a browser will give you, and the restore tap a child already knows
+     must keep every pixel it had. So the pill stays the pill and the speaker
+     sits beside it, outside. */
+  React.createElement("div", {
     key: h.text,
-    className: "np-history-row",
+    className: "np-history-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "np-history-say",
+    onClick: () => sayEntry(h),
+    "aria-label": `Hear ${h.text}`
+  }, /*#__PURE__*/React.createElement(SpeakerOnIcon, null)), /*#__PURE__*/React.createElement("button", {
+    className: "np-history-restore",
     onClick: () => restore(h),
     "aria-label": `Restore ${h.text}`
   }, /*#__PURE__*/React.createElement("span", {
     className: "np-history-text"
   }, h.text), /*#__PURE__*/React.createElement("span", {
     className: "np-history-tick"
-  }, "\u2705")))), drag && /*#__PURE__*/React.createElement("div", {
+  }, "\u2705"))))), drag && /*#__PURE__*/React.createElement("div", {
     className: `np-ghost ${drag.kind === 'op' ? 'np-ghost-op' : ''}`,
     style: {
       left: drag.x,

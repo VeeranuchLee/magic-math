@@ -249,7 +249,22 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        and the top bar's .back-btn and .sound-btn measured 54x42 / 52x39 -- under the 48px
 //        floor. Every ribbon chip already measured 48x48 in both skins.
 //        No narration line was added, removed or re-worded, so nothing new needed a render.
-const CACHE_NAME = "magic-math-v39";
+//
+// v40 -- 2026-09-13, two owner-requested changes, published on the owner's "yes".
+//        Number Toys (#513): measured ceilings for long sentences, a scrolling rail a child
+//        can walk with the chevrons (rapid taps queue instead of being eaten), history that
+//        fits at 768px and grows back, and a speaker on every kept sentence that reads the
+//        stored tokens in the robot voice. Count By and Which is Bigger? (#517): Count By's
+//        eleven chips become a 2..30 slider with step buttons and a live printed value, the
+//        strip filling the row so each number gets ~14px of travel; equal pairs drop from one
+//        in four to ~15% (a .15/.85 coin behind a no-two-in-a-row gate, which also holds
+//        across a rung change). No narration line was added or re-worded: Count By 13..30
+//        chants were already rendered, and the history speaker uses the robot voice.
+//        Classical Music: Twinkle Twinkle Little Star is credited "Traditional · 1761", not
+//        "Mozart (variations) · 1781" (owner, 2026-09-13). The tune is a French melody first
+//        printed in 1761; Mozart's twelve variations on it (K.265, 1781-82) are a separate piece,
+//        which the card's own history text still explains.
+const CACHE_NAME = "magic-math-v40";
 
 const SHELL = [
   "./",
