@@ -159,7 +159,22 @@
     .screen>*:not(.screen-bg):not(.bg-deco):not(.confetti-container):not(.mascot-corner):not(.tc-panel){position:relative;z-index:1}
 
     /* ── TOP BAR ── */
-    .top-bar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
+    /* ONE ROW, NOT TWO (2026-09-13). The settings gear that filled this bar's middle
+       slot is gone (see TopBar in the script), which left a back button at one end and
+       sound at the other with nothing between — a 48px row plus the screen gap spent on
+       air, while the score chips sat in a second row of their own right below. The
+       chips moved up: back, score, journey, trophy, sound. Measured in Chrome at
+       768 x 1024 the row is 52px tall (the journey track is the tall one), its children
+       total 645px of the 740px max-width, and scrollHeight went 1054 -> 1024 against
+       innerHeight 1024 — the overflow the second row was costing. Do not give the chips
+       their own row back: the middle slot they fill is empty for a reason, and a second
+       row has no other content to carry.
+       Wrapping is the safety valve, not a second row: the chips are sized for the
+       740px max-width, and a viewport narrower than their minimum folds the tail of
+       the row to a new line rather than clip the sound button off-screen — no chip
+       may disappear, and no target may shrink. At the widths this app is measured
+       at, one line always fits and nothing wraps. */
+    .top-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;width:100%;max-width:740px;gap:8px;position:relative;z-index:2}
     /* 48px MINIMUM HEIGHT, measured rather than assumed (2026-09-12). Both of these
        were sized by padding + line-height alone, which at 768px came out 54 x 42 for the
        back arrow and 52 x 42 for sound on space, and 52 x 39 for the back arrow on
@@ -171,6 +186,7 @@
     .back-btn:active{transform:translateY(3px)}
     .music-btn{position:fixed;top:14px;right:14px;z-index:9}
     .hub-btn{position:fixed;top:14px;left:14px;z-index:9;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+    .music-btn.music-off{opacity:.45;filter:grayscale(1)}
     .sound-btn,.music-btn{min-height:48px;background:linear-gradient(135deg,#fff,#ecebff);border:2.5px solid #ab97f5;border-radius:50px;padding:8px 13px;font-family:inherit;font-size:1.1rem;font-weight:900;color:#5a2ed6;cursor:pointer;box-shadow:0 4px 0 #ab97f5;transition:transform .1s;line-height:1;min-width:48px}
     .sound-btn:active,.music-btn:active{transform:translateY(3px)}
 
@@ -322,11 +338,48 @@
        .pb-one art the child already counts in What Number?, deliberately: at the
        easy end this game is "compare two of the thing you already know", not a
        new set of pictures to learn. */
+    /* ── THE TWO REPRESENTATION SELECTORS (2026-09-14 redesign) ──
+       One row for LEFT and one for RIGHT, eight glyph chips each in the shared
+       vocabulary's order, one chip lit per row. Each row begins with a fixed tab —
+       Left / Right, part of the strip but not a button — and the rows sit directly
+       above the comparison they govern; the tab, the order and the proximity are the
+       three things that tie a row to its side. The chips are the standard .fm-strip
+       and .fm-btn, so the rows read as the same control as every other ribbon in the
+       app.
+       THE SECOND ROW COSTS ABOUT 64px, and the budget for it is honest: the old range
+       ribbon is gone outright (its row became one of the two), the tap-hint joined
+       the title's sub-line, the panels came down 118 → 96, and the answer keys' cap
+       104 → 92 with their 78px floor untouched (REPRESENTATION-SPEC §8). */
+    .cmp-selector{display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;z-index:1;width:100%}
+    .cmp-repr-row{position:relative;max-width:100%}
+    .cmp-repr-strip{margin:0;padding-left:5px}
+    .cmp-repr-tab{flex:0 0 auto;min-width:36px;height:48px;display:flex;align-items:center;justify-content:center;padding:0 7px;border-radius:10px;background:linear-gradient(160deg,#fff,#e8f0ff);border:2px solid #c4d7fd;color:#5a2ed6;font-size:.66rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase}
+    .cmp-repr-chip{font-size:1.35rem;font-weight:900;line-height:1}
+    /* Height ran out: the compact treatment takes the chips to 44px — the floor the
+       Count By slider decision set — the gaps to 6px, and the panels give a little
+       more back. */
+    @media (max-height:740px){
+      .cmp-selector{gap:4px}
+      .cmp-repr-strip{gap:6px;padding:4px 5px}
+      .cmp-repr-tab{height:44px}
+      .cmp-repr-strip .fm-btn{min-width:44px;height:44px}
+      .cmp-side{min-height:84px}
+    }
+    /* Below roughly 560px a row may scroll horizontally — the owner's explicit
+       permission of 2026-09-14, the one place the 2026-09-12 no-scroll rule is lifted,
+       and for these rows only. The fade at the right edge is the cue that more is
+       there, and the row component centres the selected chip on every pick so the
+       scroll never hides it. */
+    .cmp-repr-fade{display:none}
+    @media (max-width:560px){
+      .cmp-repr-strip{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      .cmp-repr-fade{display:block;position:absolute;top:5px;bottom:5px;right:5px;width:16px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.92));pointer-events:none}
+    }
     /* stretch, so the two panels are always the same height even when one pile of
        blocks wraps onto an extra row. The blocks are what should say "this side has
        more" — a taller box saying it as well is chrome doing the teaching. */
     .cmp-row{display:flex;align-items:stretch;justify-content:center;gap:clamp(6px,2.5vw,18px);width:100%;max-width:740px;position:relative;z-index:1}
-    .cmp-side{flex:1;min-width:0;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:22px;padding:12px 8px;box-shadow:0 5px 18px rgba(90,46,214,.1);transition:transform .2s,border-color .2s,box-shadow .2s}
+    .cmp-side{flex:1;min-width:0;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:22px;padding:12px 8px;box-shadow:0 5px 18px rgba(90,46,214,.1);transition:transform .2s,border-color .2s,box-shadow .2s}
     /* The winning side lifts and glows. On an equals the class goes on BOTH sides,
        so "the same" is shown as sameness rather than as neither side winning. */
     .cmp-side.chosen{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.22),0 8px 22px rgba(47,109,246,.25);transform:translateY(-4px)}
@@ -365,6 +418,14 @@
     .cmp-blocks .count-block.still:active{transform:none}
     .cmp-num{font-size:clamp(1.9rem,9vw,3.4rem);font-weight:900;color:#5a2ed6;line-height:1}
     .cmp-num.small{font-size:clamp(1.1rem,4.5vw,1.6rem);color:#1f54d6}
+    /* An expression side shows its two terms and the operator, never the result — the
+       result is the question. A fraction side is the fw stack scaled up to panel size,
+       with the numerator in the taken colour and the denominator in the empty one,
+       which is the idiom the fraction wall taught. */
+    .cmp-expr{font-size:clamp(1.7rem,7.5vw,2.7rem);font-weight:900;color:#5a2ed6;line-height:1;white-space:nowrap}
+    .cmp-expr .cmp-op{color:#2f6df6;margin:0 .16em}
+    .cmp-side .fw-top,.cmp-side .fw-bot{font-size:clamp(1.5rem,6.5vw,2.3rem);font-weight:900;line-height:1.05}
+    .cmp-side .fw-rule{width:clamp(2.6rem,12vw,4.2rem);height:4px;min-height:4px;margin:5px 0;border-radius:3px}
     /* The empty slot is the same dashed box as the carry box in Carry Add: in this
        app a dashed outline always means "you put something here". */
     .cmp-slot{flex:0 0 auto;align-self:center;width:clamp(58px,17vw,86px);height:clamp(58px,17vw,86px);display:flex;align-items:center;justify-content:center;border-radius:20px;border:3px dashed #93b7fb;background:rgba(255,255,255,.55);color:#2f6df6}
@@ -379,7 +440,9 @@
     @keyframes cmpBite{0%,100%{transform:scaleY(1)}45%{transform:scaleY(.28)}70%{transform:scaleY(1.08)}}
     @keyframes cmpNod{0%,100%{transform:translateY(0)}40%{transform:translateY(5px) scaleY(.9)}}
     .cmp-keys{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;position:relative;z-index:1}
-    .cmp-key{width:clamp(78px,23vw,104px);height:clamp(78px,23vw,104px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px 5px;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
+    /* The keys' cap came down 104 → 92 to pay for the second selector row (§8); the
+       78px floor is not touched. */
+    .cmp-key{width:clamp(78px,23vw,92px);height:clamp(78px,23vw,92px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px 5px;border-radius:24px;border:3px solid #93b7fb;background:linear-gradient(160deg,#fff,#e8f0ff);color:#2f6df6;font-family:inherit;cursor:pointer;box-shadow:0 5px 0 #93b7fb;transition:transform .1s}
     .cmp-key:active{transform:translateY(4px);box-shadow:0 1px 0 #93b7fb}
     .cmp-key .cmp-mouth-svg{width:clamp(40px,12vw,54px);height:clamp(30px,9vw,40px)}
     /* The real notation, printed under the picture. The mouth is how a pre-reader
@@ -389,7 +452,7 @@
     .cmp-key.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .cmp-key.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
     @media (max-width:430px){
-      .cmp-side{min-height:100px;padding:10px 4px}
+      .cmp-side{min-height:84px;padding:10px 4px}
       .cmp-blocks{gap:0 6px}
     }
     /* A phone is not the target device — the owner's children play on 9.7 inches and up
@@ -641,9 +704,9 @@
        number of groups (see nineTiles): a tile sized for three would put twenty-five of
        them off the bottom of a screen that does not scroll, and a tile sized for
        twenty-five makes the cell that leaves four pixels across at three. */
-    .nm-g100{display:grid;grid-template-columns:repeat(var(--nm-cols,7),var(--nm-tile,82px));
+    .nm-g100{display:grid;grid-template-columns:repeat(var(--nm-cols,7),var(--nm-tile,88px));
       gap:clamp(6px,1.4vw,10px);max-width:none}
-    .nm-hundred{position:relative;display:block;width:var(--nm-tile,82px);height:var(--nm-tile,82px);
+    .nm-hundred{position:relative;display:block;width:var(--nm-tile,88px);height:var(--nm-tile,88px);
       border-radius:8px;border:2px solid #5a2ed6;background-color:rgba(255,255,255,.88);
       background-image:linear-gradient(to right,#93b7fb 1px,transparent 1px),linear-gradient(to bottom,#93b7fb 1px,transparent 1px);
       background-size:10% 10%}
@@ -651,7 +714,7 @@
        on a pale blue mesh is not something a seven-year-old finds. It is not made bigger
        — it is one hundredth and has to stay one hundredth — it is made FINDABLE: a white
        halo and a ring around it, which is about twenty pixels of target on an
-       eighty-two pixel tile and reads as a mark ON the square rather than as part of
+       eighty-eight pixel tile and reads as a mark ON the square rather than as part of
        its grid. Set in from the corner by one cell so the ring sits inside the tile; the
        first version put it at 0,0 and the ring hung off the corner as a stray dashed arc.
        Emptying the centre and greying the ring is then what "it left" looks like. */
@@ -742,8 +805,8 @@
     @media (max-height:700px){
       .nm-screen .count-title,.mk-screen .count-title{padding:5px 14px}
       .nm-finger{height:clamp(78px,14vw,96px)}
-      .nm-g100{grid-template-columns:repeat(var(--nm-cols,7),calc(var(--nm-tile,82px) * .74))}
-      .nm-hundred{width:calc(var(--nm-tile,82px) * .74);height:calc(var(--nm-tile,82px) * .74)}
+      .nm-g100{grid-template-columns:repeat(var(--nm-cols,7),calc(var(--nm-tile,88px) * .74))}
+      .nm-hundred{width:calc(var(--nm-tile,88px) * .74);height:calc(var(--nm-tile,88px) * .74)}
       .mk-cols-10{grid-template-columns:repeat(10,clamp(18px,3.6vw,24px))}
       .mk-cols-10 .mk-seat{height:clamp(18px,3.6vw,24px)}
     }
@@ -861,8 +924,20 @@
        does not scroll at all, which is the state the ribbon interrupted. The tighter gap
        is unconditional so the iPad tier gets it; @media (max-height:740px) still takes it
        to 5px below, and that rule is further down so it still wins there. */
+    /* THE SECOND ROW LEFT (2026-09-13), and the block takes the 54px back. ScoreRow
+       merged into TopBar, so this screen lost the row plus one screen gap: 48 + 6 = 54
+       in space, and 54 in unicorn too — its row was 42px taller (90) but its merged bar
+       grew by the same 42 (52 -> 94), so both skins have the same room and one number
+       still serves the taller one. 758 - 54 = 704, plus the same 2px the 760 carried
+       over its measurement: 706. At 768 x 1024, the case this is computed for, a cell is
+       (1024 - 706)/10 = 31.8 and the block 10x31.8 + 81 + 22 = 421, against chrome 577
+       + 24 bottom padding = 1022 — two pixels under the fold, the same margin the 760
+       ran with. Derived from the 2026-09-12 measurement minus the merge, not re-measured.
+       The gap STAYS 6px on purpose: all 54px go to the teaching object, and re-widening
+       to the designed 11px would hand the recovered room to air and cost the block about
+       2px of cell for every gap widened. The phone tier's 5px does not move either. */
     .hbk-screen{gap:6px}
-    .hbk-model{--hbk-cell:clamp(14px,min(5.2vw,(100vh - 760px)/10),42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+    .hbk-model{--hbk-cell:clamp(14px,min(5.2vw,(100vh - 706px)/10),42px);--hbk-gap:clamp(2px,.5vw,3px);--hbk-rowgap:clamp(5px,1.3vw,9px);display:flex;align-items:center;gap:clamp(5px,1.2vw,12px);background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
     /* THE ROW GAP IS BIGGER THAN THE COLUMN GAP, and that is the whole difference
        between a hundred block and a hundred squares. Each row reads as one strip of
        ten — the same object as the tens rods in the counting games — while ten of
@@ -1387,8 +1462,16 @@
     .cb-arrow{flex:0 0 auto;color:#5a2ed6;font-weight:900;opacity:.5}
     /* Height is budgeted against the viewport, not guessed: everything else on this
        screen (bars, title, chain, keypad) plus the corner mascot's fixed footprint
-       costs ~620px, and the keypad must stay clear of the mascot on a phone. */
-    .cb-ladder{display:flex;flex-direction:column;gap:6px;width:100%;max-height:clamp(140px,calc(100vh - 620px),290px);overflow-y:auto;padding:2px}
+       costs ~620px, and the keypad must stay clear of the mascot on a phone.
+       2026-09-13: the "bars" are one row shorter — ScoreRow merged into TopBar, which
+       took 48px of row plus its 11px screen gap off this screen in space, and the same
+       59 in unicorn (its row was 42px taller, its merged bar grew by that 42) — so the
+       fixed cost is ~561 and the constant follows it, computed for 768 x 1024. There
+       the 290px cap still governs and nothing changes; the calc term is what spends
+       the viewport, on the heights between 140+561 and 290+561 — a 701-851px band
+       that includes the 768px-tall landscape iPad, whose ladder grows 148 -> 207.
+       Derived from the old constant minus the merge, not re-measured. */
+    .cb-ladder{display:flex;flex-direction:column;gap:6px;width:100%;max-height:clamp(140px,calc(100vh - 561px),290px);overflow-y:auto;padding:2px}
     .cb-rung{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:5px 12px;border-radius:14px;border:2.5px solid #c4d7fd;background:#fff;overflow:hidden}
     .cb-rung::before{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--fill,0%);background:linear-gradient(90deg,rgba(147,183,251,.5),rgba(47,109,246,.2));transition:width .35s ease}
     .cb-rung>*{position:relative;z-index:1}
@@ -1590,7 +1673,10 @@
     .fw-row{display:grid;grid-template-columns:76px 1fr 88px;align-items:center;gap:9px}
     .fw-name{font-size:.68rem;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#2f6df6;opacity:.65;text-align:right}
     .fw-row.full .fw-name{opacity:1;color:#5a2ed6}
-    .fw-bar{display:grid;grid-template-columns:repeat(var(--d),1fr);gap:3px;height:40px}
+    /* --bh is set on the wall by its JS once any row grows past one whole: more bar-lines
+       means thinner bars, so the wall still fits a 1024px screen without scrolling. 40px
+       is the below-one height and the fallback. */
+    .fw-bar{display:grid;grid-template-columns:repeat(var(--d),1fr);gap:3px;height:var(--bh,40px)}
     .fw-piece{border:2px solid #93b7fb;border-radius:7px;background:#e8f0ff;cursor:pointer;padding:0;font-family:inherit}
     .fw-piece:active{transform:scale(.94)}
     .fw-piece.on{background:linear-gradient(160deg,#2f6df6,#5a2ed6);border-color:#5a2ed6;animation:correctPop .3s ease}
@@ -1603,7 +1689,10 @@
     .fw-rule{width:19px;height:2px;background:#93b7fb;margin:2px 0;border-radius:2px}
     .fw-bot{font-size:1.05rem;color:#93b7fb}
     .fw-one{font-size:1.2rem;color:#2f6df6}
-    .fw-eq{font-size:.92rem;color:#5a2ed6}
+    /* Inline-flex because the equivalence can carry a miniature stacked fraction after
+       the whole number ("= 1 3/4"), and the two must sit on one line, smaller than the
+       main notation either way. */
+    .fw-eq{display:inline-flex;align-items:center;gap:3px;font-size:.92rem;color:#5a2ed6}
     .gp-piece{width:13px;height:16px;border-radius:3px;border:1.5px solid #93b7fb;background:#e8f0ff}
     .gp-piece.on{background:linear-gradient(160deg,#2f6df6,#5a2ed6);border-color:#5a2ed6}
 
@@ -1703,7 +1792,9 @@
       transition:left .3s cubic-bezier(.34,1.56,.64,1);filter:drop-shadow(0 2px 4px rgba(20,30,90,.35))}
     .fl-track-head{height:22px}
     .fl-track-head::before{display:none}
-    .fl-zero,.fl-one{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:1rem;
+    /* .fl-mid is a whole-number mark between the ends, printed only on a track stretched
+       past 1 for fractions above one; its position depends on the span, so it is inline. */
+    .fl-zero,.fl-one,.fl-mid{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:1rem;
       font-weight:900;color:#2f6df6}
     .fl-zero{left:0}
     .fl-one{left:100%}
@@ -1753,8 +1844,53 @@
     .fs-obj:active img{transform:scale(.9)}
     .fs-cell.full .fs-tray{border-style:solid;border-color:#5a2ed6}
 
-    /* ── SCORE ROW: SPACE JOURNEY TRACK ── */
-    .score-row{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:740px;gap:10px;position:relative;z-index:1}
+    /* ── FRACTIONS ABOVE ONE (f1), the layout the owner's 2026-09-14 range asks for ──
+       Numerators now run to (3d-1)/d -- just under three wholes -- and four rules keep
+       that on the same 768 x 1024 iPad portrait the wall was sized for, without
+       scrolling, clipping or a smaller below-one experience:
+
+       1. PIE, GRID and GROUP cells carry their extra shapes SIDE BY SIDE in one row, so a
+          second circle is another whole thing lying next to the first, never a redraw of
+          the same thing at a new size. Each shape flexes to its share of the cell and is
+          capped at the 132px single-shape size, so nothing above one is ever drawn LARGER
+          than a whole below one.
+       2. While any row is past one, those grids drop from auto-fit (5 columns at 768px,
+          131px cells) to a fixed 3 (225px cells). Five columns would give a third shape
+          41px -- too small to keep twelfth partitions or partition lines readable. Three
+          across give 71px: no bigger than the grid model's own twelfth cells, and the
+          price of the owner's "maximum about 3 shapes across". The reflow exists only
+          while some row is above one; a wall that stays below one keeps today's columns.
+       3. BAR rows stack extra bars UNDER the first instead of splitting the row sideways,
+          because the wall's lesson is equal LENGTH down a column: a quarters bar cut to a
+          third of its width would teach that quarters are small because their whole is
+          small. The stack is paid for with --bh on .fw-bar above.
+       4. A COMPLETE whole keeps the colour a completed single shape already wears, so
+          "this one is finished, this one is not" stays legible at three across -- the
+          owner's own acceptance line.
+
+       The mixed-number reveal is a miniature of the main notation inside the equivalence
+       line: whole number at the line's own size, remainder a step smaller again, so
+       "7/4 = 1 3/4" reads as one aside that is visibly not the thing the child reads
+       first. */
+    .fp-grid.over{grid-template-columns:repeat(3,1fr)}
+    .fp-pies,.fq-cells,.fs-cells{display:flex;justify-content:center;gap:6px;width:100%}
+    .fp-pies .fp-pie,.fq-cells .fq-box,.fs-cells .fs-tray{flex:1 1 0;min-width:0;width:auto;
+      max-width:132px}
+    .fp-pie.full-shape .fp-piece.on{fill:#5a2ed6}
+    .fq-box.full-shape .fq-piece.on{background:#5a2ed6}
+    .fs-tray.full-shape{border-style:solid;border-color:#5a2ed6}
+    .fw-bars{display:flex;flex-direction:column;gap:3px;width:100%}
+    .fw-mix{display:inline-flex;flex-direction:column;align-items:center;line-height:1}
+    .fw-mtop{font-size:.68rem;color:#5a2ed6}
+    .fw-mbot{font-size:.68rem;color:#93b7fb}
+    .fw-mrule{width:12px;height:1.5px;background:#93b7fb;border-radius:2px;margin:1px 0}
+
+    /* ── SCORE CHIPS: SPACE JOURNEY TRACK ──
+       These chips had a row of their own (.score-row) until the settings gear left and
+       the top bar's middle slot emptied (2026-09-13). The row went, its rule went with
+       it, and .top-bar above does the laying out. The journey track is the tallest chip
+       at 52px — which is also what makes the merged bar 52px, since the 48px back and
+       sound buttons only sit in it, they do not size it. */
     .score-badge{background:linear-gradient(135deg,#fff,#e8f0ff);border:2px solid #93b7fb;border-radius:50px;padding:5px 14px;font-size:.95rem;font-weight:900;color:#2f6df6;box-shadow:0 3px 8px rgba(91,140,248,.2);white-space:nowrap;display:flex;align-items:center;gap:4px}
     .score-badge span{color:#5a2ed6}
     .score-badge img{width:20px;height:20px;object-fit:contain}
@@ -1769,7 +1905,8 @@
     @keyframes starPop{from{transform:scale(0) rotate(-12deg)}to{transform:scale(1) rotate(0)}}
     @keyframes rocketPop{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(42deg)}}
     @media (max-width:430px){
-      .score-row{gap:6px}
+      /* the merged bar inherits the phone-tier gap the second row used to carry */
+      .top-bar{gap:6px}
       .score-badge{padding:5px 10px}
       .journey-track{gap:3px;padding:5px 7px}
       .journey-node{width:30px;height:30px}
@@ -3488,67 +3625,13 @@ const TEN_RUNGS = [{
   desc: '6 + ? = 10, 10 − 3 = ?'
 }];
 /* ── WHICH IS BIGGER? (g1) ──
-   The ladder runs concrete → abstract, which is the owner's decision of 2026-08-17:
-   the easy end compares two piles of blocks with no numerals on screen at all, then
-   the numeral is written beside the blocks so the two ways of saying "how many" sit
-   together, and the last rung is numerals alone.
-   `show` is the whole difference between the rungs — the comparison itself never
-   changes, only how the two quantities are written.
+   The five range rungs are gone: since 2026-09-14 the child chooses HOW EACH SIDE IS
+   WRITTEN, on the two selector rows in the screen itself, and the representations
+   carry their own magnitudes (REPRESENTATION-SPEC §3, §4.6). The rungs' presets lived
+   here from 2026-08-17 until that redesign; the ladder's principle — concrete first,
+   a numeral named only once the child has counted — survives as the opening pair and
+   the blocks rules, both decided in the g1 region below. */
 
-   The middle rungs draw hundreds and rods (owner, 2026-08-18: "I still want the 1000
-   version, my 4-year-old likes big numbers"). `places:true` marks the rungs whose
-   pairs are built place by place — see makePlaceProblem — so that the top place is
-   not always what settles the question. Before this the 100s and 1000s rungs were
-   numerals only, which meant the whole concrete half of the ladder stopped at twenty.
-
-   The last rung is deliberately kept numerals-only: it is where the scaffolding comes
-   off, and reading 855 against 736 as digits is the skill all of this is building
-   towards. It is also why the blocks rung above it stops at 999 — a thousand is ten
-   flats, which is a different lesson (it is one cube) and not one to teach by
-   accident in a row that has run out of space. */
-const COMPARE_PRESETS = [{
-  id: 'g10',
-  icon: ICON_EARTH,
-  tag: '1 – 10',
-  min: 1,
-  max: 10,
-  show: 'blocks',
-  desc: 'Count and compare'
-}, {
-  id: 'g20',
-  icon: ICON_ROCKET,
-  tag: '1 – 20',
-  min: 1,
-  max: 20,
-  show: 'both',
-  desc: 'Blocks and numbers'
-}, {
-  id: 'g100',
-  icon: ICON_MARS,
-  tag: '1 – 100',
-  min: 1,
-  max: 100,
-  show: 'both',
-  desc: 'Rods and ones',
-  places: true
-}, {
-  id: 'g999',
-  icon: ICON_JUPITER,
-  tag: '1 – 999',
-  min: 1,
-  max: 1000,
-  show: 'both',
-  desc: 'Hundreds of blocks',
-  places: true
-}, {
-  id: 'g1000',
-  icon: ICON_GALAXY,
-  tag: '1 – 1000',
-  min: 1,
-  max: 1000,
-  show: 'numbers',
-  desc: 'Numbers only'
-}];
 /* ── ODD OR EVEN? (oe1) ──
    Concrete first: the first rung is pairable objects you can count, the second adds
    the numeral beside them, the third is numerals alone with pairing available on
@@ -6977,41 +7060,10 @@ function JourneyTrack({
   }));
 }
 
-/* ══ SCORE ROW ══ */
-function ScoreRow({
-  score,
-  journey,
-  trophies = 0
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "score-row"
-  }, score != null && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "assets-runtime/space/icons/star.webp",
-    alt: "score",
-    style: {
-      width: 30,
-      height: 30,
-      objectFit: 'contain',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.3))'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "score-badge"
-  }, /*#__PURE__*/React.createElement("span", null, score))), /*#__PURE__*/React.createElement(JourneyTrack, {
-    progress: journey
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "score-badge",
-    "aria-label": `${trophies} journeys completed`
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "assets-runtime/space/icons/trophy.webp",
-    alt: "trophies"
-  }), /*#__PURE__*/React.createElement("span", null, trophies)));
-}
+/* ══ SCORE ROW ══ Gone (2026-09-13): the gear left, the top bar's middle slot
+   emptied, and these chips moved up into it — see TopBar. A whole second row, 48px
+   plus the screen gap, to hold chips that had an empty slot waiting for them was
+   what the owner meant by "the empty space on top". */
 
 /* ══ PLANET ARRIVAL (Usborne moment) ══
    One fact at a time, and a tap for another. Everything about this card is aimed at a
@@ -7141,12 +7193,24 @@ function ArrivalOverlay({
    than offering a choice. A game with a ribbon does not repeat its active rung up here;
    that is the convention x1 and y1 already had, and now every game follows it.
    (The 1200 ms press-and-hold this gear once needed went in 2026-08-14, when the owner
-   decided the child is meant to choose. The ribbon is where that decision ends up.) */
+   decided the child is meant to choose. The ribbon is where that decision ends up.)
+
+   THE SCORE ROW MOVED UP INTO THIS BAR (owner, 2026-09-13: "since we make ribbon
+   instead of setting. we should not have the empty space on top."). With the gear
+   gone, the slot between back and sound was empty and ScoreRow's second row below
+   held chips that had nowhere better to sit — so the bar is one row now: back, score,
+   journey, trophy, sound. Every chip that rendered on the second row renders here
+   under the same conditions. Do not give the chips a row of their own again: the
+   middle slot they fill is empty for a reason, and a second row would spend its
+   height on nothing. */
 function TopBar({
   onBack,
   muted,
   onToggleMute,
-  label
+  label,
+  score,
+  journey,
+  trophies = 0
 }) {
   /* Speech belongs to the screen that started it. TopBar is on every game screen and
      nowhere else, so its unmount is the one place that reliably means "the child has
@@ -7180,7 +7244,32 @@ function TopBar({
     }
   }, /*#__PURE__*/React.createElement(BackIcon, null))), label && /*#__PURE__*/React.createElement("div", {
     className: "level-chip"
-  }, label), /*#__PURE__*/React.createElement("div", {
+  }, label), journey != null && /*#__PURE__*/React.createElement(React.Fragment, null, score != null && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets-runtime/space/icons/star.webp",
+    alt: "score",
+    style: {
+      width: 30,
+      height: 30,
+      objectFit: 'contain',
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.3))'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "score-badge"
+  }, /*#__PURE__*/React.createElement("span", null, score))), /*#__PURE__*/React.createElement(JourneyTrack, {
+    progress: journey
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "score-badge",
+    "aria-label": `${trophies} journeys completed`
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets-runtime/space/icons/trophy.webp",
+    alt: "trophies"
+  }), /*#__PURE__*/React.createElement("span", null, trophies))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6
@@ -7349,8 +7438,7 @@ function BlocksGuided({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -7524,8 +7612,7 @@ function BlocksFill({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -8068,8 +8155,7 @@ function MissingGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -8279,8 +8365,7 @@ function NumberLineAddSub({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -9078,8 +9163,7 @@ function ColumnMath({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -9413,8 +9497,7 @@ function MultiplicationGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -9707,8 +9790,7 @@ function CountByGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -10307,10 +10389,13 @@ function ReadBigNumbers({
    computer says "four quarters is one whole." That is the sentence the wall exists to earn,
    and it lands at the one moment it can be felt rather than asserted.
 
-   TAPPING A FULL ROW STARTS IT AGAIN. A child who has just heard one, two, three, four
-   quarters wants to do it again, and the only thing a full row can usefully mean on the
-   next tap is "again". The alternative -- making them find Start Over to repeat one row --
-   punishes the child who liked it most.
+   A FULL ROW CONTINUES; ONLY THE CEILING STARTS IT AGAIN (owner, 2026-09-14: numerators
+   run to (3d-1)/d, just under three wholes). Tapping a piece of a completed whole adds
+   that same piece to a NEW whole beside it, so one, two, three, four, five quarters is a
+   single story the child is still inside -- the numerator is how many pieces, and the
+   pieces do not stop being quarters because a whole filled up. The "again" tap moves to
+   the top of the range: at the ceiling the row restarts from the tapped piece, which is
+   the "again" a full row has always meant, now reached three times over on the way up.
 
    THE DENOMINATORS ARE THE FRIENDLY ONES: 1, 2, 3, 4, 5, 6, 8, 10, 12. Sevenths, ninths and
    elevenths are names before they are ideas, and they buy nothing a wall can show. Twelfths
@@ -10335,13 +10420,41 @@ const PART_NAMES = {
   10: ['tenth', 'tenths'],
   12: ['twelfth', 'twelfths']
 };
-const PART_COUNT = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const PART_COUNT = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty one', 'twenty two', 'twenty three', 'twenty four', 'twenty five', 'twenty six', 'twenty seven', 'twenty eight', 'twenty nine', 'thirty', 'thirty one', 'thirty two', 'thirty three', 'thirty four', 'thirty five'];
+/* Through 35, not 31: the widest numerator any voice layer reaches. Read Fractions was
+   widened (2026-09-14) to (3d-1)/d -- just under three wholes -- and its widest draw is
+   35/12 (twelfths at the ceiling), which subsumes the compare engine's previous widest,
+   31/4. A numerator past this list would be spoken as "undefined quarters". Compounds
+   are open ("twenty one") to match threeToWords, which the same voice layer reads. */
 
 /* A whole row is "one whole", never "one whole one" -- and a full row of anything is one
-   whole too, which is the equivalence the screen is for. */
+   whole too, which is the equivalence the screen is for. But only a FULL row: a fraction
+   past its whole is said as a count of parts (owner, 2026-09-14) -- 5/4 is "five
+   quarters" -- and a whole-valued fraction is never simplified in the mouth: 4/2 is
+   "four halves", not "two", because the equal pair 4/2 = 2 only teaches anything if the
+   voice names the fraction the card shows. */
 function fractionWords(n, d) {
-  if (n >= d) return 'one whole';
+  if (n === d) return 'one whole';
   return PART_COUNT[n] + ' ' + PART_NAMES[d][n === 1 ? 0 : 1];
+}
+
+/* The ceiling: (3d-1)/d, the owner's "up to just under 3 wholes" (2026-09-14). At d = 1
+   that is 2/1 -- "three wholes" is exactly the number this range excludes, so Whole
+   deliberately tops out at two circles and the third tap is "again" (see take). Every
+   view, the voice and the readout all stop here, so no model can drift past the others. */
+const fracCap = d => 3 * d - 1;
+
+/* The supporting sentence for a fraction PAST one -- always the SECOND thing said, never
+   the first. The count of parts lands first and unsimplified ("eight quarters."), then
+   what it is worth in wholes: a whole number keeps the shape the "= 1" moment already
+   uses ("eight quarters is the same as two wholes."), a remainder gets the owner's own
+   mixed wording ("That is the same as one and three quarters."). Only called with d > 1
+   and n > d, so the plural is always right and r is never 0 on the mixed branch. */
+function overOneLines(n, d) {
+  const words = PART_COUNT[n] + ' ' + PART_NAMES[d][1],
+    w = Math.floor(n / d),
+    r = n % d;
+  return r === 0 ? [num(words + '.'), num(words + ' is the same as ' + PART_COUNT[w] + ' wholes.')] : [num(words + '.'), num('That is the same as ' + PART_COUNT[w] + ' and ' + fractionWords(r, d) + '.')];
 }
 
 /* ══ THE FIVE MODELS, AND WHY THEY ARE FIVE AND NOT ONE SKIN ══
@@ -10355,7 +10468,7 @@ function fractionWords(n, d) {
 
      pie    a share of one round thing        area, and the whole visible before any tap
      bar    a length cut into equal parts     the stack that shows twelfths are tiny
-     line   a position between 0 and 1        the fraction as a NUMBER
+     line   a position, now past 1 too        the fraction as a NUMBER
      grid   a rectangle cut two ways          area in two dimensions
      group  some of a tray of separate things a fraction of a SET, nothing divided at all
 
@@ -10427,7 +10540,15 @@ const FG_OBJECT = 'assets-runtime/space/icons/star.webp';
 
    IT SHARES THE GAME'S STATE. Same `taken`, same `onTake(d, i)` -- the view is a skin over
    one model, so switching cannot lose a piece a child has already taken, and neither view
-   needs to know the other exists. */
+   needs to know the other exists.
+
+   PAST ONE WHOLE, MORE CIRCLES -- NEVER BIGGER ONES (owner, 2026-09-14: 7/4 is one full
+   circle and a three-quarter circle, and every circle keeps the same partitions). The
+   cell draws ceil(n/d) pies side by side in one row; only the last can be partial, and
+   pieces are addressed ACROSS wholes -- piece j*d+i -- so the state stays one flat list
+   whose length is the numerator. A completed pie wears the colour a completed single pie
+   always wore, so a finished circle and a part-filled one stay easy to tell apart at
+   three across. */
 const PIE_R = 46,
   PIE_C = 50;
 function piePath(i, d) {
@@ -10448,35 +10569,48 @@ function FractionPie({
   onTake
 }) {
   const n = taken.length,
-    full = n === d;
+    w = Math.max(1, Math.ceil(n / d)),
+    full = n > 0 && n % d === 0;
   const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
   return /*#__PURE__*/React.createElement("div", {
     className: `fp-cell ${full ? 'full' : ''}`
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "fp-pie",
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fp-pies"
+  }, Array.from({
+    length: w
+  }, (_, j) => /*#__PURE__*/React.createElement("svg", {
+    key: j,
+    className: `fp-pie ${(j + 1) * d <= n ? 'full-shape' : ''}`,
     viewBox: "0 0 100 100",
     role: "group",
     "aria-label": label
   }, d === 1 ? /*#__PURE__*/React.createElement("circle", {
-    className: `fp-piece ${taken.includes(0) ? 'on' : ''}`,
+    className: `fp-piece ${taken.includes(j) ? 'on' : ''}`,
     cx: PIE_C,
     cy: PIE_C,
     r: PIE_R,
     tabIndex: 0,
     role: "button",
-    "aria-label": taken.includes(0) ? 'taken, one whole' : 'take the whole',
-    onClick: () => onTake(d, 0)
+    "aria-label": taken.includes(j) ? 'taken, one whole' : 'take the whole',
+    onClick: () => onTake(d, j)
   }) : Array.from({
     length: d
-  }, (_, i) => /*#__PURE__*/React.createElement("path", {
-    key: i,
-    className: `fp-piece ${taken.includes(i) ? 'on' : ''}`,
-    d: piePath(i, d),
-    tabIndex: 0,
-    role: "button",
-    "aria-label": taken.includes(i) ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
-    onClick: () => onTake(d, i)
-  }))), /*#__PURE__*/React.createElement("div", {
+  }, (_, i) => {
+    /* p is the piece's name ACROSS wholes: shape j's piece i. The tap carries
+       it straight through, so a tap on a completed whole can become the same
+       piece of the next whole in take(). */
+    const p = j * d + i,
+      on = taken.includes(p);
+    return /*#__PURE__*/React.createElement("path", {
+      key: i,
+      className: `fp-piece ${on ? 'on' : ''}`,
+      d: piePath(i, d),
+      tabIndex: 0,
+      role: "button",
+      "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
+      onClick: () => onTake(d, p)
+    });
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "fp-foot"
   }, /*#__PURE__*/React.createElement("span", {
     className: "fp-name"
@@ -10491,13 +10625,19 @@ function FractionRow({
   onTake
 }) {
   const n = taken.length,
-    full = n === d;
+    w = Math.max(1, Math.ceil(n / d)),
+    full = n > 0 && n % d === 0;
   const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
   return /*#__PURE__*/React.createElement("div", {
     className: `fw-row ${full ? 'full' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
     className: "fw-name"
   }, label), /*#__PURE__*/React.createElement("div", {
+    className: "fw-bars"
+  }, Array.from({
+    length: w
+  }, (_, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
     className: "fw-bar",
     style: {
       '--d': d
@@ -10505,14 +10645,15 @@ function FractionRow({
   }, Array.from({
     length: d
   }, (_, i) => {
-    const on = taken.includes(i);
+    const p = j * d + i,
+      on = taken.includes(p);
     return /*#__PURE__*/React.createElement("button", {
       key: i,
       className: `fw-piece ${on ? 'on' : ''}`,
       "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
-      onClick: () => onTake(d, i)
+      onClick: () => onTake(d, p)
     });
-  })), /*#__PURE__*/React.createElement(FractionRead, {
+  })))), /*#__PURE__*/React.createElement(FractionRead, {
     n: n,
     d: d
   }));
@@ -10522,17 +10663,26 @@ function FractionRow({
    is five places to get "3 over 4" wrong, and the rule it encodes -- NOTHING IS PRINTED
    UNTIL A PIECE IS TAKEN, so the symbol feels caused by the tap -- is the same rule in
    all five. The colours carry the explanation: numerator in the colour of a TAKEN piece,
-   denominator in the colour of an EMPTY one. */
+   denominator in the colour of an EMPTY one.
+
+   THE MAIN NOTATION IS NEVER SIMPLIFIED. Past one whole the improper fraction stays the
+   headline -- 7/4 prints 7 over 4, not 1 3/4 -- because the screen teaches reading what
+   is written. What is ADDED is an equivalence line, smaller and after: "= 1" for 4/4 as
+   today, "= 2" for 8/4, "= 1 3/4" for 7/4 with the remainder as a miniature of the main
+   notation, and nothing at all below one, where there is no whole to reveal. d = 1 shows
+   the count itself, which already IS the whole number, so it never gets a second line. */
 function FractionRead({
   n,
   d
 }) {
+  const w = Math.floor(n / d),
+    r = n % d;
   return /*#__PURE__*/React.createElement("div", {
     className: "fw-read",
     "aria-hidden": "true"
   }, n > 0 && (d === 1 ? /*#__PURE__*/React.createElement("span", {
     className: "fw-one"
-  }, "1") : /*#__PURE__*/React.createElement("span", {
+  }, n) : /*#__PURE__*/React.createElement("span", {
     className: "fw-frac"
   }, /*#__PURE__*/React.createElement("span", {
     className: "fw-top"
@@ -10540,9 +10690,19 @@ function FractionRead({
     className: "fw-rule"
   }), /*#__PURE__*/React.createElement("span", {
     className: "fw-bot"
-  }, d))), n >= d && d > 1 && /*#__PURE__*/React.createElement("span", {
+  }, d))), n >= d && d > 1 && r === 0 && /*#__PURE__*/React.createElement("span", {
     className: "fw-eq"
-  }, "= 1"));
+  }, "= ", w), n > d && r > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "fw-eq"
+  }, "= ", w, /*#__PURE__*/React.createElement("span", {
+    className: "fw-mix"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fw-mtop"
+  }, r), /*#__PURE__*/React.createElement("span", {
+    className: "fw-mrule"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fw-mbot"
+  }, d))));
 }
 
 /* ══ THE NUMBER LINE ══
@@ -10556,6 +10716,15 @@ function FractionRead({
    fractions as shaded parts will happily tell you that 3/4 is three things, then be unable
    to say where it sits between 0 and 1, or that it is bigger than a half.
 
+   ABOVE ONE, THE LINE STAYS ONE LINE. The other four models answer "more than one" with
+   more shapes; the line cannot, because 7/4 is not two positions. So the shared track
+   stretches to 2 and then 3 for every row at once, the traveller simply sits past the 1,
+   and the whole-number marks 1, 2, 3 arrive on the header as the track grows -- the
+   fraction is a number bigger than one, which is precisely the fact this model exists to
+   teach. The last stop is the ceiling, (3d-1)/d: the destination stays visible at the end
+   of the track and is never quite reached, which is the owner's "just under 3 wholes"
+   drawn rather than stated.
+
    TAPPING SETS A POSITION, IT DOES NOT COLLECT PIECES. Everywhere else on this screen a
    tap ADDS one part to what you already have. Here a tap says WHERE YOU ARE: tap the third
    stop and you are at three quarters, whether you had taken two or none. Making the line
@@ -10567,15 +10736,19 @@ function FractionRead({
    also THIS FAR. Those are the two meanings of a fraction on a line, and a child gets them
    in one picture instead of in two lessons.
 
-   NINE LINES, ALIGNED, NOT ONE. The stacked rows share the same 0 and the same 1, so
+   NINE LINES, ALIGNED, NOT ONE. The stacked rows share the same 0 and the same end, so
    1/2 and 2/4 and 3/6 land on the same vertical -- the fraction wall's lesson, arriving
-   free with the geometry. A single journey would have been prettier and would have taught
-   one fraction at a time.
+   free with the geometry. That is why the stretch past one is ONE span for the whole
+   screen and never a per-row length: a row that ended at its own fraction would break the
+   alignment the model exists for, so the honest cost -- every row's stops get closer
+   together while any row is above one -- is paid once, together, and unwinds on Start
+   Over. A single journey would have been prettier and would have taught one fraction at
+   a time.
 
-   THE STOPS TILE THE TRACK. Each stop is 100/d percent wide, so they touch: the whole
-   track is live and a tap between two stops takes the nearer one. The TICK inside stays
-   4px, because the mark should be small and the target should not -- the same trade the
-   bar wall already makes at twelfths.
+   THE STOPS TILE THE TRACK. Each stop is one d-th of the span wide -- 100/(span*d)
+   percent -- so they touch: the whole track is live and a tap between two stops takes the
+   nearer one. The TICK inside stays 4px, because the mark should be small and the target
+   should not -- the same trade the bar wall already makes at twelfths.
 
    TAPPING THE START IS "ZERO", not a dead spot. Zero is a real place on a line and the
    only model here that can show it, so the leftmost stop empties the row and says so.
@@ -10587,10 +10760,16 @@ function FractionRead({
 function FractionLine({
   d,
   taken,
-  onTravel
+  onTravel,
+  span
 }) {
   const n = taken.length,
-    full = n === d;
+    full = n > 0 && n % d === 0,
+    s = Math.max(1, span || 1),
+    steps = s * d;
+  /* The last stop is the ceiling, not the end of the track: stops run to min(span*d,
+     3d-1), so a stretched track keeps its destination visible and unreached. */
+  const stops = Math.min(steps, fracCap(d));
   const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
   return /*#__PURE__*/React.createElement("div", {
     className: `fw-row fl-row ${full ? 'full' : ''}`
@@ -10603,19 +10782,19 @@ function FractionLine({
   }, /*#__PURE__*/React.createElement("div", {
     className: "fl-run",
     style: {
-      width: `${n / d * 100}%`
+      width: `${n / steps * 100}%`
     }
   }), Array.from({
-    length: d + 1
-  }, (_, i) => /*#__PURE__*/React.createElement("button", {
-    key: i,
-    className: `fl-stop ${i <= n ? 'passed' : ''}`,
+    length: stops + 1
+  }, (_, k) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    className: `fl-stop ${k <= n ? 'passed' : ''}`,
     style: {
-      left: `${i / d * 100}%`,
-      width: `${100 / d}%`
+      left: `${k / steps * 100}%`,
+      width: `${100 / steps}%`
     },
-    "aria-label": i === 0 ? 'go back to zero' : `travel to ${fractionWords(i, d)}`,
-    onClick: () => onTravel(d, i)
+    "aria-label": k === 0 ? 'go back to zero' : `travel to ${fractionWords(k, d)}`,
+    onClick: () => onTravel(d, k)
   }, /*#__PURE__*/React.createElement("span", {
     className: "fl-tick"
   }))), n > 0 && /*#__PURE__*/React.createElement("img", {
@@ -10623,7 +10802,7 @@ function FractionLine({
     src: FL_TRAVELLER,
     alt: "",
     style: {
-      left: `${n / d * 100}%`
+      left: `${n / steps * 100}%`
     }
   }))), /*#__PURE__*/React.createElement(FractionRead, {
     n: n,
@@ -10648,19 +10827,32 @@ function FractionLine({
    was built to kill. Same outer rectangle, different cuts.
 
    IT IS NOT A SECOND BAR. A bar is one row and reads as a LENGTH; a grid reads as an AREA,
-   two dimensions, and it is the representation that makes 2/4 and 4/8 line up later. */
+   two dimensions, and it is the representation that makes 2/4 and 4/8 line up later.
+
+   ABOVE ONE THE RECTANGLE REPEATS, IT DOES NOT RESIZE ITS CUTS. 7/4 is a full 2x2 of
+   quarters and a second 2x2 holding three more -- every box the same rectangle, the same
+   column count, the same denominator -- because an area model that switched shape past
+   one would be switching representations exactly when the child most needs them not to
+   move. The discipline of same-size boxes holds per extra whole: all boxes in the wall at
+   the same step-down size, never one big and one small. */
 function FractionGrid({
   d,
   taken,
   onTake
 }) {
   const n = taken.length,
-    full = n === d;
+    w = Math.max(1, Math.ceil(n / d)),
+    full = n > 0 && n % d === 0;
   const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
   return /*#__PURE__*/React.createElement("div", {
     className: `fq-cell ${full ? 'full' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
-    className: "fq-box",
+    className: "fq-cells"
+  }, Array.from({
+    length: w
+  }, (_, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    className: `fq-box ${(j + 1) * d <= n ? 'full-shape' : ''}`,
     style: {
       gridTemplateColumns: `repeat(${fractionGridCols(d)},1fr)`
     },
@@ -10669,14 +10861,15 @@ function FractionGrid({
   }, Array.from({
     length: d
   }, (_, i) => {
-    const on = taken.includes(i);
+    const p = j * d + i,
+      on = taken.includes(p);
     return /*#__PURE__*/React.createElement("button", {
       key: i,
       className: `fq-piece ${on ? 'on' : ''}`,
       "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
-      onClick: () => onTake(d, i)
+      onClick: () => onTake(d, p)
     });
-  })), /*#__PURE__*/React.createElement("div", {
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "fp-foot"
   }, /*#__PURE__*/React.createElement("span", {
     className: "fp-name"
@@ -10705,19 +10898,31 @@ function FractionGrid({
 
    THE BUTTONS TILE THE TRAY, gaps and all, so at twelfths every tap inside the boundary
    lands on an object. The star is the mark and the cell is the target; shrinking the
-   target to the size of the art is what makes a small object unreachable. */
+   target to the size of the art is what makes a small object unreachable.
+
+   ABOVE ONE, MORE TRAYS -- because the boundary IS the denominator, and 7/4 is not seven
+   of a bigger boundary but seven of the boundary the child already knows, spilled into a
+   second tray of exactly the same kind. A completed tray closes to the solid border a
+   completed single tray already wears, so "this tray is finished, this one is not" reads
+   at a glance beside it. */
 function FractionGroup({
   d,
   taken,
   onTake
 }) {
   const n = taken.length,
-    full = n === d;
+    w = Math.max(1, Math.ceil(n / d)),
+    full = n > 0 && n % d === 0;
   const label = d === 1 ? 'Whole' : PART_NAMES[d][1].charAt(0).toUpperCase() + PART_NAMES[d][1].slice(1);
   return /*#__PURE__*/React.createElement("div", {
     className: `fs-cell ${full ? 'full' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
-    className: "fs-tray",
+    className: "fs-cells"
+  }, Array.from({
+    length: w
+  }, (_, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    className: `fs-tray ${(j + 1) * d <= n ? 'full-shape' : ''}`,
     style: {
       gridTemplateColumns: `repeat(${fractionGridCols(d)},1fr)`
     },
@@ -10726,17 +10931,18 @@ function FractionGroup({
   }, Array.from({
     length: d
   }, (_, i) => {
-    const on = taken.includes(i);
+    const p = j * d + i,
+      on = taken.includes(p);
     return /*#__PURE__*/React.createElement("button", {
       key: i,
       className: `fs-obj ${on ? 'on' : ''}`,
       "aria-label": on ? `taken, ${fractionWords(n, d)}` : `take one ${PART_NAMES[d][0]}`,
-      onClick: () => onTake(d, i)
+      onClick: () => onTake(d, p)
     }, /*#__PURE__*/React.createElement("img", {
       src: FG_OBJECT,
       alt: ""
     }));
-  })), /*#__PURE__*/React.createElement("div", {
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "fp-foot"
   }, /*#__PURE__*/React.createElement("span", {
     className: "fp-name"
@@ -10762,12 +10968,46 @@ function FractionWall({
     Voice.say('Tap the pieces to make a fraction!');
   }, []);
   const any = FRACTION_ROWS.some(d => (taken[d] || []).length > 0);
-  const take = useCallback((d, i) => {
+  /* Three facts the whole screen derives together, because no row may disagree with
+     another while they share one `taken`:
+      OVER -- is any denominator past its whole? While one is, the pie, grid and group
+     grids hold three columns instead of auto-fit's five, so a third shape beside its
+     siblings is still big enough to read (numbers in the CSS note there). A wall that
+     stays below one never enters this state and keeps today's layout exactly.
+      BH -- the bar wall's piece height. A row past one occupies ceil(n/d) bar-lines, and
+     the wall must remain a wall: whole and unscrolled on the 1024px-high iPad. 640px is
+     the interior left to the bars once the top bar, title, ribbon and card chrome are
+     measured off, with slack; lines is every row's bar-lines added up, so up to three
+     rows grown pays nothing (15 lines still resolve to today's 40px) and even all nine
+     rows at the ceiling together stay near 700px.
+      SPAN -- the number line's right-hand end. Every row's track runs 0..span so the
+     vertical alignment that is the line model's whole lesson survives the stretch, and a
+     below-one wall keeps today's 0..1 track exactly.
+      IT IS ONE WHOLE AHEAD OF THE FURTHEST ROW, NOT LEVEL WITH IT. Level with it is what
+     this was, and it made the number line the one model that could never reach the thing
+     this feature adds: a row's stops run to min(span*d, 3d-1), so at 4/4 the span was
+     still 1, the last stop WAS 4/4, and travelling was the only view where a child could
+     not go on. Verified in both skins in a browser before this line changed. Below one
+     nothing moves -- floor(n/d) is 0 until a whole is complete, so the track is 0..1
+     exactly as before -- and the ceiling still bites first, because stops cap at 3d-1
+     while the track now reaches 3d. */
+  const over = FRACTION_ROWS.some(d => (taken[d] || []).length > d);
+  const lines = FRACTION_ROWS.reduce((a, d) => a + Math.max(1, Math.ceil((taken[d] || []).length / d)), 0);
+  const bh = Math.min(40, Math.floor(640 / lines));
+  const span = Math.min(3, FRACTION_ROWS.reduce((a, d) => Math.max(a, Math.floor((taken[d] || []).length / d) + 1), 1));
+  const take = useCallback((d, p) => {
     setTaken(prev => {
       const cur = prev[d] || [];
-      /* A full row starts again from the piece just tapped; a piece already taken is not
+      /* p names a piece ACROSS wholes -- shape j's piece i is j*d+i -- so the numerator
+         stays simply HOW MANY are taken, whatever the view. THE CAP, NOT THE RESTART: a
+         completed whole continues, and the tap that continues it adds the piece tapped to
+         the next whole (same position, new shape), so the tap stays honest about what the
+         child did. Only at the ceiling -- fracCap, just under three wholes -- does the row
+         start again from the tapped piece, which is the "again" a full row has always
+         meant, moved to the top of the range. Below that, a piece already taken is not
          another quarter, exactly as a counted group on the chart is not another seven. */
-      const next = cur.length === d ? [i] : cur.includes(i) ? cur : [...cur, i];
+      const i = p % d;
+      const next = cur.length >= fracCap(d) ? [i] : cur.length > 0 && cur.length % d === 0 ? [...cur, cur.length + i] : cur.includes(p) ? cur : [...cur, p];
       if (next === cur) return prev;
       const n = next.length;
       Sound.tap();
@@ -10778,8 +11018,26 @@ function FractionWall({
            number the child just reached instead of talking over it. */
         Voice.lines([num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + '.'), num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + ' is one whole.')]);
       } else if (d === 1) {
+        /* Whole tops out at two circles (fracCap), so this says one or two and nothing
+           else. Two wholes is a whole reached like any other, so it dings; and there is
+           no equivalence to say, because the row's own notation already IS the whole
+           number. */
         Sound.ding();
-        Voice.lines([num('One whole.')]);
+        if (n > 1) {
+          setTimeout(() => Sound.celebrate(), 200);
+          Voice.lines([num(PART_COUNT[n] + ' ' + PART_NAMES[1][1] + '.')]);
+        } else {
+          Voice.lines([num('One whole.')]);
+        }
+      } else if (n > d) {
+        /* Past one: the count first and unsimplified, the equivalence second and never in
+           its place. Reaching two wholes dings; a mixed number does not, because it is
+           not a whole. */
+        if (n === 2 * d) {
+          Sound.ding();
+          setTimeout(() => Sound.celebrate(), 200);
+        }
+        Voice.lines(overOneLines(n, d));
       } else {
         Voice.say(num(fractionWords(n, d) + '.'));
       }
@@ -10806,17 +11064,33 @@ function FractionWall({
     setTaken(prev => {
       const cur = prev[d] || [];
       const next = cur.slice(0, k);
-      for (let i = 0; i < d && next.length < k; i++) if (!next.includes(i)) next.push(i);
+      /* The fill now ranges over every whole (the line's stops run past one), and stays
+         honest in the same direction: keep the pieces the child already chose, fill what
+         is missing from the earliest shapes outward -- which is also what keeps a partial
+         whole drawn as the LAST shape, never a hole before a filled one. */
+      for (let p = 0; p < 3 * d && next.length < k; p++) if (!next.includes(p)) next.push(p);
       Sound.tap();
       if (k === 0) {
         Voice.say(num('Zero.'));
       } else if (d === 1) {
         Sound.ding();
-        Voice.lines([num('One whole.')]);
+        if (k > 1) {
+          setTimeout(() => Sound.celebrate(), 200);
+          Voice.lines([num(PART_COUNT[k] + ' ' + PART_NAMES[1][1] + '.')]);
+        } else {
+          Voice.lines([num('One whole.')]);
+        }
       } else if (k === d) {
         Sound.ding();
         setTimeout(() => Sound.celebrate(), 200);
         Voice.lines([num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + '.'), num(PART_COUNT[d] + ' ' + PART_NAMES[d][1] + ' is one whole.')]);
+      } else if (k > d) {
+        /* Same hierarchy as take(): the position's name first, the equivalence after. */
+        if (k === 2 * d) {
+          Sound.ding();
+          setTimeout(() => Sound.celebrate(), 200);
+        }
+        Voice.lines(overOneLines(k, d));
       } else {
         Voice.say(num(fractionWords(k, d) + '.'));
       }
@@ -10864,14 +11138,17 @@ function FractionWall({
   }), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card fw-card"
   }, model === 'pie' ? /*#__PURE__*/React.createElement("div", {
-    className: "fp-grid"
+    className: `fp-grid ${over ? 'over' : ''}`
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionPie, {
     key: d,
     d: d,
     taken: taken[d] || [],
     onTake: take
   }))) : model === 'bar' ? /*#__PURE__*/React.createElement("div", {
-    className: "fw-wall"
+    className: "fw-wall",
+    style: {
+      '--bh': bh + 'px'
+    }
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionRow, {
     key: d,
     d: d,
@@ -10891,11 +11168,15 @@ function FractionWall({
     className: "fl-lane"
   }, /*#__PURE__*/React.createElement("div", {
     className: "fl-track fl-track-head"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "fl-zero"
-  }, "0"), /*#__PURE__*/React.createElement("span", {
-    className: "fl-one"
-  }, "1"))), /*#__PURE__*/React.createElement("div", {
+  }, Array.from({
+    length: span + 1
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: i === 0 ? 'fl-zero' : i === span ? 'fl-one' : 'fl-mid',
+    style: {
+      left: `${i / span * 100}%`
+    }
+  }, i)))), /*#__PURE__*/React.createElement("div", {
     className: "fl-end fl-end-b"
   }, /*#__PURE__*/React.createElement("img", {
     src: FL_END,
@@ -10904,16 +11185,17 @@ function FractionWall({
     key: d,
     d: d,
     taken: taken[d] || [],
-    onTravel: travel
+    onTravel: travel,
+    span: span
   }))) : model === 'grid' ? /*#__PURE__*/React.createElement("div", {
-    className: "fp-grid"
+    className: `fp-grid ${over ? 'over' : ''}`
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionGrid, {
     key: d,
     d: d,
     taken: taken[d] || [],
     onTake: take
   }))) : /*#__PURE__*/React.createElement("div", {
-    className: "fp-grid"
+    className: `fp-grid ${over ? 'over' : ''}`
   }, FRACTION_ROWS.map(d => /*#__PURE__*/React.createElement(FractionGroup, {
     key: d,
     d: d,
@@ -10927,15 +11209,56 @@ function FractionWall({
   }));
 }
 
-/* ══ MODE g1: WHICH IS BIGGER? ══
-   Greater than, less than, equal to. Two decisions from the owner (2026-08-17) are
-   the whole design:
+/* The blocks chip of g1's two representation selectors: a small pile of count-block
+   squares. It is the ONE per-skin piece of those rows — this skin draws glyph
+   components with .btn-svg — so it lives here, outside the shared g1 region, exactly
+   as the operation tabs' five glyphs do; the region inside references it by name. */
+function BlocksChipIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3.5",
+    y: "12.5",
+    width: "8",
+    height: "8",
+    rx: "1.6",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "8",
+    y: "3.5",
+    width: "8",
+    height: "8",
+    rx: "1.6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "12.5",
+    y: "12.5",
+    width: "8",
+    height: "8",
+    rx: "1.6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2"
+  }));
+}
 
-   1. The two sides run CONCRETE → ABSTRACT across the difficulty ladder. The easy
-      rung shows two piles of the very same place-value blocks the child counts in
-      What Number?, with no numerals on screen at all; the next writes the numeral
-      beside the blocks; the top two are numerals alone. Comparing is one idea, so
-      it is one game with four ways of writing the question, not four games.
+/* ══ MODE g1: WHICH IS BIGGER? ══
+   Greater than, less than, equal to. The owner's representation spec of 2026-09-14
+   (REPRESENTATION-SPEC §1, §4) is the whole design:
+
+   1. THE VALUE AND THE WRITING ARE TWO SEPARATE CHOICES. Two selector rows — one
+      for LEFT, one for RIGHT — each offer the eight representations of the shared
+      vocabulary (§3), and for the first time this app can ask a question that
+      crosses them: is three quarters more or less than zero point eight? Is a pile
+      of eight blocks more or less than the numeral ten? The comparison itself —
+      feed the bigger side to the mouth — does not change. The engine above is
+      values-first: each side's value is an exact rational drawn before anything is
+      rendered, and the sign is cross-multiplied from the two values, never read
+      off anything the child sees (§4.1).
    2. The sign is a MOUTH that opens towards the bigger number, and it closes on an
       equals. That is the classic hungry-mouth, and the classic objection to it is
       fair: on its own it teaches a trick, not a relation. So it never travels
@@ -10945,171 +11268,1139 @@ function FractionWall({
       the way in for a child who cannot yet read the glyph; the sentence and the
       glyph are what they leave with.
 
-   One consequence worth keeping: at the blocks rung the app must NOT say the two
-   numbers when it asks the question, or the game is solved by listening rather
-   than by counting. It asks "which side has more?" there, and only names the
-   numbers once the child has answered — which is the moment the naming teaches. */
+   ITS VOICE IS THE ENGINE, robot by the owner's 2026-08-20 rule: g1 is not in
+   Clips's VOICED set and no line here has a rendered clip.
+
+   One consequence worth keeping: when a side is blocks the app must NOT say that
+   side's number when it asks the question, or the game is solved by listening
+   rather than by counting. It asks "which side has more?" whenever either side is
+   blocks, and only names the numbers once the child has answered — which is the
+   moment the naming teaches.
+
+   Open questions the spec left open (§10), applied as it recommends and marked
+   here so a decision can find them: magnitude is DEFERRED (Q1 — no range control;
+   per-representation defaults and pair tiers, via COMPARE_TIER below); the opening
+   pair is blocks against numeral (Q2); the same representation on both sides is
+   allowed (Q3); multiplication keeps the engine's 2–10 table facts (Q6);
+   expression sides are read aloud as expressions (Q7). Direction-fixed pairings —
+   a fraction against any whole-number representation, CompareEngine
+   .isDirectionFixed — are offered, never greyed out: the spec keeps frac-vs-whole
+   as a lesson, and widening the fraction domain is the owner's call, not the
+   ribbon's. */
+
+/* ── compare-engine: generated from engine/compare-problem.js by tools/port-compare-engine.js — do not edit here ── */
+const CompareEngine = function () {
+  // Which is Bigger? — the values-first compare engine (REPRESENTATION-SPEC §4, §5).
+  //
+  // The order of operations is the contract (§4.1): generate the left value, generate
+  // the right value, then render. `sign` is derived from the two rationals by
+  // cross-multiplication and from nothing else. No binary float ever holds a value:
+  // decimals are digits and a place count — the rational k/10 or k/100 — so
+  // `0.30000000000000004` cannot occur. parseFloat, Number(string), toFixed and
+  // string comparison are absent by construction.
+
+  // --- The value type ---------------------------------------------------------
+  //
+  // A value is { n, d }: integers, n ≥ 0, d ≥ 1, always reduced. Integers have d:1.
+  // There is no second number type anywhere in this module. One deliberate,
+  // confined exception to "always reduced" exists — the whole-valued equal-pair
+  // fraction 4/2 = 2 (owner, 2026-09-14) — documented at genWholeValueFrac.
+
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b !== 0) {
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a === 0 ? 1 : a;
+  }
+  function makeValue(n, d = 1) {
+    if (!Number.isInteger(n) || !Number.isInteger(d)) {
+      throw new Error('value parts must be integers: ' + n + '/' + d);
+    }
+    if (n < 0 || d < 1) {
+      throw new Error('value out of domain: ' + n + '/' + d);
+    }
+    const g = gcd(n, d);
+    return {
+      n: n / g,
+      d: d / g
+    };
+  }
+  function intValue(k) {
+    return makeValue(k, 1);
+  }
+  function isReduced(v) {
+    return Number.isInteger(v.n) && Number.isInteger(v.d) && v.n >= 0 && v.d >= 1 && gcd(v.n, v.d) === 1;
+  }
+
+  // Decimal values as digits and a place count (§4.3): the rational k / 10^places.
+  // `places` is 1 or 2. This is the only way a decimal value comes into being.
+  function decValue(digits, places) {
+    if (!Number.isInteger(digits) || digits < 1) {
+      throw new Error('decimal digits must be a positive integer: ' + digits);
+    }
+    if (places !== 1 && places !== 2) {
+      throw new Error('decimal places must be 1 or 2: ' + places);
+    }
+    const d = places === 1 ? 10 : 100;
+    return makeValue(digits, d);
+  }
+
+  // Compare two values by cross-multiplication (§4.2). Exact — the products are
+  // far inside safe integer range at these magnitudes — and the only comparison
+  // rule in the module.
+  function compareValues(a, b) {
+    const l = a.n * b.d; // left.n × right.d
+    const r = b.n * a.d; // right.n × left.d
+    if (l < r) return '<';
+    if (l > r) return '>';
+    return '=';
+  }
+  function valuesEqual(a, b) {
+    return compareValues(a, b) === '=';
+  }
+
+  // --- Random draws -----------------------------------------------------------
+  //
+  // Every draw in this module goes through the injected `rng`. There is no
+  // Math.random() anywhere; the seeded test harness depends on that.
+
+  function randInt(rng, lo, hi) {
+    return lo + Math.floor(rng() * (hi - lo + 1));
+  }
+  function pick(rng, arr) {
+    return arr[Math.floor(rng() * arr.length)];
+  }
+
+  // Draw n coprime with d (§4.3): 2/4 is never shown; fractions are born reduced.
+  function coprimeN(rng, d) {
+    for (;;) {
+      const n = randInt(rng, 1, d - 1);
+      if (gcd(n, d) === 1) return n;
+    }
+  }
+
+  // --- Tier ranges (§4.5) -----------------------------------------------------
+  //
+  // Magnitude lives here, not in the ribbon (§4.6). Tier W defaults to 1–20; the
+  // larger integer tiers keep the 2026-08-18 "big numbers" promise. mul/div stay
+  // table-sized in every tier.
+
+  const TIERS = {
+    1: {
+      max: 20
+    },
+    2: {
+      max: 100
+    },
+    3: {
+      max: 1000
+    }
+  };
+  function tierMax(tier) {
+    return (TIERS[tier] || TIERS[1]).max;
+  }
+
+  // --- Per-representation generators ------------------------------------------
+  //
+  // Each generator returns a side object { repr, value, expr? } where `expr`
+  // evaluates exactly to `value` (§4.2). Whole-number generators take (rng, tier,
+  // target) where target, when given, is the exact integer value the side must
+  // carry — used when the direction coin or the equality coin has already decided
+  // the relation. A generator returns null if it cannot express `target`; the
+  // caller re-draws (it never clamps, §4.5).
+
+  // A constraint is { target } (exact value — the equality coin) or { lo, hi }
+  // (the decided side of a direction). This normalises it to a range.
+  function normRange(constraint, defLo, defHi) {
+    if (!constraint) return {
+      lo: defLo,
+      hi: defHi
+    };
+    if (constraint.target !== undefined) return {
+      lo: constraint.target,
+      hi: constraint.target
+    };
+    return {
+      lo: constraint.lo,
+      hi: constraint.hi
+    };
+  }
+
+  // num — the numeral. Tier range; 1 is a poor "which is bigger?" numeral on its
+  // own, so the default draw starts at 2.
+  function genNum(rng, cap, constraint) {
+    const {
+      lo: rLo,
+      hi: rHi
+    } = normRange(constraint, 2, cap);
+    const lo = Math.max(rLo, 1),
+      hi = Math.min(rHi, cap);
+    if (lo > hi) return null;
+    return {
+      repr: 'num',
+      value: intValue(randInt(rng, lo, hi))
+    };
+  }
+
+  // add — two terms, a + b IS the value. Terms ≥ 1, total inside the tier, so
+  // the smallest expressible total is 2.
+  function genAdd(rng, cap, constraint) {
+    const {
+      lo: rLo,
+      hi: rHi
+    } = normRange(constraint, 3, cap);
+    const lo = Math.max(rLo, 2),
+      hi = Math.min(rHi, cap);
+    if (lo > hi) return null;
+    const total = randInt(rng, lo, hi);
+    const a = randInt(rng, 1, total - 1);
+    return {
+      repr: 'add',
+      value: intValue(total),
+      expr: {
+        op: '+',
+        a,
+        b: total - a
+      }
+    };
+  }
+
+  // sub — a − b, result non-negative (owner's preference). a = b — a zero result —
+  // happens only when the caller asks for target 0, i.e. only when the equality
+  // coin asked for it. Draws keep b ≥ 1 whenever the tier has room for it.
+  function genSub(rng, cap, constraint) {
+    const {
+      lo: rLo,
+      hi: rHi
+    } = normRange(constraint, 1, Math.max(1, cap - 1));
+    const lo = Math.max(rLo, 0),
+      hi = Math.min(rHi, cap);
+    if (lo > hi) return null;
+    const result = randInt(rng, lo, hi);
+    const a = randInt(rng, Math.min(result + 1, cap), cap);
+    return {
+      repr: 'sub',
+      value: intValue(result),
+      expr: {
+        op: '−',
+        a,
+        b: a - result
+      }
+    };
+  }
+
+  // mul — kid-appropriate times-table facts: factors 2–10, product ≤ 100 (§5).
+  // The fact table is enumerated, so a target or a range is honoured exactly or
+  // the generator declines (null) — it never clamps.
+  const MUL_FACTS = [];
+  for (let a = 2; a <= 10; a++) {
+    for (let b = 2; b <= 10; b++) {
+      MUL_FACTS.push([a, b, a * b]);
+    }
+  }
+  function genMul(rng, constraint) {
+    let lo = 4,
+      hi = 100;
+    if (constraint) {
+      if (constraint.target !== undefined) {
+        lo = hi = constraint.target;
+      } else {
+        lo = constraint.lo;
+        hi = constraint.hi;
+      }
+    }
+    const ok = MUL_FACTS.filter(f => f[2] >= lo && f[2] <= hi);
+    if (ok.length === 0) return null;
+    const [a, b, p] = ok[Math.floor(rng() * ok.length)];
+    return {
+      repr: 'mul',
+      value: intValue(p),
+      expr: {
+        op: '×',
+        a,
+        b
+      }
+    };
+  }
+
+  // div — exact, no remainders (§5): divisor and quotient drawn, dividend is
+  // their product, divisor ≥ 2. Dividends stay table-sized (≤ 100), so the
+  // quotient tops out at 50.
+  function genDiv(rng, constraint) {
+    let lo = 2,
+      hi = 50;
+    if (constraint) {
+      if (constraint.target !== undefined) {
+        lo = hi = constraint.target;
+      } else {
+        lo = constraint.lo;
+        hi = constraint.hi;
+      }
+    }
+    lo = Math.max(lo, 1);
+    hi = Math.min(hi, 50);
+    if (lo > hi) return null;
+    const q = randInt(rng, lo, hi);
+    const divisors = [];
+    for (let dv = 2; dv <= 10; dv++) {
+      if (q * dv <= 100) divisors.push(dv);
+    }
+    if (divisors.length === 0) return null;
+    const dv = pick(rng, divisors);
+    return {
+      repr: 'div',
+      value: intValue(q),
+      expr: {
+        op: '÷',
+        a: q * dv,
+        b: dv
+      }
+    };
+  }
+
+  // frac — proper, reduced, easy denominators first (§5). The denominator set is
+  // chosen by the pair: {2,3,4,5,6} at tier 1, {8,10} join at harder tiers, and
+  // {2,4,5,10} only, when paired with dec (§4.3) so every value the equality or
+  // closeness draw might need is exactly writable in ≤ 2 places. n is drawn
+  // coprime with d — 2/4 is never shown. The widened tier F draws (improper and
+  // whole-valued fractions, 2026-09-14) go through genImproperBetween and
+  // genWholeValueFrac below; this one stays the proper-draw workhorse.
+  function genFrac(rng, denominators) {
+    const d = pick(rng, denominators);
+    const n = coprimeN(rng, d);
+    return {
+      repr: 'frac',
+      value: makeValue(n, d)
+    };
+  }
+
+  // An improper fraction with value strictly between lo and hi (owner,
+  // 2026-09-14: §10 open question 4, closed — "5/4 > 1" is a shape the game must
+  // ask). n is drawn coprime with d exactly as in genFrac, so improper fractions
+  // are born reduced too, and a whole value cannot come out of here (n = k·d
+  // would share the factor d), which is why the closed hi end never lands. The
+  // denominator set is the caller's — see IMPROPER_DENOMS / MUL_FRAC_DENOMS.
+  function genImproperBetween(rng, lo, hi, denominators) {
+    for (;;) {
+      const d = pick(rng, denominators);
+      const ns = [];
+      for (let n = lo * d + 1; n <= hi * d; n++) {
+        if (gcd(n, d) === 1) ns.push(n);
+      }
+      if (ns.length > 0) return {
+        repr: 'frac',
+        value: makeValue(pick(rng, ns), d)
+      };
+      // This d has no coprime numerator in the window; none of the callers'
+      // windows is empty for every d, so re-draw the denominator.
+    }
+  }
+
+  // THE UNREDUCED EXCEPTION — the only one in the module. Everywhere else
+  // fractions are born reduced (genFrac and genImproperBetween draw n coprime
+  // with d precisely so 2/4 is never shown), but a fraction worth a whole number
+  // is unreduced by definition: n = k·d shares the factor d. The owner asked for
+  // "4/2 = 2" by name (2026-09-14), so unreduced numerators are permitted ONLY
+  // when BOTH hold: the fraction's value is a whole number, AND the pair is an
+  // equal pair. Everywhere else the reduced rule stands unchanged — 2/4, 4/6 and
+  // 9/3 are never shown. The value is built raw rather than through makeValue,
+  // which would reduce 4/2 to the integer 2/1 and lose the fraction the child is
+  // meant to compare; compareValues is unaffected either way, since it
+  // cross-multiplies rather than reading the fraction's form.
+  function genWholeValueFrac(rng, k, denominators) {
+    const d = pick(rng, denominators);
+    return {
+      repr: 'frac',
+      value: {
+        n: k * d,
+        d
+      }
+    };
+  }
+
+  // dec — generated as digits and a place count (§4.3), never a float. The value
+  // IS k/10 or k/100 where k is `digits`. Ranges are given in hundredths
+  // (numerator over 100) so windows stay exact integer intervals.
+  function genDec(rng, loK, hiK) {
+    if (loK > hiK) return null;
+    const k = randInt(rng, loK, hiK);
+    const canOnePlace = k % 10 === 0;
+    const places = canOnePlace && rng() < 0.5 ? 1 : 2;
+    const digits = places === 1 ? k / 10 : k;
+    return {
+      repr: 'dec',
+      value: decValue(digits, places),
+      expr: {
+        digits,
+        places
+      }
+    };
+  }
+
+  // blocks — whole numbers 1–999, never 1000 (§5): ten flats is a different
+  // lesson, and this generator cannot teach it by accident. The per-place
+  // drawing rules (ones only ≤ 10, rods and ones ≤ 99, per-place groups 100–999)
+  // are the renderer's business; the engine guarantees the bound.
+  function genBlocks(rng, cap, constraint) {
+    const top = Math.min(cap, 999);
+    let lo = 1,
+      hi = top;
+    if (constraint) {
+      if (constraint.target !== undefined) {
+        lo = hi = constraint.target;
+      } else {
+        lo = constraint.lo;
+        hi = constraint.hi;
+      }
+    }
+    if (lo < 1 || hi > 999 || lo > hi) return null;
+    return {
+      repr: 'blocks',
+      value: intValue(randInt(rng, lo, hi))
+    };
+  }
+
+  // The whole-number dispatch (tiers W and D, and tier F's integer partners).
+  // `constraint` is { target } for an exact value (the equality coin, or a
+  // partner matched to a drawn fact) or { lo, hi } for a side of a decided
+  // direction. Every generator declines with null when it cannot express what
+  // was asked — the caller re-draws, it never clamps (§4.5).
+  function genWholeSide(repr, rng, cap, constraint) {
+    switch (repr) {
+      case 'num':
+        return genNum(rng, cap, constraint);
+      case 'blocks':
+        return genBlocks(rng, cap, constraint);
+      case 'add':
+        return genAdd(rng, cap, constraint);
+      case 'sub':
+        return genSub(rng, cap, constraint);
+      case 'mul':
+        return genMul(rng, constraint);
+      case 'div':
+        return genDiv(rng, constraint);
+      default:
+        throw new Error('unknown whole-number representation: ' + repr);
+    }
+  }
+
+  // --- The pair domains (§4.5) ------------------------------------------------
+
+  const WHOLE_REPRS = ['blocks', 'num', 'add', 'sub', 'mul', 'div'];
+  const EASY_DENOMS = [2, 3, 4, 5, 6];
+  const HARDER_DENOMS = [2, 3, 4, 5, 6, 8, 10];
+  const DEC_PAIRED_DENOMS = [2, 4, 5, 10]; // §4.3: exactly writable in ≤ 2 places
+  // The widened tier F draws (2026-09-14) keep to the familiar denominators:
+  // {2,3,4,5,6} beside a 1-or-2 partner — the owner's shapes are 3/2, 5/4, 7/4,
+  // 4/2, 6/3, 8/4 — and {2,3,4} only beside a mul fact, where reaching past the
+  // fact already needs numerators like 9 or 31 and a larger denominator would
+  // inflate them further (31/4 is the widest fraction the module ever draws).
+  const IMPROPER_DENOMS = [2, 3, 4, 5, 6];
+  const MUL_FRAC_DENOMS = [2, 3, 4];
+  // The mul facts a fraction can fight: the small end of the table (2 × 2, 2 × 3
+  // and 3 × 2) — the same reach-capping move tier W's mulDivRange makes for a
+  // lone fact. mul has no fact below 4 (its factors are 2–10, §5), and a
+  // fraction that could beat, say, 7 × 8 would not be a child's fraction at all.
+  const TIER_F_MUL_PRODUCTS = [4, 6];
+  // The equality coin (§4.4): written p = .15/.85 — not .15 — because the
+  // no-two-in-a-row gate makes the generator a two-state machine whose long-run
+  // share is p/(1+p) = .15. The rate is decided; this implements it.
+  const EQUAL_COIN = 0.15 / 0.85;
+  const MAX_ATTEMPTS = 500;
+  function isMulDiv(repr) {
+    return repr === 'mul' || repr === 'div';
+  }
+  function fracDenominators(tier, otherRepr) {
+    if (otherRepr === 'dec') return DEC_PAIRED_DENOMS;
+    return tier >= 2 ? HARDER_DENOMS : EASY_DENOMS;
+  }
+
+  // Exact digit count of a whole number, by integer division — never a string
+  // comparison. Close pairs must share it, or digit count would settle them.
+  function digits10(k) {
+    let c = 1;
+    while (k >= 10) {
+      k = Math.floor(k / 10);
+      c++;
+    }
+    return c;
+  }
+
+  // Exact hundredths numerator of a k/100-representable value, else null.
+  function hundredths(v) {
+    const k = 100 * v.n;
+    return k % v.d === 0 ? k / v.d : null;
+  }
+
+  // --- Tier F: either side frac -----------------------------------------------
+
+  // The whole-number partner beside a fraction, and the fraction beside it — the
+  // widened tier F domain (owner, 2026-09-14; §4.5, §10 open question 4 closed).
+  // All three relations occur and the direction comes from the coin, never from
+  // the domain: which side carries the fraction is fixed by the pairing, and the
+  // coin then decides which value is bigger.
+  //
+  // The partner's value is its representation's own: num/blocks/sub/div carry
+  // 1 or 2; add's terms are ≥ 1 (§5) so its one fact here is 1 + 1 = 2; mul has
+  // no fact below 2 × 2 = 4 (§5), so it draws from TIER_F_MUL_PRODUCTS. The
+  // fraction reaches past every one of those values — 5/4 > 1, 5/2 > 1 + 1,
+  // 9/2 > 2 × 2, and the equal pairs 4/2 = 2, 8/2 = 2 × 2 — which is the whole
+  // of the widening: before it, fractions were proper-only and strictly below
+  // every partner, so the whole side won every time. That was exactly the
+  // learnable shortcut ("whole numbers always beat fractions") the owner ruled
+  // out, and it is what used to be reported by isDirectionFixed below.
+  //
+  // Every branch draws from a non-empty set, so no attempt declines here: both
+  // coins reach the problem untouched, the equal share stays exactly EQUAL_COIN's
+  // and the direction stays a fair half — on these pairings as on every other.
+  function fracWholeSides(rng, tier, partnerRepr, fracIsLeft, wantEqual, leftBigger, close) {
+    const fracBigger = fracIsLeft ? leftBigger : !leftBigger;
+    const proper = fracDenominators(tier, partnerRepr);
+    let frac, partner;
+    if (partnerRepr === 'mul') {
+      // The fact draws first, inside the fraction's reach — tier D's precedent:
+      // the sparse set draws first and the other side matches it.
+      const fact = pick(rng, TIER_F_MUL_PRODUCTS);
+      partner = genWholeSide('mul', rng, 0, {
+        target: fact
+      });
+      if (wantEqual) {
+        frac = genWholeValueFrac(rng, fact, MUL_FRAC_DENOMS); // 8/2 = 2 × 2
+      } else if (fracBigger) {
+        frac = genImproperBetween(rng, fact, close ? fact + 1 : fact + 2, MUL_FRAC_DENOMS);
+      } else if (close) {
+        frac = genImproperBetween(rng, fact - 1, fact, MUL_FRAC_DENOMS); // 7/2 < 4, barely
+      } else {
+        frac = rng() < 0.5 ? genFrac(rng, proper) : genImproperBetween(rng, 1, fact, MUL_FRAC_DENOMS); // 3/4 or 5/2 < 4
+      }
+    } else if (wantEqual) {
+      const t = partnerRepr === 'add' ? 2 : close ? 1 : 2;
+      partner = genWholeSide(partnerRepr, rng, 10, {
+        target: t
+      });
+      frac = genWholeValueFrac(rng, t, IMPROPER_DENOMS); // 4/2 = 2, 2/2 = 1
+    } else if (fracBigger) {
+      // Beat a 1 from inside (1, 2) — 5/4, 3/2, 7/4; add's 2 from (2, 3) — 5/2.
+      const t = partnerRepr === 'add' ? 2 : 1;
+      partner = genWholeSide(partnerRepr, rng, 10, {
+        target: t
+      });
+      frac = genImproperBetween(rng, t, t + 1, IMPROPER_DENOMS);
+    } else {
+      const t = partnerRepr === 'add' ? 2 : close ? 1 : 2;
+      partner = genWholeSide(partnerRepr, rng, 10, {
+        target: t
+      });
+      frac = t === 1 ? genFrac(rng, proper) : close ? genImproperBetween(rng, 1, 2, IMPROPER_DENOMS) // 7/4 < 2, barely
+      : rng() < 0.5 ? genFrac(rng, proper) : genImproperBetween(rng, 1, 2, IMPROPER_DENOMS); // 3/4 or 5/4 < 2
+    }
+    if (!partner) return null; // defensive: every target above is expressible
+    return fracIsLeft ? {
+      left: frac,
+      right: partner
+    } : {
+      left: partner,
+      right: frac
+    };
+  }
+
+  // 3/4 ? 0.75 → '=': the decimal is built from the fraction's own digits, so
+  // the pair is exact by construction, never rounded (§4.3).
+  function fracDecEqualSides(rng, fracIsLeft) {
+    const d = pick(rng, DEC_PAIRED_DENOMS);
+    const n = coprimeN(rng, d);
+    const places = n * 10 % d === 0 ? 1 : 2;
+    const digits = n * (places === 1 ? 10 : 100) / d;
+    const fracSide = {
+      repr: 'frac',
+      value: makeValue(n, d)
+    };
+    const decSide = {
+      repr: 'dec',
+      value: decValue(digits, places),
+      expr: {
+        digits,
+        places
+      }
+    };
+    return fracIsLeft ? {
+      left: fracSide,
+      right: decSide
+    } : {
+      left: decSide,
+      right: fracSide
+    };
+  }
+
+  // frac ? dec, decided direction. All window arithmetic is in exact hundredths.
+  // Close means near values (3/4 ? 0.8), so the pair cannot be settled by
+  // silhouette or digit count.
+  function fracDecUnequalSides(rng, fracIsLeft, leftBigger, close) {
+    const frac = genFrac(rng, DEC_PAIRED_DENOMS);
+    const {
+      n,
+      d
+    } = frac.value;
+    const num = 100 * n;
+    const fl = Math.floor(num / d);
+    const exact = num % d === 0;
+    const fracIsBigger = fracIsLeft ? leftBigger : !leftBigger;
+    let loK = 1,
+      hiK = 200; // tier F decimals live in (0, 2]
+    if (fracIsBigger) {
+      hiK = exact ? fl - 1 : fl; // the decimal stays below the fraction
+    } else {
+      loK = fl + 1; // the decimal stays above the fraction
+    }
+    if (close) {
+      const ceilNd = exact ? fl : fl + 1;
+      loK = Math.max(loK, ceilNd - 25);
+      hiK = Math.min(hiK, fl + 25);
+    }
+    const dec = genDec(rng, loK, hiK);
+    if (!dec) return null;
+    return fracIsLeft ? {
+      left: frac,
+      right: dec
+    } : {
+      left: dec,
+      right: frac
+    };
+  }
+
+  // frac ? frac. Close means the same denominator: the pair is settled only by
+  // comparing numerators across the bar, never by how the shapes look.
+  function fracFracUnequalSides(rng, tier, leftBigger, close) {
+    const denoms = fracDenominators(tier, 'frac');
+    if (close) {
+      const d = pick(rng, denoms);
+      const ns = [];
+      for (let k = 1; k < d; k++) {
+        if (gcd(k, d) === 1) ns.push(k);
+      }
+      if (ns.length < 2) return null; // e.g. d = 2 has only one numerator
+      const i = Math.floor(rng() * ns.length);
+      let j = Math.floor(rng() * ns.length);
+      if (j === i) j = (j + 1) % ns.length;
+      const lo = {
+        repr: 'frac',
+        value: makeValue(Math.min(ns[i], ns[j]), d)
+      };
+      const hi = {
+        repr: 'frac',
+        value: makeValue(Math.max(ns[i], ns[j]), d)
+      };
+      return leftBigger ? {
+        left: hi,
+        right: lo
+      } : {
+        left: lo,
+        right: hi
+      };
+    }
+    const a = genFrac(rng, denoms);
+    const b = genFrac(rng, denoms);
+    const cmp = compareValues(a.value, b.value);
+    if (cmp === '=') return null;
+    if (cmp === '>' !== leftBigger) return null;
+    return {
+      left: a,
+      right: b
+    };
+  }
+
+  // Tier F dispatch. Every branch can now express the equal coin and either side
+  // of the direction coin, so no pairing's answer is fixed by the domain — that
+  // is the 2026-09-14 widening (see fracWholeSides and isDirectionFixed below).
+  function tierFSides(leftRepr, rightRepr, tier, rng, wantEqual, leftBigger, close) {
+    const fracIsLeft = leftRepr === 'frac';
+    const otherRepr = fracIsLeft ? rightRepr : leftRepr;
+    if (otherRepr === 'frac') {
+      if (wantEqual) {
+        const f = genFrac(rng, fracDenominators(tier, 'frac'));
+        return {
+          left: f,
+          right: {
+            repr: 'frac',
+            value: f.value
+          }
+        };
+      }
+      return fracFracUnequalSides(rng, tier, leftBigger, close);
+    }
+    if (otherRepr === 'dec') {
+      if (wantEqual) return fracDecEqualSides(rng, fracIsLeft);
+      return fracDecUnequalSides(rng, fracIsLeft, leftBigger, close);
+    }
+    return fracWholeSides(rng, tier, otherRepr, fracIsLeft, wantEqual, leftBigger, close);
+  }
+
+  // --- Direction-fixed pairings: none left -------------------------------------
+  //
+  // This used to report the twelve frac-vs-whole pairings whose answer the old
+  // domain decided on its own: fractions were proper-only — strictly below 1 —
+  // while tier F's integer partner carried 1 or 2, and mul, having no fact in
+  // (0, 2], drew an ordinary table fact; the whole side was bigger every time,
+  // in either order. The owner widened the fraction domain on 2026-09-14 (§10
+  // open question 4, closed; see fracWholeSides above) precisely so that "whole
+  // numbers always beat fractions" could not be learned, and with it every
+  // pairing can honour either side of the direction coin — so this is now false
+  // everywhere.
+  //
+  // It stays exported because callers use it to ask whether a pairing needs a
+  // fairness exemption. What would bring a `true` back is a future domain change
+  // that re-fixed some pairing's answer — a representation whose expressible
+  // values all sat on one side of its partner's, the way proper-only fractions
+  // sat below 1.
+  function isDirectionFixed(leftRepr, rightRepr) {
+    // Retired 2026-09-14 by the widened fraction domain: no pairing's answer is
+    // fixed by the domain any more. (Parameters kept for the callers' signature.)
+    return false;
+  }
+
+  // --- Tier D: either side dec, neither frac ----------------------------------
+  //
+  // Decimals run 0.1–20 (§4.5) with 1–2 places; the other side is an integer or
+  // an integer-valued expression. All windows are exact hundredths numerators.
+
+  function decSideFromInteger(rng, v) {
+    const places = rng() < 0.5 ? 1 : 2;
+    const digits = v * (places === 1 ? 10 : 100);
+    return {
+      repr: 'dec',
+      value: decValue(digits, places),
+      expr: {
+        digits,
+        places
+      }
+    };
+  }
+  function tierDDecPartnerSides(rng, decIsLeft, partnerRepr, leftBigger, wantEqual, close) {
+    let partner;
+    if (isMulDiv(partnerRepr)) {
+      // The fact draws first, inside tier D's reach; the decimal then matches it.
+      const con = partnerRepr === 'mul' ? {
+        lo: 4,
+        hi: 20
+      } : {
+        lo: 1,
+        hi: 20
+      };
+      partner = genWholeSide(partnerRepr, rng, 20, con);
+    } else {
+      const v = randInt(rng, 1, 20);
+      partner = genWholeSide(partnerRepr, rng, 20, {
+        target: v
+      });
+    }
+    if (!partner) return null;
+    const v = partner.value.n;
+    if (wantEqual) {
+      const dec = decSideFromInteger(rng, v);
+      return decIsLeft ? {
+        left: dec,
+        right: partner
+      } : {
+        left: partner,
+        right: dec
+      };
+    }
+    const decIsBigger = decIsLeft ? leftBigger : !leftBigger;
+    const kV = 100 * v;
+    let loK = 10,
+      hiK = 2000;
+    if (decIsBigger) loK = kV + 1;else hiK = kV - 1;
+    if (close) {
+      // Same whole part (5.25 ? 5, 4.9 ? 5): the hundredths stay in v's whole.
+      if (decIsBigger) hiK = Math.min(hiK, kV + 99);else loK = Math.max(loK, kV - 99);
+    }
+    const dec = genDec(rng, loK, hiK);
+    if (!dec) return null;
+    return decIsLeft ? {
+      left: dec,
+      right: partner
+    } : {
+      left: partner,
+      right: dec
+    };
+  }
+  function tierDDecDecSides(rng, wantEqual, leftBigger, close) {
+    const first = genDec(rng, 10, 2000);
+    if (!first) return null;
+    if (wantEqual) {
+      return {
+        left: first,
+        right: {
+          repr: 'dec',
+          value: first.value,
+          expr: {
+            ...first.expr
+          }
+        }
+      };
+    }
+    const k = hundredths(first.value);
+    let loK = 10,
+      hiK = 2000;
+    if (leftBigger) hiK = k - 1;else loK = k + 1;
+    if (close) {
+      const whole = Math.floor(k / 100);
+      loK = Math.max(loK, whole * 100);
+      hiK = Math.min(hiK, whole * 100 + 99);
+    }
+    const second = genDec(rng, loK, hiK);
+    if (!second) return null;
+    return {
+      left: first,
+      right: second
+    };
+  }
+  function tierDSides(leftRepr, rightRepr, rng, wantEqual, leftBigger, close) {
+    if (leftRepr === 'dec' && rightRepr === 'dec') {
+      return tierDDecDecSides(rng, wantEqual, leftBigger, close);
+    }
+    const decIsLeft = leftRepr === 'dec';
+    const partnerRepr = decIsLeft ? rightRepr : leftRepr;
+    return tierDDecPartnerSides(rng, decIsLeft, partnerRepr, leftBigger, wantEqual, close);
+  }
+
+  // --- Tier W: both sides whole-number representations -------------------------
+
+  // A lone table fact's reach: its own table (§5 — products 4–100, quotients
+  // 2–50) cut to the tier, and to one below the tier when the fact must be the
+  // smaller side, so the whole-number partner (1–drawCap) has room on the
+  // decided side of the coin. Tier D already draws its facts this way ("the
+  // fact draws first, inside tier D's reach", above); tier W must too, or the
+  // re-draw spends the coin: at tier 1 (cap 20), 58 of the 81 products are 20
+  // or more and can never be overshot by a partner capped at 20, so the
+  // "partner is bigger" half of the coin declined far more often than its
+  // opposite and the fact side came out bigger on ~72% of unequal pairs
+  // (controller, 8 seeds × 400 draws). Inside the tier both halves succeed
+  // nearly always and the coin passes through to the problem untouched.
+  function mulDivRange(repr, cap, factIsSmaller) {
+    const lo = repr === 'mul' ? 4 : 2;
+    const table = repr === 'mul' ? 100 : 50;
+    return {
+      lo,
+      hi: Math.min(table, factIsSmaller ? cap - 1 : cap)
+    };
+  }
+  function tierWSides(leftRepr, rightRepr, tier, rng, wantEqual, leftBigger, close) {
+    const cap = tierMax(tier);
+    const blocksInvolved = leftRepr === 'blocks' || rightRepr === 'blocks';
+    const drawCap = blocksInvolved ? Math.min(cap, 999) : cap; // never 1000 (§5)
+    // Exactly one side is a table fact: whichever draws first below draws
+    // inside mulDivRange's reach, not its full table.
+    const loneFact = isMulDiv(leftRepr) !== isMulDiv(rightRepr);
+    if (wantEqual) {
+      // A table fact decides the shared value when either side must show one —
+      // the fact is the sparse set, so it draws first.
+      let firstRepr = null;
+      if (isMulDiv(leftRepr)) firstRepr = leftRepr;else if (isMulDiv(rightRepr)) firstRepr = rightRepr;
+      let firstSide = null,
+        t;
+      if (firstRepr) {
+        firstSide = genWholeSide(firstRepr, rng, drawCap, loneFact ? mulDivRange(firstRepr, drawCap, false) : null);
+        if (!firstSide) return null;
+        t = firstSide.value.n;
+      } else {
+        const lo = leftRepr === 'add' || rightRepr === 'add' ? 2 : 1;
+        t = randInt(rng, lo, drawCap);
+      }
+      const otherRepr = firstRepr === leftRepr ? rightRepr : leftRepr;
+      if (firstSide) {
+        const other = genWholeSide(otherRepr, rng, drawCap, {
+          target: t
+        });
+        if (!other) return null;
+        return firstRepr === leftRepr ? {
+          left: firstSide,
+          right: other
+        } : {
+          left: other,
+          right: firstSide
+        };
+      }
+      const l = genWholeSide(leftRepr, rng, drawCap, {
+        target: t
+      });
+      if (!l) return null;
+      const r = genWholeSide(rightRepr, rng, drawCap, {
+        target: t
+      });
+      if (!r) return null;
+      return {
+        left: l,
+        right: r
+      };
+    }
+
+    // Direction-first fairness (§4.4): the bigger side was already chosen, among
+    // the sides that have room. The most constrained representation draws first —
+    // a table fact if there is one (a lone one inside mulDivRange's reach, so
+    // the partner can honour either side of the coin), otherwise the bigger
+    // side, drawn with room below it — and the partner is constrained to the
+    // decided side of that value. If the partner cannot express it, the attempt
+    // declines and the whole pair re-draws; nothing is ever clamped (§4.5).
+    // Which slot draws first is decided by the coin, never by comparing
+    // representation names: on a symmetric pairing (num ? num) the names are
+    // identical, so name-matching pinned the bigger side to the left.
+    let firstIsLeft, firstIsBigger;
+    if (isMulDiv(leftRepr) && isMulDiv(rightRepr)) {
+      firstIsLeft = leftBigger;
+      firstIsBigger = true;
+    } else if (isMulDiv(leftRepr) || isMulDiv(rightRepr)) {
+      firstIsLeft = isMulDiv(leftRepr);
+      firstIsBigger = firstIsLeft ? leftBigger : !leftBigger;
+    } else {
+      firstIsLeft = leftBigger;
+      firstIsBigger = true;
+    }
+    const firstRepr = firstIsLeft ? leftRepr : rightRepr;
+    const otherRepr = firstIsLeft ? rightRepr : leftRepr;
+    // A lone fact draws inside its tier reach, on the decided side of the room
+    // (mulDivRange above); every other representation draws its own domain.
+    const first = genWholeSide(firstRepr, rng, drawCap, loneFact ? mulDivRange(firstRepr, drawCap, !firstIsBigger) : null);
+    if (!first) return null;
+    const v = first.value.n;
+    let lo = 1,
+      hi = drawCap;
+    if (firstIsBigger) hi = v - 1;else lo = v + 1;
+    if (close) {
+      const w = drawCap >= 100 ? 4 : 2;
+      lo = Math.max(lo, v - w);
+      hi = Math.min(hi, v + w);
+    }
+    const other = genWholeSide(otherRepr, rng, drawCap, {
+      lo,
+      hi
+    });
+    if (!other) return null;
+    // A close pair must share its digit count, or a digit count would settle it.
+    if (close && digits10(first.value.n) !== digits10(other.value.n)) return null;
+    return firstIsLeft ? {
+      left: first,
+      right: other
+    } : {
+      left: other,
+      right: first
+    };
+  }
+
+  // --- The entry point (§4.1) -------------------------------------------------
+
+  const ALL_REPRS = WHOLE_REPRS.concat(['frac', 'dec']);
+
+  // The rng is the trailing injectable parameter (§4.4). There is no default:
+  // every draw goes through it, and a single Math.random() anywhere would make
+  // the module untestable, so the module refuses to run without one.
+  function makeCompareProblem(leftRepr, rightRepr, tier = 1, avoid = null, rng) {
+    if (typeof rng !== 'function') throw new Error('makeCompareProblem requires an rng');
+    if (!ALL_REPRS.includes(leftRepr) || !ALL_REPRS.includes(rightRepr)) {
+      throw new Error('unknown representation: ' + leftRepr + ' or ' + rightRepr);
+    }
+    if (!TIERS[tier]) throw new Error('unknown tier: ' + tier);
+
+    // The pair domain is chosen from the two representations before any value is
+    // drawn (§4.5).
+    const kind = leftRepr === 'frac' || rightRepr === 'frac' ? 'F' : leftRepr === 'dec' || rightRepr === 'dec' ? 'D' : 'W';
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      // The equality gate, then the coin written .15/.85 (§4.4).
+      const equalAllowed = !(avoid && avoid.sign === '=');
+      const wantEqual = equalAllowed && rng() < EQUAL_COIN;
+      const leftBigger = rng() < 0.5;
+      const close = rng() < 0.5;
+      const sides = kind === 'F' ? tierFSides(leftRepr, rightRepr, tier, rng, wantEqual, leftBigger, close) : kind === 'D' ? tierDSides(leftRepr, rightRepr, rng, wantEqual, leftBigger, close) : tierWSides(leftRepr, rightRepr, tier, rng, wantEqual, leftBigger, close);
+      if (!sides) continue;
+      // Not the same pair of values twice in a row (§4.4), restated for values.
+      if (avoid && avoid.left && avoid.right && valuesEqual(sides.left.value, avoid.left.value) && valuesEqual(sides.right.value, avoid.right.value)) continue;
+      // sign comes only from the values, by cross-multiplication.
+      return {
+        left: sides.left,
+        right: sides.right,
+        sign: compareValues(sides.left.value, sides.right.value)
+      };
+    }
+    throw new Error('makeCompareProblem: could not draw ' + leftRepr + ' vs ' + rightRepr + ' at tier ' + tier);
+  }
+  return {
+    gcd,
+    makeValue,
+    intValue,
+    isReduced,
+    decValue,
+    compareValues,
+    valuesEqual,
+    TIERS,
+    genNum,
+    genAdd,
+    genSub,
+    genMul,
+    genDiv,
+    genFrac,
+    genDec,
+    genBlocks,
+    isDirectionFixed,
+    makeCompareProblem
+  };
+}();
+/* ── end compare-engine ── */
+
 const SIGN_WORD = {
   '>': 'is greater than',
   '<': 'is less than',
   '=': 'equals'
 };
-const compareSentence = p => p.sign === '=' ? `${p.a} equals ${p.b}. They are the same.` : `${p.a} ${SIGN_WORD[p.sign]} ${p.b}.`;
 
-/* The two rungs that draw hundreds build their pair PLACE BY PLACE instead of as two
-   numbers with a gap between them, because at this size the gap is not what a child
-   reads. 620 against 405 is settled by the hundreds alone — and that is not a way
-   round the maths, it IS the maths: compare the biggest place, and look right only
-   when it ties. So the generator picks WHICH PLACE DECIDES and ties everything above
-   it:
+/* Magnitude is deferred (§4.6, open question 1): no child-facing range control
+   ships, and the tier below is the per-representation default — tier 1, whole
+   numbers to 20, fractions proper with easy denominators, decimals 0.1–20 with
+   1–2 places. The engine's larger tiers keep the 2026-08-18 "big numbers" promise
+   for whichever control the owner eventually chooses; nothing here forecloses it. */
+const COMPARE_TIER = 1;
 
-     hundreds differ           one look at the flats settles it
-     hundreds tie, tens differ the child has to look one place right
-     both tie, ones differ     two places right
+/* ── The shared representation table (§3) ──
+   One list, one order, both selector rows: blocks icon, 123, +, −, ×, ÷, ½, 1.2.
+   A chip carries a glyph or a word, never both — the blocks chip is the icon, the
+   other seven are text glyphs, and the word lives in `aria`. The decimal label is
+   GENERIC, never a sample value (owner, explicit), and the minus is the U+2212 the
+   app prints in equations, never a hyphen. */
+const COMPARE_REPRS = [{
+  id: 'blocks',
+  Icon: BlocksChipIcon,
+  label: 'Blocks',
+  aria: 'Blocks'
+}, {
+  id: 'num',
+  label: '123',
+  aria: 'Number'
+}, {
+  id: 'add',
+  label: '+',
+  aria: 'Add'
+}, {
+  id: 'sub',
+  label: '−',
+  aria: 'Take away'
+}, {
+  id: 'mul',
+  label: '×',
+  aria: 'Multiply'
+}, {
+  id: 'div',
+  label: '÷',
+  aria: 'Divide'
+}, {
+  id: 'frac',
+  label: '½',
+  aria: 'Fraction'
+}, {
+  id: 'dec',
+  label: '1.2',
+  aria: 'Decimal'
+}];
 
-   The digits below the deciding place are left free, which is what produces the case
-   this game most needs: 405 against 620 puts *more pieces* on the smaller side, so a
-   child who is counting objects rather than reading value gets it wrong — on screen,
-   where it can be seen, rather than in a test.
-
-   Fairness is by construction, as in makeCompareProblem below: at the deciding place
-   the two digits are drawn independently and redrawn on a tie, so which side is
-   bigger is a coin toss with no overflow case to patch. */
-const PLACE_WEIGHTS = [['h', 45], ['t', 33], ['o', 22]];
-function makePlaceProblem(preset, avoid, rng) {
-  /* rng is a TRAILING optional, not the leading parameter the primitives' generators
-     take (makeOddEvenProblem(rng, preset, avoid)). CompareGame's two call sites were
-     already written as (preset, problem) and one of them is pinned byte-for-byte by
-     tools/check-math-parity.js, which cannot be edited — so the seeded rng the tests
-     need goes on the end, and the page's calls simply leave it off. */
-  rng = rng || Math.random;
-  const places = preset.max >= 1000 ? 3 : 2; // the 1 - 100 rung has no hundreds to tie
-  const opts = PLACE_WEIGHTS.slice(3 - places);
-  const weight = opts.reduce((s, o) => s + o[1], 0);
-  for (let tries = 0; tries < 40; tries++) {
-    /* Equal pairs at the 2026-09-13 rate — same coin, same gate, same reason as the
-       full note in makeCompareProblem below. */
-    const same = rng() < .15 / .85 && !(avoid && avoid.sign === '=');
-    let decide = 0;
-    if (!same) {
-      let r = randR(rng, 1, weight);
-      for (let i = 0; i < opts.length; i++) {
-        r -= opts[i][1];
-        if (r <= 0) {
-          decide = i;
-          break;
-        }
-      }
-    }
-    const A = [],
-      B = [];
-    for (let i = 0; i < places; i++) {
-      if (same || i < decide) {
-        const d = randR(rng, 0, 9);
-        A.push(d);
-        B.push(d);
-      } else if (i === decide) {
-        const x = randR(rng, 0, 9);
-        let y = randR(rng, 0, 9);
-        while (y === x) y = randR(rng, 0, 9);
-        A.push(x);
-        B.push(y);
-      } else {
-        A.push(randR(rng, 0, 9));
-        B.push(randR(rng, 0, 9));
-      }
-    }
-    const value = d => d.reduce((n, x) => n * 10 + x, 0);
-    const a = value(A),
-      b = value(B);
-    if (a < preset.min || b < preset.min) continue; // all-zero digits, and nothing else
-    if (avoid && avoid.a === a && avoid.b === b) continue;
-    return {
-      a,
-      b,
-      sign: a > b ? '>' : a < b ? '<' : '='
-    };
-  }
-  return {
-    a: preset.min,
-    b: preset.max,
-    sign: '<'
-  };
+/* A decimal is digits and a place count (§4.3): the point is INSERTED into those
+   digits and no binary float ever holds the value, so neither the screen nor the
+   speech can print 0.30000000000000004. */
+function decString(expr) {
+  const s = String(expr.digits).padStart(expr.places + 1, '0');
+  return s.slice(0, -expr.places) + '.' + s.slice(-expr.places);
 }
-function makeCompareProblem(preset, avoid, rng) {
-  rng = rng || Math.random; // trailing optional — see makePlaceProblem
-  if (preset.places) return makePlaceProblem(preset, avoid, rng);
-  const {
-    min,
-    max
-  } = preset;
-  for (let tries = 0; tries < 40; tries++) {
-    const a = randR(rng, min, max);
-    let b;
-    /* EQUAL PAIRS, RE-RULED 2026-09-13 (owner; recorded in MATH-RIBBON-SPEC.md).
-       Until today this comment said: one pair in four is equal — rarer than that and
-       a child learns that "same" is never the answer and stops considering it; at one
-       in three the three buttons become equally likely and the game rewards guessing.
-       That reasoning was shown to the owner and overridden: a quarter of all problems
-       asking the middle button is too often, and the felt rate is 15% now, one pair
-       in about 6.7. (The clip-set is untouched — only the rate moved.)
-        Two things about the coin below are deliberate:
-        1. NO TWO IN A ROW. An equal pair straight after an equal pair asks the same
-          button twice for nothing, so the gate reads the threaded avoid problem's
-          sign — the same parameter the no-repeat check further down uses. A
-          session's FIRST problem has no previous problem to avoid, and its callers
-          pass no avoid, which is the convention every other generator's first draw
-          already follows (see makeOddEvenProblem's own call sites).
-        2. THE COIN IS .15/.85, NOT .15. With the gate above, the generator is a
-          two-state machine: from an unequal problem it draws equal with probability
-          p, from an equal one it never does. The long-run share is therefore
-          p/(1+p), not p. Solving p/(1+p)=.15 gives p=.15/.85 — the expression
-          written below — and the share lands on exactly 15%. A raw .15 would land
-          on .15/1.15 ≈ 13%. */
-    if (rng() < .15 / .85 && !(avoid && avoid.sign === '=')) {
-      b = a;
-    } else {
-      /* Half the unequal pairs are deliberately close together. If every pair were
-         far apart, the blocks rung could be won off the silhouette of the two piles
-         and the numeral rungs off the number of digits — in both cases without
-         comparing anything.
-          Which side is bigger has to be a fair coin, and getting there took three
-         goes, because both of the obvious ways to write this lean one way. Drawing
-         b anywhere in range and nudging it off a when they collide leans, because
-         the nudge went upwards (measured: 26 "less" to 12 "greater" in 60). Drawing
-         a gap and reflecting it when it overshoots leans too, because when the gap
-         fits on neither side the fallback also went upwards (measured: 49 to 72
-         across 180 problems on the 1–20 rung — small, and a child tapping the same
-         button all afternoon would still find it).
-         So the direction is chosen FIRST, among the sides that actually have room,
-         and the gap is then drawn inside that room. There is no overflow case left
-         to patch, which is why this one cannot lean. */
-      const span = rng() < .5 ? Math.max(1, Math.round((max - min) / 12)) : max - min;
-      const roomUp = Math.min(span, max - a),
-        roomDown = Math.min(span, a - min);
-      if (roomUp < 1 && roomDown < 1) {
-        b = a;
-      } // only reachable if a preset ever had max===min
-      else {
-        const up = roomUp > 0 && (roomDown < 1 || rng() < .5);
-        b = up ? a + randR(rng, 1, roomUp) : a - randR(rng, 1, roomDown);
-      }
-    }
-    if (avoid && avoid.a === a && avoid.b === b) continue;
-    return {
-      a,
-      b,
-      sign: a > b ? '>' : a < b ? '<' : '='
-    };
-  }
-  const a = randR(rng, min, max),
-    b = randR(rng, min, max);
-  return {
-    a,
-    b,
-    sign: a > b ? '>' : a < b ? '<' : '='
-  };
+/* Decimal words are BUILT IN JS, digit by digit after the point — the f1 precedent:
+   an engine handed "5.25" may say it unpredictably, and the whole point of speaking
+   it is hearing it said right. */
+function decWords(expr) {
+  const s = decString(expr),
+    point = s.indexOf('.');
+  return numberToWords(s.slice(0, point)) + ' point ' + s.slice(point + 1).split('').map(d => ONES[+d]).join(' ');
 }
+
+/* The two forms of a side (§4.7). The question line only speaks them when NEITHER
+   side is blocks — naming a blocks side would give the count away — and the win
+   sentence may name both, built from the same forms: expressions are read AS
+   EXPRESSIONS ("twenty divided by two"), never as their value; fractions use
+   fractionWords (British quarters); decimals use the words built above; a numeral
+   is the digits, which the robot voice reads as words. */
+const CMP_OP_WORDS = {
+  '+': 'plus',
+  '−': 'take away',
+  '×': 'times',
+  '÷': 'divided by'
+};
+function spokenSide(side) {
+  if (side.repr === 'frac') return fractionWords(side.value.n, side.value.d);
+  if (side.repr === 'dec') return decWords(side.expr);
+  if (side.expr) return `${side.expr.a} ${CMP_OP_WORDS[side.expr.op]} ${side.expr.b}`;
+  return String(side.value.n);
+}
+/* What the win line prints: each side's notation as it was shown, so 8 > 4,
+   3/4 < 0.8 and 20 ÷ 2 < 4 × 3 all read back exactly as they were asked. */
+function printedSide(side) {
+  if (side.repr === 'frac') return `${side.value.n}/${side.value.d}`;
+  if (side.repr === 'dec') return decString(side.expr);
+  if (side.expr) return `${side.expr.a} ${side.expr.op} ${side.expr.b}`;
+  return String(side.value.n);
+}
+const compareSentence = p => p.sign === '=' ? `${spokenSide(p.left)} equals ${spokenSide(p.right)}. They are the same.` : `${spokenSide(p.left)} ${SIGN_WORD[p.sign]} ${spokenSide(p.right)}.`;
+
+/* ── One selector row ──
+   The side's fixed tab plus the eight chips, announced as "Choose how the left /
+   right side is shown". The tab is a span, not a button: it names the row and does
+   nothing. On a screen narrow enough to scroll (the 2026-09-14 permission), the lit
+   chip is centred on every pick, so the scroll can never hide the selection. */
+function ReprRow({
+  tab,
+  value,
+  onPick,
+  muted
+}) {
+  const stripRef = useRef(null),
+    selRef = useRef(null);
+  useEffect(() => {
+    const s = stripRef.current,
+      b = selRef.current;
+    if (s && b) s.scrollLeft = Math.max(0, b.offsetLeft - (s.clientWidth - b.offsetWidth) / 2);
+  }, [value]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "cmp-repr-row"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip cmp-repr-strip",
+    ref: stripRef,
+    role: "group",
+    "aria-label": `Choose how the ${tab.toLowerCase()} side is shown`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cmp-repr-tab",
+    "aria-hidden": "true"
+  }, tab), COMPARE_REPRS.map(r => /*#__PURE__*/React.createElement("button", {
+    key: r.id,
+    ref: value === r.id ? selRef : undefined,
+    className: `fm-btn cmp-repr-chip${value === r.id ? ' on' : ''}`,
+    "aria-label": r.aria,
+    "aria-pressed": value === r.id,
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      onPick(r.id);
+    }
+  }, r.Icon ? /*#__PURE__*/React.createElement(r.Icon, null) : r.label))), /*#__PURE__*/React.createElement("span", {
+    className: "cmp-repr-fade",
+    "aria-hidden": "true"
+  }));
+}
+
+/* The preset-era generators — makePlaceProblem and the preset-shaped
+   makeCompareProblem that followed it — were retired by the 2026-09-14 redesign.
+   The generated engine above now owns generation for all sixty-four representation
+   pairs, and carries across the rules the old ones held (§4.4): the .15/.85 equality
+   coin, the no-two-in-a-row gate on `avoid`, and the direction-first fairness rule,
+   restated for values. What did not carry across is makePlaceProblem's place-by-place
+   construction of hundreds pairs — the engine's closeness rule (near values, shared
+   digit count) does that job for its own tier ranges. */
 
 /* The sign drawn as a creature. Two things here are not decoration:
 
@@ -11185,9 +12476,12 @@ function MouthIcon({
   })));
 }
 
-/* One side of the comparison. `reveal` turns the numeral on at the blocks rung
-   after the answer: the child wins by counting, and then sees what the pile they
-   just counted is called. That hand-off is the point of the rung.
+/* One side of the comparison, drawn in its own representation (§4.2): blocks are
+   the countable pile, a numeral is the numeral, + − × ÷ show the two terms with no
+   result, ½ is the stacked bar and 1.2 is digits with the point inserted. `reveal`
+   turns the numeral on beside a blocks pile after the answer: the child wins by
+   counting, and then sees what the pile they just counted is called. That hand-off
+   is the point of the blocks side.
 
    THE BLOCKS ARE COUNTABLE. Tapping one marks it — it lifts and wears a ring, the
    same `count-block` interaction and the same art as What Number? — and the app
@@ -11207,19 +12501,22 @@ function MouthIcon({
    A tens rod is worth ten and a flat is worth a hundred, so the running total is
    hundreds*100 + tens*10 + ones — the same place-value arithmetic the counter in What
    Number? does, which is why a rod and a one cannot simply be counted as one thing
-   each. On the hundreds rung this is the best thing in the game: tapping flats counts
-   "one hundred, two hundred, three hundred", and carrying on into the rods says "three
-   hundred and ten". Counting on across places is a harder spoken skill than one, two,
-   three, and here the child performs it while the app supplies only the word. */
+   each. With hundreds on the pile this is the best thing in the game: tapping flats
+   counts "one hundred, two hundred, three hundred", and carrying on into the rods says
+   "three hundred and ten". Counting on across places is a harder spoken skill than
+   one, two, three, and here the child performs it while the app supplies only the
+   word. */
 function CompareSide({
-  n,
-  show,
+  side,
   chosen,
   reveal,
   countable
 }) {
-  const p = show === 'numbers' ? null : decompose(n, show === 'blocks');
-  const showNum = show !== 'blocks' || reveal;
+  const isBlocks = side.repr === 'blocks';
+  /* ≤ 10 draws ones only; ≤ 99 rods and ones; 100–999 keeps the per-place groups so
+     a mass with no countable units never appears (§5). The VALUE picks the drawing —
+     blocks is one representation among eight now, not a rung with a fixed range. */
+  const p = isBlocks ? decompose(side.value.n, side.value.n <= 10) : null;
   const [counted, setCounted] = useState({});
   const tapBlock = key => {
     if (!countable) return;
@@ -11241,7 +12538,7 @@ function CompareSide({
   }, inner);
   return /*#__PURE__*/React.createElement("div", {
     className: `cmp-side ${chosen ? 'chosen' : ''}`,
-    "aria-label": `${n}`
+    "aria-label": isBlocks ? 'Blocks to count' : printedSide(side)
   }, p && /*#__PURE__*/React.createElement("div", {
     className: "cmp-blocks"
   }, p.h > 0 && /*#__PURE__*/React.createElement("span", {
@@ -11272,9 +12569,25 @@ function CompareSide({
     length: p.o
   }, (_, i) => block(`o${i}`, /*#__PURE__*/React.createElement("span", {
     className: "pb-one"
-  }))))), showNum && /*#__PURE__*/React.createElement("div", {
-    className: `cmp-num ${show === 'numbers' ? '' : 'small'}`
-  }, n));
+  }))))), isBlocks && reveal && /*#__PURE__*/React.createElement("div", {
+    className: "cmp-num small"
+  }, side.value.n), side.repr === 'num' && /*#__PURE__*/React.createElement("div", {
+    className: "cmp-num"
+  }, side.value.n), side.expr && side.repr !== 'dec' && /*#__PURE__*/React.createElement("div", {
+    className: "cmp-expr"
+  }, side.expr.a, /*#__PURE__*/React.createElement("span", {
+    className: "cmp-op"
+  }, side.expr.op), side.expr.b), side.repr === 'frac' && /*#__PURE__*/React.createElement("span", {
+    className: "fw-frac"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fw-top"
+  }, side.value.n), /*#__PURE__*/React.createElement("span", {
+    className: "fw-rule"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "fw-bot"
+  }, side.value.d)), side.repr === 'dec' && /*#__PURE__*/React.createElement("div", {
+    className: "cmp-num"
+  }, decString(side.expr)));
 }
 function CompareGame({
   onBack,
@@ -11287,18 +12600,21 @@ function CompareGame({
   muted,
   onToggleMute
 }) {
-  /* Opens on the FIRST rung — two piles of ten or fewer blocks, no numerals (owner,
-     2026-08-18). This is the second exception to the 2026-08-14 "open on the hardest
-     setting" rule, and it is a different exception from Carry Add's: there the hard
-     rung adds taps and a new notation at once, whereas here every rung is one tap on
-     the same three buttons. What the top rung skips is the *counting*. 855 against 736
-     is read off the digits; four blocks against ten has to be counted, which is the
-     thing this game is for, so that is where it now starts. The other rungs are one
-     tap away on the level pill. */
-  const [preset, setPreset] = useState(COMPARE_PRESETS[0]);
+  /* Opens with LEFT as blocks and RIGHT as a numeral — the spec's recommended opening
+     pair (§10, open question 2): the cross-representation idea is visible on arrival,
+     each side still countable or readable, and a numeral is named only once the child
+     has counted the pile beside it. That keeps the ladder's principle (2026-08-17)
+     alive under the selectors that replaced the ladder; everything else on the two
+     rows is one tap away, and both rows may even wear the same representation (§10,
+     open question 3) — blocks against blocks was the old first rung, and 3/4 against
+     2/3 is a real lesson. */
+  const [leftRepr, setLeftRepr] = useState('blocks');
+  const [rightRepr, setRightRepr] = useState('num');
   /* First problem of a session: nothing to avoid, so no avoid is passed — the same
-     convention makeOddEvenProblem's mount call already follows. */
-  const [problem, setProblem] = useState(() => makeCompareProblem(COMPARE_PRESETS[0]));
+     convention makeOddEvenProblem's mount call already follows. The rng is passed
+     EXPLICITLY, as Math.random: the engine refuses to run without one, which is
+     deliberate — a call site cannot silently stop being testable. */
+  const [problem, setProblem] = useState(() => CompareEngine.makeCompareProblem('blocks', 'num', COMPARE_TIER, null, Math.random));
   const [won, setWon] = useState(false);
   const [wrongSign, setWrongSign] = useState(null);
   const [misses, setMisses] = useState(0);
@@ -11318,25 +12634,30 @@ function CompareGame({
     setRound(r => r + 1);
   }, []);
   const next = useCallback(() => {
-    resetForProblem(makeCompareProblem(preset, problem));
-  }, [preset, problem, resetForProblem]);
-  /* rung switches thread the current problem as avoid (2026-09-13), closing the gap
-     that let a switch deal the same pair twice or an equal pair twice in a row — next
-     above already threaded it, and a child mid-round who changes rungs deserves the
-     same no-repeat the Next button gives them. */
-  const applyPreset = useCallback(p => {
-    setPreset(p);
-    resetForProblem(makeCompareProblem(p, problem));
-  }, [problem, resetForProblem]);
+    resetForProblem(CompareEngine.makeCompareProblem(leftRepr, rightRepr, COMPARE_TIER, problem, Math.random));
+  }, [leftRepr, rightRepr, problem, resetForProblem]);
+  /* Selector switches thread the current problem as avoid (2026-09-13, when this was
+     the rung pill), closing the gap that let a switch deal the same pair twice or an
+     equal pair twice in a row — next above already threaded it, and a child mid-round
+     who changes how a side is written deserves the same no-repeat the Next button
+     gives them. */
+  const pickLeft = useCallback(id => {
+    setLeftRepr(id);
+    resetForProblem(CompareEngine.makeCompareProblem(id, rightRepr, COMPARE_TIER, problem, Math.random));
+  }, [rightRepr, problem, resetForProblem]);
+  const pickRight = useCallback(id => {
+    setRightRepr(id);
+    resetForProblem(CompareEngine.makeCompareProblem(leftRepr, id, COMPARE_TIER, problem, Math.random));
+  }, [leftRepr, problem, resetForProblem]);
   useEffect(() => {
-    // See the note above the mode: naming the numbers here would give the blocks
-    // rung away, because that rung is the one where they are not on screen.
-    if (preset.show === 'blocks') {
+    // See the note above the mode: naming a blocks side here would give the count
+    // away, because blocks are the one representation whose value is not on screen.
+    if (problem.left.repr === 'blocks' || problem.right.repr === 'blocks') {
       Voice.say('Which side has more?');
       return;
     }
-    Voice.lines([num(`${problem.a}, or ${problem.b}.`), 'Which is bigger?']);
-  }, [problem, preset]);
+    Voice.lines([num(`${spokenSide(problem.left)}, or ${spokenSide(problem.right)}.`), 'Which is bigger?']);
+  }, [problem]);
 
   /* The rule, said once, after the second miss — and it states both halves, because
      a child who is stuck on an equals is not helped by being told about bigger. */
@@ -11366,6 +12687,7 @@ function CompareGame({
       wrongT.current = setTimeout(() => setWrongSign(null), 450);
     }
   }, [problem, won, muted, addProgress, setScore]);
+  const hasBlocks = problem.left.repr === 'blocks' || problem.right.repr === 'blocks';
   return /*#__PURE__*/React.createElement("div", {
     className: "screen cmp-screen",
     style: {
@@ -11378,8 +12700,7 @@ function CompareGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -11394,20 +12715,23 @@ function CompareGame({
     className: "count-title-main"
   }, "Which is Bigger?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Feed the hungry mouth!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
-    chips: chipsOf(COMPARE_PRESETS),
-    value: preset.id,
-    onPick: id => applyPreset(byId(COMPARE_PRESETS, id)),
-    muted: muted,
-    label: "Choose how big the numbers are"
-  }), preset.show !== 'numbers' && !won && /*#__PURE__*/React.createElement("div", {
-    className: "tap-hint"
-  }, "Tap the blocks to count them"), /*#__PURE__*/React.createElement("div", {
+  }, "Feed the hungry mouth!", hasBlocks && !won ? ' Tap the blocks to count them.' : '')), /*#__PURE__*/React.createElement("div", {
+    className: "cmp-selector"
+  }, /*#__PURE__*/React.createElement(ReprRow, {
+    tab: "Left",
+    value: leftRepr,
+    onPick: pickLeft,
+    muted: muted
+  }), /*#__PURE__*/React.createElement(ReprRow, {
+    tab: "Right",
+    value: rightRepr,
+    onPick: pickRight,
+    muted: muted
+  })), /*#__PURE__*/React.createElement("div", {
     className: "cmp-row"
   }, /*#__PURE__*/React.createElement(CompareSide, {
     key: `a${round}`,
-    n: problem.a,
-    show: preset.show,
+    side: problem.left,
     reveal: won,
     countable: !won,
     chosen: won && problem.sign !== '<'
@@ -11419,14 +12743,13 @@ function CompareGame({
     className: "cmp-slot-q"
   }, "?")), /*#__PURE__*/React.createElement(CompareSide, {
     key: `b${round}`,
-    n: problem.b,
-    show: preset.show,
+    side: problem.right,
     reveal: won,
     countable: !won,
     chosen: won && problem.sign !== '>'
   })), won ? /*#__PURE__*/React.createElement("div", {
     className: "celebrate-text"
-  }, problem.a, " ", problem.sign, " ", problem.b) : /*#__PURE__*/React.createElement("div", {
+  }, printedSide(problem.left), " ", problem.sign, " ", printedSide(problem.right)) : /*#__PURE__*/React.createElement("div", {
     className: "cmp-keys"
   }, ['>', '=', '<'].map(s => /*#__PURE__*/React.createElement("button", {
     key: s,
@@ -12114,8 +13437,7 @@ function OddEvenGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -12349,8 +13671,7 @@ function TenBondGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -12627,8 +13948,7 @@ function HundredBondGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -12913,8 +14233,7 @@ function HundredGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -13227,8 +14546,7 @@ function DivisionGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -13433,8 +14751,7 @@ function FractionGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -13744,8 +15061,7 @@ function AreaGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -14366,8 +15682,7 @@ function NumberPlayGame({
     onBack: onBack,
     muted: muted,
     onToggleMute: onToggleMute,
-    label: "Number Toys"
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    label: "Number Toys",
     journey: journey,
     trophies: trophies
   }), /*#__PURE__*/React.createElement(Mascot, {
@@ -14803,8 +16118,7 @@ function MemoryGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -14964,13 +16278,23 @@ function NineHands({
    of a screen that does not scroll. Seven columns is four rows and 634px wide, which the
    stage has in both skins.
 
-   EIGHTY-TWO IS THE UNICORN NUMBER. Eighty-eight also fitted -- but only by eleven pixels
-   on the tighter skin, because unicorn's flower garden is 42px taller than space's journey
-   track and every row below it starts that much lower. Eleven pixels is not a margin, it
-   is a coincidence, so the widest rung gives back six pixels per tile and clears by
-   twenty-three (measured, at every a from 20 to 25, in both skins).
-   The cell that leaves is then 8.2px rather than 8.8px and is found by its halo either
-   way, which is the trade being made. */
+   EIGHTY-TWO WAS THE UNICORN NUMBER until 2026-09-13. Eighty-eight also fitted -- but
+   only by eleven pixels on the tighter skin, because unicorn's flower garden is 42px
+   taller than space's journey track and every row below it starts that much lower.
+   Eleven pixels is not a margin, it is a coincidence, so the widest rung gave back six
+   pixels per tile and cleared by twenty-three (measured, at every a from 20 to 25, in
+   both skins). The cell that leaves was then 8.2px rather than 8.8px and is found by
+   its halo either way, which is the trade being made.
+   THE ROW THAT COST THOSE ELEVEN PIXELS IS GONE (2026-09-13). ScoreRow merged into
+   TopBar and every game screen got 59px taller: 48px of row plus its 11px screen gap
+   in space, and the same 59 in unicorn, whose row was 42px taller but whose merged bar
+   grew by exactly that 42 (52 -> 94) — so the skins still differ by 42 and one number
+   still serves both. Eighty-eight now clears by roughly seventy on the tighter skin —
+   the eleven that was measured plus the fifty-nine the merge returned — which is a
+   margin rather than a coincidence, so the widest rung takes its six pixels back:
+   82 -> 88, computed for 768 x 1024 and derived, not re-measured. Seven columns is
+   unchanged: 634px at an 88px tile was measured to fit the stage in both skins when
+   88 was first tried. */
 const nineTiles = a => a <= 6 ? {
   t: 132,
   c: 3
@@ -14978,7 +16302,7 @@ const nineTiles = a => a <= 6 ? {
   t: 112,
   c: 4
 } : {
-  t: 82,
+  t: 88,
   c: 7
 };
 function NineGroups({
@@ -15139,8 +16463,7 @@ function NineMagicGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies
@@ -15376,8 +16699,7 @@ function MakeItGame({
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
     onBack: onBack,
     muted: muted,
-    onToggleMute: onToggleMute
-  }), /*#__PURE__*/React.createElement(ScoreRow, {
+    onToggleMute: onToggleMute,
     score: score,
     journey: journey,
     trophies: trophies

@@ -264,7 +264,22 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        "Mozart (variations) · 1781" (owner, 2026-09-13). The tune is a French melody first
 //        printed in 1761; Mozart's twelve variations on it (K.265, 1781-82) are a separate piece,
 //        which the card's own history text still explains.
-const CACHE_NAME = "magic-math-v40";
+//
+// v41 -- 2026-09-14, arms a candidate; not published. Which is Bigger? becomes two
+//        representation selectors (REPRESENTATION-SPEC.md, Spec A): LEFT and RIGHT rows each
+//        offer blocks, number, add, take away, multiply, divide, fraction and decimal, over
+//        CompareEngine -- the values-first engine generated into both pages from
+//        math-app/engine/compare-problem.js by tools/port-compare-engine.js (#578). The single
+//        range ribbon and the preset-era makeCompareProblem/makePlaceProblem are deleted.
+//        Measured at 768x1024 in real Chrome in both skins: 8 chips per row at 48x48, exactly
+//        one lit per row after each of 16 taps, answer keys 92x92 on screen, one screen tall;
+//        a blocks side shows no numeral before it is counted; a round plays through to Next.
+//        Which is Bigger? stays a robot-voice mode (owner, 2026-08-20), so reading expressions,
+//        fractions and decimals aloud needed no render.
+//        Also new since v40, whose candidate was 1c8567a8: one chrome row instead of two
+//        (#534) and the height it won back spent (#544); Space Math's music button now looks
+//        switched off when the music is off (#568).
+const CACHE_NAME = "magic-math-v41";
 
 const SHELL = [
   "./",
