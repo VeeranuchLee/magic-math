@@ -1435,5 +1435,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
     });
   }
 </script>
-</body>
+  <script>
+  /* Pinch-zoom guard. iOS Safari ignores user-scalable=no (since iOS 10), so this is
+     the only thing that stops two small hands zooming the page mid-play. gesturestart
+     fires once per pinch; preventing it cancels the zoom and touches nothing else.
+     Other browsers never fire it, so this is inert there. */
+  document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
+  </script>
+  </body>
 </html>
