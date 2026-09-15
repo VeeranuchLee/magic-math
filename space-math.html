@@ -799,6 +799,100 @@
       box-shadow:0 5px 0 #371a92}
     .mk-tile.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .mk-tile.hint-glow{animation:hintGlow 1.1s ease-in-out infinite}
+    /* ── THE STEP SLIDER (the shared component; y1's target chooser) ──
+       The three Make buttons became this slider (owner, 2026-09-14): every target 5..100
+       on one track, evenly spaced BY INDEX, so a drag through 19, 20, 25 moves the thumb
+       the same one step each time. It rides in the ribbon row's own chrome
+       (.fm-strip.ar-strip) exactly as the Count By slider does, so where the row sits,
+       its height and its 744px budget at 768px stay the ribbon's — the slider REPLACES
+       the buttons and adds no row of its own.
+       Everything a finger lands on is drawn at 48px — the brief's floor for this
+       control — rather than Count By's 44: the thumb, the track it slides on and both
+       arrow boxes. The thumb's size is set on the DRAWN thumb (::-webkit-slider-thumb)
+       and the track is the same 48px tall as the thumb on purpose, because WebKit
+       centres the thumb on the track's top edge unless nudged and equal heights are the
+       recipe that needs no margin-top fudge. The track is also the tap-to-jump surface:
+       a tap anywhere on it lands on the stop nearest the tap. */
+    /* Two classes on purpose, as with Count By: .fm-strip sits later in this stylesheet
+       than this block, so a single-class override would lose the cascade. */
+    .fm-strip.st-strip{gap:10px;padding:7px 12px;width:min(720px,100%);box-sizing:border-box}
+    /* The strip shrink-wraps and a range input only asks for ~129px, so without the
+       width 25 stops would share 129px (~5px a stop). Filling the row gives ~18px a
+       stop, and the fine control a fat drag needs is the 48px arrows beside it. */
+    .st-step-btn{flex:0 0 auto;min-width:48px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+      border:2.5px solid #93b7fb;border-radius:14px;background:linear-gradient(135deg,#fff,#e8f0ff);
+      color:#2f6df6;font-size:1.7rem;font-weight:900;cursor:pointer;transition:transform .1s,color .14s,border-color .14s}
+    .st-step-btn:active{transform:scale(.93)}
+    .st-step-btn[disabled]{opacity:.38;cursor:default}
+    .st-slider{-webkit-appearance:none;appearance:none;flex:1 1 auto;min-width:0;height:56px;background:transparent;cursor:pointer}
+    .st-slider::-webkit-slider-runnable-track{height:48px;border-radius:999px;
+      background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;box-shadow:0 3px 0 #93b7fb}
+    .st-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:48px;height:48px;margin-top:0;
+      border-radius:50%;background:linear-gradient(160deg,#2f6df6,#5a2ed6);border:2.5px solid #5a2ed6;
+      box-shadow:0 3px 0 #371a92}
+    .st-slider::-moz-range-track{height:48px;border-radius:999px;background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb}
+    .st-slider::-moz-range-thumb{width:43px;height:43px;border-radius:50%;background:linear-gradient(160deg,#2f6df6,#5a2ed6);border:2.5px solid #5a2ed6}
+    /* The number beside the thumb, at the thumb: a child watching their finger does not
+       have to look up at the title to read where they are. aria-hidden for the same
+       reason Count By's chip is — the input it mirrors is what a screen reader hears. */
+    .st-value{flex:0 0 auto;min-width:64px;text-align:center;font-size:1.9rem;font-weight:900;color:#2f6df6;
+      background:linear-gradient(160deg,#fff,#e8f0ff);border:2.5px solid #93b7fb;border-radius:14px;
+      padding:6px 10px;box-shadow:0 3px 0 #93b7fb;font-variant-numeric:tabular-nums}
+    /* THE LARGE LIVE LABEL (owner, 2026-09-14): the title's sub-caption is the label
+       that follows the thumb, so it is drawn at label scale on this screen only — the
+       sub stays a small caption everywhere else. */
+    .mk-screen .count-title-sub{font-size:clamp(1.3rem,3.6vw,1.7rem)}
+    /* ── THE TIMES TABLES RANGE: two thumbs, two ceilings (owner, 2026-09-14) ──
+       The five rung chips became two independent sliders — the same StepSlider the
+       Make It target rides, twice, over a plain 6..30 integer ladder. The rows are
+       .st-strip with the strip chrome TAKEN OFF (the scoped rule below) and lent to
+       one panel instead: two bordered rows would read as two settings panels, and
+       the owner asked for one compact control, not a large settings panel.
+       HEIGHT IS THE BUDGET, not a preference. The ribbon this replaces was ~65px;
+       two 44px tracks (the Count By floor, not Make It's 48 — there are two rows
+       here where that control has one), a 12px scale of reference marks under each
+       and a one-line summary come to ~165px. At 768x1024 that is free (the screen
+       had ~400px spare); on a 375x667 phone it is not, and .screen{overflow:hidden}
+       hides whatever crosses the fold with the backspace key first to go — the
+       hundred board's budget note tells that story. The max-height:740 block at the
+       end of this section pays the difference back on exactly the screens that need
+       it, the same trade .hbk-screen makes at the same height. */
+    .tt-range{display:flex;flex-direction:column;gap:6px;width:min(720px,100%);box-sizing:border-box;
+      padding:6px 12px 5px;background:rgba(255,255,255,.9);border:2px solid #c4d7fd;border-radius:20px;
+      box-shadow:0 3px 10px rgba(90,46,214,.12);position:relative;z-index:1}
+    /* Chrome off the rows (two classes on purpose, the Count By rule again: this has
+       to beat .fm-strip.st-strip on order as well as specificity). The panel above
+       is the one chrome; margin:0 also retires .ar-strip's own. */
+    .multiply-screen .fm-strip.st-strip{background:none;border:none;box-shadow:none;padding:0;margin:0;gap:8px;width:100%}
+    /* The visible name of each track, one cell wide so the two tracks start at the
+       same x and read as a pair of parallels rather than two accidental rows. */
+    .st-label{flex:0 0 auto;min-width:104px;font-size:.92rem;font-weight:900;color:#5a2ed6;white-space:nowrap}
+    /* The 44px family: thumb, track and arrows all drawn at the app's floor, and the
+       input's own box only 6px taller than its track so the scale can tuck in close. */
+    .multiply-screen .st-slider{height:50px}
+    .multiply-screen .st-slider::-webkit-slider-runnable-track{height:44px}
+    .multiply-screen .st-slider::-webkit-slider-thumb{width:44px;height:44px}
+    .multiply-screen .st-slider::-moz-range-track{height:44px}
+    .multiply-screen .st-slider::-moz-range-thumb{width:39px;height:39px}
+    .multiply-screen .st-step-btn{min-width:44px;width:44px;height:44px;font-size:1.5rem}
+    .multiply-screen .st-value{min-width:56px;font-size:1.6rem;padding:4px 8px}
+    /* The track's share of the row and the reference marks under it: the marks are
+       positioned at each stop's thumb centre by the component, so they inherit the
+       input's width exactly and never disagree with where the thumb lands. */
+    .st-track{flex:1 1 auto;min-width:0}
+    .st-track .st-slider{width:100%}
+    .st-scale{position:relative;height:12px}
+    .st-scale span{position:absolute;top:0;transform:translateX(-50%);font-size:.58rem;
+      font-weight:900;color:#93b7fb;line-height:1;font-variant-numeric:tabular-nums}
+    .tt-sum{text-align:center;font-size:1.15rem;font-weight:900;color:#5a2ed6;line-height:1;
+      font-variant-numeric:tabular-nums}
+    @media (max-height:740px){
+      .multiply-screen .count-title{padding:5px 14px}
+      .multiply-screen .multiply-card{padding:13px 20px;gap:10px}
+      .multiply-screen .keypad{gap:8px}
+      .multiply-screen .key-btn{height:52px}
+      .tt-range{padding:4px 12px}
+    }
     /* A 9.7" iPad in portrait is the target and both screens fit it with room; a phone in
        landscape is the case .screen{overflow:hidden} punishes, so the two tallest pieces
        — the fingers and the hundred block — give height back first. */
@@ -1436,8 +1530,9 @@
     .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
     /* The 1–30 tap grid that Times Tables and Count By opened on lived here, behind a
-       Play! button. Times Tables is a ribbon of curated rungs now (TIMES_PRESETS) and
-       Count By's numbers are a slider (.cb-strip below, 2026-09-13), so the grid, its
+       Play! button. Times Tables' ceilings are two sliders now (.tt-range above,
+       2026-09-15) and Count By's numbers are a slider (.cb-strip below, 2026-09-13),
+       so the grid, its
        label and its own breakpoint are gone.
        The pill in the top bar is the last survivor and it no longer opens anything: it
        names the four screens that have no ribbon of their own, so it is drawn flat and
@@ -3784,43 +3879,17 @@ const MISSING_AHEAD = 10;
 const TIMES_MAX_OPTIONS = Array.from({
   length: 30
 }, (_, i) => i + 1);
-const DEFAULT_TIMES_RANGE = {
-  rowMax: 12,
-  colMax: 12
-};
-/* ── HOW BIG SHALL WE GO? (m1) — THE RUNGS THE RIBBON OFFERS ──
+/* ── HOW BIG SHALL WE GO? (m1) — THE RUNGS THE RIBBON OFFERED ──
    TIMES_MAX_OPTIONS above is untouched and is NOT a picker: it is the number space the
    voice was rendered for, and tools/build-narration-manifest.py reads it to decide which
    clips exist. What WAS a picker — a 1 to 30 tap grid behind a Play! button — was thirty
    free numbers with nothing tying any of them to what the screen can draw, and the
-   owner's rule of 2026-09-12 is curated rungs only.
-   6, 10 and 12 are the ceilings this app already treats as a times table's size: they
-   are the three the memory deck's times pairs are built from. 12 is also HINT_BLOCKS_MAX,
-   the last size whose groups the second-miss hint can actually draw, so the first three
-   rungs are the ones with a picture behind them and the last two are the ones that are
-   numerals by nature. 30 is the rendered ceiling and cannot rise without paying for the
-   clips — see the note above TIMES_MAX_OPTIONS. */
-const TIMES_PRESETS = [{
-  id: 'm6',
-  tag: '6 × 6',
-  max: 6
-}, {
-  id: 'm10',
-  tag: '10 × 10',
-  max: 10
-}, {
-  id: 'm12',
-  tag: '12 × 12',
-  max: 12
-}, {
-  id: 'm20',
-  tag: '20 × 20',
-  max: 20
-}, {
-  id: 'm30',
-  tag: '30 × 30',
-  max: 30
-}];
+   owner's rule of 2026-09-12 is curated rungs only. The rungs themselves (TIMES_PRESETS,
+   five chips whose two sides always moved together) became two independent factor
+   sliders on 2026-09-14: their stops, the 20 × 20 default and the generator now live in
+   the MATH PRIMITIVES block (TIMES_STOPS) with the rest of the shared maths. This note
+   stays because the voice ceiling above still governs both tracks: 30 is the top of the
+   sliders precisely because the recorded numbers stop there. */
 /* Count By: the skip-counting chant and the times table are the same list of numbers,
    so this game writes both at once. step = what we count by, upTo = how many jumps. */
 const COUNT_BY_STEP_OPTIONS = Array.from({
@@ -5508,31 +5577,28 @@ function newNineRound(trick, avoid, rng) {
    the tray is a list of values with no seats; and the only thing that says "two" is the
    length check in the game's tap handler. None of those levels is built here. None of
    them needs this rewritten. */
-const MAKE_LEVELS = [{
-  id: 'mk10',
-  target: 10,
-  min: 1,
-  max: 9,
-  cols: 5,
-  tag: 'Make 10',
-  desc: '7 + 3'
-}, {
-  id: 'mk20',
-  target: 20,
-  min: 2,
-  max: 18,
-  cols: 10,
-  tag: 'Make 20',
-  desc: '12 + 8'
-}, {
-  id: 'mk100',
-  target: 100,
-  min: 5,
-  max: 95,
-  cols: 10,
-  tag: 'Make 100',
-  desc: '37 + 63'
-}];
+/* THE STOPS ARE ONE LIST (owner, 2026-09-14). MAKE_STOPS is the single source of truth
+   for what a child can be asked to make: the slider, its live label, the prompt and the
+   levels below are all derived from it — there is no second hand-tuned copy anywhere.
+   The list is ordered default-first (10 leads, then every other stop ascending) so
+   `[0]` is both the level the screen opens on and the default: the mount harness
+   reaches every rung by swapping index 0, and an ascending list would have made that
+   swap exercise a level the child never opens on while the default sat somewhere else. */
+const MAKE_STOPS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100];
+const MAKE_DEFAULT = 10;
+/* The band each stop draws its numbers from, straight from the brief's difficulty
+   guidance: 5..10 draws from 1..10 (the easy complements — and it cannot be narrower,
+   because target 5 over a 1..4 pool holds only four values and cannot fill a six-tile
+   tray), 11..20 from 2..20, and 25..100 from 5..T-5 (bigger numbers, the same tray). */
+const mkLevel = t => ({
+  id: 'mk' + t,
+  target: t,
+  min: t <= 10 ? 1 : t <= 20 ? 2 : 5,
+  max: t <= 10 ? 10 : t <= 20 ? 20 : t - 5,
+  cols: t <= 10 ? 5 : 10,
+  tag: 'Make ' + t
+});
+const MAKE_LEVELS = [mkLevel(MAKE_DEFAULT)].concat(MAKE_STOPS.filter(t => t !== MAKE_DEFAULT).map(mkLevel));
 const makeLevel = id => MAKE_LEVELS.find(l => l.id === id) || MAKE_LEVELS[0];
 const MAKE_TRAY = 6;
 function makeItProblem(rng, levelId, avoid) {
@@ -5544,11 +5610,15 @@ function makeItProblem(rng, levelId, avoid) {
     if (avoid && avoid.level === lv.id && avoid.a === a) continue;
     const tray = [a, b];
     /* A decoy may not reach the target with ANY tile already down — which rules out the
-       partner of the solution pair as well as the partner of an earlier decoy. */
+       partner of the solution pair as well as the partner of an earlier decoy — and it
+       may not BE the target either: a target tile finishes the job on its own, and every
+       5..10 rung's band reaches up to 10 now, so the target is a legal draw for the
+       first time. */
     let guard = 0;
     while (tray.length < MAKE_TRAY && guard++ < 400) {
       const d = randR(rng, lv.min, lv.max);
       if (tray.indexOf(d) >= 0) continue;
+      if (d === lv.target) continue;
       if (tray.some(t => t + d === lv.target)) continue;
       tray.push(d);
     }
@@ -5567,7 +5637,7 @@ function makeItProblem(rng, levelId, avoid) {
     b = lv.target - lv.min,
     tray = [a, b];
   for (let d = lv.min; d <= lv.max && tray.length < MAKE_TRAY; d++) {
-    if (tray.indexOf(d) >= 0 || tray.some(t => t + d === lv.target)) continue;
+    if (d === lv.target || tray.indexOf(d) >= 0 || tray.some(t => t + d === lv.target)) continue;
     tray.push(d);
   }
   return {
@@ -5585,6 +5655,41 @@ function makeItProblem(rng, levelId, avoid) {
 function makeItCompleters(problem, picked) {
   const sum = picked.reduce((t, i) => t + problem.tray[i], 0);
   return problem.tray.map((n, i) => i).filter(i => picked.indexOf(i) < 0 && sum + problem.tray[i] === problem.target);
+}
+
+/* ── Times Tables (m1): the two ceilings, and the fact they ask ──
+   The five rungs (6, 10, 12, 20, 30 — both sides of the table moving together)
+   became two INDEPENDENT sliders on 2026-09-14 (TIMES-TABLES-SLIDER-SPEC.md):
+   rowMax bounds the first factor of every question and colMax the second, so a
+   setting of 6 × 30 may deal 4 × 27 and must never deal 27 × 4. The generator
+   therefore draws each operand from its OWN pool and never sorts, swaps or
+   canonicalises the pair — there is no "natural" order to restore, and adding
+   one is the one regression the whole change exists to avoid.
+   rowMax/colMax keep their ribbon-era names so the shape stays readable: the
+   first slider is the rows of the table, the second the columns. The default is
+   the owner's 20 × 20, and it is deliberately NOT persisted — the range is a
+   setting for the sitting, not a fact about the child, so every fresh session
+   opens on the default and nothing has to be migrated.
+   30 stays the top of both tracks because the recorded voice stops there:
+   TIMES_MAX_OPTIONS above this block is that contract, and every operand the
+   generator can deal (and every product it can ask) is inside the closed set
+   the narration manifest already renders. */
+const TIMES_STOPS = Array.from({
+  length: 25
+}, (_, i) => i + 6);
+const TIMES_MARKS = [6, 10, 15, 20, 25, 30];
+const DEFAULT_TIMES_RANGE = {
+  rowMax: 20,
+  colMax: 20
+};
+function makeMultiplicationProblem(rng, range = DEFAULT_TIMES_RANGE) {
+  const a = randR(rng, 1, range.rowMax);
+  const b = randR(rng, 1, range.colMax);
+  return {
+    a,
+    b,
+    answer: a * b
+  };
 }
 
 /* ══ SHARED COMPONENTS ══ */
@@ -9373,20 +9478,11 @@ function GroupsHint({
 }
 
 /* ══ MODE m1: TIMES TABLES ══ */
-function makeMultiplicationProblem(range = DEFAULT_TIMES_RANGE) {
-  const a = rand(1, range.rowMax);
-  const b = rand(1, range.colMax);
-  return {
-    a,
-    b,
-    answer: a * b
-  };
-}
-
-/* The 1–30 tap grid that lived here went with every other pop-up on 2026-09-12. It was
-   already one tap rather than two grids — a child asked for "the twelves" thinks "how
-   big", not in rows and columns — but it was still a page in front of the game, and
-   thirty free numbers rather than rungs. TIMES_PRESETS is the ribbon that replaced it. */
+/* makeMultiplicationProblem lives in the MATH PRIMITIVES block with the two ceilings
+   it draws from: the direction rule — first operand from the first ceiling only — is
+   shared maths, not a screen detail, and the harness pins it there (tools/test-math-
+   games.js). The five rungs this screen's ribbon carried (TIMES_PRESETS, whose two
+   sides always moved together) are what the two sliders below replaced. */
 function MultiplicationGame({
   onBack,
   journey,
@@ -9399,11 +9495,13 @@ function MultiplicationGame({
   onToggleMute
 }) {
   const [range, setRange] = useState(DEFAULT_TIMES_RANGE);
-  /* Starts playing straight away on 12 x 12 (owner, 2026-08-18). This game opened on
-     the picker for three days; unlike Count By, whose tiles *are* its question, Times
-     Tables has a working default, so the picker was a screen between a child and the
-     thing they came for. It is still one tap away on the gear or the "12 x 12" pill. */
-  const [problem, setProblem] = useState(() => makeMultiplicationProblem(DEFAULT_TIMES_RANGE));
+  /* Starts playing straight away on the default, 20 x 20 (owner, 2026-09-14; it was
+     12 x 12 from 2026-08-18). This game opened on a picker for three days once; unlike
+     Count By, whose tiles *are* its question, Times Tables has a working default, so
+     the child is never a screen away from the thing they came for. The range is not
+     persisted — a fresh session opens on the default by construction, and there is no
+     stored preset to migrate or ignore. */
+  const [problem, setProblem] = useState(() => makeMultiplicationProblem(Math.random, DEFAULT_TIMES_RANGE));
   const answerLength = String(problem.answer).length;
   const mascot = useMascot();
   const [misses, setMisses] = useState(0);
@@ -9433,12 +9531,26 @@ function MultiplicationGame({
     Voice.say(num(`${problem.a} times ${problem.b}?`));
   }, [problem]);
   const next = useCallback(() => {
-    resetForProblem(makeMultiplicationProblem(range));
+    resetForProblem(makeMultiplicationProblem(Math.random, range));
   }, [range, resetForProblem]);
-  const applyRange = useCallback(nextRange => {
-    setRange(nextRange);
-    resetForProblem(makeMultiplicationProblem(nextRange));
-  }, [resetForProblem]);
+
+  /* THE RANGE IS SETTINGS; THE ROUND IS PLAY (owner, 2026-09-14). A moved thumb
+     changes nothing here but the range itself: no question is dealt, so the one on
+     screen keeps its digits, its misses and its hint, and score, stars and journey
+     are untouched. Generation happens only at the next-question boundary in next()
+     above, which reads the range as it stands by then — so a drag mid-answer
+     generates nothing, and a storm of change events costs nothing but one setState
+     apiece. This is the one deliberate difference from Make It's slider, whose
+     target change resets the round: a target is the question there, a ceiling is
+     not the question here. */
+  const setRowMax = useCallback(t => setRange(r => ({
+    ...r,
+    rowMax: t
+  })), []);
+  const setColMax = useCallback(t => setRange(r => ({
+    ...r,
+    colMax: t
+  })), []);
   const clear = useCallback(() => {
     Sound.setMuted(muted);
     Sound.tap();
@@ -9512,19 +9624,28 @@ function MultiplicationGame({
     className: "count-title-main"
   }, "Times Tables"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Tap the answer!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
-    chips: chipsOf(TIMES_PRESETS),
-    value: `m${range.rowMax}`,
-    muted: muted,
-    onPick: id => {
-      const n = byId(TIMES_PRESETS, id).max;
-      applyRange({
-        rowMax: n,
-        colMax: n
-      });
-    },
-    label: "Choose how big the table is"
+  }, "Tap the answer!")), /*#__PURE__*/React.createElement("div", {
+    className: "tt-range"
+  }, /*#__PURE__*/React.createElement(StepSlider, {
+    stops: TIMES_STOPS,
+    value: range.rowMax,
+    onPick: setRowMax,
+    label: "First number",
+    text: "First number",
+    format: t => `up to ${t}`,
+    scale: TIMES_MARKS
+  }), /*#__PURE__*/React.createElement(StepSlider, {
+    stops: TIMES_STOPS,
+    value: range.colMax,
+    onPick: setColMax,
+    label: "Second number",
+    text: "Second number",
+    format: t => `up to ${t}`,
+    scale: TIMES_MARKS
   }), /*#__PURE__*/React.createElement("div", {
+    className: "tt-sum",
+    "aria-hidden": "true"
+  }, range.rowMax, " \xD7 ", range.colMax)), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "multiply-problem"
@@ -16541,7 +16662,7 @@ function NineMagicGame({
      wrong. Most of the thinking on this screen happens in that gap.
 
      The frame answers the question the child is actually asking. Once one tile is down,
-     the empty seats ARE "how many more", countable, at all three targets. The screen
+     the empty seats ARE "how many more", countable, at every target. The screen
      never has to say the missing number, because it is already showing it.
 
    THE MODEL IS THE SHELF'S OWN MODEL. Ten is two rows of five, twenty is two rows of
@@ -16557,8 +16678,8 @@ function NineMagicGame({
    LATER LEVELS, NOT BUILT AND NOT ARCHITECTED OUT. More than two numbers, taking away,
    several right answers, a timed-free mode. The round carries a LIST of picks and is
    judged on that list's total (see makeItProblem and makeItCompleters, which already
-   speak in lists); what says "two" is one length check in tap(), and one ribbon that
-   offers three targets rather than three shapes of round. */
+   speak in lists); what says "two" is one length check in tap(), and one slider that
+   offers every target rather than three shapes of round. */
 /* The seats. `kept` is the first pick and `added` the second, in two colours, so a full
    frame is visibly made of two numbers rather than merely full. `glow` lights the EMPTY
    seats and not the full ones: what the second miss has to make countable is the gap.
@@ -16586,6 +16707,113 @@ function MakeFrame({
     });
   }));
 }
+/* ══ THE STEP SLIDER (shared; Times Tables adopts it as-is) ══
+   A native range input stretched over the INDEX of a curated list of stops, not over
+   the values: min 0, max stops.length-1, step 1, and the thumb's position maps back
+   through the array. That is what makes a non-uniform ladder (…19, 20, 25, 30, 40…)
+   ride a native control at all: the thumb moves exactly one stop per keyboard tick,
+   a tap anywhere on the track jumps to the stop nearest the tap, and a drag can never
+   come to rest between two stops or on a value that is not on the list — snapping is
+   the input's own behaviour in index space, not something painted on top of it.
+
+   It is deliberately the Count By slider's shape (2026-09-13) with two
+   generalisations: the stops are a prop rather than 2..30, and the chip beside the
+   thumb prints the stop the thumb is on. Everything a finger lands on is drawn at the
+   caller's tap-target floor (48px here — see .st-strip), and the stops are evenly
+   spaced BY INDEX, which is the spacing a child drags through: 19→20 and 20→25 are
+   the same one step of the thumb.
+
+   onScrub carries the pointer-down/up window to the caller so speech can wait for the
+   release — Voice.say cancels whatever is still playing, so one sentence per drag tick
+   would be a chatter of cut-off numbers. It is optional since 2026-09-15, because Times
+   Tables runs two of these with nothing that waits for a release: its ask line depends
+   on the problem alone, so a drag fires no speech and needs no gate. format is what a
+   screen reader hears instead of the raw index (aria-valuetext), and it is the only
+   place the caller's words go.
+   text and scale are the two props Times Tables added, both absent for Make It and both
+   purely additive: text is a VISIBLE name for the track (aria-hidden — the group's
+   aria-label already says it, once), for the screens that run two sliders side by side
+   and need them obviously distinct; scale is a short list of reference marks drawn under
+   the track at each mark's thumb CENTRE — a label pinned to the track's edge would sit
+   where the thumb can never travel, and a child aiming "20" at it would land a stop
+   short. The 22px and 44px in the positioning are half and all of the 44px thumb Times
+   Tables draws (.multiply-screen .st-slider), the only caller with marks so far. */
+function StepSlider({
+  stops,
+  value,
+  onPick,
+  onScrub,
+  label,
+  text,
+  format,
+  scale,
+  less = 'One step smaller',
+  more = 'One step bigger'
+}) {
+  const at = Math.max(0, stops.indexOf(value));
+  const pick = useCallback(t => {
+    if (t !== value) onPick(t);
+  }, [value, onPick]);
+  const nudge = useCallback(d => {
+    const i = Math.min(stops.length - 1, Math.max(0, at + d));
+    pick(stops[i]);
+  }, [stops, at, pick]);
+  const input = /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    className: "st-slider",
+    min: 0,
+    max: stops.length - 1,
+    step: 1,
+    value: at,
+    "aria-label": label,
+    "aria-valuemin": stops[0],
+    "aria-valuemax": stops[stops.length - 1],
+    "aria-valuenow": stops[at],
+    "aria-valuetext": format(stops[at]),
+    onChange: e => pick(stops[Number(e.target.value)]),
+    onPointerDown: () => onScrub && onScrub(true),
+    onPointerUp: () => onScrub && onScrub(false),
+    onPointerCancel: () => onScrub && onScrub(false),
+    onLostPointerCapture: () => onScrub && onScrub(false),
+    onBlur: () => onScrub && onScrub(false)
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fm-strip ar-strip st-strip",
+    role: "group",
+    "aria-label": label
+  }, text && /*#__PURE__*/React.createElement("span", {
+    className: "st-label",
+    "aria-hidden": "true"
+  }, text), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "st-step-btn",
+    onClick: () => nudge(-1),
+    disabled: at <= 0,
+    "aria-label": less
+  }, "\u2039"), scale ? /*#__PURE__*/React.createElement("div", {
+    className: "st-track"
+  }, input, /*#__PURE__*/React.createElement("div", {
+    className: "st-scale",
+    "aria-hidden": "true"
+  }, scale.map(v => {
+    const i = stops.indexOf(v);
+    return i < 0 ? null : /*#__PURE__*/React.createElement("span", {
+      key: v,
+      style: {
+        left: `calc(22px + (100% - 44px) * ${i / (stops.length - 1)})`
+      }
+    }, v);
+  }))) : input, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "st-step-btn",
+    onClick: () => nudge(1),
+    disabled: at >= stops.length - 1,
+    "aria-label": more
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "st-value",
+    "aria-hidden": "true"
+  }, stops[at]));
+}
 function MakeItGame({
   onBack,
   journey,
@@ -16606,6 +16834,11 @@ function MakeItGame({
   const [won, setWon] = useState(false);
   const [misses, setMisses] = useState(0);
   const [confetti, setConf] = useState(false);
+  /* The drag's pointer-down/up window, set by the slider's onScrub. While the thumb is
+     held the target may sweep across many stops, so the ask line waits for the release
+     — Voice.say cancels whatever is still playing, and a sentence per tick would be a
+     chatter of cut-off numbers (the Count By rule, 2026-09-13). */
+  const [scrubbing, setScrubbing] = useState(false);
   const mascot = useMascot();
   const wrongT = useRef(null);
   useEffect(() => () => clearTimeout(wrongT.current), []);
@@ -16621,13 +16854,21 @@ function MakeItGame({
   const next = useCallback(() => {
     resetRound(makeItProblem(Math.random, levelId, problem));
   }, [levelId, problem, resetRound]);
-  const applyLevel = useCallback(id => {
+  /* The slider names its stop by the NUMBER the child sees, and the level id is that
+     same number wearing its 'mk' prefix — one lookup, no second table. Every change
+     lands through resetRound, so the equation, the prompt and the tray are the new
+     target's immediately, and any half-built answer is back on the tray. */
+  const applyTarget = useCallback(t => {
+    const id = 'mk' + t;
     setLevelId(id);
     resetRound(makeItProblem(Math.random, id));
   }, [resetRound]);
+  /* The ask. scrubbing in the deps is the release: the drag itself is silent tick by
+     tick and this speaks once, on the target the thumb lands on. */
   useEffect(() => {
+    if (scrubbing) return;
     Voice.say(num(`Make ${problem.target}!`));
-  }, [problem]);
+  }, [problem, scrubbing]);
   useEffect(() => {
     if (misses !== 2) return;
     Voice.lines([num(`Tap one number. Then count the empty seats up to ${problem.target}.`)]);
@@ -16714,12 +16955,13 @@ function MakeItGame({
     className: "count-title-main"
   }, "Make It!"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, lv.tag)), /*#__PURE__*/React.createElement(ActivityRibbon, {
-    chips: chipsOf(MAKE_LEVELS),
-    value: levelId,
-    onPick: applyLevel,
-    muted: muted,
-    label: "Choose what to make"
+  }, lv.tag)), /*#__PURE__*/React.createElement(StepSlider, {
+    stops: MAKE_STOPS,
+    value: lv.target,
+    onPick: applyTarget,
+    onScrub: setScrubbing,
+    label: "Choose what to make",
+    format: t => `Make ${t}`
   }), /*#__PURE__*/React.createElement("div", {
     className: "mk-eq"
   }, /*#__PURE__*/React.createElement("span", {
