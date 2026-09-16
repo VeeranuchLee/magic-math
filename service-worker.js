@@ -279,7 +279,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        Also new since v40, whose candidate was 1c8567a8: one chrome row instead of two
 //        (#534) and the height it won back spent (#544); Space Math's music button now looks
 //        switched off when the music is off (#568).
-const CACHE_NAME = "magic-math-v43";
+const CACHE_NAME = "magic-math-v47";
 
 const SHELL = [
   "./",

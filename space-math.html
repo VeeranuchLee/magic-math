@@ -10336,6 +10336,61 @@ function RobotReader({
     alt: ""
   }));
 }
+
+/* ══ THE HERALD AND THE GESTURE WINDOW ══ Added 2026-09-16 (CG-098), restoring the
+   line 3e208160 removed -- without restoring the defect it removed it for.
+
+   THE ROBOT READS THE NUMBER; THE COMPANION ENCOURAGES HIM TO. Her line leads, his
+   number follows, and the seam falls between the two sentences. What makes that
+   ordering hard is how iPad Safari admits speech, so everything below is built on
+   two facts observed on the 9.7-inch iPad:
+
+     1. The FIRST speechSynthesis request of a page life must belong to a user
+        gesture. One issued from an Audio element's ended callback -- two seconds
+        and one media event after the tap -- is dropped silently; that is how her
+        line used to kill his number. Voice's 140ms readout lead-in, scheduled by
+        the tap handler itself, has never been dropped: the asynchronous boundary
+        is what Safari punishes, not the handful of milliseconds.
+     2. Once the engine has spoken once from inside a gesture, programmatic requests
+        are admitted for the rest of the page's life. Visiting Fractions before Read
+        Big used to hide the defect exactly this way: Fractions had already spoken,
+        so the deferred number was let through.
+
+   rbEngineCold mirrors fact 2, conservatively. It is true until a number chain
+   started from a Read tap has FINISHED on this screen -- the one observable proof
+   that the engine actually spoke -- and nothing else ever clears it: no timer, no
+   mount effect, no other mode's speech, because none of those can be proved to have
+   unlocked anything. While it is true, "Read it!" does exactly what 3e208160
+   shipped and the owner verified on the iPad: it starts the robot directly, and her
+   line sits that one tap out. A tap whose chain is interrupted -- a second Read
+   landing inside the 140ms readout lead cancels the first request before it is
+   issued -- leaves the flag standing, so the next tap starts the robot directly
+   again. Once a chain has finished, the engine was unlocked by OUR OWN tap --
+   seconds ago, not a hope about what another screen did -- so her clip leads and the
+   number follows from her chain's done callback: the two-chain seam this screen had
+   before 3e208160, back on the safe side of the unlock.
+
+   BEFORE HER CLIP IS RENDERED the flag is moot: with no clip, Voice.lines speaks her
+   line on the engine synchronously inside the tap (line one of her chain, no clip
+   path), which is itself an unlock, and the number follows from the same callback. A
+   missing or 404ing clip degrades to her engine voice for one line -- never to a
+   lost number.
+
+   IF THIS IS EVER "SIMPLIFIED" BACK TO ALWAYS-HERALD-FIRST, the fresh iPad goes
+   silent on the number again. The flag is not decoration; it is the load-bearing
+   distinction between the first Read and every later one. */
+let rbEngineCold = true;
+/* Her line lives in this helper rather than inline in the handler for two readers
+   that both grep: check-math-parity.js holds the read handler byte-identical across
+   skins and free of a deferred-herald string, and build-narration-manifest.py
+   harvests the literal arguments of Voice.lines calls -- a bare const would be
+   invisible to it and the clip would never be rendered. One spelling, both readers,
+   no second copy of the sentence to drift.
+   It speaks the herald ALONE, as chain one of two: the number is chain two, started
+   by the chain-done callback, which is what keeps his talking face off while she
+   speaks (2026-08-28: he animates for his line only, or the screen teaches the wrong
+   thing about who is talking). */
+const rbHerald = () => Voice.lines(["Let's hear the robot read it!"]);
 function ReadBigNumbers({
   onBack,
   journeyBg,
@@ -10346,9 +10401,24 @@ function ReadBigNumbers({
   const [speaking, setSpeaking] = useState(false);
   const mascot = useMascot();
   const talkT = useRef(0);
-  useEffect(() => {
-    Voice.say('Tap the numbers to build a big one!');
-  }, []);
+  /* NO SPOKEN INTRO, AND THE IPAD IS WHY (2026-09-16). This screen used to say its
+     instruction from a mount effect -- outside any gesture, which iPad Safari refuses
+     to let speak: the clip exists, serves 200, resolves in the texts map, and never
+     gets permission (CG-098). A line only a desktop browser hears is a lie about the
+     app, so it is gone rather than left half-working.
+      WHAT CARRIES THE INSTRUCTION INSTEAD. The screen's own shape: a keypad under
+     empty boxes is the "tap it" every other mode here has already taught, and the
+     next slot pulses while it waits. In print, the subtitle says it. And in
+     space-math the child has already HEARD it, in-gesture, on the way in: the r1
+     home card's spoken name ends "...Build a big one!". (unicorn-math's cards are
+     silent by that skin's design, so its r1 was already a quiet screen on the iPad
+     -- this makes it honest rather than accidental.) Speaking it on the first digit
+     tap instead would be pointless -- by then the child has worked out what to do --
+     and anything cleverer would spend the one activation this screen cannot share.
+     A quiet, correct screen beats a clever one that breaks the number.
+      The rendered clip is orphaned by this removal; the generator's --verify names
+     it, and archiving the master is the owner's call, not a change to make quietly
+     here. */
   useEffect(() => () => clearTimeout(talkT.current), []);
   const tapDigit = useCallback(d => {
     Sound.tap();
@@ -10378,20 +10448,55 @@ function ReadBigNumbers({
     const words = numberToWords(ds.join(''));
     Sound.tap();
     mascot.happy();
-    /* iPad Safari requires the FIRST speechSynthesis request to start inside a user
-       gesture. This used to play the companion's rendered "Let's hear..." clip first
-       and call the robot from that Audio element's ended callback. On a fresh iPad the
-       tap activation was gone by then, so Safari silently dropped the number; visiting
-       Fractions first happened to unlock the engine and hid the defect. Read it means
-       exactly one thing now: this tap starts the robot itself. */
-    setSpeaking(true);
-    /* The engine can go quiet without ever firing onend -- iOS Safari drops utterances,
-       and muting mid-line returns early -- and a robot left mouthing at silence is
-       worse than one that stops a beat early. Same reasoning as Voice's own net. */
-    clearTimeout(talkT.current);
-    talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
-    Voice.notifyNextChain(stopTalking);
-    Voice.lines([num(words)]);
+    /* THE GESTURE WINDOW. This tap is the activation everything below spends, and the
+       rule is in the block above rbEngineCold: the page's FIRST engine request must
+       belong to a gesture, so the first Read of a page life starts the robot itself --
+       the shape 3e208160 shipped and the only one an unproven engine can be asked to
+       speak. Her herald joins from the SECOND Read, once the engine has been unlocked
+       by our own earlier tap: her clip plays as chain one and the number follows as
+       chain two from the chain-done callback -- the same two-chain seam this screen
+       had before 3e208160, back on the safe side of the unlock. */
+    const startRobot = () => {
+      setSpeaking(true);
+      /* The engine can go quiet without ever firing onend -- iOS Safari drops
+         utterances, and muting mid-line returns early -- and a robot left mouthing at
+         silence is worse than one that stops a beat early. Same reasoning as Voice's
+         own net. The ceiling stays the number's own: her line ran before it, outside
+         the animation, so the sequence startRobot covers is no longer than it was. */
+      clearTimeout(talkT.current);
+      talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
+      Voice.notifyNextChain(stopTalking);
+      Voice.lines([num(words)]);
+    };
+    /* Warmed, not "tapped": the flag is cleared by a number chain FINISHING, never by
+       the tap that started it. A second Read landing inside Voice's 140ms readout lead
+       resets the first chain before its request is ever issued -- and a herald built
+       on an unlock that never happened is the 2026-08-28 bug back. A finished chain
+       is the one observable proof the engine spoke, so that, and only that, warms it. */
+    const warmed = () => {
+      rbEngineCold = false;
+      stopTalking();
+    };
+    if (rbEngineCold) {
+      /* Same robot start as startRobot -- the request is issued from THIS tap, the one
+         shape an unproven engine can be asked to speak -- differing only in the done:
+         lines() captures its done the moment it is called, so the warming callback must
+         be armed before it, here, not re-armed after. The net still points at plain
+         stopTalking, so a muted or stalled chain lowers the face WITHOUT warming:
+         failing quiet is not proof the engine spoke. */
+      setSpeaking(true);
+      clearTimeout(talkT.current);
+      talkT.current = setTimeout(stopTalking, Math.max(2600, words.split(' ').length * 430 + 1400));
+      Voice.notifyNextChain(warmed);
+      Voice.lines([num(words)]);
+      return;
+    }
+    /* A muted tap returns inside Voice.lines without finishing her chain, so
+       startRobot never runs and the herald costs nothing; a clip that fails to LOAD
+       advances the chain anyway, so the number still plays. Her line is the nicety
+       either way -- his number is the feature, and nothing here can drop it. */
+    Voice.notifyNextChain(startRobot);
+    rbHerald();
   }, [ds, mascot, stopTalking]);
   const groups = digitGroups(ds);
   /* Boxes shrink as the number grows so the row never scrolls -- a number you have to
