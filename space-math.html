@@ -884,8 +884,18 @@
     .st-scale{position:relative;height:12px}
     .st-scale span{position:absolute;top:0;transform:translateX(-50%);font-size:.58rem;
       font-weight:900;color:#93b7fb;line-height:1;font-variant-numeric:tabular-nums}
+    .tt-foot{display:flex;align-items:center;justify-content:center;gap:12px}
     .tt-sum{text-align:center;font-size:1.15rem;font-weight:900;color:#5a2ed6;line-height:1;
       font-variant-numeric:tabular-nums}
+    /* The reset button (owner, 2026-09-17): the 44px floor like every control here,
+       round so it reads as a control and not a tile, the circular arrow the app's
+       other icon buttons already speak in. */
+    .tt-reset{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+      width:44px;height:44px;padding:0;border-radius:50%;cursor:pointer;
+      color:#5a2ed6;background:rgba(255,255,255,.9);border:2px solid #c4d7fd;
+      box-shadow:0 3px 10px rgba(90,46,214,.12)}
+    .tt-reset:active{transform:scale(.94)}
+    .tt-reset .btn-svg{width:24px;height:24px}
     @media (max-height:740px){
       .multiply-screen .count-title{padding:5px 14px}
       .multiply-screen .multiply-card{padding:13px 20px;gap:10px}
@@ -1529,6 +1539,24 @@
     .multiply-answer-box.active{border-color:#2f6df6;box-shadow:0 0 0 4px rgba(47,109,246,.16),0 3px 0 #1746b8}
     .multiply-answer-box.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .multiply-celebrate{background:rgba(255,255,255,.9);border:2.5px solid #93b7fb;border-radius:999px;padding:8px 18px;color:#2f6df6;font-size:clamp(1.05rem,4vw,1.55rem);font-weight:900;box-shadow:0 4px 0 #93b7fb;position:relative;z-index:1}
+    /* Sequence (sq1). The known tiles reuse .multiply-card's frame; only the row of
+       tiles, the blank's digit slots and the reserved rule line are new. */
+    .sq-card{gap:10px}
+    .sq-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+    .sq-tile{min-width:58px;height:58px;padding:0 8px;display:flex;align-items:center;justify-content:center;background:#fff;border:3px solid #93b7fb;border-radius:15px;color:#5a2ed6;font-size:clamp(1.3rem,5.2vw,2rem);font-weight:900;box-shadow:0 3px 0 #93b7fb}
+    .sq-arrow{color:#2f6df6;font-size:1.6rem;font-weight:900}
+    .sq-blank{border-style:dashed;border-color:#ab97f5;background:rgba(171,151,245,.08)}
+    .sq-blank.wrong{animation:wrongShake .35s ease;border-color:#f44336}
+    .sq-blank.won{border-style:solid;border-color:#2f6df6;color:#2f6df6}
+    .sq-blank-digits{display:flex;gap:2px}
+    .sq-digit{min-width:.62em;text-align:center;border-bottom:3px solid transparent}
+    .sq-digit.active{border-bottom-color:#2f6df6}
+    /* Reserved whether or not anything is in it (SEQUENCE-SPEC §13/§33), so the rule
+       reveal never shifts the tiles above it. */
+    .sq-rule-line{min-height:34px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+    .sq-rule-hint{background:rgba(255,255,255,.85);border:2px solid #ab97f5;border-radius:999px;padding:3px 14px;color:#6d3ff0;font-size:1.05rem;font-weight:900}
+    .sq-reveal{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+    .sq-reveal-op{color:#6d3ff0;font-weight:900;font-size:.95rem}
     /* The 1–30 tap grid that Times Tables and Count By opened on lived here, behind a
        Play! button. Times Tables' ceilings are two sliders now (.tt-range above,
        2026-09-15) and Count By's numbers are a slider (.cb-strip below, 2026-09-13),
@@ -3946,7 +3974,9 @@ const CARD_VOICE = {
   /* One card, five decks, so the card cannot name the maths — it names the move, which
      is the thing every deck behind it has in common. The screen then names the deck the
      ribbon is set to, out loud, as soon as the board is dealt. */
-  k1: 'Memory Match! Turn two over and find the pairs!'
+  k1: 'Memory Match! Turn two over and find the pairs!',
+  /* Sequence (CG-115). Rendered 2026-09-17 with the game's two other lines. */
+  sq1: 'Sequence! Complete the number pattern!'
 };
 
 /* ══ UTILITIES ══ */
@@ -3999,6 +4029,420 @@ const calcTotal = (p, counting) => counting ? p.o : p.h * 100 + p.t * 10 + p.o;
    Math.random. The block is byte-identical in both skins by construction (see
    tools/check-math-parity.js): teaching logic that drifts between worlds is exactly the
    bug that gate exists to stop. */
+
+/* ── sequence-engine: generated from engine/sequence-problem.js by tools/port-sequence-engine.js — do not edit here ── */
+const SequenceEngine = function () {
+  // Sequence — the pattern-run engine (SEQUENCE-SPEC §17, §18; CG-095).
+  //
+  // The contract is one mathematical source of truth (§17). A question is
+  // { family, operator, start, stepOrFactor, terms, blankIndex, answer,
+  // ruleLabel } and nothing else: `terms` is the rule applied forward from
+  // `start` exactly once, `answer` is assigned from `terms[blankIndex]` —
+  // never recomputed — and `ruleLabel` is built once by ruleLabelFor. The
+  // rendered sequence, the expected answer, the hint transitions and the rule
+  // reveal all read this object and derive nothing; the failure this exists to
+  // prevent is UI code computing the answer separately from the terms and the
+  // two disagreeing on exactly the questions a child gets wrong.
+  //
+  // Field notes: `stepOrFactor` is §17's `step` for add/sub and its `factor` /
+  // divisor for ×/÷, unified; §17's `length` is terms.length, which §2 pins at
+  // 5 — except ×10's four, by the owner's 2026-09-17 "shorter row" ruling (see
+  // the FACTORS note). `operator` is the logic key ('add' | 'sub' | 'multiply'
+  // | 'divide');
+  // `ruleLabel` is the display string with §16's proper symbols — kept separate
+  // so a display symbol can never be parsed as logic, nor a logic key shown.
+  //
+  // Like compare-problem.js this is a pure ES module: no DOM, no
+  // speechSynthesis, and every draw goes through the injected `rng` — one
+  // Math.random() anywhere would make a seeded run unreproducible. `answer` is
+  // a number, never a narration string: a bare "25" text entry resolves ungated
+  // in every mode and leaked across games (2026-08-20), so speech routing
+  // belongs to the caller (§23, CG-095 §8).
+
+  // --- Constants (§2, §9, §10, §11) ---------------------------------------------
+
+  const TERM_COUNT = 5; // §2: five terms, one blank, Phase 1
+  const MAX_VISIBLE_VALUE = 9999; // §9: discard above, never clamp
+
+  // ×10's row, by the owner's "shorter row" ruling (2026-09-17): FOUR terms,
+  // the one exception to §2's five. A five-term whole-number ×10 run bottoms
+  // out at 1 × 10⁴ = 10,000 — one digit past MAX_VISIBLE_VALUE — so ×10 and ÷10
+  // were unsatisfiable as first written, not merely unused (CG-095), and FACTORS
+  // left 10 out. Four terms keep the top term at start × 10³ ≤ 9,000, under the
+  // unchanged cap; every other factor keeps TERM_COUNT.
+  const X10_TERM_COUNT = 4;
+
+  // §11: first 10%, second 20%, middle 30%, fourth 25%, last 15%. A uniform
+  // index would put 20% on each and the middle would not be the commonest —
+  // the weighting is the requirement, not "it varies".
+  const BLANK_WEIGHTS = [0.10, 0.20, 0.30, 0.25, 0.15];
+
+  // §11's weights are written for a five-position row; ×10's four-term row keeps
+  // the shape. First and last keep §11's own 10% and 15%, and the 75% §11 gives
+  // its interior trio is split across the two interior positions, tilted to the
+  // later one — so an interior blank stays the commonest and the first term
+  // stays rarest on the short row exactly as on the long one.
+  const BLANK_WEIGHTS_X10 = [0.10, 0.35, 0.40, 0.15];
+
+  // §17 names the families 'addSub' and 'multiplyDivide'; 'count' and
+  // 'skipCount' follow the §5 ribbon labels. 'mixed' is a preset, not a
+  // family: a mixed question carries the family that generated it (§10). A
+  // Phase-2 family (§30) is a new attempt function plus an entry here, and
+  // nothing downstream changes, because everything reads the question object.
+  const FAMILIES = ['count', 'skipCount', 'addSub', 'multiplyDivide'];
+  const PRESETS = FAMILIES.concat(['mixed']);
+
+  // §10's mixing weights: Count 20%, Skip Count 25%, +/− 30%, ×/÷ 25%.
+  const MIXED_WEIGHTS = [0.20, 0.25, 0.30, 0.25];
+  const BLANK_TABLE = BLANK_WEIGHTS.map((w, i) => [i, w]);
+  const BLANK_TABLE_X10 = BLANK_WEIGHTS_X10.map((w, i) => [i, w]);
+
+  // §16: child-facing symbols, never * or /. ruleLabel is display-only.
+  const OP_SYMBOL = {
+    add: '+',
+    sub: '−',
+    multiply: '×',
+    divide: '÷'
+  };
+  function ruleLabelFor(operator, k) {
+    return OP_SYMBOL[operator] + k;
+  }
+
+  // --- Random draws -------------------------------------------------------------
+  //
+  // Every draw in this module goes through the injected `rng`; there is no
+  // Math.random() anywhere, and the seeded test harness depends on that.
+
+  function randInt(rng, lo, hi) {
+    return lo + Math.floor(rng() * (hi - lo + 1));
+  }
+
+  // table is [[value, weight], ...]. The draw is over the weights' sum, so a
+  // filtered table stays proportional without renormalising by hand.
+  function weightedPick(rng, table) {
+    let total = 0;
+    for (const entry of table) total += entry[1];
+    const r = rng() * total;
+    let acc = 0;
+    for (const entry of table) {
+      acc += entry[1];
+      if (r < acc) return entry[0];
+    }
+    return table[table.length - 1][0]; // float-slop guard, unreachable in practice
+  }
+
+  // --- Terms: the one rule, applied forward --------------------------------------
+  //
+  // The only place terms come from. Division is refused here on purpose: its
+  // terms exist only as a reversed multiplication (§9), and this throw is the
+  // module's way of saying so if a future family tries to forget it.
+
+  // The row length for a question: §2's five, except ×10's four (2026-09-17).
+  // One function answers it for the generator, the invariant gate and the ported
+  // page copy alike, so the exception is stated once and cannot drift. The
+  // family is part of the key because an additive step of 10 — skip counting by
+  // 10, +10 — is an ordinary five-term row; only the factor 10 runs short.
+  function termCountFor(family, factor) {
+    return family === 'multiplyDivide' && factor === 10 ? X10_TERM_COUNT : TERM_COUNT;
+  }
+  function buildTerms(operator, start, k, count = TERM_COUNT) {
+    if (operator === 'divide') {
+      throw new Error('division terms come only from reversing a multiplication (§9)');
+    }
+    const terms = [start];
+    for (let i = 1; i < count; i++) {
+      const prev = terms[i - 1];
+      terms.push(operator === 'add' ? prev + k : operator === 'sub' ? prev - k : prev * k);
+    }
+    return terms;
+  }
+
+  // Why ambiguous sequences cannot be generated (§19): there is no search over
+  // sequences to reject. Every question is constructed by iterating one
+  // constant rule from one start, so an alternating rule, two interwoven
+  // sequences, a Fibonacci-like rule, squares, primes or growing differences
+  // would each need a code path this module does not contain. §19's refusal
+  // list is a property of the construction; a filter that "checked" it after
+  // the fact could only re-verify the rule it just applied — which is exactly
+  // what the constant-rule check in validateSequenceProblem does, on every
+  // attempt, before anything leaves the module.
+
+  // --- The additive families: count, skipCount, addSub (§6, §7, §8) --------------
+  //
+  // One construction for all three: draw the constant step, draw the direction,
+  // draw a magnitude band the whole five-term run fits inside, then draw the
+  // start. Ascending puts the band's ceiling at terms[4], descending at
+  // terms[0]; either way every term stays inside [lo, hi], so a negative term
+  // cannot occur and the 9,999 cap is unreachable here (bands top out at
+  // 1,000). Lower bands are weighted up because §6 wants lower numbers more
+  // common, with the occasional 100–1,000 Count run for the larger-number
+  // exposure the app already gives.
+
+  const COUNT_STEP = 1; // §6: +1 / −1
+
+  // §7: steps 2, 5, 10 high; 3, 4 medium.
+  const SKIP_STEPS = [[2, 0.28], [5, 0.28], [10, 0.28], [3, 0.08], [4, 0.08]];
+
+  // §8/§27: N in 2–20, smaller steps somewhat more common.
+  const ADDSUB_SMALL_SHARE = 0.60;
+
+  // Magnitude bands, whole-sequence [lo, hi] (§6, §27).
+  const COUNT_BANDS = [{
+    lo: 0,
+    hi: 20,
+    w: 0.55
+  },
+  // mostly 0–20
+  {
+    lo: 0,
+    hi: 100,
+    w: 0.30
+  },
+  // then 0–100
+  {
+    lo: 100,
+    hi: 1000,
+    w: 0.15
+  } // occasionally 100–1,000
+  ];
+  const SKIP_BANDS = [{
+    lo: 0,
+    hi: 30,
+    w: 0.45
+  }, {
+    lo: 0,
+    hi: 100,
+    w: 0.40
+  }, {
+    lo: 0,
+    hi: 1000,
+    w: 0.15
+  }];
+  const ADDSUB_BANDS = [{
+    lo: 0,
+    hi: 60,
+    w: 0.40
+  }, {
+    lo: 0,
+    hi: 200,
+    w: 0.35
+  }, {
+    lo: 0,
+    hi: 1000,
+    w: 0.25
+  }];
+
+  // A band fits a step only if a five-term run stays inside it: hi − 4·step ≥
+  // lo. When the drawn step outruns the drawn band (skip-10 in the 0–30 band,
+  // an addSub step of 16–20 in the 0–60 band), escalate to the next band up
+  // rather than clamping the start — clamping is what §9 forbids, and a
+  // squeezed start would quietly park every large step at one band's floor.
+  // Every top band fits every Phase-1 step, so the fallback below is kept
+  // defensive, not hopeful.
+  function drawBand(rng, bands, step) {
+    const drawn = weightedPick(rng, bands.map(b => [b, b.w]));
+    for (let i = bands.indexOf(drawn); i < bands.length; i++) {
+      if (bands[i].hi - 4 * step >= bands[i].lo) return bands[i];
+    }
+    return bands[bands.length - 1];
+  }
+  function additiveAttempt(rng, family) {
+    let step, bands;
+    if (family === 'count') {
+      step = COUNT_STEP;
+      bands = COUNT_BANDS;
+    } else if (family === 'skipCount') {
+      step = weightedPick(rng, SKIP_STEPS);
+      bands = SKIP_BANDS;
+    } else {
+      step = rng() < ADDSUB_SMALL_SHARE ? randInt(rng, 2, 10) : randInt(rng, 11, 20);
+      bands = ADDSUB_BANDS;
+    }
+    const operator = rng() < 0.5 ? 'add' : 'sub';
+    const band = drawBand(rng, bands, step);
+    const start = operator === 'add' ? randInt(rng, band.lo, band.hi - 4 * step) : randInt(rng, band.lo + 4 * step, band.hi);
+    return {
+      family,
+      operator,
+      start,
+      stepOrFactor: step,
+      terms: buildTerms(operator, start, step)
+    };
+  }
+
+  // --- The multiplicative family (§9) --------------------------------------------
+  //
+  // FACTORS carries 10 again, on the shorter row the owner ruled for it
+  // (2026-09-17, "shorter row"). It had been omitted deliberately: a five-term
+  // ×10 run of whole numbers has a smallest possible top term of 1 × 10⁴ =
+  // 10,000 — above §9's own 9,999 cap — so ×10 and ÷10 were unsatisfiable in
+  // Phase 1 as first written, and the conflict was reported to the owner
+  // (CG-095) rather than resolved silently. Of the three routes put to the
+  // owner — give ×10 a shorter row, raise the cap to five digits, drop ×10 —
+  // the ruling chose the shorter row: a ×10 (or ÷10, its reverse) question is
+  // FOUR terms, every term fits under the unchanged cap, and no check was
+  // relaxed. Weight: §9 keeps 10 in its high tier with 2, 3 and 5 — ×10 is the
+  // place-value pattern, the "add a zero" move — so the four highs split evenly
+  // at 0.22 and 4 stays the lone medium at 0.12.
+  const FACTORS = [[2, 0.22], [3, 0.22], [5, 0.22], [10, 0.22], [4, 0.12]];
+
+  // §28's examples all start small (1–5), so most draws do too — but the
+  // "any" branch reaches starts whose ×5 and ×10 runs bust the cap, which keeps
+  // §9's discard-and-regenerate path genuinely live rather than decorative.
+  const MULDIV_SMALL_SHARE = 0.60;
+  function multiplyDivideAttempt(rng) {
+    const operator = rng() < 0.5 ? 'multiply' : 'divide';
+    const factor = weightedPick(rng, FACTORS);
+    const multStart = rng() < MULDIV_SMALL_SHARE ? randInt(rng, 1, 9) : randInt(rng, 1, 30);
+    // ×10 stops one term earlier (the 2026-09-17 ruling), so a start ≤ 9 tops
+    // out at ≤ 9,000; the 1–30 branch still draws the 10–30 starts that bust,
+    // which keeps §9's discard path live for 10 exactly as it already is for 5.
+    const ascending = buildTerms('multiply', multStart, factor, termCountFor('multiplyDivide', factor));
+    // ÷ runs are valid × runs REVERSED (§9). The construction multiplies only;
+    // it never divides, so integer terms are guaranteed by how the terms are
+    // built — divide-then-round cannot occur because no division happens.
+    const terms = operator === 'multiply' ? ascending : ascending.slice().reverse();
+    return {
+      family: 'multiplyDivide',
+      operator,
+      start: terms[0],
+      stepOrFactor: factor,
+      terms
+    };
+  }
+
+  // --- The question signature (§18) ----------------------------------------------
+  //
+  // §18 asks to avoid immediately repeating the same start, rule, term array
+  // and blank position. Those, plus the family, determine a question outright
+  // (the terms follow from the rule), so the signature IS the question and
+  // only an exact consecutive repeat is refused. Refusing any component on its
+  // own — a repeated blank position, say — would fight §11's weighted blank
+  // distribution, which has to hold unconditionally, so it is not done.
+
+  function questionSignature(p) {
+    return p.family + '|' + p.operator + '|' + p.start + '|' + p.stepOrFactor + '|' + p.blankIndex;
+  }
+
+  // --- The invariant gate (§18, §31) ---------------------------------------------
+  //
+  // Every attempt passes through here before it leaves the module; a failure
+  // is discarded and a fresh attempt drawn — §9's "discard it and generate
+  // another", never a clamp. Most of these failures cannot be constructed by
+  // the generators above; the gate exists because §31 wants the maths checked,
+  // not trusted, and it is what turns the 9,999 cap into a live rejection (the
+  // ×5 big-start draws really do bust it). Verification may divide exactly —
+  // construction never does.
+  function validateSequenceProblem(p) {
+    if (!p || typeof p !== 'object') return false;
+    const {
+      family,
+      operator,
+      start,
+      stepOrFactor,
+      terms,
+      blankIndex,
+      answer,
+      ruleLabel
+    } = p;
+    if (!FAMILIES.includes(family)) return false;
+    if (!(operator in OP_SYMBOL)) return false;
+    if (!Number.isInteger(start) || !Number.isInteger(stepOrFactor)) return false;
+    // The row length is the rule's own: five, or ×10's four (2026-09-17). A
+    // four-term ×2 row and a five-term ×10 row are both refused here, so the
+    // exception cannot leak into any other factor's shape.
+    const count = termCountFor(family, stepOrFactor);
+    if (!Number.isInteger(blankIndex) || blankIndex < 0 || blankIndex >= count) return false;
+    if (!Array.isArray(terms) || terms.length !== count) return false;
+    // NaN, Infinity, −0, negatives and above-cap values all fail here (§31).
+    for (const t of terms) {
+      if (!Number.isInteger(t) || t < 0 || t > MAX_VISIBLE_VALUE || Object.is(t, -0)) return false;
+    }
+    if (!Number.isInteger(answer) || answer !== terms[blankIndex]) return false;
+    if (terms[0] !== start) return false;
+    if (ruleLabel !== ruleLabelFor(operator, stepOrFactor)) return false;
+    // No +0/−0/×0/×1/÷0/÷1 (§18): additive steps are ≥ 1, factors ≥ 2.
+    if ((operator === 'add' || operator === 'sub') && stepOrFactor < 1) return false;
+    if ((operator === 'multiply' || operator === 'divide') && stepOrFactor < 2) return false;
+    // The one constant rule, at every step, on the stored terms (§31).
+    for (let i = 1; i < terms.length; i++) {
+      const a = terms[i - 1],
+        b = terms[i],
+        k = stepOrFactor;
+      if (operator === 'add' && b !== a + k) return false;
+      if (operator === 'sub' && b !== a - k) return false;
+      if (operator === 'multiply' && b !== a * k) return false;
+      if (operator === 'divide' && !(a % k === 0 && b === a / k)) return false;
+    }
+    return true;
+  }
+
+  // --- The entry point (§10, §17) -------------------------------------------------
+
+  const MAX_ATTEMPTS = 500;
+
+  // Mixed draws from the four Phase-1 families with §10's weights, and never
+  // the same family twice in a row when the previous problem is given — the
+  // strongest "avoid more than 2 consecutive questions from the same family
+  // where practical" (§10) available to a stateless call holding one problem
+  // of memory. The renormalised redraw settles ~2pp from the stated weights
+  // (addSub 30% → ~28%), which §10 explicitly tolerates ("exact weighting is
+  // not critical").
+  function drawMixedFamily(rng, avoidFamily) {
+    const table = FAMILIES.map((f, i) => [f, MIXED_WEIGHTS[i]]);
+    const drawn = weightedPick(rng, table);
+    if (!avoidFamily || drawn !== avoidFamily) return drawn;
+    return weightedPick(rng, table.filter(entry => entry[0] !== avoidFamily));
+  }
+
+  // The rng is the trailing injectable parameter, as in compare-problem.js.
+  // There is no default: a single Math.random() anywhere would make the module
+  // untestable, so it refuses to run without one. `avoid` is the previous
+  // question (or null); it feeds only §18's repeat rule and §10's mixed-family
+  // rotation, and never constrains the mathematics.
+  function makeSequenceProblem(preset, avoid = null, rng) {
+    if (typeof rng !== 'function') throw new Error('makeSequenceProblem requires an rng');
+    if (!PRESETS.includes(preset)) throw new Error('unknown preset: ' + preset);
+    const avoidSignature = avoid ? questionSignature(avoid) : null;
+    const avoidFamily = avoid ? avoid.family : null;
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const family = preset === 'mixed' ? drawMixedFamily(rng, avoidFamily) : preset;
+      const a = family === 'multiplyDivide' ? multiplyDivideAttempt(rng) : additiveAttempt(rng, family);
+      const shortRow = termCountFor(a.family, a.stepOrFactor) === X10_TERM_COUNT;
+      const blankIndex = weightedPick(rng, shortRow ? BLANK_TABLE_X10 : BLANK_TABLE);
+      const p = {
+        family: a.family,
+        operator: a.operator,
+        start: a.start,
+        stepOrFactor: a.stepOrFactor,
+        terms: a.terms,
+        blankIndex,
+        answer: a.terms[blankIndex],
+        // assigned from the terms, never recomputed
+        ruleLabel: ruleLabelFor(a.operator, a.stepOrFactor)
+      };
+      if (!validateSequenceProblem(p)) continue; // discard, do not clamp (§9)
+      if (avoidSignature !== null && questionSignature(p) === avoidSignature) continue; // §18
+      return p;
+    }
+    throw new Error('makeSequenceProblem: could not draw a valid ' + preset + ' question');
+  }
+  return {
+    TERM_COUNT,
+    MAX_VISIBLE_VALUE,
+    X10_TERM_COUNT,
+    BLANK_WEIGHTS,
+    BLANK_WEIGHTS_X10,
+    FAMILIES,
+    PRESETS,
+    termCountFor,
+    questionSignature,
+    validateSequenceProblem,
+    makeSequenceProblem
+  };
+}();
+/* ── end sequence-engine ── */
+
 const mulberry32 = seed => {
   let a = seed >>> 0;
   return () => {
@@ -6269,6 +6713,25 @@ function BackspaceIcon() {
     y2: "14"
   }));
 }
+/* The Times Tables reset (2026-09-17): a circular arrow, drawn as a shape rather
+   than a ↻ character, which every platform renders at a different weight and
+   some at a different size than the digits around it. */
+function ResetIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.6",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M20 12a8 8 0 1 1-2.9-6.16"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M20 3.5v5h-5"
+  }));
+}
 function Confetti({
   active
 }) {
@@ -6998,6 +7461,26 @@ function GamePreview({
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "10")));
+  if (id === 'sq1') return /*#__PURE__*/ /* Sequence — a five-chip run, the blank in the middle */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "4"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "?"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "8")));
   return null;
 }
 function Stars({
@@ -9519,6 +10002,10 @@ function MultiplicationGame({
   const [won, setWon] = useState(false);
   const [wrong, setWrong] = useState(false);
   const [confetti, setConf] = useState(false);
+  /* True from the finger's down to its up on a slider. The re-deal below follows
+     every tick of a drag; the spoken question waits for the release — the Count By
+     rule, 2026-09-13. */
+  const [scrubbing, setScrubbing] = useState(false);
   const nextIndex = digits.findIndex(d => d === '');
   const resetForProblem = useCallback(p => {
     setProblem(p);
@@ -9527,30 +10014,45 @@ function MultiplicationGame({
     setWrong(false);
     setMisses(0);
   }, []);
+
+  /* The question is spoken once, on the range the thumb lands on: a drag re-deals
+     at every stop it passes, and a sentence per tick would be a chatter of cut-off
+     numbers (the same gate Make It's ask line uses). */
   useEffect(() => {
+    if (scrubbing) return;
     Voice.say(num(`${problem.a} times ${problem.b}?`));
-  }, [problem]);
+  }, [problem, scrubbing]);
   const next = useCallback(() => {
     resetForProblem(makeMultiplicationProblem(Math.random, range));
   }, [range, resetForProblem]);
 
-  /* THE RANGE IS SETTINGS; THE ROUND IS PLAY (owner, 2026-09-14). A moved thumb
-     changes nothing here but the range itself: no question is dealt, so the one on
-     screen keeps its digits, its misses and its hint, and score, stars and journey
-     are untouched. Generation happens only at the next-question boundary in next()
-     above, which reads the range as it stands by then — so a drag mid-answer
-     generates nothing, and a storm of change events costs nothing but one setState
-     apiece. This is the one deliberate difference from Make It's slider, whose
-     target change resets the round: a target is the question there, a ceiling is
-     not the question here. */
-  const setRowMax = useCallback(t => setRange(r => ({
-    ...r,
-    rowMax: t
-  })), []);
-  const setColMax = useCallback(t => setRange(r => ({
-    ...r,
-    colMax: t
-  })), []);
+  /* A MOVED THUMB RE-DEALS (owner, 2026-09-17, superseding 2026-09-14's "the range
+     is settings; the round is play"). The 09-14 reading left the dealt question
+     standing against a slider that had moved — the owner's screenshot showed the
+     second number at 6 while the question still read × 7 — and to a child that is
+     the screen contradicting itself. Every pick now lands through
+     resetForProblem, exactly like Make It's applyTarget: the question, digits,
+     misses and hint are the new range's immediately, and score, stars and journey
+     are untouched. StepSlider's pick never fires for the value it already shows,
+     so a drag that returns where it started deals nothing. */
+  const applyRange = useCallback((part, t) => {
+    const nr = {
+      ...range,
+      [part]: t
+    };
+    setRange(nr);
+    resetForProblem(makeMultiplicationProblem(Math.random, nr));
+  }, [range, resetForProblem]);
+  const setRowMax = useCallback(t => applyRange('rowMax', t), [applyRange]);
+  const setColMax = useCallback(t => applyRange('colMax', t), [applyRange]);
+  /* The reset button (owner, 2026-09-17): a fresh question from the range as it
+     stands, mid-answer, without touching score, stars or journey — the on-demand
+     twin of the re-deal a slider move now performs. */
+  const reset = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    resetForProblem(makeMultiplicationProblem(Math.random, range));
+  }, [muted, range, resetForProblem]);
   const clear = useCallback(() => {
     Sound.setMuted(muted);
     Sound.tap();
@@ -9630,6 +10132,7 @@ function MultiplicationGame({
     stops: TIMES_STOPS,
     value: range.rowMax,
     onPick: setRowMax,
+    onScrub: setScrubbing,
     label: "First number",
     text: "First number",
     format: t => `up to ${t}`,
@@ -9638,14 +10141,22 @@ function MultiplicationGame({
     stops: TIMES_STOPS,
     value: range.colMax,
     onPick: setColMax,
+    onScrub: setScrubbing,
     label: "Second number",
     text: "Second number",
     format: t => `up to ${t}`,
     scale: TIMES_MARKS
   }), /*#__PURE__*/React.createElement("div", {
+    className: "tt-foot"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "tt-sum",
     "aria-hidden": "true"
-  }, range.rowMax, " \xD7 ", range.colMax)), /*#__PURE__*/React.createElement("div", {
+  }, range.rowMax, " \xD7 ", range.colMax), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "tt-reset",
+    onClick: reset,
+    "aria-label": "New question"
+  }, /*#__PURE__*/React.createElement(ResetIcon, null)))), /*#__PURE__*/React.createElement("div", {
     className: "multiply-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "multiply-problem"
@@ -10390,7 +10901,20 @@ let rbEngineCold = true;
    by the chain-done callback, which is what keeps his talking face off while she
    speaks (2026-08-28: he animates for his line only, or the screen teaches the wrong
    thing about who is talking). */
-const rbHerald = () => Voice.lines(["Let's hear the robot read it!"]);
+/* HER LINE STARTS CLEAR OF THE BUTTON CLICK. Sound.tap() fires in the same gesture
+   as this chain: an 880 Hz sine for 80 ms, a 1320 Hz sine at +40 ms and an 18 ms
+   noise chip -- 0-140 ms of sound landing exactly on "Let's", while nothing overlaps
+   "read it" a second later. The owner heard the first word as quieter; measuring the
+   clip showed the opposite, "Let's" is its LOUDEST window at -9.7 dBFS against -13.5
+   for "read it". It was never attenuation, it was masking, so the fix is separation
+   and not a re-render.
+   THE TIMER IS SAFE ONLY BECAUSE OF WHERE THIS IS CALLED. rbHerald runs solely on the
+   !rbEngineCold path -- a chain has already FINISHED and so provably spoke, which is
+   the one observable proof the engine is unlocked. On a cold engine the tap returns
+   before reaching it. Deferring speech behind a timer on an UNPROVEN engine is the
+   2026-08-28 iPad bug, and this cannot reach that state. */
+const RB_HERALD_CLEAR_OF_CLICK_MS = 160;
+const rbHerald = () => setTimeout(() => Voice.lines(["Let's hear the robot read it!"]), RB_HERALD_CLEAR_OF_CLICK_MS);
 function ReadBigNumbers({
   onBack,
   journeyBg,
@@ -17108,6 +17632,276 @@ function MakeItGame({
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
 
+/* ══ MODE sq1: SEQUENCE ══
+   CG-115: the game screen for engine/sequence-problem.js (CG-095), which this file
+   never imports — the pages are one classic <script type="text/babel">, and `import`
+   is a SyntaxError there in dev and in the publish build alike. The generator above
+   (SequenceEngine, in the MATH PRIMITIVES block) is PORTED, not retyped:
+   tools/port-sequence-engine.js regenerates it from the module on every run and fails
+   if a hand edit has drifted it, exactly as tools/port-compare-engine.js already does
+   for g1's engine.
+
+   THE OWNER'S FOUR RULINGS, 2026-09-16, override SEQUENCE-SPEC.md where they differ
+   from it:
+   1. Sequence is its own shelf on the home screen, not a card on Number Games.
+   2. No mode memory. SEQUENCE_PRESETS[0] is Count, and every mount opens on it —
+      there is nothing to persist and nothing to read back.
+   3. ×10 is not yet decided. FACTORS (inside the ported block above, and at
+      engine/sequence-problem.js:185) omits it on purpose: a five-term ×10 run's
+      smallest possible top term is 10,000, over the 9,999 cap the same file names as
+      MAX_VISIBLE_VALUE. Re-enabling 10 is raising that one constant — commented, at
+      the point it would change; the cap is not relaxed here and FACTORS stays as it
+      reads.
+   4. A stuck child IS shown the answer — this amends SEQUENCE-SPEC.md §15 and §24,
+      whose "rules only, forever" no longer holds. The replacement is the idiom every
+      other game in this app already uses (MISS_HINT, .ghost-hint), not the spec's own
+      two-tap Hint button: two misses prints the rule, in Sequence's own notation, on
+      the line §13/§33 already reserve for it; three misses ghosts the answer into the
+      blank tile.
+
+   CG-115's THREE SPOKEN LINES — rendered 2026-09-17, after the owner answered "about
+   80 credits to record Sequence's three spoken lines?" with "approved". They are in the
+   cast voice, in the `shared` narration set, and each is a whole fixed sentence, so the
+   companion finds it by exact text in any mode (math-app/MIXED-VOICE-GUIDE.md). sq1
+   still stays OUT of Clips's VOICED set; that set is about numbers, not these.
+     "What number is missing?"                 — the question prompt. The [problem]
+                                                 effect says it on every new question:
+                                                 on mount, on Next, on a ribbon tap.
+     "Try another number."                     — the wrong-answer line (SPEC §14), said
+                                                 on every miss that MISS_HINT does not
+                                                 already answer (1, 2, 4, 5, ...).
+     "Sequence! Complete the number pattern!"  — the card announcement, CARD_VOICE.sq1.
+                                                 space-math only: unicorn-math has no
+                                                 CARD_VOICE, and its cards are silent.
+   They are literal arguments to the Voice calls ON PURPOSE: the manifest generator
+   harvests exactly those, and its --verify fails the day one is reworded without a
+   re-render. Change a word here and the clip stops resolving, because the resolver keys
+   on TEXT. Re-run tools/build-narration-manifest.py and render before shipping.
+   What costs nothing and is used as before:
+   the praise clips, MISS_HINT's six stuck lines, and the robot readout (num()) for the
+   answer — never a mapped `texts` entry, because sq1's answers run unbounded across
+   0..9,999 and a bare number in that map resolves ungated in every mode (the
+   2026-08-20 defect). sq1 is deliberately absent from Clips's VOICED set for the same
+   reason. */
+const SEQUENCE_PRESETS = [{
+  id: 'sq1count',
+  icon: ICON_EARTH,
+  tag: 'Count',
+  family: 'count',
+  desc: '3, 4, ?, 6, 7'
+}, {
+  id: 'sq1skip',
+  icon: ICON_ROCKET,
+  tag: 'Skip Count',
+  family: 'skipCount',
+  desc: '2, 4, ?, 8, 10'
+}, {
+  id: 'sq1add',
+  icon: ICON_MARS,
+  tag: '+ / −',
+  family: 'addSub',
+  desc: '7, 10, ?, 16, 19'
+}, {
+  id: 'sq1mul',
+  icon: ICON_SATURN,
+  tag: '× / ÷',
+  family: 'multiplyDivide',
+  desc: '2, 4, ?, 16, 32'
+}, {
+  id: 'sq1mixed',
+  icon: ICON_GALAXY,
+  tag: 'Mixed',
+  family: 'mixed',
+  desc: 'A bit of everything'
+}];
+function SequenceGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  /* Owner ruling #2: no mode memory. SEQUENCE_PRESETS[0] IS Count, so opening on the
+     array's own first entry, every mount, is the whole implementation. */
+  const [preset, setPreset] = useState(SEQUENCE_PRESETS[0]);
+  const [problem, setProblem] = useState(() => SequenceEngine.makeSequenceProblem(SEQUENCE_PRESETS[0].family, null, Math.random));
+  const answerLength = String(problem.answer).length;
+  const [digits, setDigits] = useState(() => Array(answerLength).fill(''));
+  const [won, setWon] = useState(false);
+  const [wrong, setWrong] = useState(false);
+  const [misses, setMisses] = useState(0);
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const nextIndex = digits.findIndex(d => d === '');
+
+  /* Owner ruling #4: nothing until the third miss -- see MISS_HINT -- and the ghost
+     answer (misses>=3, in the render below) appears on that same beat. Two misses gets
+     no companion line of its own: the rule reveal in the reserved line is the help. */
+  useEffect(() => {
+    if (misses && misses % 3 === 0) Voice.say(missHint());
+  }, [misses]);
+  /* SEQUENCE-SPEC §14's wrong-answer line, on every miss the stuck line above does not
+     already answer. The two conditions never overlap, on purpose: say() cuts off
+     whatever is playing, so a third miss that asked for both would be heard saying only
+     the second. It names no number and gives nothing away, so it is not the help that
+     ruling #4 holds back until the third miss. */
+  useEffect(() => {
+    if (misses && misses % 3 !== 0) Voice.say('Try another number.');
+  }, [misses]);
+  /* The question, out loud, each time one is dealt -- on mount, on Next, and on a ribbon
+     tap -- from the same kind of [problem] effect the other games speak their prompt
+     from. The printed prompt below says the same words; keep the two identical. */
+  useEffect(() => {
+    Voice.say('What number is missing?');
+  }, [problem]);
+  const resetForProblem = useCallback(p => {
+    setProblem(p);
+    setDigits(Array(String(p.answer).length).fill(''));
+    setWon(false);
+    setWrong(false);
+    setMisses(0);
+  }, []);
+  const next = useCallback(() => {
+    resetForProblem(SequenceEngine.makeSequenceProblem(preset.family, problem, Math.random));
+  }, [preset, problem, resetForProblem]);
+  const applyPreset = useCallback(p => {
+    setPreset(p);
+    resetForProblem(SequenceEngine.makeSequenceProblem(p.family, null, Math.random));
+  }, [resetForProblem]);
+  const clear = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    setDigits(Array(answerLength).fill(''));
+    setWrong(false);
+  }, [muted, won, answerLength]);
+  const tapDigit = useCallback(n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    setDigits(prev => {
+      const idx = prev.findIndex(d => d === '');
+      if (idx < 0) return prev;
+      const out = [...prev];
+      out[idx] = String(n);
+      return out;
+    });
+  }, [muted, won]);
+  useEffect(() => {
+    if (won || digits.some(d => d === '')) return;
+    const guess = digits.join('');
+    Sound.setMuted(muted);
+    if (guess === String(problem.answer)) {
+      setWon(true);
+      setWrong(false);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`)]);
+      setScore(s => s + 1);
+      setTimeout(() => setConf(false), 2500);
+    } else {
+      setWrong(true);
+      Sound.wrong();
+      mascot.oops();
+      setMisses(m => m + 1);
+      const ansStr = String(problem.answer);
+      setTimeout(() => {
+        setDigits(prev => prev.map((d, i) => d === ansStr[i] ? d : ''));
+        setWrong(false);
+      }, 650);
+    }
+  }, [digits, won, muted, problem, setScore, addProgress]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen sq-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Sequence"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Complete the number pattern")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(SEQUENCE_PRESETS),
+    value: preset.id,
+    onPick: id => applyPreset(byId(SEQUENCE_PRESETS, id)),
+    muted: muted,
+    label: "Choose the kind of pattern"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "tap-hint"
+  }, "What number is missing?"), /*#__PURE__*/React.createElement("div", {
+    className: "multiply-card sq-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sq-row"
+  }, problem.terms.map((t, i) => /*#__PURE__*/React.createElement(React.Fragment, {
+    key: i
+  }, i > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "sq-arrow",
+    "aria-hidden": "true"
+  }, '›'), i === problem.blankIndex ? /*#__PURE__*/React.createElement("div", {
+    className: `sq-tile sq-blank ${wrong ? 'wrong' : ''} ${won ? 'won' : ''}`
+  }, won ? problem.answer : /*#__PURE__*/React.createElement("div", {
+    className: "sq-blank-digits"
+  }, digits.map((d, j) => /*#__PURE__*/React.createElement("span", {
+    key: j,
+    className: `sq-digit ${nextIndex === j && !won ? 'active' : ''}`
+  }, d || (misses >= 3 ? /*#__PURE__*/React.createElement("span", {
+    className: "ghost-hint"
+  }, String(problem.answer)[j]) : ''))))) : /*#__PURE__*/React.createElement("div", {
+    className: "sq-tile"
+  }, t)))), /*#__PURE__*/React.createElement("div", {
+    className: "sq-rule-line",
+    "aria-hidden": "true"
+  }, won ? /*#__PURE__*/React.createElement("div", {
+    className: "sq-reveal"
+  }, Array.from({
+    length: problem.terms.length - 1
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "sq-reveal-op"
+  }, problem.ruleLabel))) : misses >= 2 ? /*#__PURE__*/React.createElement("span", {
+    className: "sq-rule-hint"
+  }, problem.ruleLabel) : null)), !won && /*#__PURE__*/React.createElement("div", {
+    className: "keypad"
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => /*#__PURE__*/React.createElement("button", {
+    key: n,
+    className: "key-btn",
+    onClick: () => tapDigit(n)
+  }, n)), /*#__PURE__*/React.createElement("button", {
+    className: "key-btn clear",
+    onClick: clear,
+    "aria-label": "Clear"
+  }, /*#__PURE__*/React.createElement(BackspaceIcon, null))), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
@@ -17310,6 +18104,32 @@ function Home({
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "What's Missing?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "home-section-heading"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/comet.webp",
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, "Sequence"), /*#__PURE__*/React.createElement("img", {
+    className: "section-icon",
+    src: "assets-runtime/space/icons/star.webp",
+    alt: ""
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('sq1', 'mc-purple'),
+    onClick: () => pick('sq1'),
+    "aria-label": "Sequence. Complete the number pattern"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "sq1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Sequence"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
@@ -17709,7 +18529,8 @@ function App() {
     a1: 0,
     k1: 0,
     x1: 0,
-    y1: 0
+    y1: 0,
+    sq1: 0
   });
   const [muted, setMutedState] = useState(() => {
     try {
@@ -17921,6 +18742,9 @@ function App() {
   }));else if (mode === 'y1') screen = /*#__PURE__*/React.createElement(MakeItGame, _extends({}, shared, {
     score: scores.y1,
     setScore: setScore('y1')
+  }));else if (mode === 'sq1') screen = /*#__PURE__*/React.createElement(SequenceGame, _extends({}, shared, {
+    score: scores.sq1,
+    setScore: setScore('sq1')
   }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
