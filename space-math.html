@@ -6,6 +6,7 @@
   <title>Space Math</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
+  <link rel="stylesheet" href="./shared/bg-deco/bg-deco.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -13,20 +14,11 @@
   <meta name="apple-mobile-web-app-title" content="Magic Math"/>
   <script src="./vendor/react-18.3.1.production.min.js"></script>
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
+  <script src="./shared/bg-deco/bg-deco.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#0a0e2d}
 
-    /* ── BG DECO ── */
-    .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-    .bg-deco img{position:absolute;display:inline-block;object-fit:contain;animation:twinkleDeco ease-in-out infinite alternate;filter:drop-shadow(0 0 7px rgba(140,190,255,.5));will-change:transform,opacity}
-    @keyframes twinkleDeco{
-      0%{opacity:.06;transform:scale(.55) rotate(-12deg)}
-      100%{opacity:var(--deco-opacity,.5);transform:scale(1.15) rotate(12deg)}
-    }
-    @media (prefers-reduced-motion: reduce){
-      .bg-deco img{animation:none!important;opacity:.12!important}
-    }
     @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 
     /* ── HOME ── */
@@ -1446,6 +1438,21 @@
       .ms-row{--ms-base:26px;--ms-gap:4px}
     }
 
+
+    /* The seven-mode ribbon is deliberately one non-wrapping, horizontally scrollable
+       row. At 768px the scroll is the expected design, not an emergency wrap. */
+    .ms-screen .ar-strip{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:calc(100vw - 24px);flex:0 0 auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .ms-screen .ar-strip::-webkit-scrollbar{display:none}
+    .ms-screen .ar-strip .fm-btn{flex:0 0 auto;min-width:48px;min-height:48px}
+    .ms-symbolic{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:1;min-height:0}
+    .ms-question{display:flex;align-items:center;justify-content:center;gap:10px;min-height:92px;padding:10px 20px;border:3px solid #c4d7fd;border-radius:22px;background:rgba(255,255,255,.88);box-shadow:0 5px 18px rgba(90,46,214,.12);font-size:clamp(1.75rem,6vw,3rem);font-weight:900;color:#2f4a8f}
+    .ms-frac{display:inline-grid;grid-template-rows:1fr 3px 1fr;min-width:52px;text-align:center;line-height:1}.ms-frac-bar{background:currentColor;border-radius:4px}.ms-q{color:#2f6df6}
+    .ms-entry{min-width:150px;min-height:58px;display:flex;align-items:center;justify-content:center;border:3px dashed #93b7fb;border-radius:17px;background:#fff;color:#2f6df6;font-size:2rem;font-weight:900}
+    .ms-entry.wrong{animation:wrongShake .35s ease;border-color:#ef5350}.ms-entry.good{border-style:solid;border-color:#00a05a;color:#00a05a}
+    .ms-frac-entry{display:grid;grid-template-rows:52px 4px 52px;width:112px}.ms-frac-field{border:0;background:transparent;font:inherit;color:inherit}.ms-frac-field.active{background:#e8f0ff}.ms-frac-entry .ms-frac-bar{background:#2f4a8f}
+    .ms-keypad{display:grid;grid-template-columns:repeat(6,minmax(48px,62px));gap:8px;justify-content:center}.ms-keypad .key-btn{height:52px;min-width:48px}.ms-keypad .key-btn.clear{grid-column:auto}
+    @media (max-height:820px){.ms-question{min-height:66px;padding:6px 14px}.ms-symbolic{gap:6px}.ms-keypad{gap:5px}.ms-keypad .key-btn{height:46px}.ms-entry{min-height:48px}}
+
     /* Column Add */
     .column-card{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(232,240,255,.9));border:3px solid #93b7fb;border-radius:22px;padding:18px 22px 20px;box-shadow:0 5px 0 #93b7fb,0 10px 24px rgba(91,140,248,.16);position:relative;z-index:1;min-width:min(92vw,360px)}
     .column-grid{display:grid;grid-template-columns:34px repeat(var(--col-count,3),54px);gap:7px;align-items:center;justify-content:center;font-family:'Nunito',system-ui,sans-serif}
@@ -2182,6 +2189,7 @@ const {
   useRef,
   useEffect
 } = React;
+const useBgDecoEffect = React.useLayoutEffect || useEffect;
 
 /* ══ SOUND ══ */
 const Sound = (() => {
@@ -3789,103 +3797,39 @@ const ODD_EVEN_PRESETS = [{
    where the bond is SEEN; the numbers rung is where it is recalled. */
 
 /* ── WHAT'S MISSING? (b3) ──
-   The missing addend, played as a balance. Owner request, 2026-08-19: "23 + ? = 30 …
-   I want blocks to count, not in number format, but two sides of blocks to count",
-   then the harder forms `? + 8 = 31`, `31 − ? = 23` and `? − 8 = 23`.
-
-   SIX RUNGS, ONE ACT. Every rung hides one pile and asks the child to fill it until
-   the two sides hold the same amount. What changes is where the hidden pile sits and
-   how far the jump is — which is why this is one game with six ways of writing the
-   question rather than four games. `form` picks the arrangement (see missingLayout),
-   and the three numbers are always the same three: `a` is the amount that is given,
-   `b` the amount on the other side, and `answer` what the child builds.
-
-   THE SUBTRACTION RUNGS ARE BALANCES TOO, not crossings-out. `31 − ? = 23` is drawn as
-   31 blocks against 23 blocks plus the hidden pile, so counting up is the same action
-   on every rung — which is the owner's own point: a child solves `23 + ? = 35` by
-   counting up, not by taking 23 away from 35. It also writes the inverse relation on
-   screen: the picture says 23 and 8 more, the notation strip says 31 − 8, and they are
-   the same fact.
-
-   Rung 1 shows no numerals at all, the same decision as Which is Bigger?'s first rung:
-   the numbers arrive once the child has counted, which is the moment naming them
-   teaches something. From rung 2 the notation strip is on screen live.
-
-   The ceiling is 99 on rung 3 and 60 elsewhere, because both sides must stay countable
-   — that is the whole game — and 60 unit cells is six rows of ten. */
-const MISSING_PRESETS = [
-/* Rung 1 is deliberately biased to targets ending in 0 or 5 (owner: "they're
-   satisfying and easy to see"), because those are the ones worth memorising: the
-   answer blocks finish a row of ten, and complements to ten are what mental
-   arithmetic is later built out of. */
-{
-  id: 'w10',
-  icon: ICON_EARTH,
-  tag: 'Up to a ten',
-  desc: '23 + ? = 30',
-  form: 'addEnd',
-  show: 'blocks',
-  bMax: 60,
-  ansMin: 1,
-  ansMax: 9,
-  round: true
+   One child-facing ribbon: Count Block | + | − | × | ÷ | Fraction | Decimal.
+   Count Block internally mixes the six former visual rungs; none remains selectable.
+   The standalone MissingEngine builds a valid fact first and then hides one part.
+   Symbolic modes share one keypad family; Decimal alone adds a point, and a missing
+   whole fraction uses the numerator/bar/denominator entry. */
+const MISSING_PRESETS = [{
+  id: 'count',
+  tag: 'Count Block',
+  aria: 'Count Block'
 }, {
-  id: 'wany',
-  icon: ICON_ROCKET,
-  tag: 'Up to any',
-  desc: '23 + ? = 35',
-  form: 'addEnd',
-  show: 'both',
-  bMin: 12,
-  bMax: 60,
-  ansMin: 1,
-  ansMax: 10
-},
-/* The missing amount now has a ten inside it, so the child cannot reach it in one
-   row — this is the rung where counting up starts needing a strategy. */
-{
-  id: 'wbig',
-  icon: ICON_MARS,
-  tag: 'A big jump',
-  desc: '58 + ? = 73',
-  form: 'addEnd',
-  show: 'both',
-  bMin: 30,
-  bMax: 99,
-  ansMin: 11,
-  ansMax: 25
-},
-/* Same maths, hidden pile written first. The picture cannot tell the two apart —
-   given blocks are always drawn before the hidden ones — and that is the lesson:
-   the order you write it in does not change the amount. */
-{
-  id: 'wfirst',
-  icon: ICON_JUPITER,
-  tag: '? first',
-  desc: '? + 8 = 31',
-  form: 'addStart',
-  show: 'both',
-  bMax: 60,
-  ansMin: 8,
-  ansMax: 48
+  id: 'add',
+  tag: '+',
+  aria: 'Addition'
 }, {
-  id: 'wtook',
-  icon: ICON_SATURN,
-  tag: 'Took away',
-  desc: '31 − ? = 23',
-  form: 'subTake',
-  show: 'both',
-  bMax: 60,
-  ansMin: 1,
-  ansMax: 12
+  id: 'sub',
+  tag: '−',
+  aria: 'Subtraction'
 }, {
-  id: 'wstart',
-  icon: ICON_GALAXY,
-  tag: 'Started with',
-  desc: '? − 8 = 23',
-  form: 'subStart',
-  show: 'both',
-  bMax: 60
+  id: 'mul',
+  tag: '×',
+  aria: 'Multiplication'
+}, {
+  id: 'div',
+  tag: '÷',
+  aria: 'Division'
+}, {
+  id: 'frac',
+  tag: 'Fraction',
+  aria: 'Fraction'
+}, {
+  id: 'dec',
+  tag: 'Decimal',
+  aria: 'Decimal'
 }];
 /* How many empty sockets trail the pile the child is building. It is a FIXED number,
    never "however many are still needed", so it gives nothing away — and the pile is
@@ -6138,32 +6082,16 @@ function makeMultiplicationProblem(rng, range = DEFAULT_TIMES_RANGE) {
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
-  const items = useMemo(() => DECO_IMGS.map((src, i) => ({
-    src,
-    id: i,
-    left: rand(2, 95),
-    top: rand(2, 92),
-    dur: rand(14, 34) / 10,
-    delay: rand(0, 30) / 10,
-    size: rand(16, 34),
-    opacity: (rand(28, 58) / 100).toFixed(2)
-  })), []);
+  const target = useRef(null);
+  useBgDecoEffect(() => initBgDeco(target.current, {
+    icons: DECO_IMGS,
+    glow: 'rgba(140,190,255,.5)',
+    glowRadius: 7,
+    count: 20
+  }), []);
   return /*#__PURE__*/React.createElement("div", {
-    className: "bg-deco"
-  }, items.map(it => /*#__PURE__*/React.createElement("img", {
-    key: it.id,
-    src: it.src,
-    alt: "",
-    "aria-hidden": "true",
-    style: {
-      left: `${it.left}%`,
-      top: `${it.top}%`,
-      width: it.size,
-      height: it.size,
-      '--deco-opacity': it.opacity,
-      animation: `twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`
-    }
-  })));
+    ref: target
+  });
 }
 
 /* ══ SVG ICON BUTTONS (crisp, no emoji) ══ */
@@ -8313,6 +8241,604 @@ function BlocksFill({
    counting". A child who can already see the gap taps once and is done; a child who
    cannot taps one block at a time and counts on, out loud, with the app. Both finish. */
 
+/* ── missing-engine: generated from engine/missing-problem.js by tools/port-missing-engine.js — do not edit here ── */
+const MissingEngine = function () {
+  // What's Missing? — the hide-one-part engine (WHATS-MISSING-SPEC §1, owner's
+  // words, 2026-09-15, amended by §1b, 2026-09-16).
+  //
+  // The order of operations is the contract: build a complete, valid mathematical
+  // fact FIRST, then hide one part of it. No problem is ever a question in search
+  // of an answer — the answer exists before the '?' does, because the fact did.
+  // Where the '?' falls is a separate uniform draw over the fact's legal
+  // positions, made after the fact is built, so no slot can lean and no child can
+  // win by always answering the same position (§1: "Vary where ? appears. Avoid
+  // positional shortcuts or bias.").
+  //
+  // The values-first discipline is compare-problem.js's, mirrored: no binary
+  // float ever holds a value. A decimal here is an integer count of tenths —
+  // `0.7 + ? = 1.0` is `7 + ? = 10` in tenths, so `0.30000000000000004` cannot
+  // occur — and a fraction is integers n over d, with d born ≥ 2 and never 0.
+  // The pages will one day render `slots`; this module renders nothing, speaks
+  // nothing and reads no DOM (the ribbon, keypad and narration are the pages'
+  // business, not the engine's).
+  //
+  // Mirrored from compare-problem.js rather than re-invented: randInt/pick and
+  // the trailing-injectable-rng rule (:81, :706), the MAX_ATTEMPTS re-draw loop
+  // (:718), the avoid threading against immediate repeats (:731), the add/sub/
+  // mul/div fact draws (:143, :155, :169, :191), coprimeN (:90) and the
+  // digits-and-places decimal (:50). Deliberately NOT mirrored: the equal coin
+  // and the direction-first rule (this game's coin is the '?' position, drawn
+  // uniformly below), the magnitude TIERS (this spec has none) and the
+  // born-reduced display rule — `1/2 = ?/4` is unreduced on purpose, because the
+  // unreduced writing IS the question (see the Fraction section).
+
+  // --- The seven ribbon modes (§1 "Main ribbon", as amended by §1b) -------------
+  //
+  // Ribbon order: Count Block | + | − | × | ÷ | Fraction | Decimal. Which is
+  // default is the page's call; the engine has no default. The six old Count Block
+  // rungs are deliberately ABSENT from this list — they are not modes any more
+  // (§1: "Count Block has no child-facing submodes anymore") — and so is Number,
+  // removed by §1b (owner, 2026-09-16: "Remove the overlapping Number sequence
+  // mode from What's Missing" — number runs are Sequence's game, not this one's).
+  // makeMissingProblem() throws on the rungs' ids and tags, and on 'number'.
+  const MODES = ['count', 'add', 'sub', 'mul', 'div', 'frac', 'dec'];
+
+  // --- Tokens: the fact as the child will see it --------------------------------
+  //
+  // A slot is one of:
+  //   { k:'int',  n }                a whole number as written
+  //   { k:'frac', n, d }             a fraction as written (may be unreduced —
+  //                                  see the Fraction section for why)
+  //   { k:'frac', n, d, hidePart }   a fraction with ONE part as the '?': that
+  //                                  part's field is null, hidePart names it
+  //   { k:'dec',  digits, places }   digits and a place count — the rational
+  //                                  digits / 10^places; places is always 1 here
+  //   { k:'op',   op }               '+', '−', '×', '÷' or '='
+  //   { k:'q' }                      the missing part — a whole value slot
+  //
+  // The answer is the exact written token that filled the missing slot (or, for
+  // a hidden fraction part, the integer that filled it), so a page can judge an
+  // entry without ever doing arithmetic of its own. The minus sign is '−'
+  // (U+2212), the character the app already prints — never a hyphen
+  // (REPRESENTATION-SPEC §3).
+
+  const int = n => ({
+    k: 'int',
+    n
+  });
+  const frac = (n, d) => ({
+    k: 'frac',
+    n,
+    d
+  });
+  const dec = tenths => ({
+    k: 'dec',
+    digits: tenths,
+    places: 1
+  });
+  const op = o => ({
+    k: 'op',
+    op: o
+  });
+
+  // --- Exact arithmetic and random draws ----------------------------------------
+
+  // The same Euclid loop as compare-problem.js:17, kept local so each engine
+  // stands alone — its own test file keeps its own copy for the same reason.
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b !== 0) {
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a === 0 ? 1 : a;
+  }
+
+  // randInt and pick are compare-problem.js's two draws (:81, :85), mirrored line
+  // for line. Every draw in this module goes through the injected rng; there is
+  // no Math.random() anywhere, and the module refuses to run without one.
+  function randInt(rng, lo, hi) {
+    return lo + Math.floor(rng() * (hi - lo + 1));
+  }
+  function pick(rng, arr) {
+    return arr[Math.floor(rng() * arr.length)];
+  }
+  const MAX_ATTEMPTS = 500; // compare-problem.js:328's budget, mirrored
+
+  // --- Hiding: the position coin ------------------------------------------------
+  //
+  // The fact is built complete; hiding is a separate, uniform draw over its value
+  // slots. This is the missing-term twin of compare-problem.js's direction-first
+  // rule (space-math.html :7546-7562): the position is decided by an explicit
+  // coin over the legal positions, never by a generator's convenience, so the
+  // learnable shortcut this spec outlaws — "always answer the middle", "the ?
+  // is always the answer" — cannot arise.
+  function hideOneValue(rng, mode, family, slots) {
+    const where = [];
+    slots.forEach((s, i) => {
+      if (s.k !== 'op') where.push(i);
+    });
+    const i = pick(rng, where);
+    const answer = slots[i];
+    const hidden = slots.slice();
+    hidden[i] = {
+      k: 'q'
+    };
+    return {
+      mode,
+      family,
+      slots: hidden,
+      answerSlot: i,
+      answer
+    };
+  }
+
+  // [a op b = c]; the '?' then hides one of the three value slots (0, 2 or 4).
+  function equation(rng, mode, family, a, o, b, c) {
+    return hideOneValue(rng, mode, family, [a, op(o), b, op('='), c]);
+  }
+
+  // `0.3 0.4 ? 0.6` — no operators; the step is part of the fact. Only the
+  // decimal run survives here: whole-number runs (`18 19 ? 21`) are Sequence's,
+  // not this game's (§1b).
+  function sequence(rng, mode, family, tokens) {
+    return hideOneValue(rng, mode, family, tokens);
+  }
+
+  // --- The operator modes: + − × ÷ ----------------------------------------------
+  //
+  // Each generator draws a COMPLETE fact first — §1's rule — from the same domain
+  // its twin representation uses in Which is Bigger?, so the two games agree
+  // about what a fact is.
+
+  // add — total first, then the split: genAdd's draw (compare-problem.js:143),
+  // mirrored. Terms ≥ 1, total ≤ 20; §1's "Missing result/addend" names both
+  // kinds, so all three positions hide.
+  function genAdd(rng) {
+    const total = randInt(rng, 3, 20);
+    const a = randInt(rng, 1, total - 1);
+    return equation(rng, 'add', 'equation', int(a), '+', int(total - a), int(total));
+  }
+
+  // sub — result first, then a start above it: genSub's draw
+  // (compare-problem.js:155), mirrored. Result ≥ 1 and take ≥ 1, so no answer is
+  // negative and none is a bare 0 (§1: "No negative whole-number answers").
+  // §1's "Missing result/subtrahend/start" — all three positions hide.
+  function genSub(rng) {
+    const result = randInt(rng, 1, 19);
+    const start = randInt(rng, result + 1, 20);
+    return equation(rng, 'sub', 'equation', int(start), '−', int(start - result), int(result));
+  }
+
+  // mul — factors 2–10, products ≤ 100: the same kid-appropriate table
+  // compare-problem.js enumerates as MUL_FACTS (:169), drawn here as two uniform
+  // factors, which is the identical distribution over the same 81 facts — the
+  // table exists there to filter by constraint, and this game has none.
+  // §1's "Missing product/factor" names both kinds.
+  function genMul(rng) {
+    const a = randInt(rng, 2, 10);
+    const b = randInt(rng, 2, 10);
+    return equation(rng, 'mul', 'equation', int(a), '×', int(b), int(a * b));
+  }
+
+  // div — quotient and divisor drawn, dividend their product: genDiv's draw
+  // (compare-problem.js:191), mirrored. Exactness is by construction and the
+  // divisor is ≥ 2, so division by zero cannot occur (§1: "Division uses exact
+  // whole-number facts; no divide-by-zero"). §1's "Missing quotient/divisor/
+  // dividend" — all three. Dividends stay table-sized (≤ 100).
+  function genDiv(rng) {
+    const q = randInt(rng, 2, 50);
+    const divisors = [];
+    for (let dv = 2; dv <= 10; dv++) {
+      if (q * dv <= 100) divisors.push(dv);
+    }
+    const dv = pick(rng, divisors); // q ≤ 50 always admits dv = 2
+    return equation(rng, 'div', 'equation', int(q * dv), '÷', int(dv), int(q));
+  }
+
+  // --- Decimal: tenths, never floats ----------------------------------------------
+  //
+  // §1: "Missing decimal/sequence: `0.7 + ? = 1.0`, `0.3 0.4 ? 0.6`". Every
+  // decimal in this module is an integer count of TENTHS with one place — the
+  // width of every example the spec itself gives — so every fact is built in
+  // integers and no float ever holds a value (`0.7 + 0.3 === 1.0` is false in
+  // JavaScript; 7 + 3 = 10 is not false). Decimal × and ÷ are out of scope (§1);
+  // the relationships are +, − and the sequence.
+  function genDecEquation(rng) {
+    const t = randInt(rng, 2, 20); // the total, in tenths: 0.2 – 2.0
+    if (rng() < 0.5) {
+      const x = randInt(rng, 1, t - 1);
+      return equation(rng, 'dec', 'equation', dec(x), '+', dec(t - x), dec(t));
+    }
+    const s = randInt(rng, 1, t - 1);
+    return equation(rng, 'dec', 'equation', dec(t), '−', dec(s), dec(t - s));
+  }
+  function genDecSequence(rng) {
+    const start = randInt(rng, 1, 96); // last term 9.9
+    return sequence(rng, 'dec', 'sequence', [dec(start), dec(start + 1), dec(start + 2), dec(start + 3)]);
+  }
+  function genDec(rng) {
+    return rng() < 0.5 ? genDecEquation(rng) : genDecSequence(rng);
+  }
+
+  // --- Fraction: equivalence and like-denominator sums -----------------------------
+  //
+  // §1: "Missing fraction parts/equivalence: `1/2 = ?/4`, `3/4 + ? = 1`". Two
+  // families, one coin. Fraction mode is a VALUE mode, not an operator mode
+  // (REPRESENTATION-SPEC §6.3): the relationships are + and − over a shared
+  // denominator, and fraction ×/÷ is out of scope (§1).
+  //
+  // THE BORN-REDUCED RULE IS DELIBERATELY NOT MIRRORED HERE. compare-problem.js
+  // draws every fraction coprime so `2/4` is never shown, because there an
+  // unreduced writing could settle a comparison. This game's own spec asks for
+  // `1/2 = ?/4` — the unreduced writing IS the question — and the sums count
+  // parts of one shared denominator, so `1/4 + ? = 3/4` is answered `2/4` as
+  // written, the counting answer (READ-FRACTION-SPEC's core invariant: "Never
+  // simplify the main fraction before representing or reading it"). The base of
+  // an equivalence pair is still born reduced (coprimeN below): the scaled side
+  // is the pair's unreduced member by design, never an accident.
+
+  const EASY_DENOMS = [2, 3, 4, 5, 6];
+
+  // Draw n coprime with d — compare-problem.js:90's draw, mirrored.
+  function coprimeN(rng, d) {
+    for (;;) {
+      const n = randInt(rng, 1, d - 1);
+      if (gcd(n, d) === 1) return n;
+    }
+  }
+
+  // 1/2 = ?/4 — and the same fact with any ONE of the four written parts hidden.
+  // §1's example hides the scaled numerator; each of the other three also has a
+  // single positive-integer answer (fix either part of a fraction and the other
+  // is determined), so all four hide. Which side carries the reduced fraction is
+  // a coin: scaling up (1/2 = 2/4) and simplifying down (2/4 = 1/2) are both
+  // real lessons. d is born ≥ 2 and k ≥ 2 multiplies it, so a denominator is
+  // never 0, never 1, and the two sides never share a denominator (§1: "Fraction
+  // denominator never zero").
+  function genFracEquivalence(rng) {
+    const d1 = pick(rng, EASY_DENOMS);
+    const n1 = coprimeN(rng, d1);
+    const ks = [2, 3].filter(k => d1 * k <= 12);
+    const k = pick(rng, ks); // every d1 ≤ 6 admits k = 2, so ks is never empty
+    const reduced = frac(n1, d1);
+    const scaled = frac(n1 * k, d1 * k);
+    const slots = rng() < 0.5 ? [reduced, op('='), scaled] : [scaled, op('='), reduced];
+    const [part, i] = pick(rng, [['n', 0], ['d', 0], ['n', 2], ['d', 2]]);
+    const whole = slots[i];
+    const answer = int(part === 'n' ? whole.n : whole.d);
+    const hidden = slots.slice();
+    hidden[i] = part === 'n' ? {
+      ...whole,
+      n: null,
+      hidePart: 'n'
+    } : {
+      ...whole,
+      d: null,
+      hidePart: 'd'
+    };
+    return {
+      mode: 'frac',
+      family: 'equivalence',
+      slots: hidden,
+      answerSlot: i,
+      answer
+    };
+  }
+
+  // The whole 1 is written when the parts fill it (3/4 + 1/4 = 1); otherwise the
+  // total stays a fraction over the same denominator.
+  function totalTok(t, d) {
+    return t === d ? int(1) : frac(t, d);
+  }
+
+  // 3/4 + ? = 1 and 1 − ? = 3/4: parts over one denominator d, every part worth
+  // ≥ 1/d, totals ≤ 1. The total hides as readily as a part — §1's interaction
+  // note expects "numerator/denominator input when an entire fraction is
+  // missing", so entire fractions must go missing.
+  function genFracSum(rng) {
+    const d = pick(rng, EASY_DENOMS);
+    if (rng() < 0.5) {
+      const a = randInt(rng, 1, d - 1);
+      const t = randInt(rng, a + 1, d);
+      return equation(rng, 'frac', 'sum', frac(a, d), '+', frac(t - a, d), totalTok(t, d));
+    }
+    const t = randInt(rng, 2, d);
+    const s = randInt(rng, 1, t - 1);
+    return equation(rng, 'frac', 'sum', totalTok(t, d), '−', frac(s, d), frac(t - s, d));
+  }
+  function genFrac(rng) {
+    return rng() < 0.5 ? genFracEquivalence(rng) : genFracSum(rng);
+  }
+
+  // --- Count Block: the six old rungs, internal ------------------------------------
+  //
+  // §1: the six child-facing submodes ("Up to a ten / Up to any / A big jump /
+  // ? first / Took away / Started with") are removed from the ribbon and "may
+  // remain internally as generators" — they remain here, ids, forms and
+  // difficulty numbers verbatim from MISSING_PRESETS (space-math.html :3242),
+  // and ONLY here. They are not modes: MODES does not contain them and
+  // makeMissingProblem() throws on their ids and tags. Count Block mixes them
+  // automatically; the child never chooses one.
+  const COUNT_STRATEGIES = [
+  // Rung 1 is biased to targets ending 0 or 5 — owner, 2026-08-19: "they're
+  // satisfying and easy to see" — kept as the easy tier's target rule.
+  {
+    id: 'w10',
+    tag: 'Up to a ten',
+    form: 'addEnd',
+    bMax: 60,
+    ansMin: 1,
+    ansMax: 9,
+    round: true
+  }, {
+    id: 'wany',
+    tag: 'Up to any',
+    form: 'addEnd',
+    bMin: 12,
+    bMax: 60,
+    ansMin: 1,
+    ansMax: 10
+  },
+  // The missing amount now has a ten inside it, so counting up starts needing
+  // a strategy.
+  {
+    id: 'wbig',
+    tag: 'A big jump',
+    form: 'addEnd',
+    bMin: 30,
+    bMax: 99,
+    ansMin: 11,
+    ansMax: 25
+  },
+  // Same maths, hidden pile written first.
+  {
+    id: 'wfirst',
+    tag: '? first',
+    form: 'addStart',
+    bMax: 60,
+    ansMin: 8,
+    ansMax: 48
+  }, {
+    id: 'wtook',
+    tag: 'Took away',
+    form: 'subTake',
+    bMax: 60,
+    ansMin: 1,
+    ansMax: 12
+  }, {
+    id: 'wstart',
+    tag: 'Started with',
+    form: 'subStart',
+    bMax: 60
+  }];
+
+  // The form is drawn BEFORE the rung, uniformly over the four: the three addEnd
+  // rungs are difficulty tiers of ONE form, and picking a rung uniformly would
+  // put the '?' in the second slot four times in six. Form-first keeps the
+  // equation slot a fair half (addEnd and subTake hide the second term, addStart
+  // and subStart the first) — Count Block's share of §1's "no positional bias"
+  // is enforced right here, in the mixer. The hidden pile's visual SIDE follows
+  // the old drawing grammar instead (countLayout below).
+  const COUNT_FORMS = ['addEnd', 'addStart', 'subTake', 'subStart'];
+
+  // One complete fact from one rung — the arithmetic is the old
+  // makeMissingProblem's (space-math.html :5408), transplanted with the rng
+  // injected in place of Math.random(). `a` is the given amount, `b` the amount
+  // on the other side, `answer` what the child builds. A rung declines (null)
+  // when its bounds cannot be met, and the caller re-draws — it never clamps
+  // (compare-problem.js's rule, and the old code's `continue`).
+  function drawCountFact(rng, st) {
+    const bMin = st.bMin || 1;
+    if (st.form === 'subStart') {
+      const a = randInt(rng, 2, 12); // what went away
+      if (st.bMax - a < 10) return null;
+      const b = randInt(rng, 10, st.bMax - a); // what stayed
+      return {
+        a,
+        b,
+        answer: a + b
+      }; // what we started with
+    }
+    if (st.form === 'subTake') {
+      const answer = randInt(rng, st.ansMin, st.ansMax); // what went away
+      const a = randInt(rng, Math.max(answer + 5, 15), st.bMax);
+      return {
+        a,
+        b: a - answer,
+        answer
+      }; // b: what stayed
+    }
+    if (st.form === 'addStart') {
+      const answer = randInt(rng, st.ansMin, st.ansMax);
+      const a = randInt(rng, 2, 12);
+      if (a + answer > st.bMax) return null;
+      return {
+        a,
+        b: a + answer,
+        answer
+      };
+    }
+    // addEnd
+    const answer = randInt(rng, st.ansMin, st.ansMax);
+    let b;
+    if (st.round) {
+      // Targets ending 0 or 5, ten-heavy. The two cases are drawn SEPARATELY
+      // rather than by picking a step of 10 or 5 and multiplying, because half
+      // of every multiple of 5 is also a multiple of 10: that shortcut measured
+      // 86.8/13.2, not the 72/28 drawn here (space-math.html :5437).
+      if (rng() < 0.72) {
+        const lo = Math.ceil(Math.max(answer + 1, 10) / 10);
+        const hi = Math.floor(st.bMax / 10);
+        if (hi < lo) return null;
+        b = randInt(rng, lo, hi) * 10;
+      } else {
+        const lo = Math.ceil((Math.max(answer + 1, 5) - 5) / 10);
+        const hi = Math.floor((st.bMax - 5) / 10);
+        if (hi < lo) return null;
+        b = randInt(rng, lo, hi) * 10 + 5;
+      }
+    } else {
+      // Floored per rung so each one stays the question its rung promises
+      // (space-math.html :5447).
+      const lo = Math.max(answer + 1, bMin);
+      if (st.bMax < lo) return null;
+      b = randInt(rng, lo, st.bMax);
+    }
+    if (b - answer < 1) return null;
+    return {
+      a: b - answer,
+      b,
+      answer
+    };
+  }
+
+  // The two block sides — missingLayout (space-math.html :5398) mirrored exactly:
+  // given piles are always drawn before the hidden one, and the hidden pile
+  // changes sides with what the child is building (left when building a total or
+  // the start, right when building the part that was taken away — 3:1 by grammar,
+  // not by accident). Pure data; the renderer draws blocks and never computes.
+  function countLayout(form, a, b) {
+    if (form === 'subTake') {
+      return {
+        left: [{
+          kind: 'have',
+          n: a
+        }],
+        right: [{
+          kind: 'have',
+          n: b
+        }, {
+          kind: 'gap'
+        }]
+      };
+    }
+    if (form === 'subStart') {
+      return {
+        left: [{
+          kind: 'gap'
+        }],
+        right: [{
+          kind: 'gone',
+          n: a
+        }, {
+          kind: 'have',
+          n: b
+        }]
+      };
+    }
+    return {
+      left: [{
+        kind: 'have',
+        n: a
+      }, {
+        kind: 'gap'
+      }],
+      right: [{
+        kind: 'have',
+        n: b
+      }]
+    };
+  }
+
+  // Count Block's '?' position is fixed by the form — the mixer's uniform form
+  // draw IS the position draw. The equation is written in reading order even on
+  // the rungs whose picture draws the given pile first; the strip and the picture
+  // telling the same fact two ways is those rungs' own lesson
+  // (space-math.html :5385-5393).
+  function countProblem(form, st, f) {
+    const {
+      a,
+      b,
+      answer
+    } = f;
+    const q = {
+      k: 'q'
+    };
+    const slots = form === 'addEnd' ? [int(a), op('+'), q, op('='), int(b)] : form === 'addStart' ? [q, op('+'), int(a), op('='), int(b)] : form === 'subTake' ? [int(a), op('−'), q, op('='), int(b)] : [q, op('−'), int(a), op('='), int(b)];
+    return {
+      mode: 'count',
+      family: form,
+      strategy: st.id,
+      slots,
+      answerSlot: form === 'addEnd' || form === 'subTake' ? 2 : 0,
+      answer: int(answer),
+      layout: countLayout(form, a, b)
+    };
+  }
+  function drawCount(rng) {
+    const form = pick(rng, COUNT_FORMS);
+    const rungs = COUNT_STRATEGIES.filter(s => s.form === form);
+    const st = pick(rng, rungs);
+    const fact = drawCountFact(rng, st);
+    return fact ? countProblem(form, st, fact) : null;
+  }
+
+  // --- The entry point --------------------------------------------------------------
+
+  // §1: "Avoid immediately repeating the same problem." The same question as
+  // written — mode and slots — is refused; the same fact with a different part
+  // hidden is a different problem and is allowed. compare-problem.js's `avoid`
+  // (:731), restated for written questions: the page threads the previous
+  // problem back in, and a mode switch re-deals with the old problem as avoid.
+  function sameTokens(a, b) {
+    if (a === b) return true;
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+    const ka = Object.keys(a);
+    const kb = Object.keys(b);
+    if (ka.length !== kb.length) return false;
+    return ka.every(key => sameTokens(a[key], b[key]));
+  }
+  function sameProblem(a, b) {
+    return a.mode === b.mode && sameTokens(a.slots, b.slots);
+  }
+  function drawProblem(mode, rng) {
+    switch (mode) {
+      case 'count':
+        return drawCount(rng);
+      case 'add':
+        return genAdd(rng);
+      case 'sub':
+        return genSub(rng);
+      case 'mul':
+        return genMul(rng);
+      case 'div':
+        return genDiv(rng);
+      case 'frac':
+        return genFrac(rng);
+      case 'dec':
+        return genDec(rng);
+      default:
+        throw new Error('unknown mode: ' + mode);
+    }
+  }
+
+  // The rng is the trailing injectable parameter, as in compare-problem.js:706.
+  // There is no default: every draw goes through it, and a single Math.random()
+  // anywhere would make the module untestable, so the module refuses to run
+  // without one.
+  function makeMissingProblem(mode, avoid = null, rng) {
+    if (typeof rng !== 'function') throw new Error('makeMissingProblem requires an rng');
+    if (!MODES.includes(mode)) {
+      throw new Error('unknown mode: ' + mode + ' — the ribbon offers ' + MODES.join(' | '));
+    }
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const p = drawProblem(mode, rng);
+      if (!p) continue; // a rung declined; re-draw, never clamp
+      if (avoid && sameProblem(p, avoid)) continue;
+      return p;
+    }
+    throw new Error('makeMissingProblem: could not draw a ' + mode + ' problem');
+  }
+  return {
+    MODES,
+    makeMissingProblem
+  };
+}();
+/* ── end missing-engine ── */
+
 /* Where the hidden pile sits, per rung. Two things are load-bearing:
 
    GIVEN PILES ARE ALWAYS DRAWN BEFORE THE HIDDEN ONE, which is why addEnd and addStart
@@ -8572,6 +9098,33 @@ function MissingEq({
     className: "ms-eq-num"
   }, p.b));
 }
+const msTokenText = t => t.k === 'int' ? String(t.n) : t.k === 'dec' ? (t.digits / 10).toFixed(t.places) : '';
+function MissingToken({
+  t
+}) {
+  if (t.k === 'op') return /*#__PURE__*/React.createElement("span", null, t.op);
+  if (t.k === 'q') return /*#__PURE__*/React.createElement("span", {
+    className: "ms-q"
+  }, "?");
+  if (t.k === 'frac') return /*#__PURE__*/React.createElement("span", {
+    className: "ms-frac"
+  }, /*#__PURE__*/React.createElement("span", null, t.n === null ? '?' : t.n), /*#__PURE__*/React.createElement("span", {
+    className: "ms-frac-bar"
+  }), /*#__PURE__*/React.createElement("span", null, t.d === null ? '?' : t.d));
+  return /*#__PURE__*/React.createElement("span", null, msTokenText(t));
+}
+const msAnswerText = p => p.answer.k === 'dec' ? (p.answer.digits / 10).toFixed(p.answer.places) : p.answer.k === 'frac' ? p.answer.n + '/' + p.answer.d : String(p.answer.n);
+function MissingQuestion({
+  p
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ms-question",
+    "aria-label": "Find the missing value"
+  }, p.slots.map((t, i) => /*#__PURE__*/React.createElement(MissingToken, {
+    key: i,
+    t: t
+  })));
+}
 function MissingGame({
   onBack,
   journey,
@@ -8583,121 +9136,109 @@ function MissingGame({
   muted,
   onToggleMute
 }) {
-  /* Opens on the first rung, and this one needs no argument from the 2026-08-14 "start
-     on the hardest setting" rule: the owner asked for it directly — "for now, let's
-     just go with the easy one" — and the mix-of-all opening they want eventually is a
-     later change to this one line. The other five rungs are one tap on the level pill. */
-  const [preset, setPreset] = useState(MISSING_PRESETS[0]);
-  const [problem, setProblem] = useState(() => makeMissingProblem(MISSING_PRESETS[0]));
-  const [filled, setFilled] = useState(0);
-  /* How many given blocks the child has counted on each side. This is the counting
-     stage's whole state: while either side is short of its own total the sockets do not
-     exist yet. Owner, 2026-08-19: the game "lack the stage where children get to know
-     which side count to what". */
-  const [countL, setCountL] = useState(0);
-  const [countR, setCountR] = useState(0);
-  const [won, setWon] = useState(false);
-  const [confetti, setConf] = useState(false);
-  /* Bumped for every new problem and used as the key on both sides, so they remount
-     with an empty count. Resetting by effect would have to watch the value, and two
-     problems running 30 then 30 again share it. */
-  const [round, setRound] = useState(0);
+  const [mode, setMode] = useState('count');
+  const [problem, setProblem] = useState(() => MissingEngine.makeMissingProblem('count', null, Math.random));
+  const [filled, setFilled] = useState(0),
+    [countL, setCountL] = useState(0),
+    [countR, setCountR] = useState(0);
+  const [entry, setEntry] = useState(''),
+    [numEntry, setNumEntry] = useState(''),
+    [denEntry, setDenEntry] = useState(''),
+    [activePart, setActivePart] = useState('n');
+  const [won, setWon] = useState(false),
+    [wrong, setWrong] = useState(false),
+    [confetti, setConf] = useState(false),
+    [round, setRound] = useState(0);
   const mascot = useMascot();
   const overRef = useRef(false);
-  const layout = useMemo(() => missingLayout(problem), [problem]);
-  const gapOnLeft = msHasGap(layout.left);
-  const givenL = msGiven(layout.left),
+  const layout = problem.mode === 'count' ? problem.layout : {
+    left: [],
+    right: []
+  };
+  const gapOnLeft = msHasGap(layout.left),
+    givenL = msGiven(layout.left),
     givenR = msGiven(layout.right);
-  /* A side with nothing given is already counted — `? − 8 = 23` draws the whole starting
-     pile as the hidden one, so its side has no blocks to count and must not stall the
-     stage waiting for a tap that has nothing to land on. */
   const doneL = countL >= givenL,
-    doneR = countR >= givenR;
-  const counting = !won && !(doneL && doneR);
-  const leftTotal = msGiven(layout.left) + (gapOnLeft ? filled : 0);
-  const rightTotal = msGiven(layout.right) + (gapOnLeft ? 0 : filled);
-  const balanced = leftTotal === rightTotal;
-  const over = !won && filled > problem.answer;
-  /* Rung 1 writes no numerals at all until the answer is in. See missingQuestion.
-     WHILE COUNTING, EVERY RUNG WITHHOLDS A SIDE'S NUMERAL UNTIL THAT SIDE IS COUNTED —
-     including the five rungs that print numerals during play. A printed number is read,
-     not counted, and reading it is the thing this stage exists to replace. It appears
-     the moment the child's own count reaches the total, so the numeral arrives as the
-     answer to what they just did. */
-  /* A COUNTED SIDE KEEPS ITS NUMERAL for the rest of the problem, including on rung 1,
-     which otherwise writes nothing until the answer is in. The first build of this stage
-     let both numerals vanish the moment the sockets opened — the child counted 17 and 20
-     and then had them taken away exactly when they were needed. What rung 1 was
-     protecting against is a number the child *reads* instead of counting; a number they
-     just produced themselves is the opposite of that, and it is the thing the owner
-     asked for them to come away with.
-      The gap side's numeral then climbs as they fill — 17, 18, 19, 20 — which is the
-     count-on already spoken aloud by tapCell, now also drawn. The notation strip stays
-     the reward: MissingEq is still gated on the rung's own setting. */
-  /* A SIDE'S NUMERAL IS EARNED BY COUNTING IT, and then it stays for the rest of the
-     problem. Both halves of that were bugs in the first build of this stage:
-      Earned — the five rungs that are `show:'both'` printed their totals during the
-     counting stage, so a child could read 37 off the screen instead of counting to it.
-     The stage cannot be gated on the rung's own setting; it has to be gated on the
-     child's count, on every rung.
-      Kept — the numerals then vanished the moment the sockets opened, taking away what
-     the child had just built exactly when they needed it. What rung 1 was protecting
-     against is a number that is *read* rather than counted; one they produced
-     themselves is the opposite of that.
-      The gap side's numeral then climbs as they fill — 24, 25 — which is the count-on
-     already spoken by tapCell, now also drawn. `showNumBase` still governs the notation
-     strip, so on rung 1 the written sentence stays the reward. */
-  const showNumBase = preset.show !== 'blocks' || won;
-  const showNumL = doneL;
-  const showNumR = doneR;
-  /* Cells shrink when a pile runs to many rows. .screen does not scroll, so the tallest
-     problem this game can draw — rung 3 at 99, plus the ten trailing sockets, 109 cells
-     in eleven rows — has to leave the Next button on screen at 768px, which is a
-     landscape 9.7-inch iPad. The question never changes with the device or the size of
-     the pile; only the art does.
-      MEASURED OFF THE SIDE WITHOUT THE HIDDEN PILE, so it does not depend on `filled`.
-     The two sides balance, so the pile being built always ends at the other side's
-     total: the tallest this problem will ever be is known before the first tap, and
-     that is the number to size the cells by. Measuring the growing side instead would
-     let a rung-3 problem cross from five rows to seven mid-count and resize every
-     block a child is in the middle of counting. */
-  const rows = Math.ceil(((gapOnLeft ? rightTotal : leftTotal) + MISSING_AHEAD) / 10);
+    doneR = countR >= givenR,
+    counting = mode === 'count' && !won && !(doneL && doneR);
+  const answer = problem.answer.n,
+    leftTotal = msGiven(layout.left) + (gapOnLeft ? filled : 0),
+    rightTotal = msGiven(layout.right) + (gapOnLeft ? 0 : filled);
+  const balanced = mode === 'count' && leftTotal === rightTotal,
+    over = mode === 'count' && !won && filled > answer;
+  const rows = mode === 'count' ? Math.ceil(((gapOnLeft ? rightTotal : leftTotal) + MISSING_AHEAD) / 10) : 0;
   const density = rows >= 10 ? 'dense' : rows >= 7 ? 'tight' : '';
+  const wholeFraction = mode === 'frac' && problem.answer.k === 'frac';
   const resetForProblem = useCallback(p => {
     setProblem(p);
     setFilled(0);
     setCountL(0);
     setCountR(0);
+    setEntry('');
+    setNumEntry('');
+    setDenEntry('');
+    setActivePart('n');
     setWon(false);
+    setWrong(false);
     setRound(r => r + 1);
   }, []);
   const next = useCallback(() => {
-    resetForProblem(makeMissingProblem(preset, problem));
-  }, [preset, problem, resetForProblem]);
-  const applyPreset = useCallback(p => {
-    setPreset(p);
-    resetForProblem(makeMissingProblem(p));
-  }, [resetForProblem]);
-
-  /* Two prompts, one per stage. The question the game is actually about is not asked
-     until the child knows what each side holds — asking it over two uncounted piles is
-     the version that produced shape-matching. */
+    resetForProblem(MissingEngine.makeMissingProblem(mode, problem, Math.random));
+  }, [mode, problem, resetForProblem]);
+  const applyMode = useCallback(id => {
+    setMode(id);
+    resetForProblem(MissingEngine.makeMissingProblem(id, problem, Math.random));
+  }, [problem, resetForProblem]);
+  const finish = useCallback(() => {
+    setWon(true);
+    setConf(true);
+    Sound.setMuted(muted);
+    Sound.ding();
+    setTimeout(() => Sound.celebrate(), 200);
+    mascot.happy();
+    setScore(s => s + 1);
+    addProgress();
+    setTimeout(() => setConf(false), 1800);
+  }, [muted, mascot, setScore, addProgress]);
   useEffect(() => {
-    if (counting) {
-      Voice.say('Count each side. Tap a row to count ten!');
+    if (mode === 'count' && !won && filled > 0 && balanced) finish();
+  }, [mode, won, filled, balanced, finish]);
+  const judge = useCallback((plain, n, d) => {
+    if (won) return;
+    const good = wholeFraction ? n !== '' && d !== '' && Number(n) === problem.answer.n && Number(d) === problem.answer.d : plain === msAnswerText(problem);
+    if (good) {
+      finish();
       return;
     }
-    /* The blocks rung's question names no numbers, so it stays the companion's; the
-       other four are nothing but numbers and belong to the console. */
-    const q = missingQuestion(problem, preset.show);
-    Voice.say(preset.show === 'blocks' ? q : num(q));
-  }, [problem, preset, counting]);
-
-  /* Cumulative, the same interaction as Fill the Right Block: a tap fills every box up
-     to the one touched, and tapping a filled box takes it and everything after it back.
-     That is what lets one child tap once and another tap one at a time — and the one
-     tapping one at a time hears the count on, which is the lesson.
-     Nothing is spoken on the tap that lands the answer; the win chain names it. */
+    const need = wholeFraction ? String(problem.answer.n).length + String(problem.answer.d).length : msAnswerText(problem).length;
+    const have = wholeFraction ? n.length + d.length : plain.length;
+    if (have >= need) {
+      setWrong(true);
+      Sound.setMuted(muted);
+      Sound.wrong();
+      mascot.oops();
+      setTimeout(() => setWrong(false), 450);
+    }
+  }, [won, wholeFraction, problem, finish, muted, mascot]);
+  const key = useCallback(k => {
+    if (won) return;
+    if (wholeFraction) {
+      const old = activePart === 'n' ? numEntry : denEntry;
+      const v = k === 'back' ? old.slice(0, -1) : old.length < 2 ? old + k : old;
+      const n = activePart === 'n' ? v : numEntry,
+        d = activePart === 'd' ? v : denEntry;
+      activePart === 'n' ? setNumEntry(v) : setDenEntry(v);
+      judge('', n, d);
+      return;
+    }
+    let v = k === 'back' ? entry.slice(0, -1) : entry + k;
+    if (mode === 'dec') {
+      if (k === '.' && entry.includes('.')) return;
+      if (v.length > 4) return;
+    } else if (v.length > 3) return;
+    setEntry(v);
+    judge(v, '', '');
+  }, [won, wholeFraction, activePart, numEntry, denEntry, entry, mode, judge]);
   const tapCell = useCallback(i => {
     Sound.setMuted(muted);
     Sound.tap();
@@ -8707,23 +9248,7 @@ function MissingGame({
     const building = (gapOnLeft ? msGiven(layout.left) : msGiven(layout.right)) + n;
     const other = gapOnLeft ? rightTotal : leftTotal;
     if (n > 0 && building !== other) Voice.say(num(String(building)));
-  }, [won, muted, filled, layout, gapOnLeft, leftTotal, rightTotal]);
-  useEffect(() => {
-    if (won || filled === 0 || !balanced) return;
-    setWon(true);
-    setConf(true);
-    Sound.setMuted(muted);
-    Sound.ding();
-    setTimeout(() => Sound.celebrate(), 200);
-    mascot.happy();
-    const arrived = addProgress();
-    Voice.lines([arrived ? null : praise(), num(`${problem.answer}!`), num(missingSentence(problem))]);
-    setScore(s => s + 1);
-    setTimeout(() => setConf(false), 2600);
-  }, [balanced, filled, won, muted, problem, setScore, addProgress]);
-
-  /* Overshooting is the only thing that can go wrong here, and it is said once rather
-     than on every extra block. */
+  }, [muted, won, filled, gapOnLeft, layout, rightTotal, leftTotal]);
   useEffect(() => {
     if (over) {
       mascot.oops();
@@ -8731,6 +9256,21 @@ function MissingGame({
     }
     overRef.current = over;
   }, [over]);
+  const subtitle = mode === 'count' ? 'Make both sides the same!' : mode === 'frac' ? 'Find the missing fraction!' : mode === 'dec' ? 'Find the missing decimal!' : 'Find the missing number!';
+  const shownEntry = wholeFraction ? /*#__PURE__*/React.createElement("div", {
+    className: 'ms-entry ms-frac-entry ' + (wrong ? 'wrong ' : '') + (won ? 'good' : '')
+  }, /*#__PURE__*/React.createElement("button", {
+    className: 'ms-frac-field ' + (activePart === 'n' ? 'active' : ''),
+    onClick: () => setActivePart('n')
+  }, numEntry || '?'), /*#__PURE__*/React.createElement("span", {
+    className: "ms-frac-bar"
+  }), /*#__PURE__*/React.createElement("button", {
+    className: 'ms-frac-field ' + (activePart === 'd' ? 'active' : ''),
+    onClick: () => setActivePart('d')
+  }, denEntry || '?')) : /*#__PURE__*/React.createElement("div", {
+    className: 'ms-entry ' + (wrong ? 'wrong ' : '') + (won ? 'good' : '')
+  }, entry || '?');
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].concat(mode === 'dec' ? ['.'] : []).concat(['back']);
   return /*#__PURE__*/React.createElement("div", {
     className: "screen ms-screen",
     style: {
@@ -8758,30 +9298,26 @@ function MissingGame({
     className: "count-title-main"
   }, "What's Missing?"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
-  }, "Make both sides the same!")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+  }, subtitle)), /*#__PURE__*/React.createElement(ActivityRibbon, {
     chips: chipsOf(MISSING_PRESETS),
-    value: preset.id,
-    onPick: id => applyPreset(byId(MISSING_PRESETS, id)),
+    value: mode,
+    onPick: applyMode,
     muted: muted,
-    label: "Choose which kind of sum"
-  }), !counting && showNumBase && /*#__PURE__*/React.createElement(MissingEq, {
-    p: problem,
-    filled: filled,
-    won: won
-  }), counting && /*#__PURE__*/React.createElement("div", {
+    label: "Choose a What's Missing mode"
+  }), mode === 'count' ? /*#__PURE__*/React.createElement(React.Fragment, null, counting && /*#__PURE__*/React.createElement("div", {
     className: "tap-hint"
   }, "Count each side \u2014 tap a row to count ten"), !counting && !won && /*#__PURE__*/React.createElement("div", {
     className: "tap-hint"
   }, "Fill the empty boxes until both sides match"), over && /*#__PURE__*/React.createElement("div", {
     className: "direct-too-many"
   }, "Too many! Tap one to take it back."), /*#__PURE__*/React.createElement("div", {
-    className: `ms-row ${density}`
+    className: 'ms-row ' + density
   }, /*#__PURE__*/React.createElement(MissingSide, {
-    key: `l${round}`,
+    key: 'l' + round,
     groups: layout.left,
     filled: filled,
     total: leftTotal,
-    showNum: showNumL,
+    showNum: doneL,
     won: won,
     onFill: gapOnLeft ? tapCell : null,
     counting: counting,
@@ -8789,13 +9325,13 @@ function MissingGame({
     onCount: setCountL,
     given: givenL
   }), /*#__PURE__*/React.createElement("div", {
-    className: `ms-eq-sign ${won ? 'balanced' : ''}`
+    className: 'ms-eq-sign ' + (won ? 'balanced' : '')
   }, "="), /*#__PURE__*/React.createElement(MissingSide, {
-    key: `r${round}`,
+    key: 'r' + round,
     groups: layout.right,
     filled: filled,
     total: rightTotal,
-    showNum: showNumR,
+    showNum: doneR,
     won: won,
     onFill: gapOnLeft ? null : tapCell,
     counting: counting,
@@ -8804,13 +9340,22 @@ function MissingGame({
     given: givenR
   })), won && /*#__PURE__*/React.createElement("div", {
     className: "celebrate-text"
-  }, missingEquation(problem)), won && /*#__PURE__*/React.createElement("button", {
+  }, problem.slots.map((t, i) => t.k === 'q' ? answer : msTokenText(t)).join(' '))) : /*#__PURE__*/React.createElement("div", {
+    className: "ms-symbolic"
+  }, /*#__PURE__*/React.createElement(MissingQuestion, {
+    p: problem
+  }), shownEntry, /*#__PURE__*/React.createElement("div", {
+    className: "ms-keypad"
+  }, keys.map(k => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    className: 'key-btn ' + (k === 'back' ? 'clear' : ''),
+    onClick: () => key(k)
+  }, k === 'back' ? /*#__PURE__*/React.createElement(BackspaceIcon, null) : k)))), won && /*#__PURE__*/React.createElement("button", {
     className: "next-btn",
     onClick: next,
     "aria-label": "Next"
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
-
 /* ══ MODE l2: ADD & SUBTRACT ══ */
 /* The typed custom-operation generator that used to open this function has gone with the
    panel that fed it (owner, 2026-09-12: curated presets only). It let a grown-up type

@@ -1,0 +1,11 @@
+.bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg-deco .bg-deco-item{position:absolute;display:inline-block;object-fit:contain;line-height:1;
+  animation:twinkleDeco ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 var(--deco-glow-radius,6px) var(--deco-glow,transparent));will-change:transform,opacity}
+@keyframes twinkleDeco{
+  0%{opacity:.06;transform:scale(.55) rotate(-12deg)}
+  100%{opacity:var(--deco-opacity,.5);transform:scale(1.15) rotate(12deg)}
+}
+@media (prefers-reduced-motion: reduce){
+  .bg-deco .bg-deco-item{animation:none!important;opacity:.12!important}
+}

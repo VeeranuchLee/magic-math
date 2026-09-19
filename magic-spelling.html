@@ -6,13 +6,15 @@
   <title>Magic Spelling 👸</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
+  <link rel="stylesheet" href="./shared/bg-deco/bg-deco.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Magic Math"/>
+  <meta name="apple-mobile-web-app-title" content="Magic Spelling"/>
   <script src="./vendor/react-18.3.1.production.min.js"></script>
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
+  <script src="./shared/bg-deco/bg-deco.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#fce4ec}
@@ -27,18 +29,9 @@
         linear-gradient(180deg,#ffe3ef 0%,#fdd0e2 45%,#e8d4f5 100%);
       background-size:240px 210px,240px 210px,240px 210px,cover,cover;
       background-repeat:repeat,repeat,repeat,no-repeat,no-repeat}
-    .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-    .bg-deco span{position:absolute;display:inline-block;line-height:1;
-      animation:twinkleDeco ease-in-out infinite alternate;
-      filter:drop-shadow(0 0 6px rgba(255,190,220,.6));will-change:transform,opacity}
-    @keyframes twinkleDeco{
-      0%{opacity:.06;transform:scale(.55) rotate(-12deg)}
-      100%{opacity:var(--deco-opacity,.5);transform:scale(1.15) rotate(12deg)}
-    }
     @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
     @keyframes float{from{transform:translateY(0)}to{transform:translateY(-9px)}}
     @media (prefers-reduced-motion: reduce){
-      .bg-deco span{animation:none!important;opacity:.12!important}
       *{animation-duration:.001s!important}
     }
 
@@ -222,6 +215,7 @@ const {
   useRef,
   useCallback
 } = React;
+const useBgDecoEffect = React.useLayoutEffect || useEffect;
 
 /* ══ SOUND ══ */
 const Sound = (() => {
@@ -705,29 +699,18 @@ function nextWord(s, rng) {
 
 /* ══ SHARED COMPONENTS ══ */
 function BgDeco() {
-  const items = useMemo(() => ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'].map((e, i) => ({
-    e,
-    id: i,
-    left: randR(Math.random, 2, 95),
-    top: randR(Math.random, 2, 88),
-    dur: randR(Math.random, 14, 34) / 10,
-    delay: randR(Math.random, 0, 30) / 10,
-    size: randR(Math.random, 16, 32),
-    opacity: (randR(Math.random, 28, 58) / 100).toFixed(2)
-  })), []);
+  const target = useRef(null);
+  useBgDecoEffect(() => initBgDeco(target.current, {
+    icons: ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'],
+    glow: 'rgba(255,190,220,.6)',
+    count: 20,
+    type: 'text',
+    topMax: 88,
+    sizeMax: 32
+  }), []);
   return /*#__PURE__*/React.createElement("div", {
-    className: "bg-deco"
-  }, items.map(it => /*#__PURE__*/React.createElement("span", {
-    key: it.id,
-    "aria-hidden": "true",
-    style: {
-      left: `${it.left}%`,
-      top: `${it.top}%`,
-      fontSize: it.size,
-      '--deco-opacity': it.opacity,
-      animation: `twinkleDeco ${it.dur}s -${it.delay}s ease-in-out infinite alternate`
-    }
-  }, it.e)));
+    ref: target
+  });
 }
 function Confetti({
   active
