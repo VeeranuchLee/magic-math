@@ -108,7 +108,7 @@
  * iOS 10, so the viewport meta does nothing. See the gesturestart guard in the
  * HTML.
  */
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
 
 body {
   -webkit-user-select: none;
