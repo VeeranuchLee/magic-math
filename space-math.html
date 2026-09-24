@@ -33,7 +33,7 @@
     .home-title span{display:inline-block;animation:bounce 1.2s infinite alternate}
     .home-sub{font-size:clamp(.85rem,2.8vw,1.1rem);font-weight:900;color:#5a2ed6;background:rgba(255,255,255,.7);border-radius:50px;padding:6px 20px;box-shadow:0 2px 8px rgba(171,71,188,.2)}
     .mode-section{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:640px}
-    .mode-section-label{font-size:.95rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:2px;background:rgba(255,255,255,.75);border-radius:50px;padding:5px 18px}
+    .mode-section-label{font-size:.95rem;font-weight:900;color:#5a2ed6;text-transform:uppercase;letter-spacing:2px;background:rgba(255,255,255,.75);border-radius:50px;padding:5px 18px;white-space:nowrap;flex-shrink:0}
     .mode-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;width:100%}
     /* Only the row that holds a badged card opts out of stretch. Stretching it
        left a badge-sized hole under Column Add and Take Away that read as
@@ -1281,6 +1281,85 @@
     .np-ghost{position:fixed;z-index:80;width:var(--np-tile);height:var(--np-tile);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:calc(var(--np-tile)*.5);pointer-events:none;transform:translate(-50%,-58%) rotate(-4deg) scale(1.08);color:#c62828;background:linear-gradient(160deg,#fff8f6,#ffe3dc);box-shadow:0 10px 24px rgba(0,0,0,.4),0 4px 0 #ffb4a2}
     .np-ghost-op{width:calc(var(--np-tile)*.84);font-size:calc(var(--np-tile)*.44);color:#2f6df6;background:linear-gradient(160deg,#f0f5ff,#d9e7ff);box-shadow:0 10px 24px rgba(0,0,0,.4),0 4px 0 #9db9ff}
     @media (max-height:640px){.np-screen{--np-tile:clamp(46px,9vw,56px);--np-tray-tile:clamp(38px,7.5vw,46px);gap:7px}.np-history-restore{padding:4px 14px}.np-rail-wrap{padding:9px 4px}.np-nudge{width:44px;height:44px;font-size:1.45rem}}
+    /* ── Number Crossword (p1) ──
+       A 5 x 5 board of equations across and down, then the tray. SQUARES HOLD NUMBERS
+       and CIRCLES HOLD SIGNS: the two kinds of box and the two kinds of tile differ in
+       SHAPE, so a pre-reader can match them without reading. touch-action:none is on
+       the tiles only (INTERACTION-DIRECTION.md) -- the board and the screen keep
+       manipulation, and pinch is never blocked. The cell size is measured against the
+       viewport so the whole board and tray fit a 9.7" iPad either way up: portrait
+       stacks them, landscape puts the tray beside the board. */
+    .nc-screen{--nc-cell:clamp(50px,min(10.7vw,calc((100vh - 540px)/5)),88px);--nc-gap:clamp(4px,.8vw,7px);--nc-tray-tile:clamp(50px,calc(var(--nc-cell)*.8),70px);overflow-y:auto}
+    /* Portrait puts the TRAY ABOVE the board (column-reverse, twice): the mascot is
+       fixed in the bottom-left corner, and a nine-tile tray row at the bottom of a
+       768px screen runs under it, where the board -- narrower, centred -- does not. */
+    .nc-stage{display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:clamp(10px,2vw,24px);position:relative;z-index:1;width:100%}
+    .nc-board{display:grid;grid-template-columns:repeat(5,var(--nc-cell));grid-auto-rows:var(--nc-cell);gap:var(--nc-gap);padding:12px;border-radius:24px;background:var(--nc-board-bg);border:2px solid var(--nc-board-line);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+    .nc-board-won{animation:ncWin .7s ease both}
+    @keyframes ncWin{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+    .nc-cell{width:var(--nc-cell);height:var(--nc-cell);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:calc(var(--nc-cell)*.4);border-radius:14px;position:relative;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:box-shadow .15s,transform .12s,opacity .15s}
+    .nc-none{visibility:hidden}
+    .nc-given{background:var(--nc-given-bg);color:var(--nc-given-ink);box-shadow:0 3px 0 var(--nc-given-shadow)}
+    .nc-given-op,.nc-given-eq{background:transparent;box-shadow:none;color:var(--nc-sign-ink);font-size:calc(var(--nc-cell)*.5)}
+    .nc-slot{cursor:pointer;background:var(--nc-slot-bg)}
+    .nc-slot-num{border:3px dashed var(--nc-num-line);border-radius:14px}
+    .nc-slot-op{border:3px dashed var(--nc-op-line);border-radius:50%;width:calc(var(--nc-cell)*.88);height:calc(var(--nc-cell)*.88);justify-self:center;align-self:center}
+    .nc-slot.nc-filled{border-color:transparent;background:transparent}
+    .nc-can{box-shadow:0 0 0 4px rgba(255,213,79,.6);animation:ncBreath 1.2s ease-in-out infinite}
+    @keyframes ncBreath{0%,100%{box-shadow:0 0 0 3px rgba(255,213,79,.35)}50%{box-shadow:0 0 0 7px rgba(255,213,79,.7)}}
+    .nc-cant{opacity:.4}
+    .nc-over{box-shadow:0 0 0 7px #ffd54f!important;transform:scale(1.07);animation:none}
+    .nc-over-no{box-shadow:0 0 0 7px rgba(239,83,80,.85)!important}
+    .nc-refused{animation:npNudgeBack .42s ease both;box-shadow:0 0 0 6px rgba(239,83,80,.85)}
+    .nc-given.nc-bad{background:#ffe0b2;color:#e65100;box-shadow:0 3px 0 #ffb74d}
+    .nc-given-op.nc-bad,.nc-given-eq.nc-bad{background:transparent;color:#ffa726;box-shadow:none}
+    .nc-bad .nc-tile{box-shadow:0 0 0 4px #ffa726,0 4px 0 rgba(0,0,0,.18)}
+    .nc-given.nc-good{background:#c8e6c9;color:#1b5e20;box-shadow:0 3px 0 #81c784}
+    .nc-given-op.nc-good,.nc-given-eq.nc-good{background:transparent;color:#66bb6a;box-shadow:none}
+    .nc-good .nc-tile{box-shadow:0 0 0 4px #66bb6a,0 4px 0 rgba(0,0,0,.18)}
+    .nc-focus{outline:5px solid #ffd54f;outline-offset:3px;animation:ncFocus .9s ease-in-out infinite alternate}
+    @keyframes ncFocus{from{outline-color:rgba(255,213,79,.35);filter:none}to{outline-color:#ffd54f;filter:drop-shadow(0 0 8px rgba(255,213,79,.9))}}
+    .nc-hint{animation:hintGlow 1.1s ease-in-out infinite}
+    .nc-tile{width:var(--nc-tray-tile);height:var(--nc-tray-tile);border:none;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:900;font-size:calc(var(--nc-tray-tile)*.44);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;padding:0;position:relative;z-index:1;transition:transform .12s}
+    .nc-tile-num{background:linear-gradient(160deg,#fff8f6,#ffe3dc);color:#c62828;box-shadow:0 4px 0 #ffb4a2,0 6px 14px rgba(0,0,0,.25)}
+    .nc-tile-op{border-radius:50%;background:var(--nc-op-tile);color:var(--nc-op-ink);box-shadow:0 4px 0 var(--nc-op-shadow),0 6px 14px rgba(0,0,0,.25);font-size:calc(var(--nc-tray-tile)*.56)}
+    .nc-slot .nc-tile{width:100%;height:100%;font-size:calc(var(--nc-cell)*.4)}
+    .nc-slot-op .nc-tile{font-size:calc(var(--nc-cell)*.5)}
+    .nc-sel{transform:translateY(-6px) scale(1.08);box-shadow:0 0 0 5px #ffd54f,0 10px 18px rgba(0,0,0,.3)!important;z-index:3}
+    .nc-lifted{opacity:.25}
+    .nc-pulse{animation:ncHop .45s ease 3}
+    @keyframes ncHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+    .nc-tile-gone{display:inline-block;box-sizing:border-box;width:var(--nc-tray-tile);height:var(--nc-tray-tile);border:2.5px dashed var(--nc-gone-line);border-radius:14px;background:none!important;box-shadow:none!important}
+    .nc-tile-gone.nc-tile-op{border-radius:50%}
+    .nc-side{display:flex;flex-direction:column-reverse;align-items:center;gap:10px;max-width:min(97vw,740px)}
+    .nc-tray{display:flex;flex-direction:column;gap:10px;align-items:center;padding:2px}
+    .nc-tray-group{background:var(--nc-tray-bg);border:2px solid var(--nc-tray-line);border-radius:18px;padding:4px 10px 9px}
+    .nc-tray-label{font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--nc-tray-ink);text-align:center;margin-bottom:4px}
+    .nc-tray-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:min(94vw,720px)}
+    .nc-note{font-size:clamp(.95rem,2.4vw,1.15rem);font-weight:900;padding:7px 18px;border-radius:50px;background:rgba(255,255,255,.9);color:var(--nc-note-ink);border:2.5px solid var(--nc-note-line);text-align:center;animation:npPopIn .3s ease both}
+    .nc-note-refuse{color:#c62828;border-color:#ef9a9a}
+    .nc-note-miss{color:#ef6c00;border-color:#ffcc80}
+    .nc-note-won{color:#2e7d32;border-color:#81c784}
+    .nc-bar{display:flex;gap:10px;justify-content:center;align-items:center;min-height:58px;flex-wrap:nowrap}
+    .nc-btn{padding:9px 16px;min-height:48px;flex:0 0 auto}
+    .nc-ghost{position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-58%) rotate(-4deg) scale(1.1);box-shadow:0 12px 26px rgba(0,0,0,.4)!important}
+    /* Landscape: the tray moves beside the board. The stage keeps 120px clear on the
+       left because the mascot sits in that corner (116px, fixed), and at 1024x768 the
+       board's bottom-left box would otherwise be under it. */
+    @media (orientation:landscape) and (min-width:900px){
+      .nc-screen{--nc-cell:clamp(50px,calc((100vh - 300px)/5),80px);--nc-tray-tile:62px}
+      .nc-stage{flex-direction:row;align-items:center;padding-left:120px;box-sizing:border-box}
+      .nc-side{max-width:380px;flex-direction:column}
+      .nc-tray-row{max-width:360px}
+    }
+    /* The menu card's miniature: a plus-shaped crossword with one square and one
+       circle still empty. */
+    .gp-nc{display:grid;grid-template-columns:repeat(5,14px);grid-auto-rows:14px;gap:2px}
+    .gp-ncn{display:flex;align-items:center;justify-content:center;border-radius:4px;background:#fff;color:#c62828;font-size:.56rem;font-weight:900;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+    .gp-ncs{display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:900;color:var(--gp-nc-sign,#2f6df6)}
+    .gp-ncq{border:2px dashed #ff8a80;border-radius:4px}
+    .gp-nco{border:2px dashed var(--gp-nc-sign,#2f6df6);border-radius:50%}
+    .nc-screen{--nc-board-bg:rgba(10,16,52,.5);--nc-board-line:rgba(147,183,251,.55);--nc-given-bg:#fff;--nc-given-ink:#1a237e;--nc-given-shadow:#c5cae9;--nc-sign-ink:#fff;--nc-num-line:#ff8a80;--nc-op-line:#90caf9;--nc-slot-bg:rgba(255,255,255,.1);--nc-op-tile:linear-gradient(160deg,#f0f5ff,#d9e7ff);--nc-op-ink:#2f6df6;--nc-op-shadow:#9db9ff;--nc-tray-bg:rgba(255,255,255,.11);--nc-tray-line:rgba(255,255,255,.26);--nc-tray-ink:rgba(255,255,255,.92);--nc-gone-line:rgba(255,255,255,.35);--nc-note-ink:#5a2ed6;--nc-note-line:#c4d7fd}
     /* ── The move key ──
        The board's four rules, drawn, sitting beside it on every rung (see MoveKey).
        It is a legend, not a control, so it takes horizontal room and never vertical:
@@ -4003,6 +4082,829 @@ const calcTotal = (p, counting) => counting ? p.o : p.h * 100 + p.t * 10 + p.o;
    Math.random. The block is byte-identical in both skins by construction (see
    tools/check-math-parity.js): teaching logic that drifts between worlds is exactly the
    bug that gate exists to stop. */
+
+/* ── crossword-engine: generated from engine/number-crossword.js by tools/port-crossword-engine.js — do not edit here ── */
+const CrosswordEngine = function () {
+  // Number Crossword — the board engine (NUMBER-CROSSWORD-SPEC.md; CG-269).
+  //
+  // A board is a small crossword of equations `a ∘ b = c`, written across and
+  // down on a 5 × 5 grid of cells and sharing their number cells where they
+  // cross. The engine does four things and the page does none of them:
+  //
+  //   1. FILL   — a complete, valid solution first (whole numbers only, ÷ only
+  //               when exact, nothing below 1, nothing above the rung's cap);
+  //   2. BLANK  — choose which number and sign cells become empty slots, and
+  //               build the tray: exactly the missing tiles plus the rung's
+  //               distractors;
+  //   3. PROVE  — an exact backtracking solver over the tray's multiset proves
+  //               the board has ONE solution (it counts, and stops at two),
+  //               and a propagation measure proves how much deduction it
+  //               takes: how many blanks one equation alone can settle at the
+  //               start, and whether reasoning over one equation (easy rungs)
+  //               or two crossing equations at a time (hard rungs) finishes it;
+  //   4. CHECK  — judge a child's placement by the EQUATIONS, never by a stored
+  //               answer. With uniqueness proven the two agree, but a check that
+  //               compared against the answer key would be wrong the day a rung
+  //               is loosened, and this one cannot be.
+  //
+  // Pure ES module: no DOM, no speech, no Math.random. Every draw goes through
+  // the injected `rng`, so a seeded run is reproducible and the vetted seed pool
+  // (the fallback when a live deal runs out of budget) is just a list of seeds.
+  // The file is ported byte-for-byte into both game pages by
+  // tools/port-crossword-engine.js — never edit the generated copy there.
+
+  // --- Signs ----------------------------------------------------------------------
+
+  // Display glyphs are the logic keys: the pages print these exact characters and
+  // Number Toys already uses them (− is U+2212, × U+00D7, ÷ U+00F7), so a tile's
+  // value can be shown without a lookup and compared without a translation.
+  const NC_OPS = ['+', '−', '×', '÷'];
+  const NC_OP_WORDS = {
+    '+': 'plus',
+    '−': 'minus',
+    '×': 'times',
+    '÷': 'divided by'
+  };
+
+  // a ∘ b, or null when the result is not a whole number (÷ that is not exact).
+  function ncApply(a, op, b) {
+    if (op === '+') return a + b;
+    if (op === '−') return a - b;
+    if (op === '×') return a * b;
+    if (op === '÷') return b !== 0 && a % b === 0 ? a / b : null;
+    return null;
+  }
+  function ncHolds(a, op, b, c) {
+    const v = ncApply(a, op, b);
+    return v !== null && v === c;
+  }
+
+  // The one missing number of `a ∘ b = c`, given the sign and the other two.
+  // pos is 0 (a), 2 (b) or 3 (c). null when no whole number fits.
+  function solveFor(pos, a, op, b, c) {
+    let v = null;
+    if (pos === 3) v = ncApply(a, op, b);else if (pos === 0) {
+      if (op === '+') v = c - b;else if (op === '−') v = c + b;else if (op === '×') v = b !== 0 && c % b === 0 ? c / b : null;else if (op === '÷') v = c * b;
+    } else {
+      if (op === '+') v = c - a;else if (op === '−') v = a - c;else if (op === '×') v = a !== 0 && a % 1 === 0 && c % a === 0 ? c / a : null;else if (op === '÷') v = c !== 0 && a % c === 0 ? a / c : null;
+    }
+    if (v === null || !Number.isInteger(v)) return null;
+    // The whole equation must still hold with v in place (guards 0 ÷ 0 shapes).
+    const t = [a, op, b, c];
+    t[pos] = v;
+    return ncHolds(t[0], t[1], t[2], t[3]) ? v : null;
+  }
+
+  // --- Layouts --------------------------------------------------------------------
+
+  // The board is always drawn on a 5 × 5 cell grid. Number cells sit on even rows
+  // and even columns; an equation across row 2i reads (2i,0) ∘ (2i,2) = (2i,4) with
+  // its sign at (2i,1) and its "=" at (2i,3); an equation down column 2j reads the
+  // same way top to bottom. A layout is the set of rows and columns that carry an
+  // equation, so every layout is a sub-crossword of the full 3 × 3 "number square".
+  const NC_LAYOUTS = {
+    // 2 equations crossing in the middle number: a plus sign. 5 numbers.
+    plus: {
+      rows: [1],
+      cols: [1]
+    },
+    // 4 equations round the edge: a square frame with a hole. 8 numbers, a loop.
+    ring: {
+      rows: [0, 2],
+      cols: [0, 2]
+    },
+    // All 6: three across, three down, 9 numbers; the corner result closes two.
+    full: {
+      rows: [0, 1, 2],
+      cols: [0, 1, 2]
+    }
+  };
+  function ncBuildLayout(name) {
+    const def = NC_LAYOUTS[name];
+    if (!def) throw new Error('unknown layout ' + name);
+    const cells = {};
+    const order = [];
+    const put = (r, c, kind) => {
+      const id = r + ',' + c;
+      if (!cells[id]) {
+        cells[id] = {
+          id,
+          r,
+          c,
+          kind
+        };
+        order.push(id);
+      }
+      return id;
+    };
+    const equations = [];
+    def.rows.forEach(i => {
+      const r = 2 * i;
+      equations.push({
+        dir: 'across',
+        line: i,
+        cells: [put(r, 0, 'num'), put(r, 1, 'op'), put(r, 2, 'num'), put(r, 4, 'num')],
+        eq: put(r, 3, 'eq')
+      });
+    });
+    def.cols.forEach(j => {
+      const c = 2 * j;
+      equations.push({
+        dir: 'down',
+        line: j,
+        cells: [put(0, c, 'num'), put(1, c, 'op'), put(2, c, 'num'), put(4, c, 'num')],
+        eq: put(3, c, 'eq')
+      });
+    });
+    order.sort((x, y) => cells[x].r - cells[y].r || cells[x].c - cells[y].c);
+    return {
+      name,
+      cells,
+      order,
+      equations
+    };
+  }
+
+  // --- Rungs ----------------------------------------------------------------------
+
+  // The child picks the rung (the app's rule). Every number on every board, operand
+  // or result, is a whole number from 1 to `max`; × and ÷ keep their small operands
+  // (the times-table factors, and the divisor and quotient of a ÷) between 2 and
+  // `timesMax`, so a ×1 or ÷1 never makes a sign ambiguous by construction.
+  //
+  // `deduce` is the rung's proof obligation, checked on every board before it is
+  // dealt (see ncAnalyse):
+  //   'single-each'  every blank is settled by its own equation at the start;
+  //   'single'       reasoning one equation at a time solves the whole board;
+  //   'single-chain' as 'single', and at least two blanks can only be settled
+  //                  after a crossing blank is filled (a real chain);
+  //   'pair'         one-equation reasoning settles at most `maxForced` blanks at
+  //                  the start; reasoning over two crossing equations at a time
+  //                  solves the board, and does need two at least once.
+  // Every rung also requires the solution to be UNIQUE over the tray.
+  const NC_LEVELS = [{
+    id: 'easy',
+    tag: 'Easy',
+    layout: 'plus',
+    ops: ['+', '−'],
+    max: 10,
+    timesMax: 5,
+    numBlanks: 2,
+    opBlanks: 0,
+    numDistractors: 0,
+    opDistractors: 0,
+    minDistinctOps: 1,
+    deduce: 'single-each',
+    seeds: [11, 12, 13, 14, 15, 16, 17, 18]
+  }, {
+    id: 'medium',
+    tag: 'Medium',
+    layout: 'ring',
+    ops: ['+', '−'],
+    max: 20,
+    timesMax: 5,
+    numBlanks: 3,
+    opBlanks: 1,
+    numDistractors: 0,
+    opDistractors: 0,
+    minDistinctOps: 2,
+    deduce: 'single',
+    seeds: [21, 22, 23, 24, 25, 26, 27, 28]
+  }, {
+    id: 'tricky',
+    tag: 'Tricky',
+    layout: 'full',
+    ops: ['+', '−', '×'],
+    max: 30,
+    timesMax: 6,
+    numBlanks: 5,
+    opBlanks: 2,
+    numDistractors: 1,
+    opDistractors: 0,
+    minDistinctOps: 3,
+    deduce: 'single-chain',
+    seeds: [31, 32, 33, 34, 35, 36, 37, 38]
+  }, {
+    id: 'hard',
+    tag: 'Hard',
+    layout: 'full',
+    ops: NC_OPS,
+    max: 50,
+    timesMax: 9,
+    numBlanks: 6,
+    opBlanks: 3,
+    numDistractors: 1,
+    opDistractors: 1,
+    minDistinctOps: 3,
+    deduce: 'pair',
+    maxForced: 1,
+    seeds: [41, 42, 43, 44, 45, 46, 47, 48]
+  }, {
+    id: 'expert',
+    tag: 'Expert',
+    layout: 'full',
+    ops: NC_OPS,
+    max: 100,
+    timesMax: 12,
+    numBlanks: 7,
+    opBlanks: 4,
+    numDistractors: 2,
+    opDistractors: 1,
+    minDistinctOps: 4,
+    deduce: 'pair',
+    maxForced: 0,
+    seeds: [51, 52, 53, 54, 55, 56, 57, 58]
+  }];
+  function ncLevel(id) {
+    return NC_LEVELS.find(l => l.id === id) || NC_LEVELS[0];
+  }
+
+  // --- Randomness -----------------------------------------------------------------
+
+  function ncSeeded(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s = s + 0x6d2b79f5 >>> 0;
+      let t = s;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const randInt = (rng, lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+  const pick = (rng, list) => list[Math.floor(rng() * list.length)];
+  function shuffle(rng, list) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  // --- 1. Fill --------------------------------------------------------------------
+
+  // Is a complete equation acceptable on this rung? Holds, stays inside 1..max,
+  // and keeps × and ÷ on small factors.
+  function equationOk(a, op, b, c, spec) {
+    if (!ncHolds(a, op, b, c)) return false;
+    for (const v of [a, b, c]) if (!(v >= 1 && v <= spec.max)) return false;
+    if (op === '×' && !(a >= 2 && b >= 2 && a <= spec.timesMax && b <= spec.timesMax)) return false;
+    if (op === '÷' && !(b >= 2 && c >= 2 && b <= spec.timesMax && c <= spec.timesMax)) return false;
+    return true;
+  }
+
+  // The range a free number cell is drawn from: a × factor, a ÷ divisor or a ÷
+  // quotient is drawn small, anything else from the whole range.
+  function drawRange(id, layout, val, spec) {
+    let small = false;
+    for (const e of layout.equations) {
+      const pos = e.cells.indexOf(id);
+      if (pos < 0) continue;
+      const op = val[e.cells[1]];
+      if (op === '×' && (pos === 0 || pos === 2)) small = true;
+      if (op === '÷' && (pos === 2 || pos === 3)) small = true;
+    }
+    return small ? [2, spec.timesMax] : [1, spec.max];
+  }
+
+  // One complete solution, or null after `tries` random restarts. Signs are drawn
+  // first, then numbers: any number an equation already determines is computed, and
+  // only when none is determined is a free cell drawn. When a crossing makes an
+  // equation's three numbers known before its own sign was ever used to compute
+  // one of them — the corner of the full square is the usual case, closed by a row
+  // and a column at once — the sign is re-chosen from whichever of the rung's signs
+  // makes it true, rather than throwing the whole fill away. A restart is then only
+  // caused by a value leaving the range or no sign fitting.
+  function ncFill(layout, spec, rng, tries) {
+    const numIds = layout.order.filter(id => layout.cells[id].kind === 'num');
+    const want = Math.min(spec.minDistinctOps, spec.ops.length, layout.equations.length);
+    for (let t = 0; t < (tries || 400); t++) {
+      const val = {};
+      const used = new Set(); // equations whose sign has computed a number
+      layout.equations.forEach(e => {
+        val[e.cells[1]] = pick(rng, spec.ops);
+      });
+      let ok = true;
+      for (;;) {
+        let progressed = false;
+        for (const e of layout.equations) {
+          const [a, o, b, c] = e.cells;
+          const unknown = [a, b, c].filter(id => val[id] === undefined);
+          if (unknown.length === 0) {
+            if (equationOk(val[a], val[o], val[b], val[c], spec)) continue;
+            const fits = used.has(e) ? [] : spec.ops.filter(op => equationOk(val[a], op, val[b], val[c], spec));
+            if (!fits.length) {
+              ok = false;
+              break;
+            }
+            val[o] = pick(rng, fits);
+            used.add(e);
+          } else if (unknown.length === 1) {
+            const pos = e.cells.indexOf(unknown[0]);
+            const v = solveFor(pos, val[a], val[o], val[b], val[c]);
+            if (v === null || v < 1 || v > spec.max) {
+              ok = false;
+              break;
+            }
+            val[unknown[0]] = v;
+            used.add(e);
+            if (!equationOk(val[a], val[o], val[b], val[c], spec)) {
+              ok = false;
+              break;
+            }
+            progressed = true;
+          }
+        }
+        if (!ok) break;
+        if (progressed) continue;
+        const open = numIds.filter(id => val[id] === undefined);
+        if (!open.length) break;
+        // Prefer a cell in an equation that already has a known number, so the
+        // next pass can compute something; otherwise any open cell.
+        const touching = open.filter(id => layout.equations.some(e => e.cells.indexOf(id) >= 0 && [e.cells[0], e.cells[2], e.cells[3]].some(x => x !== id && val[x] !== undefined)));
+        const id = pick(rng, touching.length ? touching : open);
+        const [lo, hi] = drawRange(id, layout, val, spec);
+        // Forward check at the draw: only values that leave every equation through
+        // this cell still completable — a computed neighbour in range, or a sign that
+        // fits once all three numbers are known — so the next pass cannot fail on it.
+        const viable = [];
+        for (let v = lo; v <= hi; v++) {
+          val[id] = v;
+          let good = true;
+          for (const e of layout.equations) {
+            if (e.cells.indexOf(id) < 0) continue;
+            const [a, o, b, c] = e.cells;
+            const unknown = [a, b, c].filter(x => val[x] === undefined);
+            if (unknown.length === 0) {
+              good = equationOk(val[a], val[o], val[b], val[c], spec) || !used.has(e) && spec.ops.some(op => equationOk(val[a], op, val[b], val[c], spec));
+            } else if (unknown.length === 1) {
+              const pos = e.cells.indexOf(unknown[0]);
+              const w = solveFor(pos, val[a], val[o], val[b], val[c]);
+              if (w === null || w < 1 || w > spec.max) good = false;else {
+                val[unknown[0]] = w;
+                good = equationOk(val[a], val[o], val[b], val[c], spec);
+                delete val[unknown[0]];
+              }
+            }
+            if (!good) break;
+          }
+          if (good) viable.push(v);
+        }
+        if (!viable.length) {
+          ok = false;
+          break;
+        }
+        val[id] = pick(rng, viable);
+      }
+      if (!ok) continue;
+      if (!layout.equations.every(e => equationOk(val[e.cells[0]], val[e.cells[1]], val[e.cells[2]], val[e.cells[3]], spec))) continue;
+      if (new Set(layout.equations.map(e => val[e.cells[1]])).size < want) continue;
+      return val;
+    }
+    return null;
+  }
+
+  // --- 2. Blank -------------------------------------------------------------------
+
+  function distractorNumber(rng, spec, taken) {
+    for (let i = 0; i < 40; i++) {
+      const base = pick(rng, taken.length ? taken : [randInt(rng, 1, spec.max)]);
+      const delta = pick(rng, [-2, -1, 1, 2, 10, -10]);
+      const v = i < 30 ? base + delta : randInt(rng, 1, spec.max);
+      if (v >= 1 && v <= spec.max && taken.indexOf(v) < 0) return v;
+    }
+    return null;
+  }
+
+  // A puzzle object — what the page renders and what the prover and the checker read.
+  function ncMakePuzzle(layout, sol, spec, rng) {
+    const numIds = layout.order.filter(id => layout.cells[id].kind === 'num');
+    const opIds = layout.order.filter(id => layout.cells[id].kind === 'op');
+    const blanks = shuffle(rng, numIds).slice(0, spec.numBlanks).concat(shuffle(rng, opIds).slice(0, spec.opBlanks));
+    const blankSet = new Set(blanks);
+    const nums = blanks.filter(id => layout.cells[id].kind === 'num').map(id => sol[id]);
+    const ops = blanks.filter(id => layout.cells[id].kind === 'op').map(id => sol[id]);
+    const extraNums = [];
+    for (let i = 0; i < spec.numDistractors; i++) {
+      const v = distractorNumber(rng, spec, nums.concat(extraNums));
+      if (v !== null) extraNums.push(v);
+    }
+    const extraOps = [];
+    for (let i = 0; i < spec.opDistractors; i++) {
+      const unused = spec.ops.filter(o => ops.indexOf(o) < 0 && extraOps.indexOf(o) < 0);
+      extraOps.push(pick(rng, unused.length ? unused : spec.ops));
+    }
+    // The tray is sorted, numbers small to big and then the signs in their usual
+    // order, so a child scans it like a number line; its order says nothing about
+    // where a tile goes.
+    const trayVals = nums.concat(extraNums).sort((x, y) => x - y).map(v => ({
+      kind: 'num',
+      value: v
+    })).concat(ops.concat(extraOps).sort((x, y) => NC_OPS.indexOf(x) - NC_OPS.indexOf(y)).map(v => ({
+      kind: 'op',
+      value: v
+    })));
+    const tray = trayVals.map((t, i) => ({
+      id: 't' + i,
+      kind: t.kind,
+      value: t.value
+    }));
+    const cells = layout.order.map(id => {
+      const cell = layout.cells[id];
+      return {
+        id,
+        r: cell.r,
+        c: cell.c,
+        kind: cell.kind,
+        value: cell.kind === 'eq' ? '=' : sol[id],
+        blank: blankSet.has(id)
+      };
+    });
+    const solution = {};
+    blanks.forEach(id => {
+      solution[id] = sol[id];
+    });
+    return {
+      level: spec.id,
+      layout: layout.name,
+      size: 5,
+      cells,
+      equations: layout.equations.map(e => ({
+        dir: e.dir,
+        line: e.line,
+        cells: e.cells.slice(),
+        eq: e.eq
+      })),
+      blanks: layout.order.filter(id => blankSet.has(id)),
+      tray,
+      solution
+    };
+  }
+
+  // --- 3. Prove -------------------------------------------------------------------
+
+  // Tray multiset, by kind: { num: Map(value -> count), op: Map(value -> count) }.
+  function trayCounts(tray) {
+    const counts = {
+      num: new Map(),
+      op: new Map()
+    };
+    tray.forEach(t => counts[t.kind].set(t.value, (counts[t.kind].get(t.value) || 0) + 1));
+    return counts;
+  }
+
+  // The exact search every proof uses. Variables are the unknown cells of `eqs`;
+  // values come from `counts` (mutated and restored), each tile used at most once.
+  // `known` holds givens and already-settled cells (mutated and restored). Calls
+  // visit(known) once per solution — a solution is an assignment of VALUES, so two
+  // identical tiles swapped are one solution, not two — and stops after `cap`.
+  // Returns { count, capped }.
+  function search(eqs, known, counts, kinds, cap, visit) {
+    const vars = [];
+    const eqsOf = {};
+    eqs.forEach(e => e.forEach(id => {
+      if (known[id] !== undefined) return;
+      if (!eqsOf[id]) {
+        eqsOf[id] = [];
+        vars.push(id);
+      }
+      if (eqsOf[id].indexOf(e) < 0) eqsOf[id].push(e);
+    }));
+    let count = 0,
+      stop = false;
+    const unknowns = e => {
+      let n = 0;
+      for (const id of e) if (known[id] === undefined) n++;
+      return n;
+    };
+    // Values the ONE unknown of e can take from what is left in the tray.
+    const derive = (e, id) => {
+      const pos = e.indexOf(id);
+      const [a, o, b, c] = e.map(x => known[x]);
+      if (pos === 1) return NC_OPS.filter(op => (counts.op.get(op) || 0) > 0 && ncHolds(a, op, b, c));
+      const v = solveFor(pos, a, o, b, c);
+      return v !== null && (counts.num.get(v) || 0) > 0 ? [v] : [];
+    };
+    const consistent = id => {
+      for (const e of eqsOf[id]) {
+        const n = unknowns(e);
+        if (n === 0) {
+          if (!ncHolds(known[e[0]], known[e[1]], known[e[2]], known[e[3]])) return false;
+        } else if (n === 1) {
+          const u = e.find(x => known[x] === undefined);
+          if (!derive(e, u).length) return false;
+        }
+      }
+      return true;
+    };
+    const rec = () => {
+      if (stop) return;
+      let best = null,
+        bestScore = Infinity;
+      for (const id of vars) {
+        if (known[id] !== undefined) continue;
+        let s = 9;
+        for (const e of eqsOf[id]) s = Math.min(s, unknowns(e));
+        s = s * 2 + (kinds[id] === 'op' ? 0 : 1);
+        if (s < bestScore) {
+          bestScore = s;
+          best = id;
+        }
+      }
+      if (best === null) {
+        count++;
+        if (visit) visit(known);
+        if (count >= cap) stop = true;
+        return;
+      }
+      const kind = kinds[best];
+      let cands = null;
+      for (const e of eqsOf[best]) if (unknowns(e) === 1) {
+        cands = derive(e, best);
+        break;
+      }
+      if (!cands) cands = [...counts[kind].keys()].filter(v => counts[kind].get(v) > 0);
+      for (const v of cands) {
+        const left = counts[kind].get(v) || 0;
+        if (left <= 0) continue;
+        known[best] = v;
+        counts[kind].set(v, left - 1);
+        if (consistent(best)) rec();
+        counts[kind].set(v, left);
+        delete known[best];
+        if (stop) return;
+      }
+    };
+    rec();
+    return {
+      count,
+      capped: stop && count >= cap
+    };
+  }
+  function startState(p) {
+    const known = {};
+    const kinds = {};
+    p.cells.forEach(c => {
+      kinds[c.id] = c.kind;
+      if (c.kind !== 'eq' && !c.blank) known[c.id] = c.value;
+    });
+    return {
+      known,
+      kinds,
+      counts: trayCounts(p.tray)
+    };
+  }
+
+  // How many ways the tray completes the board: 0, 1 or 2 (meaning "two or more").
+  function ncCountSolutions(p, limit) {
+    const {
+      known,
+      kinds,
+      counts
+    } = startState(p);
+    return search(p.equations.map(e => e.cells), known, counts, kinds, limit || 2, null).count;
+  }
+
+  // What each unknown cell of `eqs` can still be, reasoning over those equations
+  // only. null when the enumeration hit its cap (too loose to settle anything).
+  function domains(eqs, known, counts, kinds, cap) {
+    const seen = {};
+    const r = search(eqs, known, counts, kinds, cap, k => {
+      eqs.forEach(e => e.forEach(id => {
+        if (kinds[id] === 'eq') return;
+        if (!seen[id]) seen[id] = new Set();
+        seen[id].add(k[id]);
+      }));
+    });
+    if (r.capped) return null;
+    return seen;
+  }
+
+  // Settle every blank that `eqs` alone forces. Returns [[id, value], ...].
+  function forcedBy(eqs, known, counts, kinds) {
+    const d = domains(eqs, known, counts, kinds, 4000);
+    if (!d) return [];
+    const out = [];
+    Object.keys(d).forEach(id => {
+      if (known[id] !== undefined) return;
+      if (d[id].size === 1) out.push([id, [...d[id]][0]]);
+    });
+    return out;
+  }
+
+  // Blanks that ONE equation alone settles on the untouched board.
+  function ncForcedAtStart(p) {
+    const {
+      known,
+      kinds,
+      counts
+    } = startState(p);
+    const forced = new Set();
+    p.equations.forEach(e => forcedBy([e.cells], known, counts, kinds).forEach(([id]) => forced.add(id)));
+    return forced.size;
+  }
+
+  // Solve the board the way a child reasoning line by line would: settle whatever
+  // one equation forces; when nothing is forced and maxK is 2, look at two crossing
+  // equations together; repeat. Every step is sound (a forced value is the value in
+  // every solution), so reaching the end also proves uniqueness. Returns
+  // { solved, steps, usedPair }.
+  function ncPropagate(p, maxK) {
+    const {
+      known,
+      kinds,
+      counts
+    } = startState(p);
+    const eqs = p.equations.map(e => e.cells);
+    const open = () => p.blanks.filter(id => known[id] === undefined);
+    const pairs = [];
+    for (let i = 0; i < eqs.length; i++) for (let j = i + 1; j < eqs.length; j++) {
+      if (eqs[i].some(id => eqs[j].indexOf(id) >= 0)) pairs.push([eqs[i], eqs[j]]);
+    }
+    let steps = 0,
+      usedPair = false;
+    const settle = list => {
+      let n = 0;
+      for (const [id, v] of list) {
+        if (known[id] !== undefined) continue;
+        const kind = kinds[id];
+        const left = counts[kind].get(v) || 0;
+        if (left <= 0) continue;
+        known[id] = v;
+        counts[kind].set(v, left - 1);
+        n++;
+      }
+      return n;
+    };
+    while (open().length) {
+      let got = 0;
+      for (const e of eqs) {
+        if (!e.some(id => known[id] === undefined)) continue;
+        got += settle(forcedBy([e], known, counts, kinds));
+        if (got) break;
+      }
+      if (!got && maxK >= 2) {
+        for (const pr of pairs) {
+          if (!pr[0].concat(pr[1]).some(id => known[id] === undefined)) continue;
+          got += settle(forcedBy(pr, known, counts, kinds));
+          if (got) {
+            usedPair = true;
+            break;
+          }
+        }
+      }
+      if (!got) break;
+      steps++;
+    }
+    const solved = !open().length && eqs.every(e => ncHolds(known[e[0]], known[e[1]], known[e[2]], known[e[3]]));
+    return {
+      solved,
+      steps,
+      usedPair
+    };
+  }
+
+  // The rung's proof obligation, measured. Cheapest test first; `ok` is the verdict.
+  function ncAnalyse(p, spec) {
+    const out = {
+      ok: false,
+      forcedAtStart: ncForcedAtStart(p),
+      blanks: p.blanks.length
+    };
+    const n = p.blanks.length;
+    if (spec.deduce === 'single-each' && out.forcedAtStart !== n) return out;
+    if (spec.deduce === 'single-chain' && out.forcedAtStart > n - 2) return out;
+    if (spec.deduce === 'pair' && out.forcedAtStart > spec.maxForced) return out;
+    const prop = ncPropagate(p, spec.deduce === 'pair' ? 2 : 1);
+    out.solved = prop.solved;
+    out.steps = prop.steps;
+    out.usedPair = prop.usedPair;
+    if (!prop.solved) return out;
+    if (spec.deduce === 'pair' && !prop.usedPair) return out;
+    out.solutions = ncCountSolutions(p, 2);
+    out.ok = out.solutions === 1;
+    return out;
+  }
+
+  // --- Deal -----------------------------------------------------------------------
+
+  // One proven board for the rung from `rng`, or null when the budget runs out.
+  function ncGenerate(levelId, rng, budget) {
+    const spec = ncLevel(levelId);
+    const layout = ncBuildLayout(spec.layout);
+    const fills = budget && budget.fills || 60;
+    const perFill = budget && budget.perFill || 12;
+    for (let f = 0; f < fills; f++) {
+      const sol = ncFill(layout, spec, rng, 400);
+      if (!sol) continue;
+      for (let b = 0; b < perFill; b++) {
+        const p = ncMakePuzzle(layout, sol, spec, rng);
+        const a = ncAnalyse(p, spec);
+        if (a.ok) {
+          p.stats = a;
+          return p;
+        }
+      }
+    }
+    return null;
+  }
+
+  // What the page calls. A live deal first; if it runs out of budget (it has not
+  // in testing — see tools/test-number-crossword.js), a board from the rung's
+  // vetted seed pool, every one of which the test proves generates.
+  function ncDeal(levelId, rng) {
+    const p = ncGenerate(levelId, rng);
+    if (p) return p;
+    const spec = ncLevel(levelId);
+    const seed = spec.seeds[Math.floor(rng() * spec.seeds.length)];
+    return ncGenerate(levelId, ncSeeded(seed), {
+      fills: 400,
+      perFill: 12
+    });
+  }
+
+  // --- 4. Check -------------------------------------------------------------------
+
+  // Judge a placement. `placed` maps a blank cell id to the value of the tile in it.
+  // Returns { full, solved, lines } where lines[i] is true / false for a complete
+  // equation and null for one with an empty slot. Judged by the equations only.
+  function ncCheck(p, placed) {
+    const val = {};
+    p.cells.forEach(c => {
+      if (c.kind !== 'eq') val[c.id] = c.blank ? placed[c.id] : c.value;
+    });
+    const lines = p.equations.map(e => {
+      const [a, o, b, c] = e.cells.map(id => val[id]);
+      if ([a, o, b, c].some(v => v === undefined || v === null)) return null;
+      return ncHolds(a, o, b, c);
+    });
+    const full = p.blanks.every(id => placed[id] !== undefined && placed[id] !== null);
+    return {
+      full,
+      lines,
+      solved: full && lines.every(x => x === true)
+    };
+  }
+
+  // The blank to reveal as a hint: one whose tile is missing or not the proven
+  // value, preferring the blank in the line that is nearest to finished — the
+  // place a child is most likely to be stuck. Returns a cell id or null.
+  function ncHintCell(p, placed) {
+    const wrong = p.blanks.filter(id => placed[id] !== p.solution[id]);
+    if (!wrong.length) return null;
+    let best = null,
+      bestScore = Infinity;
+    wrong.forEach(id => {
+      let s = Infinity;
+      p.equations.forEach(e => {
+        if (e.cells.indexOf(id) < 0) return;
+        s = Math.min(s, e.cells.filter(x => p.blanks.indexOf(x) >= 0 && placed[x] !== p.solution[x]).length);
+      });
+      if (s < bestScore) {
+        bestScore = s;
+        best = id;
+      }
+    });
+    return best;
+  }
+
+  // The equation read aloud by the ship's computer on a win: "3 plus 4 equals 7".
+  function ncLineWords(p, index) {
+    const e = p.equations[index];
+    const byId = {};
+    p.cells.forEach(c => {
+      byId[c.id] = c;
+    });
+    const v = id => byId[id].blank ? p.solution[id] : byId[id].value;
+    return v(e.cells[0]) + ' ' + NC_OP_WORDS[v(e.cells[1])] + ' ' + v(e.cells[2]) + ' equals ' + v(e.cells[3]);
+  }
+  return {
+    NC_OPS,
+    NC_OP_WORDS,
+    ncApply,
+    ncHolds,
+    NC_LAYOUTS,
+    ncBuildLayout,
+    NC_LEVELS,
+    ncLevel,
+    ncSeeded,
+    ncFill,
+    ncMakePuzzle,
+    ncCountSolutions,
+    ncForcedAtStart,
+    ncPropagate,
+    ncAnalyse,
+    ncGenerate,
+    ncDeal,
+    ncCheck,
+    ncHintCell,
+    ncLineWords
+  };
+}();
+/* ── end crossword-engine ── */
 
 /* ── sequence-engine: generated from engine/sequence-problem.js by tools/port-sequence-engine.js — do not edit here ── */
 const SequenceEngine = function () {
@@ -7462,6 +8364,30 @@ function GamePreview({
   }, "\u203A"), /*#__PURE__*/React.createElement("span", {
     className: "gp-chip"
   }, "8")));
+  if (id === 'p1') return /*#__PURE__*/ /* Number Crossword — a plus of two lines, one square and one circle empty */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-nc"
+  }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncn"
+  }, "5"), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    className: "gp-nco"
+  }), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncn"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncs"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncq"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncs"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncn"
+  }, "5"), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncs"
+  }, "="), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
+    className: "gp-ncn"
+  }, "3"), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)));
   return null;
 }
 function Stars({
@@ -17281,6 +18207,545 @@ function NumberPlayGame({
   }, drag.value));
 }
 
+/* ══ MODE p1: NUMBER CROSSWORD ══
+   Owner brief, 2026-09-24 (NUMBER-CROSSWORD-SPEC.md): equations written across and
+   down that share their numbers where they cross; the child drags number tiles AND
+   sign tiles into the empty boxes until every line is true. The boards are built and
+   PROVED by CrosswordEngine in MATH PRIMITIVES (generated from
+   engine/number-crossword.js): valid, one solution over the tray, and on the two top
+   rungs impossible to finish one line at a time. This section is only the hands.
+
+   TWO WAYS TO MOVE A TILE, ALWAYS BOTH. Drag follows Number Toys (grab, 6px tap/drag
+   threshold, setPointerCapture, touch-action:none on the tiles only). Tap is the
+   other road and never a lesser one ("games ask, children answer"): tap a tile to
+   pick it up, tap a box to put it down; tap a placed tile to pick it up again, tap
+   it twice (or tap the tray) to send it home; a tile put on a full box swaps with it.
+
+   SQUARES HOLD NUMBERS, CIRCLES HOLD SIGNS. The two kinds of box are different
+   SHAPES, not just colours, and so are the tiles, so a pre-reader can see which goes
+   where. A tile offered to the wrong kind of box is refused out loud and on screen --
+   the box shakes, the thud plays, the note says where it goes -- never silently.
+
+   NO TIMER, NO SCORE, NO FAILURE. A full board that is not true yet is a hint, not a
+   loss: 1st time the false lines turn orange; 2nd time the easiest line to fix glows
+   ("start here" -- the teaching step); 3rd time and after, one right tile and its box
+   glow (the reveal). Every tile stays exactly where the child put it. */
+const NC_LEVEL_KEY = 'mm_nclevel';
+const NC_NOTE_REFUSE = {
+  num: 'Numbers go in the squares.',
+  op: 'Signs go in the circles.'
+};
+function NumberCrosswordGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  muted,
+  onToggleMute
+}) {
+  const [level, setLevel] = useState(() => {
+    try {
+      const v = localStorage.getItem(NC_LEVEL_KEY);
+      return CrosswordEngine.NC_LEVELS.some(l => l.id === v) ? v : 'easy';
+    } catch (e) {
+      return 'easy';
+    }
+  });
+  const [puzzle, setPuzzle] = useState(() => CrosswordEngine.ncDeal(level, Math.random));
+  const [placed, setPlaced] = useState({}); /* blank cell id -> tray tile id */
+  const [sel, setSel] = useState(null); /* the tile picked up by a tap */
+  const [misses, setMisses] = useState(0);
+  const [flagged, setFlagged] = useState([]); /* line indexes shown false */
+  const [hints, setHints] = useState([]); /* revealed blank cell ids */
+  const [won, setWon] = useState(false);
+  const [conf, setConf] = useState(false);
+  const [refused, setRefused] = useState(null); /* {cell, kind} for the shake + note */
+  const [pulse, setPulse] = useState(null); /* 'num' | 'op': tray tiles that fit a tapped box */
+  const [drag, setDragState] = useState(null);
+  const dragRef = useRef(null);
+  const setDrag = useCallback(v => {
+    dragRef.current = v;
+    setDragState(v);
+  }, []);
+  const gestureRef = useRef(null);
+  const missKeyRef = useRef('');
+  const refuseT = useRef(0),
+    pulseT = useRef(0),
+    confT = useRef(0);
+  const mascot = useMascot();
+  useEffect(() => () => {
+    clearTimeout(refuseT.current);
+    clearTimeout(pulseT.current);
+    clearTimeout(confT.current);
+  }, []);
+  const tileById = useMemo(() => {
+    const m = {};
+    puzzle.tray.forEach(t => {
+      m[t.id] = t;
+    });
+    return m;
+  }, [puzzle]);
+  const cellById = useMemo(() => {
+    const m = {};
+    puzzle.cells.forEach(c => {
+      m[c.id] = c;
+    });
+    return m;
+  }, [puzzle]);
+  const cellOf = useMemo(() => {
+    const m = {};
+    Object.keys(placed).forEach(c => {
+      m[placed[c]] = c;
+    });
+    return m;
+  }, [placed]);
+  const vals = useMemo(() => {
+    const v = {};
+    Object.keys(placed).forEach(c => {
+      v[c] = tileById[placed[c]].value;
+    });
+    return v;
+  }, [placed, tileById]);
+  const placedRef = useRef(placed);
+  placedRef.current = placed;
+  const deal = useCallback(id => {
+    setPuzzle(CrosswordEngine.ncDeal(id, Math.random));
+    setPlaced({});
+    setSel(null);
+    setMisses(0);
+    setFlagged([]);
+    setHints([]);
+    setWon(false);
+    setRefused(null);
+    missKeyRef.current = '';
+  }, []);
+  const pickLevel = useCallback(id => {
+    setLevel(id);
+    try {
+      localStorage.setItem(NC_LEVEL_KEY, id);
+    } catch (e) {}
+    deal(id);
+  }, [deal]);
+
+  /* ── the moves ── */
+  const refuse = useCallback((cell, kind) => {
+    Sound.setMuted(muted);
+    Sound.wrong();
+    mascot.oops();
+    setRefused({
+      cell,
+      kind,
+      t: Date.now()
+    });
+    clearTimeout(refuseT.current);
+    refuseT.current = setTimeout(() => setRefused(null), 1800);
+  }, [muted, mascot]);
+  /* Put a tile in a box. A tile that was on the board leaves its old box; whatever
+     was in the new box swaps into the old one, or goes home to the tray if the tile
+     came from the tray. Refused -- and nothing moves -- when the kinds differ. */
+  const placeTile = useCallback((tileId, cell) => {
+    const t = tileById[tileId],
+      c = cellById[cell];
+    if (!t || !c || !c.blank || won) return false;
+    if (t.kind !== c.kind) {
+      refuse(cell, t.kind);
+      return false;
+    }
+    const cur = placedRef.current;
+    const from = Object.keys(cur).find(k => cur[k] === tileId) || null;
+    if (from === cell) {
+      setSel(null);
+      return true;
+    }
+    const next = {
+      ...cur
+    };
+    const occupant = next[cell];
+    if (from) delete next[from];
+    if (occupant && from) next[from] = occupant;
+    next[cell] = tileId;
+    Sound.setMuted(muted);
+    Sound.tap();
+    setPlaced(next);
+    setSel(null);
+    setFlagged([]);
+    setRefused(null);
+    return true;
+  }, [tileById, cellById, won, refuse, muted]);
+  const toTray = useCallback(tileId => {
+    const cur = placedRef.current;
+    const from = Object.keys(cur).find(k => cur[k] === tileId);
+    Sound.setMuted(muted);
+    Sound.tap();
+    setSel(null);
+    if (!from) return;
+    const next = {
+      ...cur
+    };
+    delete next[from];
+    setPlaced(next);
+    setFlagged([]);
+  }, [muted]);
+  const tapTile = useCallback(tileId => {
+    if (won) return;
+    const at = Object.keys(placedRef.current).find(k => placedRef.current[k] === tileId) || null;
+    if (sel === tileId) {
+      if (at) toTray(tileId);else {
+        Sound.setMuted(muted);
+        Sound.tap();
+        setSel(null);
+      }
+      return;
+    }
+    if (sel && at) {
+      placeTile(sel, at);
+      return;
+    }
+    Sound.setMuted(muted);
+    Sound.tap();
+    setSel(tileId);
+  }, [won, sel, toTray, placeTile, muted]);
+  const tapSlot = useCallback(cell => {
+    if (won) return;
+    if (sel) {
+      placeTile(sel, cell);
+      return;
+    }
+    /* An empty box tapped with nothing in hand is a question -- "what goes here?" --
+       so the tiles that fit it bounce. Never a dead tap. */
+    Sound.setMuted(muted);
+    Sound.tap();
+    setPulse(cellById[cell].kind);
+    clearTimeout(pulseT.current);
+    pulseT.current = setTimeout(() => setPulse(null), 1200);
+  }, [won, sel, placeTile, muted, cellById]);
+  const tapTray = useCallback(e => {
+    if (e.target.closest && e.target.closest('[data-nc-tile]')) return;
+    if (sel && cellOf[sel]) toTray(sel);
+  }, [sel, cellOf, toTray]);
+  const clearBoard = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    setPlaced({});
+    setSel(null);
+    setFlagged([]);
+  }, [muted, won]);
+
+  /* ── drag plumbing (the Number Toys pattern) ── */
+  const overAt = useCallback((x, y) => {
+    const el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    const slot = el.closest('[data-nc-slot]');
+    if (slot) return {
+      cell: slot.getAttribute('data-nc-slot')
+    };
+    if (el.closest('[data-nc-tray]')) return {
+      tray: true
+    };
+    return null;
+  }, []);
+  const beginTile = useCallback((e, tileId) => {
+    if (won) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    gestureRef.current = {
+      id: e.pointerId,
+      tileId,
+      sx: e.clientX,
+      sy: e.clientY,
+      moved: false
+    };
+  }, [won]);
+  const onMove = useCallback(e => {
+    const g = gestureRef.current;
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.moved) {
+      if (Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 6) return;
+      g.moved = true;
+      const t = tileById[g.tileId];
+      setSel(null);
+      setDrag({
+        tileId: g.tileId,
+        kind: t.kind,
+        value: t.value,
+        x: e.clientX,
+        y: e.clientY,
+        over: null
+      });
+    }
+    const d = dragRef.current;
+    if (d) setDrag({
+      ...d,
+      x: e.clientX,
+      y: e.clientY,
+      over: overAt(e.clientX, e.clientY)
+    });
+  }, [tileById, overAt, setDrag]);
+  const onUp = useCallback(e => {
+    const g = gestureRef.current;
+    if (!g || e.pointerId !== g.id) return;
+    gestureRef.current = null;
+    const d = dragRef.current;
+    setDrag(null);
+    if (!g.moved || !d) {
+      tapTile(g.tileId);
+      return;
+    }
+    const over = overAt(e.clientX, e.clientY) || d.over;
+    if (over && over.cell && cellById[over.cell] && cellById[over.cell].blank) placeTile(g.tileId, over.cell);else if (over && over.tray) toTray(g.tileId);else {
+      Sound.setMuted(muted);
+      Sound.tap();
+    } /* let go in the open: it floats home to where it was */
+  }, [setDrag, tapTile, overAt, placeTile, toTray, cellById, muted]);
+  const onCancel = useCallback(e => {
+    const g = gestureRef.current;
+    if (g && e.pointerId === g.id) {
+      gestureRef.current = null;
+      setDrag(null);
+    }
+  }, [setDrag]);
+
+  /* ── judging: only a FULL board is judged, and only by its equations ── */
+  useEffect(() => {
+    if (won) return;
+    const r = CrosswordEngine.ncCheck(puzzle, vals);
+    if (!r.full) return;
+    Sound.setMuted(muted);
+    if (r.solved) {
+      setWon(true);
+      setConf(true);
+      setSel(null);
+      setFlagged([]);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      const arrived = addProgress();
+      Voice.lines([arrived ? null : praise()]);
+      clearTimeout(confT.current);
+      confT.current = setTimeout(() => setConf(false), 2500);
+      return;
+    }
+    /* One miss per DIFFERENT full board: swapping two tiles back and forth is
+       experimenting, and the hints must not race ahead of the child. */
+    const key = JSON.stringify(vals);
+    if (key === missKeyRef.current) return;
+    missKeyRef.current = key;
+    const m = misses + 1;
+    setMisses(m);
+    setFlagged(r.lines.map((ok, i) => ok === false ? i : -1).filter(i => i >= 0));
+    Sound.wrong();
+    mascot.oops();
+    if (m >= 3) {
+      const h = CrosswordEngine.ncHintCell(puzzle, vals);
+      if (h) setHints(list => list.indexOf(h) >= 0 ? list : [...list, h]);
+    }
+  }, [vals]);
+
+  /* ── what the board shows ── */
+  const lineOf = useMemo(() => {
+    const m = {};
+    puzzle.equations.forEach((e, i) => {
+      [...e.cells, e.eq].forEach(id => {
+        (m[id] = m[id] || []).push(i);
+      });
+    });
+    return m;
+  }, [puzzle]);
+  /* The teaching step: the line with the fewest boxes still wrong or empty is the one
+     a child can reason out first. Picked from the proven solution, but it names a LINE,
+     never a value. */
+  const focusLine = useMemo(() => {
+    if (won || misses < 2) return null;
+    let best = null,
+      bestN = Infinity;
+    puzzle.equations.forEach((e, i) => {
+      const n = e.cells.filter(id => cellById[id].blank && vals[id] !== puzzle.solution[id]).length;
+      if (n > 0 && n < bestN) {
+        bestN = n;
+        best = i;
+      }
+    });
+    return best;
+  }, [won, misses, puzzle, vals, cellById]);
+  const liveHints = hints.filter(id => vals[id] !== puzzle.solution[id]);
+  /* The tile a revealed box wants: a matching one still in the tray, or else the one
+     sitting in the wrong box. */
+  const hintTiles = useMemo(() => {
+    const out = {};
+    liveHints.forEach(id => {
+      const c = cellById[id];
+      const want = t => t.kind === c.kind && t.value === puzzle.solution[id] && !out[t.id];
+      const t = puzzle.tray.find(t => want(t) && !cellOf[t.id]) || puzzle.tray.find(t => want(t) && vals[cellOf[t.id]] !== puzzle.solution[cellOf[t.id]]);
+      if (t) out[t.id] = true;
+    });
+    return out;
+  }, [liveHints.join(','), puzzle, cellOf, vals, cellById]);
+  const holding = drag ? drag.kind : sel && tileById[sel] ? tileById[sel].kind : null;
+  const distractors = puzzle.tray.length > puzzle.blanks.length;
+  const note = refused ? NC_NOTE_REFUSE[refused.kind] : won ? 'Every line is true!' : focusLine != null ? 'Start with the glowing line.' : flagged.length ? 'Not yet! Fix the orange lines.' : distractors ? 'Some tiles are not needed.' : 'Fill every box.';
+  const noteCls = refused ? 'nc-note-refuse' : won ? 'nc-note-won' : focusLine != null || flagged.length ? 'nc-note-miss' : '';
+  const tileBtn = (t, where) => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    "data-nc-tile": t.id,
+    className: `nc-tile nc-tile-${t.kind} ${sel === t.id ? 'nc-sel' : ''} ${drag && drag.tileId === t.id ? 'nc-lifted' : ''} ${hintTiles[t.id] ? 'hint-glow' : ''} ${where === 'tray' && pulse === t.kind ? 'nc-pulse' : ''}`,
+    onPointerDown: e => beginTile(e, t.id),
+    "aria-label": `${t.kind === 'op' ? CrosswordEngine.NC_OP_WORDS[t.value] : t.value}${where === 'board' ? ', placed' : ''}`
+  }, t.value);
+  const cells = [];
+  const byPos = {};
+  puzzle.cells.forEach(c => {
+    byPos[c.r + ',' + c.c] = c;
+  });
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
+    const cell = byPos[r + ',' + c];
+    const key = r + ',' + c;
+    if (!cell) {
+      cells.push(/*#__PURE__*/React.createElement("div", {
+        key: key,
+        className: "nc-cell nc-none",
+        "aria-hidden": "true"
+      }));
+      continue;
+    }
+    const lines = lineOf[cell.id] || [];
+    const state = won ? 'nc-good' : lines.some(i => flagged.indexOf(i) >= 0) ? 'nc-bad' : '';
+    const focus = focusLine != null && lines.indexOf(focusLine) >= 0 ? 'nc-focus' : '';
+    if (!cell.blank) {
+      /* Printed cells are print, not controls: nothing here speaks. A read-aloud was
+         tried and removed the same day (2026-09-24) -- the recorded voice has no clip for
+         21 of the numbers 1-100 or for the signs, and the robot (speechSynthesis) is not
+         a child-facing voice (AUDIO-DIRECTION.md). So no cursor, no tap. */
+      cells.push(/*#__PURE__*/React.createElement("div", {
+        key: key,
+        className: `nc-cell nc-given nc-given-${cell.kind} ${state} ${focus}`,
+        "aria-label": cell.kind === 'op' ? CrosswordEngine.NC_OP_WORDS[cell.value] : String(cell.value)
+      }, cell.value));
+      continue;
+    }
+    const tid = placed[cell.id];
+    const over = drag && drag.over && drag.over.cell === cell.id;
+    const fits = holding ? holding === cell.kind : null;
+    cells.push(/*#__PURE__*/React.createElement("div", {
+      key: key,
+      "data-nc-slot": cell.id,
+      role: "button",
+      className: `nc-cell nc-slot nc-slot-${cell.kind} ${tid ? 'nc-filled' : ''} ${state} ${focus} ${fits === true ? 'nc-can' : fits === false ? 'nc-cant' : ''} ${over ? fits ? 'nc-over' : 'nc-over-no' : ''} ${refused && refused.cell === cell.id ? 'nc-refused' : ''} ${liveHints.indexOf(cell.id) >= 0 ? 'nc-hint' : ''}`,
+      onClick: () => {
+        if (!tid) tapSlot(cell.id);
+      },
+      "aria-label": tid ? undefined : cell.kind === 'op' ? 'empty sign circle' : 'empty number square'
+    }, tid ? tileBtn(tileById[tid], 'board') : /*#__PURE__*/React.createElement("span", {
+      className: "nc-slot-mark",
+      "aria-hidden": "true"
+    })));
+  }
+  const trayGroup = (kind, label) => {
+    const tiles = puzzle.tray.filter(t => t.kind === kind);
+    if (!tiles.length) return null;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "nc-tray-group"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "nc-tray-label"
+    }, label), /*#__PURE__*/React.createElement("div", {
+      className: "nc-tray-row"
+    }, tiles.map(t => cellOf[t.id] ? /*#__PURE__*/React.createElement("span", {
+      key: t.id,
+      className: `nc-tile-gone nc-tile-${t.kind}`,
+      "aria-hidden": "true"
+    }) : tileBtn(t, 'tray'))));
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen nc-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    },
+    onPointerMove: onMove,
+    onPointerUp: onUp,
+    onPointerCancel: onCancel
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: conf
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    label: "Number Crossword",
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket",
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Number Crossword"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Make every line true")), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: CrosswordEngine.NC_LEVELS.map(l => ({
+      id: l.id,
+      label: l.tag
+    })),
+    value: level,
+    onPick: pickLevel,
+    muted: muted,
+    label: "Choose how hard"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "nc-stage"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `nc-board nc-board-${puzzle.layout} ${won ? 'nc-board-won' : ''}`,
+    role: "group",
+    "aria-label": "Number crossword"
+  }, cells), /*#__PURE__*/React.createElement("div", {
+    className: "nc-side"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nc-bar"
+  }, !won && /*#__PURE__*/React.createElement("button", {
+    className: "np-btn nc-btn",
+    onClick: clearBoard,
+    disabled: !Object.keys(placed).length,
+    "aria-label": "Take every tile back"
+  }, "Clear"), /*#__PURE__*/React.createElement("div", {
+    className: `nc-note ${noteCls}`,
+    key: refused ? refused.t : 'n',
+    "aria-live": "polite"
+  }, note), won ? /*#__PURE__*/React.createElement("button", {
+    className: "next-btn nc-next",
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      deal(level);
+    },
+    "aria-label": "Next puzzle"
+  }, /*#__PURE__*/React.createElement(NextIcon, null)) : /*#__PURE__*/React.createElement("button", {
+    className: "np-btn nc-btn",
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      deal(level);
+    },
+    "aria-label": "A new puzzle"
+  }, "New")), /*#__PURE__*/React.createElement("div", {
+    className: "nc-tray",
+    "data-nc-tray": "1",
+    onClick: tapTray
+  }, trayGroup('num', 'Numbers'), trayGroup('op', 'Signs')))), drag && /*#__PURE__*/React.createElement("div", {
+    className: `nc-ghost nc-tile nc-tile-${drag.kind}`,
+    style: {
+      left: drag.x,
+      top: drag.y
+    },
+    "aria-hidden": "true"
+  }, drag.value));
+}
+
 /* ══ MEMORY MATCH CARDS (shared) ══
    The card, its two faces and the board. Byte-identical in both skins on purpose: what
    a card SHOWS is the maths, and only the card's colours belong to a theme — those live
@@ -18748,7 +20213,7 @@ function Home({
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Number Toys"), /*#__PURE__*/React.createElement("img", {
+  }, "Play & Explore"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/sparkle-blue.webp",
     alt: ""
@@ -18762,7 +20227,27 @@ function Home({
     id: "np1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Number Toys")))), /*#__PURE__*/React.createElement("div", {
+  }, "Number Toys")), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('x1', 'mc-purple'),
+    onClick: () => pick('x1'),
+    "aria-label": "Nine Magic. Tricks with nine"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "x1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Nine Magic"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('k1', 'mc-magic'),
+    onClick: () => pick('k1'),
+    "aria-label": "Memory Match. Turn two cards over and find the pairs"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "k1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Memory Match"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
     className: "home-section-heading"
@@ -18772,7 +20257,7 @@ function Home({
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Counting Blocks"), /*#__PURE__*/React.createElement("img", {
+  }, "Counting & Comparing"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/moon.webp",
     alt: ""
@@ -18828,7 +20313,7 @@ function Home({
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Sequence"), /*#__PURE__*/React.createElement("img", {
+  }, "Number Patterns"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/star.webp",
     alt: ""
@@ -18844,6 +20329,36 @@ function Home({
     className: "mode-card-label"
   }, "Sequence"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('r1', 'mc-pink'),
+    onClick: () => pick('r1'),
+    "aria-label": "Read Big Numbers. Build a big one"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "r1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Big Numbers"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('oe1', 'mc-rose'),
+    onClick: () => pick('oe1'),
+    "aria-label": "Odd or Even? Pair them up"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "oe1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Odd or Even?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 1
+  })), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('h1', 'mc-purple'),
+    onClick: () => pick('h1'),
+    "aria-label": "Hundred Board. Where do you land?"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "h1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Hundred Board"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -18854,7 +20369,7 @@ function Home({
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Make 10 & 100"), /*#__PURE__*/React.createElement("img", {
+  }, "Make Numbers"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/sparkle-blue.webp",
     alt: ""
@@ -18890,62 +20405,6 @@ function Home({
     className: "mode-card-label"
   }, "Make It!"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/comet.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Number Games"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/star.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: cardCls('l2', 'mc-magic'),
-    onClick: () => pick('l2'),
-    "aria-label": "Add and Subtract"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "l2"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Add & Subtract"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: cardCls('r1', 'mc-pink'),
-    onClick: () => pick('r1'),
-    "aria-label": "Read Big Numbers. Build a big one"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "r1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Big Numbers"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
-  })), /*#__PURE__*/React.createElement("button", {
-    className: cardCls('oe1', 'mc-rose'),
-    onClick: () => pick('oe1'),
-    "aria-label": "Odd or Even? Pair them up"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "oe1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Odd or Even?"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
-  })), /*#__PURE__*/React.createElement("button", {
-    className: cardCls('h1', 'mc-purple'),
-    onClick: () => pick('h1'),
-    "aria-label": "Hundred Board. Where do you land?"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "h1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Hundred Board"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -19008,37 +20467,11 @@ function Home({
     className: "home-section-heading"
   }, /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
-    src: "assets-runtime/space/icons/sparkle-blue.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Nine Magic"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/fourstar-gold.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: cardCls('x1', 'mc-purple'),
-    onClick: () => pick('x1'),
-    "aria-label": "Nine Magic. Tricks with nine"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "x1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Nine Magic"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
     src: "assets-runtime/space/icons/crystal-cyan.webp",
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Fractions"), /*#__PURE__*/React.createElement("img", {
+  }, "Fractions & Measure"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/crystal-purple.webp",
     alt: ""
@@ -19064,23 +20497,7 @@ function Home({
     className: "mode-card-label"
   }, "What's the Fraction?"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/neptune.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Measuring & Space"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/uranus.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("button", {
     className: cardCls('u1', 'mc-pink'),
     onClick: () => pick('u1'),
     "aria-label": "Which Unit? Tap a picture"
@@ -19106,43 +20523,27 @@ function Home({
     className: "home-section-heading"
   }, /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
-    src: "assets-runtime/space/icons/orb-blue.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Memory Match"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/orb-purple.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: cardCls('k1', 'mc-magic'),
-    onClick: () => pick('k1'),
-    "aria-label": "Memory Match. Turn two cards over and find the pairs"
-  }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "k1"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-card-label"
-  }, "Memory Match"), /*#__PURE__*/React.createElement(Stars, {
-    count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
     src: "assets-runtime/space/icons/satellite.webp",
     alt: ""
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-section-label"
-  }, "Column Maths"), /*#__PURE__*/React.createElement("img", {
+  }, "Solve & Calculate"), /*#__PURE__*/React.createElement("img", {
     className: "section-icon",
     src: "assets-runtime/space/icons/chest.webp",
     alt: ""
   })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row has-badge"
   }, /*#__PURE__*/React.createElement("button", {
+    className: cardCls('l2', 'mc-magic'),
+    onClick: () => pick('l2'),
+    "aria-label": "Add and Subtract"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "l2"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Add & Subtract"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), /*#__PURE__*/React.createElement("button", {
     className: cardCls('c1', 'mc-rose'),
     onClick: () => pick('c1'),
     "aria-label": "Add and Take Away. Column style"
@@ -19163,7 +20564,7 @@ function Home({
   }, "Carry & Borrow"), /*#__PURE__*/React.createElement(Stars, {
     count: 3
   }), /*#__PURE__*/React.createElement(BigKidBadge, null))), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row has-badge cm-row2"
+    className: "mode-row has-badge"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('c5', 'mc-purple'),
     onClick: () => pick('c5'),
@@ -19174,7 +20575,17 @@ function Home({
     className: "mode-card-label"
   }, "Multiply"), /*#__PURE__*/React.createElement(Stars, {
     count: 3
-  }), /*#__PURE__*/React.createElement(BigKidBadge, null)))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(BigKidBadge, null)), /*#__PURE__*/React.createElement("button", {
+    className: cardCls('p1', 'mc-purple'),
+    onClick: () => pick('p1'),
+    "aria-label": "Number Crossword. Make every line true"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "p1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Number Crossword"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'center',
@@ -19476,7 +20887,7 @@ function App() {
   }));else if (mode === 'sq1') screen = /*#__PURE__*/React.createElement(SequenceGame, _extends({}, shared, {
     score: scores.sq1,
     setScore: setScore('sq1')
-  }));else screen = /*#__PURE__*/React.createElement(Home, {
+  }));else if (mode === 'p1') screen = /*#__PURE__*/React.createElement(NumberCrosswordGame, shared);else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
     journey: journey

@@ -281,7 +281,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        switched off when the music is off (#568).
 // v50 2026-09-22: zoom-trap fix -- the global gesturestart pinch blocker is
 //        gone estate-wide (INTERACTION-DIRECTION.md); this bump carries it.
-const CACHE_NAME = "magic-math-v50";
+const CACHE_NAME = "magic-math-v51";
 
 const SHELL = [
   "./",
