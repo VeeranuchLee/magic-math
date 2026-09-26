@@ -281,7 +281,11 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        switched off when the music is off (#568).
 // v50 2026-09-22: zoom-trap fix -- the global gesturestart pinch blocker is
 //        gone estate-wide (INTERACTION-DIRECTION.md); this bump carries it.
-const CACHE_NAME = "magic-math-v51";
+// v52 2026-09-25: Order the Numbers (o1) is added to both worlds with exact
+//        rational ordering, tap/drag placement, and the post-win number line.
+//        This is a worker/cache change only; staging is separate and nothing
+//        has been published from this task.
+const CACHE_NAME = "magic-math-v52";
 
 const SHELL = [
   "./",
@@ -300,6 +304,11 @@ const SHELL = [
   "./fonts/Nunito-latin.woff2",
   "./fonts/Nunito-latin-ext.woff2",
   "./fonts/FredokaOne-latin.woff2",
+
+  "./js/tap-zoom-guard.js",
+  "./js/tap-wait-engine.js",
+  "./js/tap-wait-math.js",
+  "./css/tap-wait-math.css",
 
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",

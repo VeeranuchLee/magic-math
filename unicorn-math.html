@@ -10,15 +10,21 @@
        next one. -->
   <title>Unicorn Math</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
+  <link rel="icon" href="./assets/icons/icon-192.png"/>
   <link rel="stylesheet" href="./fonts.css"/>
+  <link rel="stylesheet" href="./css/tap-wait-math.css"/>
   <link rel="stylesheet" href="./shared/bg-deco/bg-deco.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Magic Math"/>
+  <!-- Method C: the pilot guard is first; it ignores every multi-finger gesture. -->
+  <script src="./js/tap-zoom-guard.js"></script>
   <script src="./vendor/react-18.3.1.production.min.js"></script>
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
+  <script src="./js/tap-wait-engine.js"></script>
+  <script src="./js/tap-wait-math.js"></script>
   <script src="./shared/bg-deco/bg-deco.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
@@ -560,6 +566,23 @@
     /* Same as the hundred board: the stage sits above the mascot, because the mascot's
        corner is over the bottom-left card of the twenty-card board. */
     .mm-screen .oe-stage{z-index:7}
+    .mm-play{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;z-index:7;width:100%}
+    .memory-time-panel{width:min(94vw,560px);display:grid;grid-template-columns:140px 1fr;gap:10px;
+      background:rgba(255,255,255,.92);border:3px solid #f48fb1;border-radius:22px;padding:11px 13px;
+      color:#7b1fa2;box-shadow:0 5px 0 #e57ca0,0 9px 22px rgba(74,20,140,.18);font-variant-numeric:tabular-nums}
+    .memory-time-block{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0}
+    .memory-time-block+.memory-time-block{border-left:2px solid #f8bbd0;padding-left:10px}
+    .memory-time-label{font-size:.75rem;font-weight:900;letter-spacing:.08em}
+    .memory-time-value{font-size:1.45rem;font-weight:900;color:#c2185b;line-height:1.15}
+    .memory-time-recent{display:flex;justify-content:center;gap:7px;width:100%}
+    .memory-time-row{min-width:54px;padding:4px 6px;border:2px solid #f8bbd0;border-radius:10px;background:#fff7fb;
+      color:#c2185b;text-align:center;font-size:.84rem;font-weight:900}
+    @media (min-width:900px){
+      .mm-play{display:grid;grid-template-columns:minmax(0,780px) 158px;justify-content:center;align-items:start;gap:18px;padding:0 16px}
+      .memory-time-panel{width:158px;grid-template-columns:1fr;padding:14px 12px;gap:12px;position:sticky;top:12px}
+      .memory-time-block+.memory-time-block{border-left:0;border-top:2px solid #f8bbd0;padding:12px 0 0}
+      .memory-time-recent{flex-direction:column}
+    }
     @media (max-height:740px){
       .mm-screen .count-title{padding:5px 14px}
       .mm-board{--mm-h:50vh}
@@ -2189,7 +2212,9 @@
     .home-cloud-row{display:flex;gap:96px;align-items:center;justify-content:center;min-height:72px;margin-bottom:-8px}
     .home-cloud{width:92px;object-fit:contain;opacity:.92;filter:drop-shadow(0 5px 10px rgba(156,39,176,.14))}
     .home-section-heading{display:flex;align-items:center;gap:8px}
-    .section-icon{object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+    /* Sized like space-math.html (2026-09-25): without a size the shelf-heading flower and star
+       rendered at full image size after the menu regroup. */
+    .section-icon{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
 
     /* ── MASCOT ── */
     .screen>.mascot-corner{position:fixed;left:22px;bottom:22px;width:116px;height:116px;z-index:6;pointer-events:none;display:flex;align-items:center;justify-content:center;isolation:isolate;filter:drop-shadow(0 7px 14px rgba(123,31,162,.32))}
@@ -2227,6 +2252,83 @@
     .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
     .confetti-piece{position:absolute;animation:confettiFall linear forwards}
     @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+    /* Order Numbers shares the activity-header treatment, but keeps each skin's
+       own opaque palette here rather than in the generated shared block. */
+    .on-screen.on-unicorn{--on-header-bg:linear-gradient(135deg,#fff,#fce4ec);--on-header-border:#f48fb1;--on-header-shadow:#e57ca0;--on-header-text:#7b1fa2;--on-sub-text:#e91e63;--on-instruction-border:#ce93d8}
+    /* ── ORDER NUMBERS UI (o1) ──
+   Red answer boxes, green cards, and an exact proportional SVG line. The only
+   `touch-action:none` surface is a real drag card; the page keeps the app-wide
+   manipulation pattern so pinch-zoom remains available everywhere else. */
+.on-screen{--on-card:clamp(92px,14.5vw,130px);--on-gap:clamp(8px,1.4vw,16px);--on-red:#ff3b30;--on-red-dark:#c62828;--on-green:#34c759;--on-green-dark:#237a35;--on-blue:#1565c0;--on-line-bg:rgba(225,241,255,.96);overflow-y:auto;overflow-x:hidden;padding-bottom:24px;gap:12px}
+.on-screen[data-on-count="6"]{--on-card:clamp(86px,11.5vw,108px);--on-gap:clamp(6px,1.1vw,12px)}
+.on-screen[data-on-count="7"]{--on-card:clamp(78px,11vw,94px);--on-gap:clamp(4px,.9vw,9px)}
+.on-screen[data-on-count="7"] .on-answer-row{gap:clamp(2px,.5vw,6px)}
+/* The two skins provide their own header variables immediately before this
+   generated block. Keeping the palette there prevents a shared style from
+   teaching the other world its colours. */
+.gp-on-preview{gap:4px!important}
+.gp-on-preview-line,.gp-on-preview-boxes,.gp-on-preview-cards{display:flex;align-items:center;justify-content:center;gap:4px}
+.gp-on-preview-line{width:76px;height:5px;background:#0d47a1;border-radius:4px;position:relative}
+.gp-on-preview-line span{width:5px;height:5px;border-radius:50%;background:#ef6c00;position:absolute;top:0}
+.gp-on-preview-line span:nth-child(1){left:14px}.gp-on-preview-line span:nth-child(2){left:34px;background:#43a047}.gp-on-preview-line span:nth-child(3){left:57px;background:#1e88e5}
+.gp-on-preview-boxes span{width:16px;height:17px;border:2px solid #ff3b30;border-radius:3px;background:#ffe8e6}
+.gp-on-preview-cards{margin-top:1px}.gp-on-preview-cards span{width:17px;height:17px;border:2px solid #34c759;border-radius:3px;background:#dcedc8}
+.on-screen .screen-bg{background-color:#0a0e2d}
+.on-screen>.mascot-corner{right:18px;left:auto;bottom:16px;width:94px;height:94px}
+.on-screen>.mascot-corner::before{width:96%;height:82%}
+.on-screen .count-title{background:var(--on-header-bg);border:2.5px solid var(--on-header-border);border-radius:22px;padding:9px 24px 8px;box-shadow:0 4px 0 var(--on-header-shadow),0 7px 18px rgba(4,8,30,.2);min-width:min(100%,300px)}
+.on-screen .count-title-main{font-size:clamp(1.1rem,2.8vw,1.5rem);font-weight:900;color:var(--on-header-text);text-transform:uppercase;letter-spacing:1.1px;line-height:1.05}
+.on-screen .count-title-sub{font-size:clamp(.8rem,2vw,.98rem);font-weight:900;color:var(--on-sub-text);margin-top:4px;line-height:1.05}
+.on-screen .on-instruction{max-width:760px;width:100%;min-height:42px;display:flex;align-items:center;justify-content:center;padding:8px 18px;box-sizing:border-box;border-radius:24px;background:var(--on-header-bg);border:2.5px solid var(--on-instruction-border);box-shadow:0 3px 0 var(--on-header-shadow),0 6px 14px rgba(4,8,30,.16);font-size:clamp(.88rem,2.1vw,1.06rem);font-weight:900;color:var(--on-header-text);line-height:1.2}
+.on-stage{display:flex;flex:1 0 auto;flex-direction:column;align-items:center;justify-content:flex-start;gap:clamp(12px,2vh,22px);position:relative;z-index:1;width:100%;padding:clamp(2px,.7vh,10px) 0 0;box-sizing:border-box}
+.on-stage-won{justify-content:flex-start}
+.on-answer-row{display:flex;align-items:center;justify-content:center;gap:var(--on-gap);width:100%;max-width:100%;overflow-x:auto;padding:clamp(12px,1.7vh,18px) clamp(8px,1.5vw,18px);box-sizing:border-box;white-space:nowrap;background:rgba(255,235,235,.95);border:2px solid rgba(255,112,112,.72);border-radius:24px;box-shadow:0 5px 0 rgba(239,68,68,.2),0 8px 22px rgba(4,8,30,.16)}
+.on-box{width:var(--on-card);height:var(--on-card);flex:0 0 var(--on-card);display:flex;align-items:center;justify-content:center;border-radius:clamp(16px,2.2vw,24px);border:4px solid var(--on-red);background:linear-gradient(160deg,#fff8f7,#ffe8e6);color:var(--on-red-dark);font-family:inherit;font-weight:900;font-size:clamp(2rem,calc(var(--on-card)*.43),3.6rem);line-height:1;position:relative;box-shadow:0 5px 0 var(--on-red),0 7px 16px rgba(0,0,0,.18);transition:transform .12s,box-shadow .15s,border-color .15s;z-index:2}
+.on-box.on-locked{border-color:var(--on-green);background:linear-gradient(160deg,#f1f8e9,#dcedc8);color:var(--on-green-dark);box-shadow:0 5px 0 var(--on-green),0 7px 16px rgba(0,0,0,.14);animation:onSettle .16s ease both}
+.on-box.on-wrong{animation:onWrong .3s ease;border-color:#f44336}
+.on-box.on-hint-box{outline:5px solid #ffd54f;outline-offset:3px;animation:onHint 1.1s ease-in-out infinite}
+.on-placeholder{color:var(--on-red);opacity:.55}
+.on-check{position:absolute;right:-11px;top:-11px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--on-green);border:3px solid #fff;color:#fff;font-size:20px;line-height:1;font-weight:900;box-shadow:0 2px 0 var(--on-green-dark),0 3px 8px rgba(0,0,0,.22);z-index:4}
+.on-sep{color:#26356f;font-weight:900;font-size:clamp(1.8rem,calc(var(--on-card)*.3),2.6rem);line-height:1;width:.45em;flex:0 0 .45em;text-align:center}
+.on-tray{display:flex;align-items:center;justify-content:center;gap:var(--on-gap);flex-wrap:nowrap;overflow-x:auto;background:rgba(230,248,230,.95);border:2px solid rgba(76,175,80,.72);border-radius:24px;padding:clamp(12px,1.7vh,18px) clamp(10px,1.8vw,22px);width:100%;max-width:100%;box-sizing:border-box;box-shadow:0 5px 0 rgba(76,175,80,.2),0 8px 22px rgba(4,8,30,.16);scrollbar-width:thin}
+.on-card{width:var(--on-card);height:var(--on-card);flex:0 0 var(--on-card);border:none;border-radius:clamp(16px,2.2vw,24px);background:linear-gradient(160deg,#f1f8e9,#dcedc8);color:var(--on-green-dark);border:3px solid var(--on-green);font-family:inherit;font-weight:900;font-size:clamp(2rem,calc(var(--on-card)*.43),3.6rem);line-height:1;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 var(--on-green),0 7px 16px rgba(0,0,0,.2);transition:transform .12s,opacity .15s;position:relative;z-index:1}
+.on-card:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--on-green)}
+.on-card:disabled{cursor:default}
+.on-card.on-gone{visibility:hidden;pointer-events:none}
+.on-card.on-return{animation:onReturn .42s ease}
+.on-card.on-hint-card{animation:onHint 1.1s ease-in-out infinite}
+.on-card.on-revealed::after{content:"";position:absolute;inset:-4px;border-radius:22px;border:3px dashed #ffd54f;animation:onHint 1.1s ease-in-out infinite}
+.on-frac{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;min-width:.62em;transform:translateY(-1px)}
+.on-frac-top,.on-frac-bot{font-size:clamp(1.75rem,calc(var(--on-card)*.31),2.25rem);line-height:.9}
+.on-frac-bar{width:74%;height:4px;background:currentColor;border-radius:3px;margin:2px 0}
+.on-value{display:block;line-height:.95;transform:translateY(-1px)}
+.on-help{height:32px;display:flex;align-items:center;justify-content:center;color:#ffd54f;font-size:.9rem;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.45);opacity:0;transition:opacity .15s}
+.on-help-show{opacity:1}
+.on-line{width:min(96vw,760px);background:var(--on-line-bg);border:2.5px solid #90caf9;border-radius:24px;padding:clamp(10px,1.5vh,16px) clamp(12px,2vw,22px) 10px;box-shadow:0 5px 0 rgba(144,202,249,.3),0 9px 24px rgba(4,8,30,.18);animation:onLineIn .4s ease both;box-sizing:border-box}
+.on-line-title{font-size:clamp(1.2rem,2.7vw,1.6rem);font-weight:900;color:var(--on-blue);margin-bottom:3px;line-height:1.1}
+.on-line-svg{display:block;width:100%;height:auto;overflow:visible}
+.on-axis{stroke:#0d47a1;stroke-width:3;stroke-linecap:round}
+.on-axis-arrow{fill:#0d47a1}
+.on-tick{stroke:#0d47a1;stroke-width:2}
+.on-tick-label{font-size:18px;fill:#0d47a1;stroke:rgba(225,241,255,.96);stroke-width:4px;paint-order:stroke;font-weight:900}
+.on-marker-label-box{overflow:visible}
+.on-marker-label{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:24px;font-weight:900;line-height:1;color:var(--on-marker-color,#1565c0);white-space:nowrap}
+.on-line-value{font-size:1em;line-height:1}
+.on-dot{stroke:#fff;stroke-width:3;vector-effect:non-scaling-stroke}
+.on-leader{stroke-width:2;vector-effect:non-scaling-stroke;opacity:.75}
+.on-marker-0{--on-marker-color:#ef6c00}.on-marker-1{--on-marker-color:#2e7d32}.on-marker-2{--on-marker-color:#1565c0}.on-marker-3{--on-marker-color:#8e24aa}.on-marker-4{--on-marker-color:#c62828}.on-marker-5{--on-marker-color:#00838f}.on-marker-6{--on-marker-color:#f9a825}
+.on-dot-0{fill:#ef6c00}.on-dot-1{fill:#43a047}.on-dot-2{fill:#1e88e5}.on-dot-3{fill:#8e24aa}.on-dot-4{fill:#e53935}.on-dot-5{fill:#00acc1}.on-dot-6{fill:#fdd835}
+.on-leader-0{stroke:#ef6c00}.on-leader-1{stroke:#43a047}.on-leader-2{stroke:#1e88e5}.on-leader-3{stroke:#8e24aa}.on-leader-4{stroke:#e53935}.on-leader-5{stroke:#00acc1}.on-leader-6{stroke:#fdd835}
+.on-ghost{position:fixed;z-index:80;width:var(--on-card);height:var(--on-card);border-radius:clamp(16px,2.2vw,24px);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(2rem,calc(var(--on-card)*.43),3.6rem);line-height:1;pointer-events:none;transform:translate(-50%,-58%) rotate(-4deg) scale(1.08);color:var(--on-green-dark);background:linear-gradient(160deg,#f1f8e9,#dcedc8);box-shadow:0 12px 26px rgba(0,0,0,.4),0 4px 0 var(--on-green);z-index:80}
+@keyframes onSettle{from{transform:scale(.94)}to{transform:scale(1)}}
+@keyframes onWrong{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+@keyframes onReturn{0%{opacity:.35;transform:translateX(0)}45%{opacity:1;transform:translateX(3px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes onHint{0%,100%{transform:scale(1);filter:none}50%{transform:scale(1.04);filter:drop-shadow(0 0 7px #ffd54f)}}
+@keyframes onLineIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media (max-height:760px){.on-screen{--on-card:clamp(84px,12vw,112px);--on-gap:clamp(6px,1vw,12px);gap:8px}.on-screen[data-on-count="6"]{--on-card:clamp(78px,10vw,100px);--on-gap:clamp(5px,.9vw,10px)}.on-screen[data-on-count="7"]{--on-card:clamp(70px,9vw,90px);--on-gap:clamp(4px,.8vw,8px)}.on-stage{gap:10px;padding-top:2px}.on-answer-row,.on-tray{padding:10px}.on-line{padding:8px 12px 6px}.on-help{height:24px;font-size:.8rem}}
+@media (max-width:560px){.on-screen{--on-card:clamp(54px,16vw,78px);--on-gap:6px;gap:8px}.on-screen[data-on-count="6"]{--on-card:clamp(48px,13vw,68px);--on-gap:5px}.on-screen[data-on-count="7"]{--on-card:clamp(42px,10.5vw,58px);--on-gap:4px}.on-stage{padding-left:4px;padding-right:4px;gap:9px}.on-line{width:100%;padding-left:8px;padding-right:8px}}
+@media (prefers-reduced-motion:reduce){.on-screen *,.on-screen *::before,.on-screen *::after{animation:none!important;transition:none!important}}
+/* ── END ORDER NUMBERS CSS ── */
   </style>
 </head>
 <body>
@@ -2240,6 +2342,9 @@ const {
   useRef,
   useEffect
 } = React;
+function TapWaitMathGame(props) {
+  return /*#__PURE__*/React.createElement(TapWaitMath.Game, props);
+}
 const useBgDecoEffect = React.useLayoutEffect || useEffect;
 
 /* ══ SOUND ══ */
@@ -3714,6 +3819,477 @@ const calcTotal = (p, counting) => counting ? p.o : p.h * 100 + p.t * 10 + p.o;
    Math.random. The block is byte-identical in both skins by construction (see
    tools/check-math-parity.js): teaching logic that drifts between worlds is exactly the
    bug that gate exists to stop. */
+
+/* ── order-numbers-engine: generated from engine/order-numbers.js by tools/port-order-numbers-engine.js — do not edit here ── */
+const OrderNumbersEngine = function () {
+  // Order the Numbers — pure engine (ORDER-NUMBERS-SPEC.md).
+  // No DOM, no speech, no Math.random. Every draw goes through the injected rng.
+
+  const ON_DENOMS = [2, 3, 4, 5, 6, 8, 10];
+  const ON_BOUNDS = [{
+    min: 0,
+    max: 1,
+    step: 0.25
+  }, {
+    min: 0,
+    max: 2,
+    step: 0.5
+  }, {
+    min: 0,
+    max: 3,
+    step: 0.5
+  }, {
+    min: 0,
+    max: 5,
+    step: 1
+  }, {
+    min: 0,
+    max: 10,
+    step: 1
+  }];
+  const MIN_SPACING = 0.06; // 6 % of the axis width
+  const MIN_SPACING_VALUE = {
+    n: 3,
+    d: 50
+  };
+  const MAX_TRIES = 1200;
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a || 1;
+  }
+  function reduce(n, d) {
+    if (!Number.isInteger(n) || !Number.isInteger(d)) throw new Error('rational parts must be integers');
+    if (d === 0) throw new Error('zero denominator');
+    if (d < 0) {
+      n = -n;
+      d = -d;
+    }
+    const g = gcd(n, d);
+    return {
+      n: n / g,
+      d: d / g
+    };
+  }
+  function rat(n, d = 1) {
+    return reduce(n, d);
+  }
+
+  /* Convert the decimal values used by the generator to rationals without routing an
+   * ordering decision through a binary float. The generator only creates one- or
+   * two-place decimals; the small normalisation also keeps a value such as
+   * 0.30000000000000004 from becoming a 17-digit rational when a caller supplies it. */
+  function ratFromFloat(x) {
+    if (!Number.isFinite(x)) throw new Error('non-finite value');
+    const rounded = Number(x.toFixed(6));
+    const s = String(rounded).toLowerCase();
+    const [mantissa, exponentText] = s.split('e');
+    const exponent = exponentText ? Number(exponentText) : 0;
+    const [whole, fraction = ''] = mantissa.split('.');
+    let n = Number((whole || '0') + fraction);
+    let d = 10 ** fraction.length;
+    if (exponent > 0) n *= 10 ** exponent;else if (exponent < 0) d *= 10 ** -exponent;
+    return reduce(n, d);
+  }
+  function compare(a, b) {
+    const lhs = a.n * b.d;
+    const rhs = b.n * a.d;
+    return lhs < rhs ? -1 : lhs > rhs ? 1 : 0;
+  }
+  function equals(a, b) {
+    return compare(a, b) === 0;
+  }
+
+  /* Conversion is for drawing and measuring, never for deciding an order. */
+  function toNumber(a) {
+    return a.n / a.d;
+  }
+  function decimalText(a) {
+    const scaled = a.n * 100;
+    if (scaled % a.d !== 0) return null;
+    const hundredths = scaled / a.d;
+    const sign = hundredths < 0 ? '-' : '';
+    const abs = Math.abs(hundredths);
+    const whole = Math.floor(abs / 100);
+    const fraction = String(abs % 100).padStart(2, '0').replace(/0+$/, '');
+    return `${sign}${whole}${fraction ? `.${fraction}` : ''}`;
+  }
+
+  /* Display descriptor. `preferred` is important: a generated 3/2 card is an
+   * IMPROPER FRACTION card, while a generated 1.5 card is a DECIMAL card. Both
+   * carry the same exact rational value, but the child-facing representation is
+   * deliberately not collapsed to one another. */
+  function displayOf(a, preferred) {
+    if (preferred === 'fraction' && a.d !== 1) {
+      return {
+        kind: 'fraction',
+        text: `${a.n}/${a.d}`,
+        n: a.n,
+        d: a.d
+      };
+    }
+    if (a.d === 1) return {
+      kind: 'whole',
+      text: String(a.n),
+      n: a.n,
+      d: 1
+    };
+    if (preferred === 'decimal') {
+      const text = decimalText(a);
+      if (text != null) return {
+        kind: 'decimal',
+        text,
+        n: a.n,
+        d: a.d
+      };
+    }
+    const text = decimalText(a);
+    if (text != null) return {
+      kind: 'decimal',
+      text,
+      n: a.n,
+      d: a.d
+    };
+    return {
+      kind: 'fraction',
+      text: `${a.n}/${a.d}`,
+      n: a.n,
+      d: a.d
+    };
+  }
+  function clampRandom(rng) {
+    const n = Number(rng());
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(0.999999999999, n));
+  }
+  function pick(rng, list) {
+    return list[Math.floor(clampRandom(rng) * list.length)];
+  }
+  function shuffle(rng, list) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(clampRandom(rng) * (i + 1));
+      const t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+  function randInt(rng, lo, hi) {
+    return lo + Math.floor(clampRandom(rng) * (hi - lo + 1));
+  }
+  function rationalBounds(bounds) {
+    return {
+      min: ratFromFloat(bounds.min),
+      max: ratFromFloat(bounds.max),
+      step: ratFromFloat(bounds.step === undefined ? 1 : bounds.step)
+    };
+  }
+  function contains(bounds, value) {
+    const b = rationalBounds(bounds);
+    return compare(value, b.min) >= 0 && compare(value, b.max) <= 0;
+  }
+
+  /* The generation bounds stay friendly and unchanged. When a generated answer lands
+   * exactly on the upper bound, the drawing gets one more friendly tick of breathing
+   * room so that answer is a dot inside the axis, never a dot under the arrowhead.
+   * The 0–10 line uses 0–12 with two-place ticks; the shorter ranges extend by their
+   * own natural step. */
+  function lineBoundsFor(bounds, values) {
+    const b = rationalBounds(bounds);
+    if (!Array.isArray(values) || values.length === 0) return bounds;
+    let largest = values[0];
+    for (const value of values.slice(1)) if (compare(value, largest) > 0) largest = value;
+    if (compare(largest, b.max) !== 0) return bounds;
+    const step = b.max.n === 10 && b.max.d === 1 ? rat(2, 1) : b.step;
+    const next = rat(b.max.n * step.d + step.n * b.max.d, b.max.d * step.d);
+    return {
+      min: bounds.min,
+      max: toNumber(next),
+      step: toNumber(step)
+    };
+  }
+  function makeWhole(rng, bounds) {
+    const lo = Math.ceil(bounds.min);
+    const hi = Math.floor(bounds.max);
+    if (lo > hi) return null;
+    return rat(randInt(rng, lo, hi), 1);
+  }
+  function makeDecimal(rng, bounds) {
+    const step = ratFromFloat(bounds.step);
+    const minSteps = Math.ceil(bounds.min * step.d / step.n);
+    const maxSteps = Math.floor(bounds.max * step.d / step.n);
+    if (minSteps > maxSteps) return null;
+    const steps = randInt(rng, minSteps, maxSteps);
+    return rat(steps * step.n, step.d);
+  }
+  function fractionCandidates(bounds) {
+    const out = [];
+    const max = Math.floor(bounds.max);
+    for (const d of ON_DENOMS) {
+      for (let n = 1; n <= max * d; n++) {
+        const r = rat(n, d);
+        if (r.d === 1 || !contains(bounds, r)) continue;
+        out.push(r);
+      }
+    }
+    return out;
+  }
+  function decimalCandidates(bounds) {
+    const out = [];
+    const add = (n, d) => {
+      const r = rat(n, d);
+      if (contains(bounds, r)) out.push(r);
+    };
+    /* A few friendly places rather than a random cloud of hundredths. The pool
+     * still includes one- and two-place decimals, while the spacing check below
+     * decides which can coexist on a line. */
+    for (let i = 0; i <= Math.round(bounds.max * 4); i++) add(i, 4);
+    for (let i = 0; i <= Math.round(bounds.max * 2); i++) add(i, 2);
+    for (let i = 0; i <= Math.round(bounds.max * 10); i++) add(i, 10);
+    for (let i = 0; i <= Math.round(bounds.max * 5); i++) add(i, 5);
+    for (let i = 0; i <= Math.round(bounds.max); i++) add(i, 1);
+    return out.filter(r => r.d !== 1);
+  }
+  function makeCard(value, kind) {
+    const v = value.d === 1 ? rat(value.n, 1) : value;
+    const k = v.d === 1 ? 'whole' : kind;
+    return {
+      value: v,
+      kind: k,
+      display: displayOf(v, k)
+    };
+  }
+  function candidateCards(bounds) {
+    const fractions = fractionCandidates(bounds).map(v => makeCard(v, 'fraction'));
+    const decimals = decimalCandidates(bounds).map(v => makeCard(v, 'decimal'));
+    const wholes = [];
+    for (let n = Math.ceil(bounds.min); n <= Math.floor(bounds.max); n++) {
+      wholes.push(makeCard(rat(n, 1), 'whole'));
+    }
+    return {
+      fractions,
+      decimals,
+      wholes,
+      all: fractions.concat(decimals, wholes)
+    };
+  }
+  function hasDuplicate(set) {
+    for (let i = 0; i < set.length; i++) {
+      for (let j = i + 1; j < set.length; j++) {
+        if (equals(set[i].value, set[j].value)) return true;
+      }
+    }
+    return false;
+  }
+  function positionValue(value, bounds) {
+    const b = rationalBounds(bounds);
+    const span = {
+      n: b.max.n * b.min.d - b.min.n * b.max.d,
+      d: b.max.d * b.min.d
+    };
+    if (span.n <= 0) return rat(0, 1);
+    const diff = {
+      n: value.n * b.min.d - b.min.n * value.d,
+      d: value.d * b.min.d
+    };
+    return reduce(diff.n * span.d, diff.d * span.n);
+  }
+  function tooClose(set, bounds) {
+    const limit = MIN_SPACING_VALUE;
+    for (let i = 0; i < set.length; i++) {
+      for (let j = i + 1; j < set.length; j++) {
+        const a = positionValue(set[i].value, bounds);
+        const b = positionValue(set[j].value, bounds);
+        const distance = {
+          n: Math.abs(a.n * b.d - b.n * a.d),
+          d: a.d * b.d
+        };
+        if (compare(distance, limit) < 0) return true;
+      }
+    }
+    return false;
+  }
+  function trySelect(cards, count, bounds, rng) {
+    const selected = [];
+    const add = pool => {
+      if (!pool || !pool.length) return false;
+      const candidate = pick(rng, pool);
+      if (selected.some(x => equals(x.value, candidate.value))) return false;
+      if (tooClose(selected.concat(candidate), bounds)) return false;
+      selected.push(candidate);
+      return true;
+    };
+    /* The first choices make the activity genuinely mixed, rather than leaving
+     * the type mix to a lucky shuffle. Two values can be only one fraction and
+     * one non-fraction; from three upward there is room for all three families. */
+    const hasKind = kind => selected.some(card => card.kind === kind);
+    const required = count >= 3 ? ['fraction', 'decimal', 'whole'] : ['fraction', 'nonfraction'];
+    for (const kind of required) {
+      const pool = kind === 'fraction' ? cards.fractions : kind === 'decimal' ? cards.decimals : kind === 'whole' ? cards.wholes : cards.decimals.concat(cards.wholes);
+      for (let attempt = 0; attempt < 160 && (kind === 'nonfraction' ? !hasKind('decimal') && !hasKind('whole') : !hasKind(kind)); attempt++) {
+        if (add(pool)) break;
+      }
+      if (kind === 'nonfraction' ? !hasKind('decimal') && !hasKind('whole') : !hasKind(kind)) return null;
+    }
+    while (selected.length < count) {
+      const before = selected.length;
+      add(cards.all);
+      if (selected.length === before) add(cards.fractions);
+      if (selected.length === before) add(cards.decimals);
+      if (selected.length === before) add(cards.wholes);
+      if (selected.length === before) break;
+    }
+    return selected.length === count && !hasDuplicate(selected) && !tooClose(selected, bounds) ? selected : null;
+  }
+  function fallbackSelect(cards, count, bounds) {
+    /* A deterministic, bounded backtracking search for a pathological or
+     * exhausted RNG. It still chooses only the same friendly rational cards; the
+     * search is what guarantees that a constant RNG cannot leave the required
+     * whole/decimal/fraction mix uncovered. */
+    const unique = list => {
+      const seen = new Set();
+      return list.filter(card => {
+        const key = `${card.value.n}/${card.value.d}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      }).sort((a, b) => compare(a.value, b.value));
+    };
+    const pools = {
+      fraction: unique(cards.fractions),
+      decimal: unique(cards.decimals),
+      whole: unique(cards.wholes),
+      all: unique(cards.all)
+    };
+    let nodes = 0;
+    const search = selected => {
+      if (nodes++ > 20000) return null;
+      if (selected.length === count) return hasRequiredMix(selected, count) ? selected : null;
+      const kinds = new Set(selected.map(card => card.kind));
+      const choices = [];
+      if (!kinds.has('fraction')) choices.push(pools.fraction);
+      if (count >= 3 && !kinds.has('decimal')) choices.push(pools.decimal);
+      if (count >= 3 && !kinds.has('whole')) choices.push(pools.whole);
+      if (count === 2 && !kinds.has('decimal') && !kinds.has('whole')) choices.push(pools.decimal, pools.whole);
+      if (!choices.length) choices.push(pools.all);
+      for (const pool of choices) {
+        for (const card of pool) {
+          if (selected.some(seen => equals(seen.value, card.value))) continue;
+          if (tooClose(selected.concat(card), bounds)) continue;
+          const found = search(selected.concat(card));
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return search([]);
+  }
+  function hasRequiredMix(cards, count) {
+    const kinds = new Set(cards.map(card => card.kind));
+    if (!kinds.has('fraction')) return false;
+    return count >= 3 ? kinds.has('decimal') && kinds.has('whole') : kinds.has('decimal') || kinds.has('whole');
+  }
+  function boundsForCount(count, rng) {
+    const pool = count <= 4 ? [ON_BOUNDS[0], ON_BOUNDS[0], ON_BOUNDS[1], ON_BOUNDS[1], ON_BOUNDS[2]] : [ON_BOUNDS[1], ON_BOUNDS[2], ON_BOUNDS[2], ON_BOUNDS[3], ON_BOUNDS[4]];
+    return pick(rng, pool);
+  }
+  function makeProblem(count, rng) {
+    if (!rng) rng = Math.random;
+    if (!Number.isInteger(count) || count < 2 || count > 7) throw new Error('count must be 2–7');
+    for (let t = 0; t < MAX_TRIES; t++) {
+      const bounds = boundsForCount(count, rng);
+      const cards = candidateCards(bounds);
+      let selected = trySelect(cards, count, bounds, rng);
+      if (!selected) selected = fallbackSelect(cards, count, bounds);
+      if (!selected || !hasRequiredMix(selected, count)) continue;
+      const sorted = selected.slice().sort((a, b) => compare(a.value, b.value));
+      const tray = shuffle(rng, sorted);
+      const lineBounds = lineBoundsFor(bounds, sorted.map(card => card.value));
+      return {
+        count,
+        values: tray.map(card => card.value),
+        sorted: sorted.map(card => card.value),
+        cards: tray,
+        sortedCards: sorted,
+        forms: tray.map(card => card.display),
+        sortedForms: sorted.map(card => card.display),
+        bounds,
+        lineBounds,
+        ticks: makeTicks(lineBounds)
+      };
+    }
+    throw new Error('failed to generate an order-numbers problem');
+  }
+  function makeTicks(bounds) {
+    const b = rationalBounds(bounds);
+    const steps = Math.round((b.max.n * b.min.d - b.min.n * b.max.d) * b.step.d / (b.step.n * b.max.d * b.min.d));
+    const ticks = [];
+    for (let i = 0; i <= steps; i++) {
+      const n = b.min.n * b.step.d + i * b.step.n * b.min.d;
+      const d = b.min.d * b.step.d;
+      ticks.push(reduce(n, d));
+    }
+    return ticks;
+  }
+  function markerRational(value, bounds) {
+    const b = rationalBounds(bounds);
+    const span = {
+      n: b.max.n * b.min.d - b.min.n * b.max.d,
+      d: b.max.d * b.min.d
+    };
+    if (span.n <= 0) return rat(0, 1);
+    const diff = {
+      n: value.n * b.min.d - b.min.n * value.d,
+      d: value.d * b.min.d
+    };
+    return reduce(diff.n * span.d, diff.d * span.n);
+  }
+  function markerPosition(value, bounds) {
+    return toNumber(markerRational(value, bounds));
+  }
+  function isCorrectForBox(card, sorted, index) {
+    return equals(card, sorted[index]);
+  }
+  const OrderNumbersEngine = {
+    rat,
+    ratFromFloat,
+    compare,
+    equals,
+    toNumber,
+    displayOf,
+    makeProblem,
+    makeTicks,
+    lineBoundsFor,
+    markerRational,
+    markerPosition,
+    isCorrectForBox,
+    MIN_SPACING,
+    ON_BOUNDS,
+    ON_DENOMS
+  };
+  return {
+    rat,
+    ratFromFloat,
+    compare,
+    equals,
+    toNumber,
+    displayOf,
+    lineBoundsFor,
+    makeProblem,
+    makeTicks,
+    markerRational,
+    markerPosition,
+    isCorrectForBox,
+    OrderNumbersEngine
+  };
+}();
+/* ── end order-numbers-engine ── */
 
 /* ── crossword-engine: generated from engine/number-crossword.js by tools/port-crossword-engine.js — do not edit here ── */
 const CrosswordEngine = function () {
@@ -7039,6 +7615,16 @@ function GamePreview({
   }, "="), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "3")));
+  if (id === 'o1') return /*#__PURE__*/ /* Order the Numbers — a red answer row above green cards */React.createElement("div", {
+    className: "gp gp-on-preview",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-on-preview-line"
+  }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)), /*#__PURE__*/React.createElement("div", {
+    className: "gp-on-preview-boxes"
+  }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)), /*#__PURE__*/React.createElement("div", {
+    className: "gp-on-preview-cards"
+  }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)));
   if (id === 'oe1') return /*#__PURE__*/ /* Odd or Even — pairs that hold hands, and maybe one left over */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
@@ -7444,6 +8030,33 @@ function GamePreview({
   }, "="), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", {
     className: "gp-ncn"
   }, "3"), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)));
+  if (id === 't1') return /*#__PURE__*/ /* Tap or Wait — one number, one choice, or one patient wait */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "5"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "?")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "7"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "9")));
   return null;
 }
 function Stars({
@@ -18331,6 +18944,52 @@ const MEMORY_LEVELS = MEMORY_LEVEL_SPECS.map((s, i) => ({
    seven-year-old clears without remembering anything, and the child who wants it is one
    tap away on the gear — the same reasoning that opens Times Tables on 12 × 12. */
 const MEMORY_DEFAULT_LEVEL = 1;
+const MEMORY_TIME_STORE = 'magic-math-memory-times-v1';
+const memoryTimeKey = (topicId, levelId) => `${MEMORY_TIME_STORE}:unicorn:${topicId}:${levelId}`;
+const memoryFormatTime = ms => {
+  const sec = Math.max(0, Math.floor(ms / 1000));
+  return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+};
+function memoryLoadTimes(key) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(v) ? v.filter(Number.isFinite).slice(0, 3) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function memorySaveTime(key, ms) {
+  const next = [ms, ...memoryLoadTimes(key)].slice(0, 3);
+  try {
+    localStorage.setItem(key, JSON.stringify(next));
+  } catch (e) {}
+  return next;
+}
+function MemoryTimePanel({
+  elapsed,
+  history
+}) {
+  return /*#__PURE__*/React.createElement("aside", {
+    className: "memory-time-panel",
+    "aria-label": "Elapsed time and recent completed games"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-block"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-label"
+  }, "TIME"), /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-value",
+    "data-memory-time": true
+  }, elapsed === null ? '--:--' : memoryFormatTime(elapsed))), /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-block"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-label"
+  }, "RECENT"), /*#__PURE__*/React.createElement("div", {
+    className: "memory-time-recent"
+  }, [0, 1, 2].map(i => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "memory-time-row"
+  }, history[i] === undefined ? '—' : memoryFormatTime(history[i]))))));
+}
 function MemoryGame({
   onBack,
   flowers,
@@ -18358,13 +19017,39 @@ function MemoryGame({
   const stRef = useRef(st);
   const [popped, setPopped] = useState(null);
   const [confetti, setConf] = useState(false);
+  const [elapsed, setElapsed] = useState(null);
+  const [history, setHistory] = useState(() => memoryLoadTimes(memoryTimeKey(MEMORY_DEFAULT_TOPIC, MEMORY_LEVELS[MEMORY_DEFAULT_LEVEL].id)));
   const mascot = useMascot();
   const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
   const missT = useRef(null),
-    popT = useRef(null);
+    popT = useRef(null),
+    clockT = useRef(null),
+    startedAt = useRef(null);
   useEffect(() => () => {
     clearTimeout(missT.current);
     clearTimeout(popT.current);
+    clearInterval(clockT.current);
+  }, []);
+  const resetClock = useCallback((tp, lv) => {
+    clearInterval(clockT.current);
+    startedAt.current = null;
+    setElapsed(null);
+    setHistory(memoryLoadTimes(memoryTimeKey(tp.id, lv.id)));
+  }, []);
+  const startClock = useCallback(() => {
+    if (startedAt.current !== null) return;
+    startedAt.current = Date.now();
+    setElapsed(0);
+    clockT.current = setInterval(() => setElapsed(Date.now() - startedAt.current), 250);
+  }, []);
+  const finishClock = useCallback((tp, lv) => {
+    if (startedAt.current === null) return;
+    const ms = Date.now() - startedAt.current;
+    clearInterval(clockT.current);
+    clockT.current = null;
+    startedAt.current = null;
+    setElapsed(ms);
+    setHistory(memorySaveTime(memoryTimeKey(tp.id, lv.id), ms));
   }, []);
   const apply = useCallback(next => {
     stRef.current = next;
@@ -18379,8 +19064,9 @@ function MemoryGame({
     clearTimeout(popT.current);
     setPopped(null);
     setConf(false);
+    resetClock(tp, lv);
     apply(memoryNewState(memoryBuildBoard(Math.random, tp, lv.id)));
-  }, [apply]);
+  }, [apply, resetClock]);
   const again = useCallback(() => {
     Sound.tap();
     newBoard(topic, level);
@@ -18411,6 +19097,7 @@ function MemoryGame({
       Sound.tap();
       return;
     }
+    startClock();
     apply(r.state);
     if (r.event === 'flip') {
       Sound.hop();
@@ -18436,6 +19123,7 @@ function MemoryGame({
     setScore(s => s + 1);
     addFlower();
     if (r.done) {
+      finishClock(topic, level);
       setConf(true);
       setTimeout(() => Sound.celebrate(), 240);
       setTimeout(() => setConf(false), 2600);
@@ -18443,7 +19131,7 @@ function MemoryGame({
     } else {
       Voice.lines([num(r.pair.say)]);
     }
-  }, [muted, apply, mascot, setScore, addFlower]);
+  }, [muted, apply, mascot, setScore, addFlower, startClock, finishClock, topic, level]);
   const done = memoryComplete(st);
   return /*#__PURE__*/React.createElement("div", {
     className: "screen mm-screen"
@@ -18486,11 +19174,16 @@ function MemoryGame({
     muted: muted,
     label: "Choose how many cards"
   })), /*#__PURE__*/React.createElement("div", {
+    className: "mm-play"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "oe-stage"
   }, /*#__PURE__*/React.createElement(MemoryBoard, {
     state: st,
     popped: popped,
     onFlip: flip
+  })), /*#__PURE__*/React.createElement(MemoryTimePanel, {
+    elapsed: elapsed,
+    history: history
   })), done && /*#__PURE__*/React.createElement("button", {
     className: "next-btn",
     onClick: again
@@ -19498,6 +20191,524 @@ function SequenceGame({
   }, "Next"));
 }
 
+/* ══ MODE o1: ORDER THE NUMBERS ══
+   The shared activity surface for both Magic Math worlds. The engine owns the
+   exact rational values; this block owns the hands: a card is usable by pointer,
+   by tap, and by a keyboard click, and every route ends in the same judgement. */
+
+const ORDER_NUMBER_COUNTS = [2, 3, 4, 5, 6, 7].map(n => ({
+  id: String(n),
+  label: String(n),
+  aria: `Order ${n} numbers`
+}));
+function orderNumberText(card) {
+  if (!card || !card.display) return '';
+  return card.display.kind === 'fraction' ? `${card.display.n} over ${card.display.d}` : card.display.text;
+}
+function OrderNumberValue({
+  value,
+  form
+}) {
+  const shown = OrderNumbersEngine.displayOf(value, form && form.kind);
+  if (shown.kind === 'fraction') {
+    return /*#__PURE__*/React.createElement("span", {
+      className: "on-frac",
+      "data-on-value": "true",
+      "aria-label": `${shown.n} over ${shown.d}`
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "on-frac-top"
+    }, shown.n), /*#__PURE__*/React.createElement("span", {
+      className: "on-frac-bar",
+      "aria-hidden": "true"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "on-frac-bot"
+    }, shown.d));
+  }
+  return /*#__PURE__*/React.createElement("span", {
+    className: "on-value",
+    "data-on-value": "true"
+  }, shown.text);
+}
+
+/* The number line renders every label — fraction included — as a single
+ * compact line ("3/2", not a stacked numerator/bar/denominator). Same font
+ * size as elsewhere (still legible), but a uniform, short line-height that
+ * makes staggering to a second or third row cheap instead of costing a
+ * whole stacked-fraction's height every time. */
+function OrderNumberLineLabel({
+  value,
+  form
+}) {
+  const shown = OrderNumbersEngine.displayOf(value, form && form.kind);
+  const label = shown.kind === 'fraction' ? `${shown.n}/${shown.d}` : shown.text;
+  return /*#__PURE__*/React.createElement("span", {
+    className: "on-line-value",
+    "data-on-value": "true",
+    "aria-label": shown.kind === 'fraction' ? `${shown.n} over ${shown.d}` : label
+  }, label);
+}
+function OrderNumberLine({
+  problem
+}) {
+  /* Each label sits directly above its own marker with a small fixed gap, and
+   * grows the panel upward only as far as staggering actually needs — never a
+   * fixed tall band with empty space between the labels and the axis. Rows
+   * stack bottom-up from the axis; a label is pushed to a second or third row
+   * only when it would otherwise overlap its neighbour horizontally, and a
+   * thin leader line in the marker's own colour is drawn only for a staggered
+   * (non-adjacent) label so a child can still see which dot it names. */
+  const width = 760,
+    left = 60,
+    right = 700,
+    plot = right - left;
+  const bounds = problem.lineBounds || problem.bounds;
+  const xFor = value => left + OrderNumbersEngine.markerPosition(value, bounds) * plot;
+  const dotRadius = 8,
+    labelGap = 8,
+    rowGap = 2,
+    topPad = 6,
+    bottomSpace = 50,
+    maxRows = 3,
+    labelHeight = 19;
+  const overlaps = (a, b) => Math.abs(a.center - b.center) < (a.width + b.width) / 2 + 8;
+  const bySort = problem.sortedCards.map((card, index) => {
+    const value = card.value;
+    const ratio = OrderNumbersEngine.markerPosition(value, bounds);
+    const x = left + ratio * plot;
+    const labelWidth = Math.max(48, Math.min(96, 20 + card.display.text.length * 15));
+    const center = Math.max(labelWidth / 2, Math.min(width - labelWidth / 2, x));
+    return {
+      card,
+      index,
+      value,
+      ratio,
+      x,
+      center,
+      width: labelWidth
+    };
+  }).sort((a, b) => a.center - b.center);
+  /* Rows stack bottom-up from the axis in fixed, uniform steps (every label
+   * on the line is one compact line of text, never a tall stacked fraction),
+   * so staggering to a second or third row costs the same small amount
+   * regardless of which values landed near each other. */
+  const placed = [];
+  for (const seat of bySort) {
+    let row = 0;
+    while (row < maxRows - 1 && placed.some(other => other.row === row && overlaps(seat, other))) row++;
+    seat.row = row;
+    seat.rowBottomDist = dotRadius + labelGap + row * (labelHeight + rowGap);
+    placed.push(seat);
+  }
+  const neededRows = Math.max(1, ...bySort.map(seat => seat.row + 1));
+  const axisY = topPad + dotRadius + labelGap + neededRows * labelHeight + (neededRows - 1) * rowGap;
+  const height = axisY + bottomSpace;
+  const seats = bySort.slice().sort((a, b) => a.index - b.index);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "on-line",
+    "data-on-line": "true",
+    "data-on-line-bounds": `${bounds.min}-${bounds.max}-${bounds.step}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "on-line-title"
+  }, "Number Line"), /*#__PURE__*/React.createElement("svg", {
+    className: "on-line-svg",
+    viewBox: `0 0 ${width} ${height}`,
+    role: "img",
+    "aria-label": "Number line showing the ordered values",
+    "data-on-axis-left": left,
+    "data-on-axis-right": right
+  }, /*#__PURE__*/React.createElement("line", {
+    className: "on-axis",
+    x1: left,
+    y1: axisY,
+    x2: right,
+    y2: axisY
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "on-axis-arrow",
+    d: `M ${left - 12} ${axisY} l 12 -7 v 14 z M ${right} ${axisY} l -12 -7 v 14 z`
+  }), (problem.ticks || OrderNumbersEngine.makeTicks(bounds)).map(tick => {
+    const x = xFor(tick);
+    const label = OrderNumbersEngine.displayOf(tick, 'decimal');
+    return /*#__PURE__*/React.createElement("g", {
+      key: `${tick.n}/${tick.d}`,
+      className: "on-tick-group",
+      "data-on-tick": `${tick.n}/${tick.d}`
+    }, /*#__PURE__*/React.createElement("line", {
+      className: "on-tick",
+      x1: x,
+      y1: axisY - 11,
+      x2: x,
+      y2: axisY + 11
+    }), /*#__PURE__*/React.createElement("text", {
+      className: "on-tick-label",
+      x: x,
+      y: axisY + 34,
+      textAnchor: "middle"
+    }, label.text));
+  }), seats.map(seat => {
+    const {
+      card,
+      index,
+      value,
+      ratio,
+      x,
+      center,
+      width: labelWidth,
+      row,
+      rowBottomDist
+    } = seat;
+    const labelX = center - labelWidth / 2;
+    const bottomY = axisY - rowBottomDist;
+    const y = bottomY - labelHeight;
+    const staggered = row > 0;
+    return /*#__PURE__*/React.createElement("g", {
+      key: `${value.n}/${value.d}`,
+      className: `on-marker-group on-marker-${index % 7}`,
+      "data-on-marker": `${value.n}/${value.d}`,
+      "data-on-marker-position": ratio,
+      "data-on-marker-x": x
+    }, staggered && /*#__PURE__*/React.createElement("line", {
+      className: `on-leader on-leader-${index % 7}`,
+      x1: x,
+      y1: bottomY,
+      x2: x,
+      y2: axisY - dotRadius
+    }), /*#__PURE__*/React.createElement("foreignObject", {
+      className: "on-marker-label-box",
+      x: labelX,
+      y: y,
+      width: labelWidth,
+      height: labelHeight
+    }, /*#__PURE__*/React.createElement("div", {
+      xmlns: "http://www.w3.org/1999/xhtml",
+      className: "on-marker-label",
+      "data-on-marker-label-index": index,
+      "data-on-marker-label-row": row
+    }, /*#__PURE__*/React.createElement(OrderNumberLineLabel, {
+      value: value,
+      form: card.display
+    }))), /*#__PURE__*/React.createElement("circle", {
+      className: `on-dot on-dot-${index % 7}`,
+      cx: x,
+      cy: axisY,
+      r: dotRadius
+    }));
+  })));
+}
+function OrderNumberBox({
+  index,
+  card,
+  wrong,
+  hint,
+  last
+}) {
+  const cls = ['on-box', card ? 'on-locked' : '', wrong ? 'on-wrong' : '', hint ? 'on-hint-box' : ''].filter(Boolean).join(' ');
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: cls,
+    "data-on-box-index": index,
+    role: "listitem",
+    "aria-label": card ? `Box ${index + 1}: ${orderNumberText(card)} locked` : 'Empty answer box'
+  }, card ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(OrderNumberValue, {
+    value: card.value,
+    form: card.display
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "on-check",
+    "aria-hidden": "true"
+  }, "\u2713")) : /*#__PURE__*/React.createElement("span", {
+    className: "on-placeholder",
+    "aria-hidden": "true"
+  }, "?")), !last && /*#__PURE__*/React.createElement("span", {
+    className: "on-sep",
+    "aria-hidden": "true"
+  }, "<"));
+}
+function OrderNumberCard({
+  card,
+  index,
+  used,
+  wrong,
+  hint,
+  revealed,
+  onTap,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  onLostPointerCapture
+}) {
+  const classes = ['on-card', used ? 'on-gone' : '', wrong ? 'on-return' : '', hint ? 'on-hint-card' : '', revealed ? 'on-revealed' : ''].filter(Boolean).join(' ');
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: classes,
+    "data-on-card": index,
+    "data-on-card-value": `${card.value.n}/${card.value.d}`,
+    disabled: used,
+    "aria-label": `${orderNumberText(card)}${used ? ', already placed' : '. Tap to place in the next box'}`,
+    onClick: e => {
+      const detail = e && e.detail;
+      if (detail === 0 || detail == null) onTap(index);
+    },
+    onPointerDown: e => onPointerDown(index, e),
+    onPointerMove: e => onPointerMove(index, e),
+    onPointerUp: e => onPointerUp(index, e),
+    onPointerCancel: e => onPointerCancel(index, e),
+    onLostPointerCapture: e => onLostPointerCapture(index, e)
+  }, /*#__PURE__*/React.createElement(OrderNumberValue, {
+    value: card.value,
+    form: card.display
+  }));
+}
+function OrderNumbersGame({
+  onBack,
+  score,
+  setScore,
+  muted,
+  topBar,
+  mascotKind,
+  reward,
+  background
+}) {
+  const [count, setCount] = useState(5);
+  const [problem, setProblem] = useState(() => OrderNumbersEngine.makeProblem(5, Math.random));
+  const [placed, setPlaced] = useState(() => Array(5).fill(null));
+  const [misses, setMisses] = useState(0);
+  const [wrongBox, setWrongBox] = useState(null);
+  const [wrongCard, setWrongCard] = useState(null);
+  const [won, setWon] = useState(false);
+  const [confetti, setConfetti] = useState(false);
+  const [drag, setDrag] = useState(null);
+  const mascot = useMascot();
+  const wrongT = useRef(null);
+  const dragRef = useRef(null);
+  const finishedRef = useRef(false);
+  const emptyIndex = placed.findIndex(index => index == null);
+  const resetForProblem = useCallback((nextCount, nextProblem) => {
+    clearTimeout(wrongT.current);
+    dragRef.current = null;
+    finishedRef.current = false;
+    setCount(nextCount);
+    setProblem(nextProblem);
+    setPlaced(Array(nextCount).fill(null));
+    setMisses(0);
+    setWrongBox(null);
+    setWrongCard(null);
+    setWon(false);
+    setConfetti(false);
+    setDrag(null);
+  }, []);
+  const deal = useCallback(nextCount => {
+    resetForProblem(nextCount, OrderNumbersEngine.makeProblem(nextCount, Math.random));
+  }, [resetForProblem]);
+  const finishRound = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    setWon(true);
+    setConfetti(true);
+    Sound.ding();
+    setTimeout(() => Sound.celebrate(), 200);
+    mascot.happy();
+    const arrived = reward ? reward() : false;
+    Voice.lines([arrived ? null : praise()]);
+    if (setScore) setScore(s => s + 1);
+    setTimeout(() => setConfetti(false), 2600);
+  }, [mascot, reward, setScore]);
+  const attemptPlacement = useCallback((cardIndex, boxIndex, alreadyTapSound = false) => {
+    if (won || finishedRef.current || boxIndex == null || boxIndex < 0) return;
+    if (placed[boxIndex] != null || placed.some(index => index === cardIndex)) return;
+    if (!alreadyTapSound) {
+      Sound.setMuted(muted);
+      Sound.tap();
+    }
+    const card = problem.cards[cardIndex];
+    if (!card) return;
+    if (OrderNumbersEngine.isCorrectForBox(card.value, problem.sorted, boxIndex)) {
+      clearTimeout(wrongT.current);
+      setWrongBox(null);
+      setWrongCard(null);
+      const next = placed.slice();
+      next[boxIndex] = cardIndex;
+      setPlaced(next);
+      if (next.every(index => index != null)) finishRound();else Sound.ding();
+    } else {
+      setMisses(value => value + 1);
+      setWrongBox(boxIndex);
+      setWrongCard(cardIndex);
+      Sound.setMuted(muted);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => {
+        setWrongBox(null);
+        setWrongCard(null);
+      }, 480);
+    }
+  }, [finishRound, mascot, muted, placed, problem]);
+  const tapCard = useCallback(cardIndex => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    const target = placed.findIndex(index => index == null);
+    attemptPlacement(cardIndex, target, true);
+  }, [attemptPlacement, muted, placed]);
+  const pointerDown = useCallback((cardIndex, event) => {
+    if (won || placed.some(index => index === cardIndex)) return;
+    if (event.button != null && event.button !== 0) return;
+    Sound.setMuted(muted);
+    Sound.tap();
+    const point = {
+      x: event.clientX || 0,
+      y: event.clientY || 0
+    };
+    dragRef.current = {
+      cardIndex,
+      pointerId: event.pointerId,
+      startX: point.x,
+      startY: point.y,
+      moved: false
+    };
+    setDrag({
+      cardIndex,
+      x: point.x,
+      y: point.y,
+      moved: false
+    });
+    try {
+      event.currentTarget.setPointerCapture && event.currentTarget.setPointerCapture(event.pointerId);
+    } catch (e) {}
+  }, [muted, placed, won]);
+  const pointerMove = useCallback((cardIndex, event) => {
+    const active = dragRef.current;
+    if (!active || active.cardIndex !== cardIndex || active.pointerId !== event.pointerId) return;
+    const x = event.clientX || 0,
+      y = event.clientY || 0;
+    const moved = active.moved || Math.hypot(x - active.startX, y - active.startY) >= 6;
+    active.moved = moved;
+    if (moved) event.preventDefault && event.preventDefault();
+    setDrag({
+      cardIndex,
+      x,
+      y,
+      moved
+    });
+  }, []);
+  const pointerUp = useCallback((cardIndex, event) => {
+    const active = dragRef.current;
+    if (!active || active.cardIndex !== cardIndex || active.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    setDrag(null);
+    try {
+      event.currentTarget.releasePointerCapture && event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch (e) {}
+    if (!active.moved) {
+      tapCard(cardIndex);
+      return;
+    }
+    let target = null;
+    try {
+      const hit = document.elementFromPoint && document.elementFromPoint(event.clientX, event.clientY);
+      const box = hit && hit.closest ? hit.closest('[data-on-box-index]') : event.target && event.target.closest ? event.target.closest('[data-on-box-index]') : null;
+      if (box) target = Number(box.getAttribute('data-on-box-index'));
+    } catch (e) {}
+    if (target != null && placed[target] == null) attemptPlacement(cardIndex, target, true);
+  }, [attemptPlacement, placed, tapCard]);
+  const pointerCancel = useCallback((cardIndex, event) => {
+    const active = dragRef.current;
+    if (active && active.cardIndex === cardIndex) dragRef.current = null;
+    setDrag(null);
+  }, []);
+  const lostPointerCapture = useCallback(() => {
+    dragRef.current = null;
+    setDrag(null);
+  }, []);
+  const applyCount = useCallback(id => deal(Number(id)), [deal]);
+  const next = useCallback(() => deal(count), [count, deal]);
+  const revealIndex = misses >= 3 ? problem.cards.findIndex(card => emptyIndex >= 0 && OrderNumbersEngine.isCorrectForBox(card.value, problem.sorted, emptyIndex)) : -1;
+  const smallestRemaining = problem.cards.reduce((best, card, index) => {
+    if (placed.includes(index)) return best;
+    if (best < 0) return index;
+    return OrderNumbersEngine.compare(card.value, problem.cards[best].value) < 0 ? index : best;
+  }, -1);
+  return /*#__PURE__*/React.createElement("div", {
+    className: `screen on-screen on-${mascotKind === 'unicorn' ? 'unicorn' : 'space'}`,
+    "data-on-count": count,
+    "data-on-bounds": `${problem.bounds.min},${problem.bounds.max},${problem.bounds.step}`,
+    style: background ? {
+      '--game-bg': `url('${background}')`
+    } : undefined
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), topBar, mascotKind && /*#__PURE__*/React.createElement(Mascot, {
+    kind: mascotKind,
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Order the Numbers"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Least to greatest")), /*#__PURE__*/React.createElement("div", {
+    className: "tap-hint on-instruction"
+  }, "Drag the number cards into the boxes from least to greatest."), /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: ORDER_NUMBER_COUNTS,
+    value: String(count),
+    onPick: applyCount,
+    muted: muted,
+    label: "Choose how many numbers to order"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: `on-stage${won ? ' on-stage-won' : ''}`,
+    "data-on-won": won ? 'true' : 'false'
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "on-answer-row",
+    role: "list",
+    "aria-label": "Numbers from least to greatest"
+  }, placed.map((cardIndex, index) => /*#__PURE__*/React.createElement(OrderNumberBox, {
+    key: index,
+    index: index,
+    card: cardIndex == null ? null : problem.cards[cardIndex],
+    wrong: wrongBox === index,
+    hint: misses >= 2 && index === emptyIndex,
+    last: index === count - 1
+  }))), !won && /*#__PURE__*/React.createElement("div", {
+    className: "on-tray",
+    "aria-label": "Number cards to place"
+  }, problem.cards.map((card, index) => /*#__PURE__*/React.createElement(OrderNumberCard, {
+    key: index,
+    card: card,
+    index: index,
+    used: placed.includes(index),
+    wrong: wrongCard === index,
+    hint: misses >= 2 && index === smallestRemaining,
+    revealed: misses >= 3 && index === revealIndex,
+    onTap: tapCard,
+    onPointerDown: pointerDown,
+    onPointerMove: pointerMove,
+    onPointerUp: pointerUp,
+    onPointerCancel: pointerCancel,
+    onLostPointerCapture: lostPointerCapture
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: `on-help ${misses >= 2 && !won ? 'on-help-show' : ''}`,
+    "aria-live": "polite"
+  }, !won && (misses >= 3 ? 'This is the next number.' : misses >= 2 ? 'Least goes first.' : '')), drag && drag.moved && problem.cards[drag.cardIndex] && /*#__PURE__*/React.createElement("div", {
+    className: "on-ghost",
+    style: {
+      left: drag.x,
+      top: drag.y
+    }
+  }, /*#__PURE__*/React.createElement(OrderNumberValue, {
+    value: problem.cards[drag.cardIndex].value,
+    form: problem.cards[drag.cardIndex].display
+  })), won && /*#__PURE__*/React.createElement(OrderNumberLine, {
+    problem: problem
+  })), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next,
+    "aria-label": "Next"
+  }, "Next"));
+}
+/* ══ END ORDER NUMBERS UI ══ */
+
 /* ══ HOME ══ */
 function Home({
   onSelect,
@@ -19696,6 +20907,17 @@ function Home({
     className: "mode-card-sub"
   }, "Both sides the same"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-rose",
+    onClick: () => onSelect('o1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "o1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Order the Numbers"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Least to greatest"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
@@ -19755,6 +20977,19 @@ function Home({
   }, "Hundred Board"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
   }, "Where do you land?"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mode-row"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-rose",
+    onClick: () => onSelect('t1')
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "t1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Tap or Wait"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Tap or wait"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
@@ -20047,6 +21282,7 @@ function App() {
     m1: 0,
     s1: 0,
     g1: 0,
+    o1: 0,
     oe1: 0,
     n1: 0,
     n3: 0,
@@ -20057,7 +21293,8 @@ function App() {
     k1: 0,
     x1: 0,
     y1: 0,
-    sq1: 0
+    sq1: 0,
+    t1: 0
   });
   const [bouquets, setBouquets] = useState(() => {
     try {
@@ -20106,6 +21343,8 @@ function App() {
     } catch (e) {}
     return n;
   }), []);
+  const orderFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
+  const addFlower = useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet);
   const setScore = useCallback(mode => fn => setScores(s => ({
     ...s,
     [mode]: fn(s[mode])
@@ -20181,6 +21420,20 @@ function App() {
     score: scores.g1,
     setScore: setScore('g1')
   }));
+  if (mode === 'o1') return /*#__PURE__*/React.createElement(OrderNumbersGame, _extends({}, shared, {
+    score: scores.o1,
+    setScore: setScore('o1'),
+    topBar: /*#__PURE__*/React.createElement(TopBar, {
+      onBack: goHome,
+      muted: muted,
+      onToggleMute: onToggleMute,
+      score: scores.o1,
+      flowers: flowers,
+      bouquets: bouquets
+    }),
+    mascotKind: "unicorn",
+    reward: orderFlower
+  }));
   if (mode === 'oe1') return /*#__PURE__*/React.createElement(OddEvenGame, _extends({}, shared, {
     score: scores.oe1,
     setScore: setScore('oe1')
@@ -20228,6 +21481,12 @@ function App() {
     setScore: setScore('sq1')
   }));
   if (mode === 'p1') return /*#__PURE__*/React.createElement(NumberCrosswordGame, shared);
+  if (mode === 't1') return /*#__PURE__*/React.createElement(TapWaitMathGame, _extends({}, shared, {
+    theme: "unicorn",
+    score: scores.t1,
+    setScore: setScore('t1'),
+    onCorrect: addFlower
+  }));
   return /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     bouquets: bouquets

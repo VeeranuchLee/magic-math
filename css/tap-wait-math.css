@@ -1,0 +1,91 @@
+/* Tap or Wait — the shared Math activity skin. The page's existing top-bar and
+   background rules do the world-specific work; these rules only size the new
+   number surface. No touch-action:none and no document gesture blocker. */
+.tap-wait-math-screen { gap: 10px; }
+.tap-wait-math-screen .tw-top {
+  width: 100%; max-width: 740px; min-height: 52px; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px;
+}
+.tap-wait-math-screen .tw-top .back-btn,
+.tap-wait-math-screen .tw-top .sound-btn { min-width: 52px; min-height: 48px; }
+.tap-wait-math-screen .tw-score-title { display: flex; align-items: baseline; gap: 12px; }
+.tap-wait-math-screen .tw-score { font-size: 1.45rem; font-weight: 900; color: #2f6df6; }
+.tap-wait-math-screen .tw-streak { font-size: .9rem; font-weight: 900; color: #6d3ff0; }
+.tap-wait-math-screen .tw-rule {
+  width: 100%; max-width: 740px; min-height: 76px; display: flex; align-items: center; justify-content: center;
+  gap: 14px; padding: 10px 16px; border: 3px solid #ab97f5; border-radius: 22px;
+  background: rgba(255,255,255,.84); box-shadow: 0 4px 0 rgba(90,46,214,.16);
+}
+.tap-wait-math-screen.unicorn .tw-rule { border-color: #ce93d8; box-shadow: 0 4px 0 rgba(216,27,160,.14); }
+.tap-wait-math-screen .tw-glyph {
+  min-width: 104px; min-height: 52px; display: grid; place-items: center; padding: 5px 10px;
+  border-radius: 15px; background: #e8f0ff; color: #2f6df6; font-size: 1.3rem; font-weight: 900;
+}
+.tap-wait-math-screen.unicorn .tw-glyph { background: #fce4ec; color: #d81b60; }
+.tap-wait-math-screen .tw-words { min-width: 0; }
+.tap-wait-math-screen .tw-rule-line { color: #2f6df6; font-size: clamp(1.05rem, 3.5vw, 1.55rem); font-weight: 900; }
+.tap-wait-math-screen.unicorn .tw-rule-line { color: #ad1457; }
+.tap-wait-math-screen .tw-rule-line.pulse { animation: tw-rule-pulse .42s ease-out; }
+@keyframes tw-rule-pulse { 50% { transform: scale(1.04); } }
+.tap-wait-math-screen .tw-hint { margin-top: 3px; color: #6d6a86; font-size: .85rem; font-weight: 800; }
+.tap-wait-math-screen .tw-ribbon {
+  width: 100%; max-width: 740px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+}
+.tap-wait-math-screen .tw-chip {
+  min-width: 76px; min-height: 48px; padding: 6px 13px; border: 2.5px solid #93b7fb; border-radius: 999px;
+  background: #fff; color: #2f6df6; font-size: .9rem; font-weight: 900; box-shadow: 0 3px 0 #6d9bf5;
+}
+.tap-wait-math-screen.unicorn .tw-chip { border-color: #f48fb1; color: #d81b60; box-shadow: 0 3px 0 #e57ca0; }
+.tap-wait-math-screen .tw-chip.on { background: #ffd54f; border-color: #e65100; color: #5a2100; }
+.tap-wait-math-screen.unicorn .tw-chip.on { background: #f06292; border-color: #880e4f; color: #fff; }
+.tap-wait-math-screen .tw-stage {
+  width: 100%; max-width: 740px; min-height: 0; flex: 1; display: grid; place-items: center;
+  padding: 18px; border: 3px dashed rgba(62,48,120,.28); border-radius: 28px; background: rgba(255,255,255,.5);
+  overflow: hidden;
+}
+.tap-wait-math-screen .tw-number {
+  width: clamp(132px, 25vw, 220px); height: clamp(132px, 25vw, 220px); min-width: 132px; min-height: 132px;
+  display: grid; place-items: center; padding: 10px; border: 5px solid #fff; border-radius: 34px;
+  background: linear-gradient(160deg,#fff,#e8f0ff); color: #2f6df6; box-shadow: 0 9px 0 #6d9bf5, 0 14px 24px rgba(4,8,30,.18);
+  font-size: clamp(3.8rem, 12vw, 7rem); line-height: 1; font-weight: 900; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.tap-wait-math-screen.unicorn .tw-number { background: linear-gradient(160deg,#fff,#fce4ec); color: #d81b60; box-shadow: 0 9px 0 #e57ca0, 0 14px 24px rgba(4,8,30,.14); }
+.tap-wait-math-screen .tw-number:active { transform: translateY(4px); box-shadow: 0 5px 0 #6d9bf5; }
+.tap-wait-math-screen.unicorn .tw-number:active { box-shadow: 0 5px 0 #e57ca0; }
+.tap-wait-math-screen .tw-stage.correct .tw-number { animation: tw-correct .42s ease-out; }
+.tap-wait-math-screen .tw-stage.wrong .tw-number { animation: tw-wrong .34s ease-in-out; }
+.tap-wait-math-screen .tw-stage.missed .tw-number { animation: tw-missed .42s ease-out forwards; }
+@keyframes tw-correct { 45% { transform: scale(1.13) rotate(2deg); } }
+@keyframes tw-wrong { 30% { transform: translateX(-7px); } 65% { transform: translateX(6px); } }
+@keyframes tw-missed { to { transform: translateY(-20px) scale(.92); opacity: .15; } }
+.tap-wait-math-screen .tw-waiting { color: #6d6a86; font-size: 1.1rem; font-weight: 900; }
+.tap-wait-math-screen .tw-progress {
+  width: 100%; max-width: 740px; display: flex; justify-content: space-between; gap: 12px;
+  color: #6d3ff0; font-size: .85rem; font-weight: 900;
+}
+.tap-wait-math-screen.unicorn .tw-progress { color: #ad1457; }
+.tap-wait-math-screen .tw-finish {
+  width: 100%; max-width: 520px; padding: 12px 16px; border: 3px solid #ab97f5; border-radius: 22px;
+  background: rgba(255,255,255,.94); text-align: center; box-shadow: 0 5px 0 rgba(90,46,214,.18);
+}
+.tap-wait-math-screen.unicorn .tw-finish { border-color: #ce93d8; box-shadow: 0 5px 0 rgba(216,27,160,.14); }
+.tap-wait-math-screen .tw-stars { min-height: 38px; color: #e7a72e; font-size: 2rem; letter-spacing: 3px; }
+.tap-wait-math-screen .tw-finish-copy { color: #6d6a86; font-weight: 800; }
+.tap-wait-math-screen .tw-finish-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+.tap-wait-math-screen .tw-finish-button {
+  min-height: 48px; padding: 7px 18px; border: 2.5px solid #93b7fb; border-radius: 999px;
+  background: #fff; color: #2f6df6; font-weight: 900; box-shadow: 0 3px 0 #6d9bf5;
+}
+.tap-wait-math-screen.unicorn .tw-finish-button { border-color: #f48fb1; color: #d81b60; box-shadow: 0 3px 0 #e57ca0; }
+.tap-wait-math-screen .tw-finish-button.primary { background: #ffd54f; border-color: #e65100; color: #5a2100; }
+.tap-wait-math-screen .tw-finish-button:disabled { opacity: .45; cursor: default; }
+@media (orientation: portrait) {
+  .tap-wait-math-screen { gap: 7px; }
+  .tap-wait-math-screen .tw-rule { min-height: 68px; }
+  .tap-wait-math-screen .tw-glyph { min-width: 86px; font-size: 1.1rem; }
+  .tap-wait-math-screen .tw-chip { min-width: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-wait-math-screen .tw-number, .tap-wait-math-screen .tw-rule-line { animation: none !important; }
+}
