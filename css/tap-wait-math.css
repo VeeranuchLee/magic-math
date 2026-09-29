@@ -1,91 +1,24 @@
-/* Tap or Wait — the shared Math activity skin. The page's existing top-bar and
-   background rules do the world-specific work; these rules only size the new
-   number surface. No touch-action:none and no document gesture blocker. */
-.tap-wait-math-screen { gap: 10px; }
-.tap-wait-math-screen .tw-top {
-  width: 100%; max-width: 740px; min-height: 52px; display: flex; align-items: center;
-  justify-content: space-between; gap: 10px;
-}
-.tap-wait-math-screen .tw-top .back-btn,
-.tap-wait-math-screen .tw-top .sound-btn { min-width: 52px; min-height: 48px; }
-.tap-wait-math-screen .tw-score-title { display: flex; align-items: baseline; gap: 12px; }
-.tap-wait-math-screen .tw-score { font-size: 1.45rem; font-weight: 900; color: #2f6df6; }
-.tap-wait-math-screen .tw-streak { font-size: .9rem; font-weight: 900; color: #6d3ff0; }
-.tap-wait-math-screen .tw-rule {
-  width: 100%; max-width: 740px; min-height: 76px; display: flex; align-items: center; justify-content: center;
-  gap: 14px; padding: 10px 16px; border: 3px solid #ab97f5; border-radius: 22px;
-  background: rgba(255,255,255,.84); box-shadow: 0 4px 0 rgba(90,46,214,.16);
-}
-.tap-wait-math-screen.unicorn .tw-rule { border-color: #ce93d8; box-shadow: 0 4px 0 rgba(216,27,160,.14); }
-.tap-wait-math-screen .tw-glyph {
-  min-width: 104px; min-height: 52px; display: grid; place-items: center; padding: 5px 10px;
-  border-radius: 15px; background: #e8f0ff; color: #2f6df6; font-size: 1.3rem; font-weight: 900;
-}
-.tap-wait-math-screen.unicorn .tw-glyph { background: #fce4ec; color: #d81b60; }
-.tap-wait-math-screen .tw-words { min-width: 0; }
-.tap-wait-math-screen .tw-rule-line { color: #2f6df6; font-size: clamp(1.05rem, 3.5vw, 1.55rem); font-weight: 900; }
-.tap-wait-math-screen.unicorn .tw-rule-line { color: #ad1457; }
-.tap-wait-math-screen .tw-rule-line.pulse { animation: tw-rule-pulse .42s ease-out; }
-@keyframes tw-rule-pulse { 50% { transform: scale(1.04); } }
-.tap-wait-math-screen .tw-hint { margin-top: 3px; color: #6d6a86; font-size: .85rem; font-weight: 800; }
-.tap-wait-math-screen .tw-ribbon {
-  width: 100%; max-width: 740px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
-}
-.tap-wait-math-screen .tw-chip {
-  min-width: 76px; min-height: 48px; padding: 6px 13px; border: 2.5px solid #93b7fb; border-radius: 999px;
-  background: #fff; color: #2f6df6; font-size: .9rem; font-weight: 900; box-shadow: 0 3px 0 #6d9bf5;
-}
-.tap-wait-math-screen.unicorn .tw-chip { border-color: #f48fb1; color: #d81b60; box-shadow: 0 3px 0 #e57ca0; }
-.tap-wait-math-screen .tw-chip.on { background: #ffd54f; border-color: #e65100; color: #5a2100; }
-.tap-wait-math-screen.unicorn .tw-chip.on { background: #f06292; border-color: #880e4f; color: #fff; }
-.tap-wait-math-screen .tw-stage {
-  width: 100%; max-width: 740px; min-height: 0; flex: 1; display: grid; place-items: center;
-  padding: 18px; border: 3px dashed rgba(62,48,120,.28); border-radius: 28px; background: rgba(255,255,255,.5);
-  overflow: hidden;
-}
-.tap-wait-math-screen .tw-number {
-  width: clamp(132px, 25vw, 220px); height: clamp(132px, 25vw, 220px); min-width: 132px; min-height: 132px;
-  display: grid; place-items: center; padding: 10px; border: 5px solid #fff; border-radius: 34px;
-  background: linear-gradient(160deg,#fff,#e8f0ff); color: #2f6df6; box-shadow: 0 9px 0 #6d9bf5, 0 14px 24px rgba(4,8,30,.18);
-  font-size: clamp(3.8rem, 12vw, 7rem); line-height: 1; font-weight: 900; cursor: pointer;
-  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-}
-.tap-wait-math-screen.unicorn .tw-number { background: linear-gradient(160deg,#fff,#fce4ec); color: #d81b60; box-shadow: 0 9px 0 #e57ca0, 0 14px 24px rgba(4,8,30,.14); }
-.tap-wait-math-screen .tw-number:active { transform: translateY(4px); box-shadow: 0 5px 0 #6d9bf5; }
-.tap-wait-math-screen.unicorn .tw-number:active { box-shadow: 0 5px 0 #e57ca0; }
-.tap-wait-math-screen .tw-stage.correct .tw-number { animation: tw-correct .42s ease-out; }
-.tap-wait-math-screen .tw-stage.wrong .tw-number { animation: tw-wrong .34s ease-in-out; }
-.tap-wait-math-screen .tw-stage.missed .tw-number { animation: tw-missed .42s ease-out forwards; }
-@keyframes tw-correct { 45% { transform: scale(1.13) rotate(2deg); } }
-@keyframes tw-wrong { 30% { transform: translateX(-7px); } 65% { transform: translateX(6px); } }
-@keyframes tw-missed { to { transform: translateY(-20px) scale(.92); opacity: .15; } }
-.tap-wait-math-screen .tw-waiting { color: #6d6a86; font-size: 1.1rem; font-weight: 900; }
-.tap-wait-math-screen .tw-progress {
-  width: 100%; max-width: 740px; display: flex; justify-content: space-between; gap: 12px;
-  color: #6d3ff0; font-size: .85rem; font-weight: 900;
-}
-.tap-wait-math-screen.unicorn .tw-progress { color: #ad1457; }
-.tap-wait-math-screen .tw-finish {
-  width: 100%; max-width: 520px; padding: 12px 16px; border: 3px solid #ab97f5; border-radius: 22px;
-  background: rgba(255,255,255,.94); text-align: center; box-shadow: 0 5px 0 rgba(90,46,214,.18);
-}
-.tap-wait-math-screen.unicorn .tw-finish { border-color: #ce93d8; box-shadow: 0 5px 0 rgba(216,27,160,.14); }
-.tap-wait-math-screen .tw-stars { min-height: 38px; color: #e7a72e; font-size: 2rem; letter-spacing: 3px; }
-.tap-wait-math-screen .tw-finish-copy { color: #6d6a86; font-weight: 800; }
-.tap-wait-math-screen .tw-finish-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
-.tap-wait-math-screen .tw-finish-button {
-  min-height: 48px; padding: 7px 18px; border: 2.5px solid #93b7fb; border-radius: 999px;
-  background: #fff; color: #2f6df6; font-weight: 900; box-shadow: 0 3px 0 #6d9bf5;
-}
-.tap-wait-math-screen.unicorn .tw-finish-button { border-color: #f48fb1; color: #d81b60; box-shadow: 0 3px 0 #e57ca0; }
-.tap-wait-math-screen .tw-finish-button.primary { background: #ffd54f; border-color: #e65100; color: #5a2100; }
-.tap-wait-math-screen .tw-finish-button:disabled { opacity: .45; cursor: default; }
-@media (orientation: portrait) {
-  .tap-wait-math-screen { gap: 7px; }
-  .tap-wait-math-screen .tw-rule { min-height: 68px; }
-  .tap-wait-math-screen .tw-glyph { min-width: 86px; font-size: 1.1rem; }
-  .tap-wait-math-screen .tw-chip { min-width: 68px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tap-wait-math-screen .tw-number, .tap-wait-math-screen .tw-rule-line { animation: none !important; }
-}
+/* Number Catch collecting skin. Nine painted spots stay visible; collectible
+   buttons are 96px minimum targets. Tap surfaces never block pinch. */
+.tap-wait-math-screen{box-sizing:border-box;height:100vh;height:100dvh;min-height:0!important;gap:5px;padding:6px!important;overflow:hidden;background:#0a1034;touch-action:manipulation}
+.tap-wait-math-screen.space{--ink:#f5fbff;--panel:#152a69;--board:url('../assets-runtime/tap-wait-collect/source/space-board.webp');--collectible:url('../assets-runtime/tap-wait-collect/source/star-strip.webp');--meter-x:0%;background:radial-gradient(circle at 50% 18%,#263f88 0,#10194e 43%,#070c29 100%)}
+.tap-wait-math-screen.unicorn{--ink:#fff9ff;--panel:#713d9e;--board:url('../assets-runtime/tap-wait-collect/source/unicorn-board.webp');--collectible:url('../assets-runtime/tap-wait-collect/source/flower-strip.webp');--meter-x:50%;background:radial-gradient(circle at 50% 18%,#b26bc4 0,#663889 43%,#281344 100%)}
+.tap-wait-math-screen button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tw-marquee{position:relative;width:min(100%,920px);min-height:64px;display:grid;grid-template-columns:54px 96px 1fr 108px 54px;gap:8px;align-items:center;padding:6px 10px;border:4px solid #e4a52c;border-radius:26px;background:linear-gradient(#243c83,var(--panel));box-shadow:inset 0 0 0 3px #ffe48a,0 5px 0 #70400d;color:var(--ink);z-index:3}
+.tw-marquee:before,.tw-marquee:after{content:'●  ●  ●';position:absolute;color:#fff3a2;text-shadow:0 0 10px #ffd23f;animation:tw-bulbs 1.2s steps(2,end) infinite}.tw-marquee:before{left:18%}.tw-marquee:after{right:18%}.tw-title{font-size:clamp(1.35rem,3.8vw,2.35rem);font-weight:1000;text-align:center;color:#ffd64d;text-shadow:0 3px 0 #803f12,0 0 12px #ffec91;letter-spacing:.02em}.tw-score-box,.tw-streak-box{display:grid;text-align:center;line-height:1.05;background:#0a1c51;border:2px solid #7edbff;border-radius:14px;padding:4px}.tw-score-box small,.tw-streak-box small{font-size:.62rem;font-weight:900}.tw-score-box b{font-size:1.25rem}.tw-streak-box{position:relative;overflow:hidden}.tw-streak-box:before{content:'';position:absolute;inset:1px;background:url('../assets-runtime/tap-wait-collect/source/collection-ui.webp') var(--meter-x) center/300% auto no-repeat;opacity:.24}.tw-streak-box>*{position:relative}.tw-collection-meter{display:flex;justify-content:center;gap:1px;font-size:.8rem}.tw-collection-meter i{font-style:normal;opacity:.22;transform:scale(.8)}.tw-collection-meter i.filled{opacity:1;transform:scale(1);color:#ffe65a;text-shadow:0 0 6px #fff}.unicorn .tw-collection-meter i.filled{color:#ffb8e7}.tw-marquee .back-btn,.tw-marquee .sound-btn{min-width:48px;min-height:48px;border-radius:50%;font-size:1.35rem}
+.tw-rule{width:min(100%,760px);min-height:46px;display:flex;align-items:center;justify-content:center;gap:12px;padding:3px 14px;border:3px solid #efb43c;border-radius:18px;background:#fff8dc;color:#382166;box-shadow:0 3px 0 #9a5b18;z-index:3}.tw-rule-word{text-transform:uppercase;font-size:.84rem;font-weight:1000}.tw-glyph{font-size:clamp(1.45rem,3.4vw,2.15rem);white-space:pre;color:#243d95}.unicorn .tw-glyph{color:#7a3297}.tw-rule-line{font-size:clamp(.88rem,2vw,1.1rem);font-weight:900}.tw-rule.reteach{animation:tw-rule-pulse .5s ease-out;border-color:#ff7f93}
+.tw-stage{position:relative;flex:1 1 auto;width:min(100%,760px);min-height:0;max-height:none;aspect-ratio:4/3;background-image:var(--board);background-size:100% 100%;background-repeat:no-repeat;border-radius:24px;overflow:hidden;isolation:isolate;filter:drop-shadow(0 6px 5px rgba(12,6,40,.35))}
+.tw-spot{position:absolute;overflow:visible;pointer-events:none}.tw-collectible{position:absolute;left:50%;bottom:-22%;width:max(96px,108%);height:max(96px,220%);transform:translateX(-50%);border:0;background:transparent;padding:0;cursor:pointer;overflow:visible;pointer-events:auto;transform-origin:50% 82%;z-index:2}.tw-collectible-visual{position:absolute;inset:-58% -2% 0;overflow:visible;animation:tw-appear .42s cubic-bezier(.2,.95,.25,1.15),tw-wait-cycle 4.2s linear forwards}.tw-collectible-art{position:absolute;inset:0;background-image:var(--collectible);background-repeat:no-repeat;background-size:400% 100%;background-position:33.333% 50%;filter:drop-shadow(0 3px 2px rgba(30,10,40,.3))}.tw-number-sign{position:absolute;left:29%;right:29%;top:35%;min-height:34%;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#fff;font-size:clamp(40px,5.2vw,52px);line-height:1;font-weight:1000;text-shadow:0 2px 2px #091846}.unicorn .tw-number-sign{color:#7a3297;text-shadow:0 2px 1px #fff}.tw-collectible.collected .tw-collectible-art{background-position:66.666% 50%;animation:tw-collected .55s ease-in forwards}.tw-collectible.collected .tw-number-sign{opacity:0}.tw-collect-burst{display:none;position:absolute;inset:-25%;background:url('../assets-runtime/tap-wait-collect/source/collection-ui.webp') 100% center/300% auto no-repeat;pointer-events:none}.tw-collectible.collected .tw-collect-burst{display:block;animation:tw-burst .55s ease-out forwards}.tw-collectible.hint-match:after{content:'★';position:absolute;right:2%;top:1%;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#ffe25e;color:#7a3d00;box-shadow:0 0 15px #fff;animation:tw-hint .75s ease-in-out infinite alternate}.tw-stage.wrong .tw-collectible-visual{animation:tw-wobble .34s ease-in-out}.tw-stage.waited:after{content:'GOOD WAITING! ★';position:absolute;left:50%;bottom:3%;transform:translateX(-50%);padding:8px 18px;border-radius:999px;background:#fff5a9;color:#4c2c78;font-weight:1000;box-shadow:0 4px 0 #d18d28;z-index:5;white-space:nowrap}
+.tw-footer{width:min(100%,900px);min-height:48px;display:grid;grid-template-columns:1fr minmax(190px,1.2fr) auto;gap:8px;align-items:center;color:#fff}.tw-ribbon{display:flex;gap:5px;justify-content:center}.tw-chip{min-width:60px;min-height:42px;padding:4px 9px;border:2px solid #ffe086;border-radius:999px;background:#fff;color:#533276;font-size:.78rem;font-weight:900;box-shadow:0 3px 0 #a76024}.tw-chip.on{background:#ffd64d;color:#472000;border-color:#fff2a5}.tw-message{text-align:center;font-size:.88rem;font-weight:900;color:#fff;text-shadow:0 2px 3px #10052b,0 0 4px #10052b}.tw-progress{font-weight:900;white-space:nowrap;color:#fff;text-shadow:0 2px 3px #10052b}
+.tw-finish{position:absolute;inset:0;z-index:20;display:grid;place-content:center;gap:12px;text-align:center;background:rgba(20,12,60,.72);color:#fff}.tw-ticket{min-width:300px;padding:18px 34px;border:6px double #b66d18;border-radius:18px;background:#fff1a9;color:#67360c}.tw-ticket span,.tw-ticket b{display:block}.tw-ticket span{font-size:1rem;font-weight:900;letter-spacing:.13em}.tw-ticket b{font-size:2.5rem}.tw-finish-copy{font-size:1.2rem;font-weight:900}.tw-finish-buttons{display:flex;justify-content:center;gap:10px}.tw-finish-buttons button{min-height:52px;padding:8px 20px;border:3px solid #ffe086;border-radius:999px;background:#fff;color:#533276;font-weight:900}.tw-finish-buttons button:disabled{opacity:.45}
+@keyframes tw-appear{from{transform:translateY(60%) scale(.75);opacity:.2}65%{transform:translateY(-5%) scale(1.04)}to{transform:none;opacity:1}}@keyframes tw-wait-cycle{0%,78%{opacity:1}90%{opacity:.75}to{opacity:.15;transform:translateY(26%) scale(.82)}}@keyframes tw-collected{to{transform:translateY(-72%) scale(.65) rotate(10deg);opacity:0}}@keyframes tw-burst{from{transform:scale(.6);opacity:0}45%{opacity:1}to{transform:translateY(-25%) scale(1.15);opacity:0}}@keyframes tw-wobble{25%{transform:rotate(-4deg)}65%{transform:rotate(4deg)}}@keyframes tw-hint{to{transform:scale(1.2);filter:brightness(1.2)}}@keyframes tw-rule-pulse{50%{transform:scale(1.035)}}@keyframes tw-bulbs{50%{opacity:.45}}
+/* The live star is frame 2. Its largest connected navy component measures
+   x=168..363, y=370..548 in the 543x724 frame; keep digits inside that disc. */
+.space .tw-number-sign{left:31%;right:33%;top:51.1%;height:24.7%;min-height:0;color:#fff9a8;-webkit-text-stroke:1.5px #071538;paint-order:stroke fill;text-shadow:0 2px 1px #071538,0 0 4px #071538}
+.space .tw-number-sign.two-digit{letter-spacing:-.08em;transform:scaleX(.82)}
+/* Five 16px pips remain inside the compact 92px portrait meter column. */
+.tw-score-box small,.tw-streak-box small{font-size:.68rem}.tw-streak-box:before{opacity:.3}.tw-collection-meter{gap:2px;font-size:16px;line-height:1}.tw-collection-meter i{flex:0 0 14px;opacity:.28;transform:scale(.88)}.tw-collection-meter i.filled{transform:scale(1.08)}
+@media (orientation:portrait){.tap-wait-math-screen{justify-content:center}.tw-marquee{grid-template-columns:48px 82px 1fr 92px 48px;min-height:60px}.tw-marquee:before,.tw-marquee:after{display:none}.tw-stage{flex:0 0 auto;width:min(calc(100vw - 12px),760px);height:auto}.tw-footer{grid-template-columns:1fr auto;min-height:76px}.tw-message{grid-column:1/-1;grid-row:2}.tw-collectible{width:max(96px,110%);height:max(96px,220%)}}
+@media (min-width:900px) and (orientation:landscape){.tw-marquee{min-height:58px}.tw-stage{width:auto;height:calc(100dvh - 178px);max-width:760px}.tw-footer{min-height:46px}}
+@media (max-width:820px) and (orientation:landscape){.tap-wait-math-screen{gap:3px;padding:4px!important}.tw-marquee{min-height:54px}.tw-rule{min-height:50px}.tw-stage{width:min(100%,650px);max-height:calc(100vh - 188px)}.tw-footer{min-height:42px}.tw-message{font-size:.76rem}}
+@media (prefers-reduced-motion:reduce){.tw-collectible,.tw-collectible-art,.tw-collectible-visual,.tw-collect-burst,.tw-marquee:before,.tw-marquee:after,.tw-rule{animation:none!important}}

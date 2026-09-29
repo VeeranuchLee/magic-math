@@ -1,0 +1,42 @@
+{
+  "created": "2026-09-29",
+  "tool": "OpenAI built-in image generation",
+  "task": "TURN-2026-09-29-0805-codex-number-whack",
+  "assets": [
+    {
+      "file": "source/space-board.png",
+      "runtime": "../../assets-runtime/tap-wait-arcade/space-board.webp",
+      "prompt_summary": "Painted Space arcade cabinet play field, exactly nine empty round holes in a precise 3x3 grid, no characters or text.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/unicorn-board.png",
+      "runtime": "../../assets-runtime/tap-wait-arcade/unicorn-board.webp",
+      "prompt_summary": "Painted Unicorn fairground arcade cabinet play field, exactly nine empty round holes in a precise 3x3 grid, no characters or text.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/space-critter-strip.png",
+      "runtime": "../../assets-runtime/tap-wait-arcade/space-critter-strip.webp",
+      "prompt_summary": "One consistent blue-green alien in down, peeking, up-with-blank-sign and giggling-booped poses on a removable flat background.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/unicorn-critter-strip.png",
+      "runtime": "../../assets-runtime/tap-wait-arcade/unicorn-critter-strip.webp",
+      "prompt_summary": "One consistent white unicorn foal in down, peeking, up-with-blank-sign and giggling-booped poses on a removable flat background.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/mallet-burst.png",
+      "runtime": "../../assets-runtime/tap-wait-arcade/mallet-burst.webp",
+      "prompt_summary": "Soft plush toy mallet and separate cheerful gold star burst, child-friendly and nonviolent, on a removable flat background.",
+      "review": "PASS"
+    }
+  ],
+  "mockups": [
+    "../../qa/2026-09-29-tap-wait-arcade/mockup-space.png",
+    "../../qa/2026-09-29-tap-wait-arcade/mockup-unicorn.png"
+  ],
+  "notes": "Source PNGs are protected masters. Runtime WebPs preserve alpha for sprite strips and are consumed by CSS. Numbers remain live text on the blank painted signs. No artist, franchise, or third-party asset was referenced."
+}

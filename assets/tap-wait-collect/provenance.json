@@ -1,0 +1,38 @@
+{
+  "created": "2026-09-29",
+  "tool": "OpenAI built-in image generation (gpt-image built-in path)",
+  "task": "TURN-2026-09-29-0927-codex-number-collect",
+  "assets": [
+    {
+      "file": "source/space-board.png",
+      "runtime": "../../assets-runtime/tap-wait-collect/source/space-board.webp",
+      "prompt_summary": "Painted 4:3 Space collection board with exactly nine cyan-gold solid star cradles in perspective; no holes, characters, numbers or text.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/unicorn-board.png",
+      "runtime": "../../assets-runtime/tap-wait-collect/source/unicorn-board.webp",
+      "prompt_summary": "Painted 4:3 Unicorn garden board with exactly nine decorated soil beds/pots in perspective; no holes, grown flowers, numbers or text.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/star-strip.png",
+      "runtime": "../../assets-runtime/tap-wait-collect/source/star-strip.webp",
+      "prompt_summary": "One consistent golden star in four states: twinkle-in, up with blank number medallion, collected upward, and gentle fade.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/flower-strip.png",
+      "runtime": "../../assets-runtime/tap-wait-collect/source/flower-strip.webp",
+      "prompt_summary": "One consistent pink-gold flower in four states: bud, bloom with blank number centre, picked upward, and closing bud.",
+      "review": "PASS"
+    },
+    {
+      "file": "source/collection-ui.png",
+      "runtime": "../../assets-runtime/tap-wait-collect/source/collection-ui.webp",
+      "prompt_summary": "Three-panel collection UI: star jar, flower basket and sparkle-hand collect burst, with no impact or hitting imagery.",
+      "review": "PASS"
+    }
+  ],
+  "notes": "Boards were normalized to 1024x768. Sprite/UI sources retain generated alpha. Numbers remain live accessible HTML text. No artist, franchise or third-party asset was referenced. Contact sheet: ../../qa/2026-09-29-number-collect/art-sheet.png."
+}

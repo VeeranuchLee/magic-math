@@ -2279,7 +2279,22 @@
 .on-screen .count-title{background:var(--on-header-bg);border:2.5px solid var(--on-header-border);border-radius:22px;padding:9px 24px 8px;box-shadow:0 4px 0 var(--on-header-shadow),0 7px 18px rgba(4,8,30,.2);min-width:min(100%,300px)}
 .on-screen .count-title-main{font-size:clamp(1.1rem,2.8vw,1.5rem);font-weight:900;color:var(--on-header-text);text-transform:uppercase;letter-spacing:1.1px;line-height:1.05}
 .on-screen .count-title-sub{font-size:clamp(.8rem,2vw,.98rem);font-weight:900;color:var(--on-sub-text);margin-top:4px;line-height:1.05}
-.on-screen .on-instruction{max-width:760px;width:100%;min-height:42px;display:flex;align-items:center;justify-content:center;padding:8px 18px;box-sizing:border-box;border-radius:24px;background:var(--on-header-bg);border:2.5px solid var(--on-instruction-border);box-shadow:0 3px 0 var(--on-header-shadow),0 6px 14px rgba(4,8,30,.16);font-size:clamp(.88rem,2.1vw,1.06rem);font-weight:900;color:var(--on-header-text);line-height:1.2}
+/* The instruction bar became a two-child row when the replay speaker was added (2026-09-27).
+   `gap` and the text's own `flex` are what stop the icon being squeezed by a long
+   instruction; min-height is unchanged, so the bar still decides its own height and no
+   other control above the stage moves.
+
+   THE BUTTON IS 46px BECAUSE `arrival-replay` IS 46px. Same affordance, same
+   "Hear it again" label, same SpeakerOnIcon — so a child who has learned one of them
+   already knows the other, and a grown-up does not have to explain a second kind of
+   button. It is still far smaller than the 96–111px answer boxes on purpose: replaying
+   is a want, answering is the game. Worth one real-iPad pass, since no headless check
+   here measures a rendered tap target. */
+.on-screen .on-instruction{max-width:760px;width:100%;min-height:42px;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 18px;box-sizing:border-box;border-radius:24px;background:var(--on-header-bg);border:2.5px solid var(--on-instruction-border);box-shadow:0 3px 0 var(--on-header-shadow),0 6px 14px rgba(4,8,30,.16);font-size:clamp(.88rem,2.1vw,1.06rem);font-weight:900;color:var(--on-header-text);line-height:1.2}
+.on-screen .on-instruction-text{flex:1 1 auto;min-width:0}
+.on-screen .on-instruction-say{flex:0 0 auto;width:46px;height:46px;min-width:46px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:50%;border:2.5px solid var(--on-instruction-border);background:#fff;color:var(--on-header-text);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 0 var(--on-header-shadow)}
+.on-screen .on-instruction-say:active{transform:translateY(2px);box-shadow:0 0 0 var(--on-header-shadow)}
+.on-screen .on-instruction-say .icon-svg{width:24px;height:24px}
 .on-stage{display:flex;flex:1 0 auto;flex-direction:column;align-items:center;justify-content:flex-start;gap:clamp(12px,2vh,22px);position:relative;z-index:1;width:100%;padding:clamp(2px,.7vh,10px) 0 0;box-sizing:border-box}
 .on-stage-won{justify-content:flex-start}
 .on-answer-row{display:flex;align-items:center;justify-content:center;gap:var(--on-gap);width:100%;max-width:100%;overflow-x:auto;padding:clamp(12px,1.7vh,18px) clamp(8px,1.5vw,18px);box-sizing:border-box;white-space:nowrap;background:rgba(255,235,235,.95);border:2px solid rgba(255,112,112,.72);border-radius:24px;box-shadow:0 5px 0 rgba(239,68,68,.2),0 8px 22px rgba(4,8,30,.16)}
@@ -2335,6 +2350,7 @@
 <div id="root"></div>
 <script>
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+const STAR_SUMS_ON = false;
 const {
   useState,
   useCallback,
@@ -8057,6 +8073,37 @@ function GamePreview({
   }, "\u203A"), /*#__PURE__*/React.createElement("span", {
     className: "gp-chip"
   }, "9")));
+  if (id === 'fs1') return /*#__PURE__*/ /* Star Sums — a number line crossing another to a target sum */React.createElement("div", {
+    className: "gp gp-tight",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "gp-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "3"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "+"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "2"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-op"
+  }, "="), /*#__PURE__*/React.createElement("span", {
+    className: "gp-num"
+  }, "5")), /*#__PURE__*/React.createElement("div", {
+    className: "gp-row",
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "10"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip"
+  }, "15"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-arrow"
+  }, "\u203A"), /*#__PURE__*/React.createElement("span", {
+    className: "gp-chip q"
+  }, "20")));
   return null;
 }
 function Stars({
@@ -20201,6 +20248,55 @@ const ORDER_NUMBER_COUNTS = [2, 3, 4, 5, 6, 7].map(n => ({
   label: String(n),
   aria: `Order ${n} numbers`
 }));
+
+/* ══ THE COMPANION'S LINES FOR o1 ══ Added 2026-09-27, superseding ORDER-NUMBERS-SPEC.md
+   note 7, which held this mode at "no new spoken lines" because a new line would need a
+   paid render. They are written now and rendered later, on approval.
+
+   WHY A TABLE AND NOT INLINE LITERALS. Because the lines are lifted out of the call sites
+   into a table, `build-narration-manifest.py`'s spoken_fixed() cannot see them — it harvests
+   the LITERAL arguments of Voice.say / Voice.lines, which is the one shape it reads. So the
+   table is read the way the other three data tables already are (MOVE_KEY_RULES' `say`,
+   MEMORY_TOPICS' `ask`, TEN_CFG's `hint`), anchored on the field, and an anchor that drifts
+   exits rather than shipping the mode with no manifest. The alternative — inlining each
+   string at its call site — is what made these lines unlistable in the first place.
+
+   EVERY RULE THESE FIVE LINES OBEY, and they are rules rather than preferences:
+     generic           no line reads out a value. Not one number or fraction appears below,
+                       so one clip serves every round at every count.
+     short             a child acts between the end of a line and the start of the next.
+                       The longest here is numberLine, at 98 characters, which is exactly the
+                       length of the longest line already shipped (sh-l-pair-them-up-…).
+     always true       a claim a counter-example can break does not go in, whatever it
+                       costs to reword. Two of the lines the owner suggested needed exactly
+                       that, and both rewordings are recorded in ORDER-NUMBERS-SPEC.md §6 and
+                       in the discussion log.
+     no hedging        "usually" and "sometimes" are banned outright. A hint that is only
+                       usually right is worse than no hint, because the child cannot tell
+                       which time they are in.
+
+   ON THE TWO REWORDED SUGGESTIONS. The owner's draft was "A fraction with a bigger bottom
+   number means smaller pieces." — true of 1/2 against 1/4, false of 3/4 against 1/2, and a
+   seven-year-old cannot be expected to supply the missing condition. The version below
+   states the condition instead of hiding it: equal top numbers, so it is a rule they can
+   actually apply to the pair in front of them. And "Look for the number closest to zero."
+   is true of this generator and would stop being true the day a negative value was
+   allowed in, so order-numbers.test.mjs now asserts non-negativity across a thousand
+   problems; that test is what keeps the line true, and it goes red the day somebody
+   extends the bounds. */
+const ORDER_VOICE = {
+  /* Spoken as a round is dealt, and again from the speaker button in the instruction bar. */
+  start: 'Put the numbers in order, from the smallest to the biggest.',
+  /* The second miss: the rule, then the specific thing to look at. */
+  hint: 'The smallest number left goes next. Look for the one closest to zero.',
+  /* The second miss's other half. Said every time, not conditionally: every generated
+     round holds a fraction card, so it is never a rule about nothing. */
+  fraction: 'When the top numbers are the same, a bigger bottom number makes a smaller fraction.',
+  /* The third miss, where the correct card is revealed. */
+  reveal: 'This one is the smallest left. It goes here.',
+  /* The win, chained after the praise, as the line slides in. */
+  numberLine: 'Look! On the number line, smaller numbers are on the left and bigger numbers are on the right.'
+};
 function orderNumberText(card) {
   if (!card || !card.display) return '';
   return card.display.kind === 'fraction' ? `${card.display.n} over ${card.display.d}` : card.display.text;
@@ -20498,6 +20594,45 @@ function OrderNumbersGame({
   const deal = useCallback(nextCount => {
     resetForProblem(nextCount, OrderNumbersEngine.makeProblem(nextCount, Math.random));
   }, [resetForProblem]);
+
+  /* The instruction, as a new round is dealt. Keyed on `problem` and not on a round
+     counter, because `problem` IS the round: deal() and the count ribbon both replace it,
+     and Next cannot re-deal the identical object. The lines never gate anything — Voice
+     cancels its own chain and a tap is never blocked on it — so a child who starts
+     dragging mid-sentence simply interrupts the sentence, which is what they did in every
+     other mode before this one existed. */
+  useEffect(() => {
+    if (!won) Voice.say(ORDER_VOICE.start);
+  }, [problem]);
+
+  /* THE ESCALATION, and its two thresholds are the mode's own, not new ones. Misses 2 and 3
+     are where the card and the box already light up, so a line cannot arrive before the
+     thing it is talking about, and the reveal line says what the reveal is doing.
+     The first miss stays silent: the return animation, red flash, wrong sound and mascot
+     already answer the attempt, while narration would interrupt the child's retry. 4 and
+     beyond fall silent again: past the reveal the child is being told what to do, not
+     encouraged. */
+  useEffect(() => {
+    if (won) return;
+    if (misses === 3) {
+      Voice.say(ORDER_VOICE.reveal);
+      return;
+    }
+    if (misses !== 2) return;
+    /* The fractions rule is the second half of the same beat, chained behind the rule so
+       the child hears the general one first. It is NOT conditional, and the reason is the
+       engine rather than taste: makeProblem refuses to return a round without a fraction
+       card — hasRequiredMix() demands one for every count from 2 to 7, and makeProblem
+       retries until it has one — so there is always something in the tray for the rule to
+       be about, and order-numbers.test.mjs now asserts that guarantee so a future engine
+       change goes red here rather than quietly making the line noise.
+       It is a RULE, not a claim about this round: it is applicable to the pair in front
+       of the child when the two top numbers match, and true whether or not they do. That
+       is deliberate. The alternative was a line that named a specific comparison, which
+       would be false on most rounds — and a hint that is only right sometimes is worse
+       than none, because the child cannot tell which kind of round they are in. */
+    Voice.lines([ORDER_VOICE.hint, ORDER_VOICE.fraction]);
+  }, [misses, problem, won]);
   const finishRound = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
@@ -20507,7 +20642,12 @@ function OrderNumbersGame({
     setTimeout(() => Sound.celebrate(), 200);
     mascot.happy();
     const arrived = reward ? reward() : false;
-    Voice.lines([arrived ? null : praise()]);
+    /* Praise first, the line about the number line after it. The number line is what the
+       second line is about, and a chain puts one behind the other, so the child is looking
+       at the axis by the time they are told which end is which. A journey arrival takes
+       praise's place exactly as before, and the line still follows: the axis is on screen
+       either way. */
+    Voice.lines([arrived ? null : praise(), ORDER_VOICE.numberLine]);
     if (setScore) setScore(s => s + 1);
     setTimeout(() => setConfetti(false), 2600);
   }, [mascot, reward, setScore]);
@@ -20650,7 +20790,16 @@ function OrderNumbersGame({
     className: "count-title-sub"
   }, "Least to greatest")), /*#__PURE__*/React.createElement("div", {
     className: "tap-hint on-instruction"
-  }, "Drag the number cards into the boxes from least to greatest."), /*#__PURE__*/React.createElement(ActivityRibbon, {
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "on-instruction-text"
+  }, "Drag the number cards into the boxes from least to greatest."), /*#__PURE__*/React.createElement("button", {
+    className: "on-instruction-say",
+    "aria-label": "Hear it again",
+    onClick: () => {
+      Sound.tap();
+      Voice.say(ORDER_VOICE.start);
+    }
+  }, /*#__PURE__*/React.createElement(SpeakerOnIcon, null))), /*#__PURE__*/React.createElement(ActivityRibbon, {
     chips: ORDER_NUMBER_COUNTS,
     value: String(count),
     onPick: applyCount,
@@ -20917,6 +21066,21 @@ function Home({
   }, "Order the Numbers"), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-sub"
   }, "Least to greatest"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
+  })), STAR_SUMS_ON && /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic",
+    onClick: () => {
+      Sound.ding();
+      window.location.href = 'five-sums.html?theme=garden';
+    },
+    "aria-label": "Star Sums. Make number lines that total five, ten, fifteen, or twenty"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "fs1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "Star Sums"), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-sub"
+  }, "Grow number lines"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })))), /*#__PURE__*/React.createElement("div", {
     className: "mode-section"

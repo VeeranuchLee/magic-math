@@ -136,7 +136,7 @@
     return item;
   }
 
-  function makeEvent(config, rng, eventIndex) {
+  function makeEvent(config, rng, eventIndex, previousSlot) {
     var pool = resolvePool(config);
     var mode = config.spawn.mode;
     var supplied = Array.isArray(config.events) ? config.events[eventIndex] : undefined;
@@ -154,14 +154,42 @@
       var slots = Array.isArray(config.spawn.slots) && config.spawn.slots.length
         ? config.spawn.slots
         : [0, 1, 2, 3];
+      var requestedCount = isFunction(config.spawn.count)
+        ? config.spawn.count(eventIndex)
+        : config.spawn.count;
+      var count = clamp(Math.floor(Number(requestedCount == null ? slots.length : requestedCount)), 1, slots.length);
+      var available = slots.slice();
+      var chosen = [];
+      while (chosen.length < count) {
+        chosen.push(available.splice(Math.floor(rng() * available.length), 1)[0]);
+      }
+      var positionItems = chosen.map(function (slot, index) {
+        return makeEntry(pick(rng, pool), config, slot, index);
+      });
+      if (positionItems.length > 1) {
+        var targetPool = pool.filter(function (value) { return evaluateRule(config.rule, value); });
+        var waitPool = pool.filter(function (value) { return !evaluateRule(config.rule, value); });
+        if (targetPool.length && !positionItems.some(function (entry) { return entry.target; })) positionItems[0] = makeEntry(pick(rng, targetPool), config, chosen[0], 0);
+        if (waitPool.length && !positionItems.some(function (entry) { return !entry.target; })) positionItems[positionItems.length - 1] = makeEntry(pick(rng, waitPool), config, chosen[chosen.length - 1], positionItems.length - 1);
+      }
       return {
         index: eventIndex,
-        items: slots.map(function (slot, index) {
-          return makeEntry(pick(rng, pool), config, slot, index);
-        })
+        items: positionItems
       };
     }
-    return { index: eventIndex, items: [makeEntry(pick(rng, pool), config, null, 0)] };
+    var singleSlots = Array.isArray(config.spawn.slots) && config.spawn.slots.length
+      ? config.spawn.slots.slice()
+      : [0];
+    /* A single item can still belong to a persistent watch board. Avoid the previous
+       slot when there is a choice so every new appearance visibly moves; this changes
+       presentation only, never the tap-or-wait rule or dwell time. */
+    var availableSlots = singleSlots.length > 1
+      ? singleSlots.filter(function (slot) { return slot !== previousSlot; })
+      : singleSlots;
+    return {
+      index: eventIndex,
+      items: [makeEntry(pick(rng, pool), config, pick(rng, availableSlots), 0)]
+    };
   }
 
   function makeEntry(value, config, slot, index) {
@@ -186,6 +214,7 @@
       correct: state.correct,
       wrong: state.wrong,
       missed: state.missed,
+      waited: state.waited,
       roundLength: state.roundLength,
       difficultyIndex: state.difficultyIndex
     };
@@ -231,6 +260,7 @@
       correct: 0,
       wrong: 0,
       missed: 0,
+      waited: 0,
       difficultyIndex: this.difficultyIndex,
       current: null,
       nextAt: null,
@@ -290,7 +320,12 @@
 
   Game.prototype.buildSequence = function () {
     var events = [];
-    for (var i = 0; i < this.roundLength; i++) events.push(makeEvent(this.activeConfig, this.rng, i));
+    var previousSlot = null;
+    for (var i = 0; i < this.roundLength; i++) {
+      var event = makeEvent(this.activeConfig, this.rng, i, previousSlot);
+      events.push(event);
+      previousSlot = event.items.length === 1 ? event.items[0].slot : null;
+    }
     this.sequence = events;
     return events;
   };
@@ -338,6 +373,7 @@
     this.state.lastFeedback = null;
     this.state.visibleUntil = now + Math.max(1200, Number(this.activeConfig.spawn.visibleMs) || 2200);
     this.state.nextAt = null;
+    this.callHook("onShow", { itemEvent: event, items: event.items.slice(), now: now });
     this.emit("show", { itemEvent: event, now: now });
     this.emit("change", { now: now });
     var self = this;
@@ -444,8 +480,13 @@
     /* A correctly waited non-target is a success, not a miss. This distinction is
        the whole point of tap-or-wait: expiring a distractor must not punish the child
        or break the encouraging streak. */
+    var safe = event.items.filter(function (entry) { return !entry.target && !entry.tapped; });
+    var scoring = this.activeConfig.scoring || {};
+    var waitPoints = Number(scoring.waitPoints == null ? 5 : scoring.waitPoints);
+    this.state.waited += safe.length;
+    this.state.score += Math.max(0, waitPoints) * safe.length;
     this.state.lastFeedback = "waited";
-    var payload = { itemEvent: event, items: event.items.slice(), score: this.state.score, streak: this.state.streak };
+    var payload = { itemEvent: event, items: safe.slice(), score: this.state.score, streak: this.state.streak };
     this.callHook("onWaited", payload);
     this.emit("waited", payload);
     return payload;
@@ -488,12 +529,12 @@
     while (guard++ < 8) {
       if (this.state.phase === "showing" && this.state.visibleUntil != null && now >= this.state.visibleUntil) {
         var event = this.state.current;
+        if (event.items.some(function (entry) { return !entry.target && !entry.tapped; })) this.waited(event);
         var unresolvedTarget = event.items.some(function (entry) { return entry.target && !entry.tapped; });
         if (unresolvedTarget) {
           this.missed(event);
           this.resolveEvent("missed", now);
         } else {
-          this.waited(event);
           this.resolveEvent("waited", now);
         }
         continue;

@@ -285,7 +285,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        rational ordering, tap/drag placement, and the post-win number line.
 //        This is a worker/cache change only; staging is separate and nothing
 //        has been published from this task.
-const CACHE_NAME = "magic-math-v52";
+const CACHE_NAME = "magic-math-v54";
 
 const SHELL = [
   "./",
