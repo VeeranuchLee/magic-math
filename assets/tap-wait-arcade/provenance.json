@@ -35,8 +35,8 @@
     }
   ],
   "mockups": [
-    "../../qa/2026-09-29-tap-wait-arcade/mockup-space.png",
-    "../../qa/2026-09-29-tap-wait-arcade/mockup-unicorn.png"
+    "../../qa/2026-09-29-tap-wait-arcade/mockup-space.webp",
+    "../../qa/2026-09-29-tap-wait-arcade/mockup-unicorn.webp"
   ],
   "notes": "Source PNGs are protected masters. Runtime WebPs preserve alpha for sprite strips and are consumed by CSS. Numbers remain live text on the blank painted signs. No artist, franchise, or third-party asset was referenced."
 }

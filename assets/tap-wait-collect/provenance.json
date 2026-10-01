@@ -34,5 +34,5 @@
       "review": "PASS"
     }
   ],
-  "notes": "Boards were normalized to 1024x768. Sprite/UI sources retain generated alpha. Numbers remain live accessible HTML text. No artist, franchise or third-party asset was referenced. Contact sheet: ../../qa/2026-09-29-number-collect/art-sheet.png."
+  "notes": "Boards were normalized to 1024x768. Sprite/UI sources retain generated alpha. Numbers remain live accessible HTML text. No artist, franchise or third-party asset was referenced. Contact sheet: ../../qa/2026-09-29-number-collect/art-sheet.webp."
 }

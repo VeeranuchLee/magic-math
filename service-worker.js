@@ -285,7 +285,17 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        rational ordering, tap/drag placement, and the post-win number line.
 //        This is a worker/cache change only; staging is separate and nothing
 //        has been published from this task.
-const CACHE_NAME = "magic-math-v54";
+// v55 2026-09-29: Magic Spelling's rat/thank narration moves to round-9 Take 3
+//        (multilingual + carrier-context), superseding the round-9 Take 1/Take 2
+//        pins shipped moments earlier on the owner's same-day revised verdict
+//        ("both to take 3"). Runtime clip bytes only; nothing else changed.
+//        This is a worker/cache change only; nothing has been published from
+//        this task.
+// v56 2026-10-01: the October school-break homework page joins the app (owner: "publish on
+//        main hub pls"): october-homework.html + .css + js/october-homework.js +
+//        js/october-homework-data.js enter SHELL so the page works offline on the iPad.
+//        Also ships v55's rat/thank Take 3 clips, which were armed but never published.
+const CACHE_NAME = "magic-math-v56";
 
 const SHELL = [
   "./",
@@ -294,6 +304,10 @@ const SHELL = [
   "./unicorn-math.html",
   "./magic-spelling.html",
   "./classical-music.html",
+  "./october-homework.html",
+  "./october-homework.css",
+  "./js/october-homework.js",
+  "./js/october-homework-data.js",
   "./manifest.webmanifest",
 
   // Without these three the games are a blank screen, so they are never optional.

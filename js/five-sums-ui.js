@@ -5,10 +5,11 @@ const theme=q.get('theme')==='garden'?'garden':'space';
 const SEED=Number(q.get('seed'))||20260929;
 
 const state={
-  theme,mode:'make5',help:'learn',
-  board:emptyBoard(),bag:makeBag(SEED,200,'make5'),
+  // Five Family is the default mode (owner 2026-09-30: "make this the default setting pls.").
+  theme,mode:'family',help:'learn',
+  board:emptyBoard(),bag:makeBag(SEED,200,'family'),
   rack:[],pending:[],selected:null,misses:0,score:0,
-  message:'Place tiles to make 5.',celebration:'',reveal:null
+  message:'Place tiles to make 5, 10, 15, 20.',celebration:'',reveal:null,lastReturn:null
 };
 
 /* Help-scaffold labels are deliberately different words from the mode names
@@ -37,7 +38,7 @@ function deal(){
   const d=draw(state.bag,5);
   state.rack=d.tiles;
   state.bag=d.bag.length<15?d.bag.concat(makeBag(state.score+17,80,state.mode)):d.bag;
-  state.pending=[]; state.selected=null; state.misses=0; state.reveal=null;
+  state.pending=[]; state.selected=null; state.misses=0; state.reveal=null; state.lastReturn=null;
   state.message='Place tiles to '+targetText()+'.';
   render();
 }
@@ -53,22 +54,51 @@ function place(index,r,c){
   if(index==null||state.rack[index]==null||state.pending.some(p=>p.r===r&&p.c===c)||state.board.cells[key(r,c)]!=null){
     sfx('wrong'); state.message='Choose a free tile and an empty square.'; render(); return;
   }
-  state.pending.push({r,c,value:state.rack[index],rackIndex:index});
-  state.selected=null; sfx('tap');
+  const value=state.rack[index];
+  state.pending.push({r,c,value,rackIndex:index});
+  state.rack[index]=null; // Tile leaves its own tray slot, lives on the board as pending
+  state.selected=null; state.lastReturn=null; sfx('tap');
   state.message=state.help==='learn'?currentArithmetic()+' — '+targetText()+'.':currentArithmetic();
   render();
+}
+
+// Tapping a tile you placed THIS turn (pending, not committed) sends it back to
+// the tray — to its original slot if that slot is free, else the first free slot.
+// Tiles already committed by earlier turns live in state.board.cells, not
+// state.pending, so they never match here and produce no sound.
+function removePlacement(r,c){
+  const idx=state.pending.findIndex(p=>p.r===r&&p.c===c);
+  if(idx===-1)return; // Not a pending tile — silent no-op (committed tiles)
+  const p=state.pending[idx];
+  state.pending.splice(idx,1);
+  const slot=p.rackIndex;
+  if(state.rack[slot]==null){state.rack[slot]=p.value;}
+  else{const free=state.rack.findIndex(n=>n==null);if(free!==-1)state.rack[free]=p.value;}
+  state.lastReturn=slot;
+  sfx('tap');
+  state.message=state.pending.length?currentArithmetic()+' — '+targetText()+'.':'Returned to your tray.';
+  state.selected=null;
+  render();
+  setTimeout(()=>{state.lastReturn=null;render();},400);
 }
 
 function submit(){
   const v=validateMove(state.board,state.pending,state.mode);
   if(!v.ok){
     state.misses++; state.message=v.message;
-    const h=hintFor(state.misses,findMove(state.board,state.rack,state.mode));
+    // For hint-finding, treat pending cells as occupied (so the hint never
+    // suggests placing on top of a tile the child just laid down this turn)
+    // and restore pending tile values to the rack (so findMove can suggest
+    // a complete new line even when some tray slots are blanked by place()).
+    const hintBoard=applyMove(state.board,state.pending);
+    const hintRack=state.rack.map((n,i)=>{if(n!=null)return n;const p=state.pending.find(p=>p.rackIndex===i);return p?p.value:null;});
+    const h=hintFor(state.misses,findMove(hintBoard,hintRack,state.mode));
     if(h){state.message+=' '+h.text; if(h.level===3)state.reveal=h.placements;}
     sfx('wrong'); render(); return;
   }
   state.board=applyMove(state.board,state.pending);
   state.score+=v.score;
+  state.lastReturn=null;
   state.pending.forEach(p=>state.rack[p.rackIndex]=null);
   state.message=v.lines.map(arithmetic).join('  •  ');
   state.celebration=v.celebration;
@@ -77,7 +107,12 @@ function submit(){
 }
 
 function undo(){
-  sfx('tap'); state.pending=[]; state.reveal=null;
+  sfx('tap');
+  // Restore every pending tile to its original tray slot (place() blanks the
+  // slot when a tile is placed, so undo must give it back).
+  state.pending.forEach(p=>{if(state.rack[p.rackIndex]==null)state.rack[p.rackIndex]=p.value;});
+  state.lastReturn=null;
+  state.pending=[]; state.reveal=null;
   state.message='Undone — choose again.';
   render();
 }
@@ -111,7 +146,7 @@ function render(){
     const cue=isCenter&&boardEmpty;
     h.push(`<button class="cell ${isCenter?'center ':''}${p?'pending ':''}${rev?'reveal ':''}${cue?'cue':''}" data-r="${r}" data-c="${c}" aria-label="row ${r+1}, column ${c+1}${fixed!=null?', '+fixed:''}">${p?p.value:fixed??''}</button>`);
   }
-  const tiles=state.rack.map((n,i)=>`<button class="tile ${state.selected===i?'selected ':''}${n==null?'used':''}" data-tile="${i}" draggable="${n!=null}" aria-label="number ${n??'used'}">${n??''}</button>`).join('');
+  const tiles=state.rack.map((n,i)=>`<button class="tile ${state.selected===i?'selected ':''}${n==null?'used':''}${i===state.lastReturn?' returning':''}" data-tile="${i}" draggable="${n!=null}" aria-label="number ${n??'used'}">${n??''}</button>`).join('');
   const corner=CORNER_ART[state.theme];
   const modeRow=Object.values(FIVE_SUMS_MODES).map(m=>`<button data-mode="${m.id}" aria-pressed="${m.id===state.mode}">${m.label}</button>`).join('');
   const helpRow=Object.keys(HELP_LABELS).map(x=>`<button data-help="${x}" aria-pressed="${x===state.help}">${HELP_LABELS[x]}</button>`).join('');
@@ -150,7 +185,7 @@ function render(){
   </section>`;
   bind();
   fitBoard();
-  window.__fiveSums={state,place,submit,undo,render,validateMove,fitBoard};
+  window.__fiveSums={state,place,submit,undo,removePlacement,render,validateMove,fitBoard};
 }
 
 /* Sizes the square board to whatever room .board-area actually has, so the
@@ -183,7 +218,14 @@ function bind(){
     b.ondragstart=e=>e.dataTransfer.setData('text/plain',b.dataset.tile);
   });
   document.querySelectorAll('.cell').forEach(b=>{
-    b.onclick=()=>place(state.selected,+b.dataset.r,+b.dataset.c);
+    b.onclick=()=>{
+      const r=+b.dataset.r, c=+b.dataset.c;
+      if(state.pending.some(p=>p.r===r&&p.c===c)){
+        removePlacement(r,c);
+      }else{
+        place(state.selected,r,c);
+      }
+    };
     b.ondragover=e=>e.preventDefault();
     b.ondrop=e=>{e.preventDefault(); place(+e.dataTransfer.getData('text/plain'),+b.dataset.r,+b.dataset.c);};
   });
