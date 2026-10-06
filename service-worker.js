@@ -295,11 +295,19 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        main hub pls"): october-homework.html + .css + js/october-homework.js +
 //        js/october-homework-data.js enter SHELL so the page works offline on the iPad.
 //        Also ships v55's rat/thank Take 3 clips, which were armed but never published.
-const CACHE_NAME = "magic-math-v56";
+// v57 2026-10-06: the Magic Math front door becomes the owner's painted open-book
+//        playroom. index.html, css/math-hub.css and js/math-hub.js replace the two
+//        generic world cards with measured polygon doors over one 80 KB static WebP.
+//        The owner's 1672x941 PNG remains private; only assets-runtime/hub/scene.webp
+//        enters SHELL. Space Math and Unicorn Math routes are unchanged.
+const CACHE_NAME = "magic-math-v57";
 
 const SHELL = [
   "./",
   "./index.html",
+  "./css/math-hub.css",
+  "./js/math-hub.js",
+  "./assets-runtime/hub/scene.webp",
   "./space-math.html",
   "./unicorn-math.html",
   "./magic-spelling.html",

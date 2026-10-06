@@ -74,7 +74,7 @@
       top:calc(14px + env(safe-area-inset-top));
       right:calc(14px + env(safe-area-inset-right));
       display:inline-flex;align-items:center;justify-content:center;
-      min-width:48px;min-height:48px;padding:8px 13px;
+      min-width:64px;min-height:64px;padding:8px 13px;
       background:linear-gradient(135deg,#fff,#ecebff);
       border:2.5px solid #ab97f5;border-radius:50px;box-shadow:0 4px 0 #ab97f5;
       color:#5a2ed6;font-family:inherit;font-size:1.1rem;font-weight:900;line-height:1;
@@ -89,6 +89,7 @@
     .music-btn.music-off .m-off{display:block}
     .sub{font-weight:800;font-size:clamp(1rem,3.4vw,1.3rem);opacity:.9;margin-top:-14px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
   </style>
+  <link rel="stylesheet" href="./css/math-hub.css"/>
 </head>
 <body>
 <div class="bg"></div>
@@ -113,36 +114,19 @@
   <svg class="m-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 18V6l10-2v12" opacity=".45"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor" stroke="none" opacity=".45"/><circle cx="16.5" cy="16" r="2.6" fill="currentColor" stroke="none" opacity=".45"/><path d="M3 3l18 18"/></svg>
 </button>
 
-<div class="wrap">
-  <h1>Magic <span>Math</span></h1>
-  <!-- The same words the Magic Math card on Children Games promises, so the page a
-       child lands on says what the card they tapped said it would. -->
-  <p class="sub">Pick your world and play</p>
-  <!-- THE LIST IS THE POINT OF THIS PAGE. Since 2026-09-09 Children Games shows one
-       Magic Math card instead of one card per world, and it links here rather than to a
-       game. A third world -- Dinosaur is the one on the roadmap -- is a card added
-       below and nothing else: the grid is auto-fit, and the hub does not have to be
-       touched, republished or even know about it. -->
-  <div class="cards">
-    <a class="card c-space" href="space-math.html">
-      <img src="assets-runtime/space/icons/rocket.webp" alt=""/>
-      Space Math
-      <small>Fly planet to planet with every answer</small>
-    </a>
-    <a class="card c-unicorn" href="unicorn-math.html">
-      <img src="assets-runtime/unicorn/icons/unicorn-stand.webp" alt=""/>
-      Unicorn Math
-      <small>Grow a flower garden with every answer</small>
-    </a>
-    <!-- Owner, 2026-08-26: "the url say math app, so we only should list math there. we
-         shouldn't have the spelling and music there". Magic Spelling and Classical Music
-         are NOT deleted -- the pages are still here, still cached by the service worker,
-         and Children Games still links straight to them
-         (site/children-apps/index.html -> ../magic-math/magic-spelling.html). They are
-         simply not listed on a front door that says Magic Math. -->
+<main class="wrap">
+  <header class="hub-heading">
+    <h1>Magic <span>Math</span></h1>
+    <p class="sub">Pick your world and play</p>
+  </header>
+  <div class="scene-stage">
+    <div class="scene-canvas">
+      <img id="hubScene" alt="" width="1672" height="941"/>
+      <nav id="worldHotspots" class="world-hotspots" aria-label="Choose a Magic Math world"></nav>
+    </div>
   </div>
-  <footer>Made with love for little learners</footer>
-</div>
+</main>
+<script src="./js/math-hub.js"></script>
 <script>
 /* ══ MENU MUSIC ══
    The bed the two worlds already play, on the door they are behind. Same file, same
