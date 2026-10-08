@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Magic Spelling 👸</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Enchanted Spelling Workshop</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
   <link rel="stylesheet" href="./shared/bg-deco/bg-deco.css"/>
@@ -15,6 +15,7 @@
   <script src="./vendor/react-18.3.1.production.min.js"></script>
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
   <script src="./shared/bg-deco/bg-deco.js"></script>
+  <script src="./js/tap-zoom-guard.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
     body{font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;background:#fce4ec}
@@ -193,6 +194,63 @@
     .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:9;overflow:hidden}
     .confetti-piece{position:absolute;top:-24px;animation:confettiFall linear forwards}
     @keyframes confettiFall{to{transform:translateY(110vh) rotate(560deg)}}
+
+    /* Enchanted Spelling Workshop — live controls over dedicated art plates. */
+    :root{--ink:#2b1626;--plum:#4a2340;--violet:#7c3aed;--lavender:#a78bfa;--gold:#ffd54f;--cream:#fff5d6}
+    html,body,#root{min-height:100%;touch-action:manipulation}
+    body{background:var(--ink);color:var(--cream);overflow:hidden}
+    button,a{font:inherit}
+    button:focus-visible,a:focus-visible{outline:5px solid var(--gold);outline-offset:4px}
+    .app-bg{display:none}
+    .screen{min-height:100svh;padding:max(12px,env(safe-area-inset-top)) 14px calc(92px + env(safe-area-inset-bottom));gap:10px;background-position:center;background-size:cover;overflow:hidden}
+    .workshop-screen{background-image:linear-gradient(rgba(43,22,38,.12),rgba(43,22,38,.2)),url('assets-runtime/spelling/workshop/grade-room-landscape.webp')}
+    .shelf-screen{background-image:linear-gradient(rgba(43,22,38,.16),rgba(43,22,38,.18)),url('assets-runtime/spelling/workshop/pack-shelf-landscape.webp')}
+    .desk-screen{background-image:url('assets-runtime/spelling/workshop/desk-landscape.webp');--paper-left:26.2vw;--paper-top:30.5vh;--paper-width:59.8vw;--paper-height:20.5vh;--read-top:31.1vh;--read-height:9.8vh;--praise-top:40.3vh;--slot-left:28.9vw;--slot-top:42.8vh;--slot-width:54.4vw;--tray-left:5.5vw;--tray-top:55.5vh;--tray-width:89vw}
+    .complete-screen{background-image:url('assets-runtime/spelling/workshop/complete-landscape.webp')}
+    .top-bar{max-width:960px;z-index:3}.round-btn{width:54px;height:54px;background:rgba(58,30,51,.94);color:var(--gold);box-shadow:0 4px 0 #1c0d19;border:2px solid rgba(255,213,79,.65)}
+    .bar-label{font-size:clamp(.78rem,2.2vw,1rem);color:var(--cream);background:rgba(43,22,38,.9);border:2px solid rgba(255,213,79,.55);padding:7px 14px}
+    .hub-btn{top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left))}.workshop-mute{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:20}
+    .workshop-title{font-family:'Fredoka One',sans-serif;font-size:clamp(1.55rem,5vw,2.8rem);color:var(--cream);text-align:center;text-shadow:0 3px 10px #1c0d19;margin-top:2px}
+    .station-grid{width:min(96vw,1050px);margin:auto 0 4px;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,2.5vw,28px);align-items:end}
+    .station-card{min-height:190px;border:3px solid rgba(255,213,79,.75);border-radius:26px;padding:12px;background:linear-gradient(180deg,rgba(58,30,51,.15),rgba(43,22,38,.92));color:#fff;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;cursor:pointer;box-shadow:0 8px 22px rgba(20,8,18,.45);transition:transform .2s,filter .2s}
+    .station-card:active{transform:translateY(4px) scale(.98)}.station-name{font-family:'Fredoka One';font-size:clamp(1.05rem,2.6vw,1.55rem);color:var(--gold)}.station-grade{font-weight:900;font-size:1rem}.station-progress{font-size:.78rem;font-weight:800;margin-top:5px;line-height:1.25}
+    .continue-btn{min-height:58px;border:3px solid var(--gold);border-radius:999px;padding:10px 28px;background:linear-gradient(#8b5cf6,#5b21b6);color:white;font-weight:900;font-size:1.05rem;box-shadow:0 5px 0 #35106d;cursor:pointer}.continue-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #35106d}.continue-btn[disabled]{opacity:.7}
+    .drawer-summary{background:rgba(43,22,38,.92);border:2px solid rgba(255,213,79,.65);border-radius:18px;padding:7px 14px;font-weight:900;color:var(--cream)}
+    .shelf-screen .top-bar .bar-label{position:absolute;top:66px;left:calc(50% - 100px);transform:translateX(-50%);min-width:112px;text-align:center;background:linear-gradient(#6d28a9,#3b1663);border-color:var(--gold);box-shadow:0 4px 0 #24101f}
+    .shelf-head{position:absolute;top:66px;left:50%;z-index:4;transform:translateX(-50%);font-family:'Fredoka One';color:var(--cream);text-shadow:0 2px 8px var(--ink);font-size:clamp(1.15rem,3vw,1.75rem);white-space:nowrap;background:rgba(43,22,38,.94);border:2px solid var(--gold);border-radius:999px;padding:5px 20px;box-shadow:0 4px 0 #1c0d19}
+    .shelf-wrap{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:min(88vw,900px);height:57%;display:flex;align-items:center;gap:6px}.pack-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;max-width:none;min-height:0;height:100%;flex:1}
+    .pack-card{position:relative;justify-self:center;align-self:center;width:72%;height:66%;min-height:76px;border:3px solid #d5a72d;border-radius:12px 20px 20px 12px;padding:5px 4px;background:linear-gradient(90deg,#35162f 0 9%,#6d28a9 10% 86%,#3b1663);box-shadow:inset 0 0 0 3px rgba(255,213,79,.15),0 5px 0 #24101f;color:#fff}
+    .pack-card.current{transform:translateY(-5px);filter:drop-shadow(0 0 10px var(--gold))}.pack-card.current::after{content:'';position:absolute;top:-3px;right:12px;width:16px;height:31px;background:#7c3aed;clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%)}.pack-card.complete::before{content:'✓';position:absolute;top:5px;left:8px;color:var(--gold);font-weight:900}
+    .pack-num{font-size:clamp(1.35rem,4vw,2rem)}.pack-word{color:#f9eec8}.pack-fraction{font-size:.7rem;font-weight:900}.pack-status{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.pack-stars{font-size:1rem}
+    .page-btn{flex:0 0 54px;width:54px;height:66px;border-radius:18px;border:2px solid var(--gold);background:rgba(43,22,38,.94);color:var(--gold);font-size:2rem;font-weight:900}.page-btn:disabled{opacity:.35}.page-row{position:absolute;bottom:12px;left:14px;display:flex;gap:2px;align-items:center;justify-content:center}.page-dot{width:44px;height:44px;border:0;background:transparent;position:relative}.page-dot::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;border:2px solid var(--gold);background:rgba(43,22,38,.8);inset:13px}.page-dot.active::after{background:var(--gold)}
+    .shelf-screen>.continue-btn{position:absolute;right:18px;bottom:14px;z-index:4}
+    /* The desk plate is painted at 4:3 but displayed with `cover`. These variables are
+       the visible parchment and mat rectangles after that exact cover transform; JS
+       updates them from source-art fractions on resize. Live controls therefore follow
+       the painting when a wide or tall viewport crops the source. */
+    .desk-panel{position:absolute;inset:0;display:block;pointer-events:none}
+    .desk-panel button{pointer-events:auto}
+    .read-row{position:absolute;left:var(--paper-left);top:var(--read-top);width:var(--paper-width);height:var(--read-height);max-width:none;margin:0;gap:8px;justify-content:center}.prompt-bubble{position:relative;min-height:54px;background:linear-gradient(160deg,rgba(255,249,226,.98),rgba(242,218,164,.98));border:3px solid #9a6826;border-radius:18px 24px 24px 18px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.65),0 5px 0 #5b3515,0 8px 14px rgba(48,24,13,.24);color:var(--ink);padding:9px 20px}
+    .read-row .prompt-bubble::before{border-right-color:#9a6826}.read-row .prompt-bubble::after{border-right-color:#f7e9c5}
+    .speak-btn{width:clamp(78px,10vw,104px);height:clamp(78px,10vw,104px);filter:drop-shadow(0 6px 6px rgba(43,22,38,.3))}.book-mascot{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 85%}.book-mascot.listening{animation:listenPulse 1.25s ease-in-out infinite}.book-mascot.feedback{animation:mascotPop .42s ease-out}
+    @keyframes listenPulse{50%{transform:scale(1.035) rotate(-1deg)}}@keyframes mascotPop{0%{transform:scale(.88)}70%{transform:scale(1.04)}100%{transform:scale(1)}}
+    .slot-row{box-sizing:border-box;position:absolute;left:var(--slot-left);top:var(--slot-top);width:var(--slot-width);max-width:none;flex-wrap:nowrap;gap:clamp(2px,.55vw,8px);padding:5px clamp(4px,1vw,10px);border-radius:18px;background:rgba(122,79,33,.12);box-shadow:inset 0 2px 7px rgba(84,47,18,.18)}
+    .slot,.slot-row.long .slot{flex:1 1 0;min-width:0;max-width:68px;width:auto;height:clamp(44px,6.7vh,66px);border:2px solid #9a6826;border-radius:10px;background:linear-gradient(145deg,rgba(220,184,116,.44),rgba(255,247,215,.72));box-shadow:inset 0 3px 7px rgba(94,51,19,.25),inset 0 -2px 2px rgba(255,255,255,.8),0 1px 0 rgba(255,255,255,.55);color:#34221b;font-size:clamp(1rem,3.1vw,1.75rem);text-shadow:0 1px 0 #fff4cf}
+    .slot.filled,.slot-row.long .slot.filled{background:linear-gradient(145deg,#fff9e5,#e8c87b);border-color:#b27a23;box-shadow:inset 0 2px 4px rgba(116,71,22,.18),0 2px 3px rgba(77,39,14,.18)}
+    .tile-tray{box-sizing:border-box;position:absolute;left:var(--tray-left);top:var(--tray-top);display:flex;align-items:center;justify-content:center;width:var(--tray-width);min-height:0;padding:clamp(9px,1.5vh,18px) clamp(8px,1.8vw,24px);border:4px solid #9a6429;border-radius:18px 18px 28px 28px;background:linear-gradient(180deg,rgba(176,118,52,.98) 0,rgba(128,78,34,.98) 14%,rgba(112,66,28,.98) 86%,rgba(150,98,44,.98));box-shadow:inset 0 0 0 3px #e3b85d,inset 0 7px 10px rgba(35,13,31,.55),0 9px 0 #4f2b18,0 13px 18px rgba(32,14,11,.38)}
+    .tile-row{max-width:100%}.tile,.tile-row.dense .tile{min-width:44px;min-height:48px;background:linear-gradient(145deg,#fffdf0 0%,#eee0bd 58%,#caa75d 100%)!important;color:#32231c!important;border:2px solid #b47b24;border-radius:10px;box-shadow:inset 2px 2px 2px rgba(255,255,255,.95),inset -3px -3px 4px rgba(115,73,22,.24),0 5px 0 #76501e,0 8px 8px rgba(28,12,9,.42)!important;text-shadow:0 1px 0 #fff;font-family:'Fredoka One','Nunito',sans-serif}.tile:active{transform:translateY(4px) scale(.97);box-shadow:inset 2px 2px 3px rgba(118,78,28,.2),0 1px 0 #76501e!important}.tile.used{opacity:.24;transform:scale(.9)}
+    .praise-banner{position:absolute;left:var(--paper-left);top:var(--praise-top);width:var(--paper-width);color:#4a2340;text-shadow:0 1px 0 #fff2c8;min-height:1.45em;font-size:clamp(.85rem,2.6vw,1.3rem)}.score-row{background:rgba(43,22,38,.94);border-top:2px solid rgba(255,213,79,.6)}.score-badge,.flower-garden{background:#fff5d6;border-color:#b6842b;color:var(--plum)}.flower-slot{font-size:0}.flower-slot::before{content:'✿';font-size:18px;color:#7c3aed}.flower-slot.empty::before{color:#8b806f}.mascot-corner{display:none}
+    .complete-panel{width:min(88vw,760px);margin:auto;padding:18px;background:rgba(43,22,38,.9);border:3px solid var(--gold);border-radius:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}.complete-panel .book-mascot{width:clamp(100px,16vw,150px);height:clamp(92px,14vw,132px)}.complete-title{color:var(--gold)}.complete-sub{color:var(--cream)}.complete-overlay{position:static;background:none;backdrop-filter:none;padding:0}.complete-stars{font-size:clamp(48px,12vw,78px)}.big-btn{min-height:52px;background:linear-gradient(#8b5cf6,#5b21b6);box-shadow:0 5px 0 #35106d;border:2px solid var(--gold)}.big-btn.alt{background:rgba(58,30,51,.95);box-shadow:0 5px 0 #1c0d19}
+    @media (orientation:portrait){.workshop-screen{background-image:linear-gradient(rgba(43,22,38,.12),rgba(43,22,38,.2)),url('assets-runtime/spelling/workshop/grade-room-portrait.webp')}.shelf-screen{background-image:linear-gradient(rgba(43,22,38,.12),rgba(43,22,38,.18)),url('assets-runtime/spelling/workshop/pack-shelf-portrait.webp')}.desk-screen{background-image:url('assets-runtime/spelling/workshop/desk-portrait.webp')}.complete-screen{background-image:url('assets-runtime/spelling/workshop/complete-portrait.webp')}.station-grid{grid-template-columns:repeat(3,minmax(0,1fr));width:min(94vw,720px);gap:8px;margin:auto 0 8px}.station-card{min-height:116px;padding:10px 7px;align-items:center}.station-name{font-size:clamp(.9rem,2.5vw,1.15rem)}.station-progress{font-size:clamp(.65rem,1.8vw,.78rem)}.workshop-title{margin-top:58px}.shelf-wrap{top:14%;width:min(82vw,680px);height:59%}.pack-card{width:68%;height:68%}.shelf-screen .top-bar .bar-label,.shelf-head{top:70px}.shelf-screen>.continue-btn{right:50%;transform:translateX(50%);bottom:18px}.page-row{left:50%;transform:translateX(-50%);bottom:76px}.complete-panel{margin-top:16vh}}
+    @media (max-height:520px) and (orientation:landscape){
+      .screen{padding:8px 10px calc(72px + env(safe-area-inset-bottom));gap:5px}
+      .workshop-title{font-size:1.35rem;margin-top:0}.station-grid{width:min(88vw,760px);margin:0;gap:8px}.station-card{min-height:96px;padding:7px;border-radius:18px}.station-name{font-size:.9rem}.station-grade{font-size:.8rem}.station-progress{font-size:.62rem;margin-top:2px}.workshop-screen>.continue-btn{min-height:46px;padding:5px 20px;font-size:.85rem}.drawer-summary{padding:4px 10px;font-size:.75rem}
+      .shelf-wrap{top:26%;height:47%;width:min(94vw,820px)}.shelf-head{font-size:1rem;padding-block:3px}.pack-card{min-height:52px;width:74%;height:72%;padding:2px}.pack-num{font-size:1rem}.pack-word,.pack-status{font-size:.52rem}.pack-fraction{font-size:.58rem}.pack-stars{font-size:.72rem}.shelf-screen .top-bar .bar-label,.shelf-head{top:58px}.shelf-screen>.continue-btn{bottom:7px;min-height:46px;padding:5px 18px}.page-row{bottom:55px}
+      .speak-btn{width:58px;height:58px}.prompt-bubble{min-height:44px;padding:5px 12px}.slot-row{padding-block:3px}.slot,.slot-row.long .slot{height:44px}.tile-tray{padding:6px 8px;border-width:3px}.tile-row,.tile-row.dense{gap:2px;max-width:100%}.tile,.tile-row.dense .tile{width:44px;height:44px;min-height:44px;font-size:1.15rem}.praise-banner{font-size:.8rem}
+      .complete-panel{width:min(94vw,800px);padding:7px;gap:4px}.complete-panel .book-mascot{width:70px;height:62px}.complete-overlay{gap:4px}.complete-stars{font-size:38px}.complete-title{font-size:1.15rem}.complete-sub{font-size:.8rem}.complete-btn-row{margin-top:2px;gap:6px}.big-btn{min-height:44px;padding:6px 12px;font-size:.8rem}
+    }
+    @media (max-width:560px){.top-bar .round-btn{flex:none;min-width:44px;width:46px;height:46px}.pack-card{width:76%;height:72%;min-height:68px}.shelf-wrap{gap:3px}.page-btn{width:46px;flex-basis:46px}.tile-row.dense .tile{width:44px;height:48px;min-width:44px;min-height:48px}.score-row{gap:4px}.score-badge{padding:4px 8px}}
+    @media (prefers-reduced-motion:reduce){.station-card,.pack-card,.tile,.complete-stars span,.confetti-piece{animation:none!important;transition:none!important}.confetti-container{display:none}}
   </style>
 </head>
 <body>
@@ -394,7 +452,11 @@ const STAR_LINES = {
   3: 'Three stars! Amazing!'
 };
 const PRACTICE_LINE = "Let's practice the tricky ones again!";
-const STORE_KEY = 'magicSpelling.v1';
+const LIVE_STORE_KEY = 'magicSpelling.v1';
+function storageKeyForPath(pathname) {
+  return String(pathname || '').includes('/test-apps/') ? `${LIVE_STORE_KEY}.testhub` : LIVE_STORE_KEY;
+}
+const STORE_KEY = storageKeyForPath(window.location.pathname);
 
 /* ══ WORD UNIVERSE ══
    grades: 1/2/3 -> array of packs; each pack is an ordered array of words in their
@@ -404,18 +466,15 @@ const UNIVERSE = JSON.parse(document.getElementById('spelling-universe').textCon
 const GRADE_META = {
   1: {
     label: 'Grade 1',
-    sub: 'First words',
-    art: '🐰'
+    sub: 'Alphabet Table'
   },
   2: {
     label: 'Grade 2',
-    sub: 'More words',
-    art: '🦊'
+    sub: 'Word-Building Desk'
   },
   3: {
     label: 'Grade 3',
-    sub: 'Big words',
-    art: '🦁'
+    sub: 'Magical Spellbook'
   }
 };
 
@@ -445,6 +504,69 @@ function shuffleR(rng, arr) {
     [x[i], x[j]] = [x[j], x[i]];
   }
   return x;
+}
+
+/* Map a rectangle measured on a source plate through CSS `background-size:cover`.
+   The intersection is intentional: on a viewport narrower than the selected portrait
+   plate (or shorter than the landscape plate), controls follow the visible part of the
+   painted surface instead of following coordinates that have been cropped away. */
+const DESK_ART = {
+  landscape: {
+    width: 1448,
+    height: 1086,
+    paper: {
+      x: .262,
+      y: .305,
+      w: .598,
+      h: .205
+    },
+    tray: {
+      x: .055,
+      y: .555,
+      w: .89,
+      h: .30
+    }
+  },
+  portrait: {
+    width: 1086,
+    height: 1448,
+    paper: {
+      x: .145,
+      y: .279,
+      w: .72,
+      h: .215
+    },
+    tray: {
+      x: .05,
+      y: .535,
+      w: .90,
+      h: .30
+    }
+  }
+};
+function coverRect(viewWidth, viewHeight, sourceWidth, sourceHeight, rect, inset = 8) {
+  const scale = Math.max(viewWidth / sourceWidth, viewHeight / sourceHeight);
+  const offsetX = (viewWidth - sourceWidth * scale) / 2;
+  const offsetY = (viewHeight - sourceHeight * scale) / 2;
+  const left = Math.max(inset, offsetX + rect.x * sourceWidth * scale);
+  const top = Math.max(0, offsetY + rect.y * sourceHeight * scale);
+  const right = Math.min(viewWidth - inset, offsetX + (rect.x + rect.w) * sourceWidth * scale);
+  const bottom = Math.min(viewHeight, offsetY + (rect.y + rect.h) * sourceHeight * scale);
+  return {
+    left,
+    top,
+    width: Math.max(0, right - left),
+    height: Math.max(0, bottom - top)
+  };
+}
+function deskArtLayout(viewWidth, viewHeight) {
+  const orientation = viewWidth >= viewHeight ? 'landscape' : 'portrait';
+  const art = DESK_ART[orientation];
+  return {
+    orientation,
+    paper: coverRect(viewWidth, viewHeight, art.width, art.height, art.paper),
+    tray: coverRect(viewWidth, viewHeight, art.width, art.height, art.tray)
+  };
 }
 /* Decoy letters scale with word length: two for the short words a beginner meets, four
    for the eight-and-up words where the tile bank is already big. The count is small on
@@ -488,8 +610,17 @@ function packId(grade, packIdx) {
 }
 function defaultState() {
   return {
+    version: 2,
     stars: {},
-    bouquets: 0
+    bouquets: 0,
+    words: {},
+    rewardedWords: {},
+    bouquetAwards: {},
+    attempts: {},
+    active: {
+      global: null,
+      grades: {}
+    }
   };
 }
 function recordPack(state, id, stars) {
@@ -506,6 +637,194 @@ function addBouquet(state) {
   return {
     ...state,
     bouquets: (state.bouquets || 0) + 1
+  };
+}
+
+/* Word progress is additive to the v1 star/bouquet store. A stable word id is derived
+   from the curriculum position, never the display order, so shuffling or wording does
+   not strand a save. A v1 pack with stars was already completed; migration therefore
+   marks all its words complete and rewarded without paying anything again. */
+function wordId(grade, packIdx, wordIdx) {
+  return packId(grade, packIdx) + ':W' + String(wordIdx + 1).padStart(2, '0');
+}
+function migrateState(raw, universe) {
+  const base = defaultState(),
+    old = raw && typeof raw === 'object' ? raw : {};
+  const next = {
+    ...base,
+    ...old,
+    version: 2,
+    stars: {
+      ...(old.stars || {})
+    },
+    words: {
+      ...(old.words || {})
+    },
+    rewardedWords: {
+      ...(old.rewardedWords || {})
+    },
+    bouquetAwards: {
+      ...(old.bouquetAwards || {})
+    },
+    attempts: {
+      ...(old.attempts || {})
+    },
+    active: {
+      global: null,
+      grades: {},
+      ...(old.active || {}),
+      grades: {
+        ...(old.active && old.active.grades || {})
+      }
+    }
+  };
+  for (const gs of ['1', '2', '3']) universe.grades[gs].forEach((pack, pi) => {
+    const pid = packId(Number(gs), pi);
+    if ((next.stars[pid] || 0) > 0) pack.forEach((_, wi) => {
+      const wid = wordId(Number(gs), pi, wi);
+      next.words[wid] = true;
+      next.rewardedWords[wid] = true;
+    });
+    if ((next.stars[pid] || 0) === 3) next.bouquetAwards[pid] = true;
+  });
+  return next;
+}
+function packProgress(state, universe, grade, packIdx) {
+  const pack = universe.grades[String(grade)][packIdx];
+  const done = pack.reduce((n, _, wi) => n + (state.words && state.words[wordId(grade, packIdx, wi)] ? 1 : 0), 0);
+  return {
+    done,
+    total: pack.length,
+    status: done === 0 ? 'Not Started' : done === pack.length ? 'Completed' : 'In Progress'
+  };
+}
+function firstUnfinishedWord(state, universe, grade, packIdx) {
+  const pack = universe.grades[String(grade)][packIdx];
+  const wi = pack.findIndex((_, i) => !(state.words && state.words[wordId(grade, packIdx, i)]));
+  return wi < 0 ? 0 : wi;
+}
+function sessionWordIndices(state, universe, grade, packIdx) {
+  const pack = universe.grades[String(grade)][packIdx];
+  const pending = pack.map((_, i) => i).filter(i => !(state.words && state.words[wordId(grade, packIdx, i)]));
+  return pending.length ? pending : pack.map((_, i) => i);
+}
+function isUnfinishedPack(state, universe, grade, packIdx) {
+  return packProgress(state, universe, grade, packIdx).status !== 'Completed';
+}
+function chooseContinue(state, universe, grade) {
+  const grades = grade ? [Number(grade)] : [1, 2, 3];
+  const active = grade ? state.active && state.active.grades && state.active.grades[String(grade)] : state.active && state.active.global;
+  if (active && grades.includes(Number(active.g)) && isUnfinishedPack(state, universe, active.g, active.p)) return {
+    g: Number(active.g),
+    p: active.p,
+    w: firstUnfinishedWord(state, universe, active.g, active.p)
+  };
+  if (active && grades.includes(Number(active.g))) {
+    const after = nextUnfinishedAfter(state, universe, Number(active.g), active.p);
+    if (after) return after;
+  }
+  for (const g of grades) for (let p = 0; p < universe.grades[String(g)].length; p++) if (isUnfinishedPack(state, universe, g, p)) return {
+    g,
+    p,
+    w: firstUnfinishedWord(state, universe, g, p)
+  };
+  return null;
+}
+function nextUnfinishedAfter(state, universe, grade, packIdx) {
+  const n = universe.grades[String(grade)].length;
+  for (let step = 1; step <= n; step++) {
+    const p = (packIdx + step) % n;
+    if (isUnfinishedPack(state, universe, grade, p)) return {
+      g: Number(grade),
+      p,
+      w: firstUnfinishedWord(state, universe, grade, p)
+    };
+  }
+  return null;
+}
+function markActive(state, grade, packIdx) {
+  const ref = {
+    g: Number(grade),
+    p: packIdx
+  };
+  return {
+    ...state,
+    active: {
+      global: ref,
+      grades: {
+        ...(state.active && state.active.grades || {}),
+        [String(grade)]: ref
+      }
+    }
+  };
+}
+function completeWord(state, grade, packIdx, wordIdx) {
+  const wid = wordId(grade, packIdx, wordIdx),
+    first = !(state.words && state.words[wid]);
+  return {
+    state: {
+      ...state,
+      words: {
+        ...(state.words || {}),
+        [wid]: true
+      }
+    },
+    first,
+    wid
+  };
+}
+function awardWordOnce(state, wid) {
+  if (state.rewardedWords && state.rewardedWords[wid]) return {
+    state,
+    award: false
+  };
+  return {
+    state: {
+      ...state,
+      rewardedWords: {
+        ...(state.rewardedWords || {}),
+        [wid]: true
+      }
+    },
+    award: true
+  };
+}
+function awardBouquetOnce(state, pid) {
+  if (state.bouquetAwards && state.bouquetAwards[pid]) return state;
+  return {
+    ...addBouquet(state),
+    bouquetAwards: {
+      ...(state.bouquetAwards || {}),
+      [pid]: true
+    }
+  };
+}
+function recordAttempt(state, pid, kind) {
+  const prev = state.attempts && state.attempts[pid] || {
+    wrongTaps: 0,
+    autoFills: 0
+  };
+  const next = {
+    ...prev,
+    wrongTaps: prev.wrongTaps + 1,
+    autoFills: prev.autoFills + (kind === 'autofill' ? 1 : 0)
+  };
+  return {
+    ...state,
+    attempts: {
+      ...(state.attempts || {}),
+      [pid]: next
+    }
+  };
+}
+function clearAttempt(state, pid) {
+  const attempts = {
+    ...(state.attempts || {})
+  };
+  delete attempts[pid];
+  return {
+    ...state,
+    attempts
   };
 }
 
@@ -716,15 +1035,15 @@ function Confetti({
   active
 }) {
   const p = useMemo(() => Array.from({
-    length: 70
+    length: 42
   }, (_, i) => ({
     id: i,
-    left: randR(Math.random, 0, 100),
-    delay: randR(Math.random, 0, 700),
-    dur: randR(Math.random, 1200, 2400),
-    color: ['#e91e63', '#f06292', '#9c27b0', '#ce93d8', '#ffd54f', '#fff176', '#f48fb1', '#ba68c8', '#fff'][i % 9],
-    size: randR(Math.random, 7, 14),
-    isE: i % 5 === 0
+    left: randR(Math.random, 12, 88),
+    delay: randR(Math.random, 0, 500),
+    dur: randR(Math.random, 1000, 1800),
+    color: ['#7c3aed', '#a78bfa', '#ffd54f', '#fff5d6'][i % 4],
+    size: randR(Math.random, 7, 12),
+    isE: false
   })), [active]);
   if (!active) return null;
   return /*#__PURE__*/React.createElement("div", {
@@ -742,37 +1061,24 @@ function Confetti({
       animationDuration: `${x.dur}ms`,
       animationDelay: `${x.delay}ms`
     }
-  }, x.isE ? ['🌸', '👑', '💖', '⭐', '🦋'][x.id % 5] : null)));
-}
-function Mascot({
-  mood,
-  stamp
-}) {
-  const face = mood === 'oops' ? '😯' : '👸';
-  return /*#__PURE__*/React.createElement("div", {
-    key: stamp,
-    className: `mascot-corner ${mood !== 'idle' ? mood : ''}`,
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "mascot-emoji"
-  }, face));
+  }, null)));
 }
 function useMascot() {
-  const [mood, setMood] = useState('idle');
+  const [pose, setPose] = useState('teaching');
   const [stamp, setStamp] = useState(0);
   const tRef = useRef(null);
-  const trigger = useCallback((m, ms) => {
+  const trigger = useCallback((next, ms) => {
     clearTimeout(tRef.current);
-    setMood(m);
+    setPose(next);
     setStamp(x => x + 1);
-    if (ms) tRef.current = setTimeout(() => setMood('idle'), ms);
+    if (ms) tRef.current = setTimeout(() => setPose('teaching'), ms);
   }, []);
   useEffect(() => () => clearTimeout(tRef.current), []);
   return {
-    mood,
+    pose,
     stamp,
-    happy: useCallback(() => trigger('happy', 2400), [trigger]),
-    oops: useCallback(() => trigger('oops', 1000), [trigger])
+    happy: useCallback(() => trigger('happy-success', 2400), [trigger]),
+    oops: useCallback(() => trigger('presenting-letter', 1100), [trigger])
   };
 }
 function FlowerGarden({
@@ -797,18 +1103,20 @@ function ScoreRow({
   return /*#__PURE__*/React.createElement("div", {
     className: "score-row"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "score-badge"
+    className: "score-badge",
+    "aria-label": `${score} stars`
   }, /*#__PURE__*/React.createElement("span", {
-    role: "img",
-    "aria-label": "star"
-  }, "\u2B50"), /*#__PURE__*/React.createElement("span", null, score)), /*#__PURE__*/React.createElement(FlowerGarden, {
+    "aria-hidden": "true"
+  }, "\u2605"), /*#__PURE__*/React.createElement("span", null, score)), /*#__PURE__*/React.createElement(FlowerGarden, {
     flowers: flowers
   }), /*#__PURE__*/React.createElement("div", {
     className: "score-badge",
     "aria-label": `${bouquets} bouquets collected`
-  }, "\uD83D\uDC90", /*#__PURE__*/React.createElement("span", null, bouquets)), gardenFull && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u273F"), /*#__PURE__*/React.createElement("span", null, bouquets)), gardenFull && /*#__PURE__*/React.createElement("div", {
     className: "garden-full-badge"
-  }, "Garden full! +1 \uD83D\uDC90"));
+  }, "Drawer full! +1 bouquet"));
 }
 function useFlowerReward(setFlowers, setGardenFull, addBouquet) {
   return useCallback(() => {
@@ -881,30 +1189,19 @@ function SpeakerOffIcon() {
   }));
 }
 
-/* THE ABC HEAD. The third of the five talking heads, and the one whose face is literally
-   the subject of this game -- an A on his crown and ABC on his chin. Built by
-   `tools/make-talking-robot.py` from the same intake as the maths robots, so he is the
-   same character family in the same light; the sources and recipe are in the sidecar at
-   art-source/math-app/talking-robots-2026-08-27.
-
-   He is blue and white in a pink app, deliberately: he is a visitor who reads to you, not
-   part of the furniture, and the two maths apps each keep their own head for the same
-   reason. */
-function RobotReader({
-  speaking
+/* The owner-selected purple book belongs to this workshop only. Other Magic Math games
+   retain their robots. Each state uses a cut from the supplied pose sheet, never a CSS
+   distortion or a regenerated approximation. */
+function BookMascot({
+  pose,
+  feedback = false
 }) {
-  return /*#__PURE__*/React.createElement("span", {
-    className: `rb-robot ${speaking ? 'talking' : ''}`,
+  return /*#__PURE__*/React.createElement("img", {
+    className: `book-mascot ${pose === 'listening' ? 'listening' : ''} ${feedback ? 'feedback' : ''}`,
+    src: `assets-runtime/spelling/mascot/${pose}.webp`,
+    alt: "",
     "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "rb-still",
-    src: "assets-runtime/spelling/icons/robot-reader.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("img", {
-    className: "rb-talk",
-    src: "assets-runtime/spelling/icons/robot-reader-talk.webp",
-    alt: ""
-  }));
+  });
 }
 /* ONE TOKEN PER TAP, and only the current tap may stop the mouth. `speechSynthesis.cancel()`
    fires `end` on the utterance it is cancelling, so without this the SECOND tap starts the
@@ -995,6 +1292,7 @@ function TopBar({
   }, label), /*#__PURE__*/React.createElement("button", {
     className: "round-btn",
     "aria-label": muted ? 'Unmute' : 'Mute',
+    "aria-pressed": muted,
     onClick: onToggleMute
   }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)));
 }
@@ -1017,74 +1315,58 @@ function Stars({
 /* ══ HOME ══ */
 function Home({
   go,
-  store
+  store,
+  muted,
+  onToggleMute
 }) {
-  const title = 'Magic Spelling!'.split('');
+  const resume = chooseContinue(store, UNIVERSE);
   return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
+    className: "screen workshop-screen"
   }, /*#__PURE__*/React.createElement("a", {
     className: "round-btn hub-btn",
     href: "https://veeranuchlee.github.io/word-book/",
     "aria-label": "Back to Our Word Book"
-  }, "\u2190"), /*#__PURE__*/React.createElement("div", {
-    className: "home-crown-row"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "home-crown",
-    "aria-hidden": "true",
-    style: {
-      animation: 'bounce 1.7s 0s ease-in-out infinite alternate'
-    }
-  }, "\uD83D\uDC51"), /*#__PURE__*/React.createElement("span", {
-    className: "home-crown",
-    "aria-hidden": "true",
-    style: {
-      animation: 'bounce 1.6s .12s ease-in-out infinite alternate'
-    }
-  }, "\uD83E\uDD84")), /*#__PURE__*/React.createElement("div", {
-    className: "home-title"
-  }, title.map((ch, i) => /*#__PURE__*/React.createElement("span", {
-    key: i,
-    style: {
-      color: ['#e91e63', '#f06292', '#9c27b0', '#7b1fa2', '#3f51b5', '#2196f3', '#00bcd4', '#f9a825', '#ff9800', '#e91e63', '#9c27b0', '#f06292', '#ffd54f', '#ab47bc'][i % 14],
-      animationDelay: `${i * 0.06}s`
-    }
-  }, ch === ' ' ? '\u00A0' : ch))), /*#__PURE__*/React.createElement("div", {
-    className: "home-sub"
-  }, "Hear the word. Spell it!"), store.bouquets > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "trophy-line"
-  }, "\uD83D\uDC90 Bouquets collected: ", store.bouquets), /*#__PURE__*/React.createElement("div", {
-    className: "mode-row"
-  }, [1, 2, 3].map((g, i) => /*#__PURE__*/React.createElement("button", {
-    key: g,
-    className: `mode-card ${['mc-pink', 'mc-purple', 'mc-gold'][i]}`,
-    "aria-label": `${GRADE_META[g].label}: ${gradeStars(store, g)} of ${UNIVERSE.grades[String(g)].length * 3} stars`,
-    onClick: () => {
-      Sound.tap();
-      go({
-        s: 'packs',
-        g
-      });
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-art",
-    role: "img",
-    "aria-label": GRADE_META[g].sub
-  }, GRADE_META[g].art), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-label"
-  }, GRADE_META[g].label), /*#__PURE__*/React.createElement("span", {
-    className: "mode-card-sub"
-  }, GRADE_META[g].sub), /*#__PURE__*/React.createElement(Stars, {
-    n: gradeStars(store, g),
-    total: 3
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 8,
-      fontSize: 44,
-      lineHeight: 1,
-      filter: 'drop-shadow(0 3px 8px rgba(173,20,87,.2))'
-    },
-    "aria-hidden": "true"
-  }, "\uD83C\uDF08"));
+  }, "\u2190"), /*#__PURE__*/React.createElement("button", {
+    className: "round-btn workshop-mute",
+    "aria-label": muted ? 'Unmute' : 'Mute',
+    "aria-pressed": muted,
+    onClick: onToggleMute
+  }, muted ? /*#__PURE__*/React.createElement(SpeakerOffIcon, null) : /*#__PURE__*/React.createElement(SpeakerOnIcon, null)), /*#__PURE__*/React.createElement("h1", {
+    className: "workshop-title"
+  }, "Enchanted Spelling Workshop"), /*#__PURE__*/React.createElement("div", {
+    className: "station-grid"
+  }, [1, 2, 3].map(g => {
+    const packs = UNIVERSE.grades[String(g)],
+      complete = packs.filter((_, p) => packProgress(store, UNIVERSE, g, p).status === 'Completed').length;
+    return /*#__PURE__*/React.createElement("button", {
+      key: g,
+      className: "station-card",
+      "aria-label": `${GRADE_META[g].label}, ${GRADE_META[g].sub}: ${complete} of ${packs.length} packs complete, ${gradeStars(store, g)} of ${packs.length * 3} stars`,
+      onClick: () => {
+        Sound.tap();
+        go({
+          s: 'packs',
+          g
+        });
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "station-grade"
+    }, GRADE_META[g].label), /*#__PURE__*/React.createElement("span", {
+      className: "station-name"
+    }, GRADE_META[g].sub), /*#__PURE__*/React.createElement("span", {
+      className: "station-progress"
+    }, complete, " of ", packs.length, " packs complete \xB7 ", gradeStars(store, g), " of ", packs.length * 3, " stars"));
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "continue-btn",
+    disabled: !resume,
+    onClick: () => resume && go({
+      s: 'game',
+      ...resume
+    })
+  }, resume ? `Continue · ${GRADE_META[resume.g].label} · Pack ${resume.p + 1}` : 'All packs complete · Choose a station'), /*#__PURE__*/React.createElement("div", {
+    className: "drawer-summary",
+    "aria-label": `${store.bouquets || 0} bouquets collected`
+  }, "Pressed-flower drawer \xB7 ", store.bouquets || 0, " bouquets"));
 }
 function gradeStars(store, grade) {
   const packs = UNIVERSE.grades[String(grade)].length;
@@ -1103,41 +1385,86 @@ function Packs({
 }) {
   const packs = UNIVERSE.grades[String(grade)];
   const meta = GRADE_META[grade];
+  const resume = chooseContinue(store, UNIVERSE, grade);
+  const selected = store.active && store.active.grades && store.active.grades[String(grade)];
+  const initial = Math.floor((selected ? selected.p : resume ? resume.p : 0) / 9);
+  const [page, setPage] = useState(initial);
+  const pages = Math.ceil(packs.length / 9),
+    start = page * 9;
+  useEffect(() => {
+    setPage(initial);
+  }, [grade, initial]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
+    className: "screen shelf-screen"
   }, /*#__PURE__*/React.createElement(TopBar, {
     onBack: () => nav({
       s: 'home'
     }),
-    label: meta.label,
     muted: muted,
     onToggleMute: onToggleMute
   }), /*#__PURE__*/React.createElement("div", {
-    className: "home-sub"
-  }, "Pick a pack!"), /*#__PURE__*/React.createElement("div", {
+    className: "shelf-head"
+  }, meta.label, " \xB7 ", meta.sub), /*#__PURE__*/React.createElement("div", {
+    className: "shelf-wrap"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "page-btn",
+    disabled: page === 0,
+    "aria-label": "Previous shelf page",
+    onClick: () => setPage(p => Math.max(0, p - 1))
+  }, "\u2039"), /*#__PURE__*/React.createElement("div", {
     className: "pack-grid",
     role: "group",
-    "aria-label": `${meta.label} packs`
-  }, packs.map((_, i) => /*#__PURE__*/React.createElement("button", {
+    "aria-label": `${meta.label} packs, page ${page + 1} of ${pages}`
+  }, packs.slice(start, start + 9).map((_, j) => {
+    const i = start + j,
+      prog = packProgress(store, UNIVERSE, grade, i),
+      stars = store.stars && store.stars[packId(grade, i)] || 0,
+      current = selected && selected.p === i;
+    return /*#__PURE__*/React.createElement("button", {
+      key: i,
+      className: `pack-card ${prog.status === 'Completed' ? 'complete' : ''} ${current ? 'current' : ''}`,
+      "aria-label": `Pack ${i + 1}: ${prog.status}, ${prog.done} of ${prog.total} words, ${stars} of 3 stars`,
+      onClick: () => {
+        Sound.tap();
+        nav({
+          s: 'game',
+          g: grade,
+          p: i
+        });
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "pack-num"
+    }, i + 1), /*#__PURE__*/React.createElement("span", {
+      className: "pack-status"
+    }, prog.status), /*#__PURE__*/React.createElement("span", {
+      className: "pack-fraction"
+    }, prog.done, "/", prog.total), /*#__PURE__*/React.createElement(Stars, {
+      n: stars,
+      total: 3
+    }));
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "page-btn",
+    disabled: page === pages - 1,
+    "aria-label": "Next shelf page",
+    onClick: () => setPage(p => Math.min(pages - 1, p + 1))
+  }, "\u203A")), /*#__PURE__*/React.createElement("div", {
+    className: "page-row",
+    "aria-label": `Shelf page ${page + 1} of ${pages}`
+  }, Array.from({
+    length: pages
+  }, (_, i) => /*#__PURE__*/React.createElement("button", {
     key: i,
-    className: `pack-card ${['mc-pink', 'mc-purple', 'mc-gold'][i % 3]}`,
-    "aria-label": `Pack ${i + 1}: ${store.stars && store.stars[packId(grade, i)] || 0} of 3 stars`,
-    onClick: () => {
-      Sound.tap();
-      nav({
-        s: 'game',
-        g: grade,
-        p: i
-      });
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "pack-num"
-  }, i + 1), /*#__PURE__*/React.createElement("span", {
-    className: "pack-word"
-  }, "pack"), /*#__PURE__*/React.createElement(Stars, {
-    n: store.stars && store.stars[packId(grade, i)] || 0,
-    total: 3
-  })))));
+    className: `page-dot ${i === page ? 'active' : ''}`,
+    "aria-label": `Shelf page ${i + 1}`,
+    onClick: () => setPage(i)
+  }))), /*#__PURE__*/React.createElement("button", {
+    className: "continue-btn",
+    disabled: !resume,
+    onClick: () => resume && nav({
+      s: 'game',
+      ...resume
+    })
+  }, resume ? `Continue Pack ${resume.p + 1}` : 'All packs complete · Replay any book'));
 }
 
 /* ══ THE SPELL GAME ══ */
@@ -1147,15 +1474,58 @@ function SpellGame({
   packIdx,
   shared
 }) {
+  const screenRef = useRef(null);
   const words = UNIVERSE.grades[String(grade)][packIdx];
-  const [st, setSt] = useState(() => initSession(words, Math.random));
+  const [sessionIndices] = useState(() => sessionWordIndices(shared.store, UNIVERSE, grade, packIdx));
+  const sessionWords = sessionIndices.map(i => words[i]);
+  const [st, setSt] = useState(() => initSession(sessionWords, Math.random));
   const [fx, setFx] = useState({});
   const [banner, setBanner] = useState('');
   const [confetti, setConfetti] = useState(false);
+  const [finalStars, setFinalStars] = useState(null);
   const reader = useReader();
   const mascot = useMascot();
   const stRef = useRef(st);
   stRef.current = st;
+  const pid = packId(grade, packIdx);
+  const earnedStars = starsFor(shared.store.attempts && shared.store.attempts[pid] || st.pass1);
+  const displayStars = finalStars == null ? earnedStars : finalStars;
+  useEffect(() => {
+    const place = () => {
+      const node = screenRef.current;
+      if (!node) return;
+      const box = node.getBoundingClientRect();
+      const layout = deskArtLayout(box.width, box.height);
+      const compact = layout.orientation === 'landscape' && box.height <= 520;
+      const paper = layout.paper;
+      const values = {
+        '--paper-left': paper.left,
+        '--paper-top': paper.top,
+        '--paper-width': paper.width,
+        '--paper-height': paper.height,
+        '--read-top': paper.top + paper.height * .03,
+        '--read-height': paper.height * (compact ? .50 : .48),
+        '--praise-top': paper.top + paper.height * (compact ? .44 : .48),
+        '--slot-left': paper.left + paper.width * .045,
+        '--slot-top': paper.top + paper.height * (compact ? .57 : .60),
+        '--slot-width': paper.width * .91,
+        '--tray-left': layout.tray.left,
+        '--tray-top': layout.tray.top,
+        '--tray-width': layout.tray.width
+      };
+      Object.keys(values).forEach(name => node.style.setProperty(name, `${values[name]}px`));
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.visualViewport && window.visualViewport.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.visualViewport && window.visualViewport.removeEventListener('resize', place);
+    };
+  }, []);
+  useEffect(() => {
+    shared.setStore(s => markActive(packProgress(s, UNIVERSE, grade, packIdx).status === 'Completed' ? clearAttempt(s, pid) : s, grade, packIdx));
+  }, []);
 
   /* Speak each new word once it lands -- the robot, so his mouth moves. The delay keeps
      the previous word's praise from colliding with the new question. */
@@ -1176,8 +1546,17 @@ function SpellGame({
     speakLine(msg, 1);
     mascot.happy();
     setConfetti(true);
-    shared.reward();
-    shared.setScore(s => s + 1);
+    const canonicalIndex = words.indexOf(st.word),
+      wid = wordId(grade, packIdx, canonicalIndex);
+    const first = !(shared.store.words && shared.store.words[wid]);
+    shared.setStore(prev => {
+      const completed = completeWord(prev, grade, packIdx, canonicalIndex).state;
+      return awardWordOnce(completed, wid).state;
+    });
+    if (first) {
+      shared.reward();
+      shared.setScore(s => s + 1);
+    }
     const id = setTimeout(() => {
       setConfetti(false);
       setBanner('');
@@ -1200,15 +1579,15 @@ function SpellGame({
      the fanfare and the star line play. */
   useEffect(() => {
     if (!st.complete) return;
-    const id = packId(grade, packIdx);
-    const stars = st.stars;
+    setFinalStars(earnedStars);
     shared.setStore(prev => {
-      let next = recordPack(prev, id, stars);
-      if (stars === 3) next = addBouquet(next);
-      return next;
+      const stars = starsFor(prev.attempts && prev.attempts[pid] || st.pass1);
+      let next = recordPack(prev, pid, stars);
+      if (stars === 3) next = awardBouquetOnce(next, pid);
+      return clearAttempt(next, pid);
     });
     Sound.fanfare();
-    speakLine(STAR_LINES[stars] || STAR_LINES[1], 1);
+    speakLine(STAR_LINES[earnedStars] || STAR_LINES[1], 1);
     mascot.happy();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.complete]);
@@ -1226,10 +1605,12 @@ function SpellGame({
       });
     } else if (f.kind === 'autofill') {
       Sound.ding();
+      if (stRef.current.passNo === 1) shared.setStore(x => recordAttempt(x, pid, 'autofill'));
       setSt(s);
       setFx({});
     } else {
       Sound.wrong();
+      if (stRef.current.passNo === 1) shared.setStore(x => recordAttempt(x, pid, 'wrong'));
       mascot.oops();
       setSt(s);
       setFx({
@@ -1239,45 +1620,55 @@ function SpellGame({
     }
   };
   if (st.complete) {
+    const next = nextUnfinishedAfter(shared.store, UNIVERSE, grade, packIdx);
     return /*#__PURE__*/React.createElement("div", {
-      className: "screen"
+      className: "screen complete-screen"
     }, /*#__PURE__*/React.createElement(Confetti, {
       active: true
     }), /*#__PURE__*/React.createElement("div", {
+      className: "complete-panel"
+    }, /*#__PURE__*/React.createElement("div", {
       className: "complete-overlay",
       role: "dialog",
       "aria-label": "Pack complete"
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(BookMascot, {
+      pose: "cheering",
+      feedback: true
+    }), /*#__PURE__*/React.createElement("div", {
       className: "complete-stars"
     }, [1, 2, 3].map(i => /*#__PURE__*/React.createElement("span", {
       key: i,
-      className: i <= st.stars ? '' : 'off',
+      className: i <= displayStars ? '' : 'off',
       style: {
         animationDelay: `${i * 0.18}s`
       }
-    }, i <= st.stars ? '⭐' : '☆'))), /*#__PURE__*/React.createElement("div", {
+    }, i <= displayStars ? '★' : '☆'))), /*#__PURE__*/React.createElement("div", {
       className: "complete-title"
     }, "Pack ", packIdx + 1, " complete!"), /*#__PURE__*/React.createElement("div", {
       className: "complete-sub"
-    }, GRADE_META[grade].label, " \xB7 ", st.stars === 3 ? 'Perfect spelling!' : st.stars === 2 ? 'Almost perfect!' : 'You did it!'), /*#__PURE__*/React.createElement("div", {
+    }, GRADE_META[grade].label, " \xB7 ", displayStars === 3 ? 'Perfect spelling!' : displayStars === 2 ? 'Almost perfect!' : 'You did it!'), /*#__PURE__*/React.createElement("div", {
       className: "complete-btn-row"
-    }, /*#__PURE__*/React.createElement("button", {
+    }, next && /*#__PURE__*/React.createElement("button", {
       className: "big-btn",
       onClick: () => {
         Sound.tap();
-        setSt(initSession(words, Math.random));
+        nav({
+          s: 'game',
+          ...next
+        });
       }
-    }, "Play again"), packIdx + 1 < UNIVERSE.grades[String(grade)].length && /*#__PURE__*/React.createElement("button", {
+    }, "Next Pack"), /*#__PURE__*/React.createElement("button", {
       className: "big-btn alt",
       onClick: () => {
         Sound.tap();
         nav({
           s: 'game',
           g: grade,
-          p: packIdx + 1
+          p: packIdx,
+          r: Date.now()
         });
       }
-    }, "Next pack \u2192"), /*#__PURE__*/React.createElement("button", {
+    }, "Replay"), /*#__PURE__*/React.createElement("button", {
       className: "big-btn alt",
       onClick: () => {
         Sound.tap();
@@ -1286,27 +1677,41 @@ function SpellGame({
           g: grade
         });
       }
-    }, "All packs"))), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
+    }, "Bookshelf"), /*#__PURE__*/React.createElement("button", {
+      className: "big-btn alt",
+      onClick: () => {
+        Sound.tap();
+        nav({
+          s: 'home'
+        });
+      }
+    }, "Workshop")))), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
   }
   const need = st.word[st.filled];
+  const bookPose = reader.speaking ? 'listening' : st.hint ? 'giving-hint' : mascot.pose;
   return /*#__PURE__*/React.createElement("div", {
-    className: "screen"
+    className: "screen desk-screen",
+    ref: screenRef
   }, /*#__PURE__*/React.createElement(TopBar, {
     onBack: () => nav({
       s: 'packs',
       g: grade
     }),
-    label: `Pack ${packIdx + 1} · ${st.qi + 1}/${st.q.length}`,
+    label: `${GRADE_META[grade].label} · ${GRADE_META[grade].sub} · Pack ${packIdx + 1} · ${packProgress(shared.store, UNIVERSE, grade, packIdx).done}/${words.length}`,
     muted: shared.muted,
     onToggleMute: shared.toggleMute
   }), /*#__PURE__*/React.createElement("div", {
+    className: "desk-panel"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "read-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: "speak-btn",
     "aria-label": "Say the word again",
     onClick: () => reader.say(lineFor(st.word, UNIVERSE.homophones))
-  }, /*#__PURE__*/React.createElement(RobotReader, {
-    speaking: reader.speaking
+  }, /*#__PURE__*/React.createElement(BookMascot, {
+    key: `${bookPose}-${mascot.stamp}`,
+    pose: bookPose,
+    feedback: bookPose !== 'teaching' && bookPose !== 'listening'
   })), /*#__PURE__*/React.createElement("div", {
     className: "prompt-bubble"
   }, "Spell the word!")), /*#__PURE__*/React.createElement("div", {
@@ -1318,16 +1723,15 @@ function SpellGame({
   }, i < st.filled ? st.word[i] : ''))), /*#__PURE__*/React.createElement("div", {
     className: "praise-banner"
   }, banner), /*#__PURE__*/React.createElement("div", {
+    className: "tile-tray"
+  }, /*#__PURE__*/React.createElement("div", {
     className: `tile-row ${st.tiles.length >= 12 ? 'dense' : ''}`
   }, st.tiles.map((t, i) => /*#__PURE__*/React.createElement("button", {
     key: t.id,
     className: `tile t${i % 4} ${st.used.includes(t.id) ? 'used' : ''} ${fx[t.id] || ''} ${st.hint && t.c === need && !st.used.includes(t.id) ? 'hint' : ''}`,
     "aria-label": `letter ${t.c}`,
     onClick: () => tap(t.id)
-  }, t.c))), /*#__PURE__*/React.createElement(Mascot, {
-    mood: mascot.mood,
-    stamp: mascot.stamp
-  }), /*#__PURE__*/React.createElement(Confetti, {
+  }, t.c))))), /*#__PURE__*/React.createElement(Confetti, {
     active: confetti
   }), /*#__PURE__*/React.createElement(ScoreRow, shared.scoreProps));
 }
@@ -1344,10 +1748,7 @@ function App() {
   const [store, setStore] = useState(() => {
     try {
       const raw = JSON.parse(localStorage.getItem(STORE_KEY));
-      if (raw && typeof raw === 'object') return {
-        ...defaultState(),
-        ...raw
-      };
+      return migrateState(raw, UNIVERSE);
     } catch (e) {}
     return defaultState();
   });
@@ -1379,6 +1780,7 @@ function App() {
     reward,
     setScore,
     setStore,
+    store,
     muted,
     toggleMute,
     scoreProps: {
@@ -1390,9 +1792,11 @@ function App() {
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "app-bg"
-  }), /*#__PURE__*/React.createElement(BgDeco, null), nav.s === 'home' && /*#__PURE__*/React.createElement(Home, {
+  }), nav.s === 'home' && /*#__PURE__*/React.createElement(Home, {
     go: setNav,
-    store: store
+    store: store,
+    muted: muted,
+    onToggleMute: toggleMute
   }), nav.s === 'packs' && /*#__PURE__*/React.createElement(Packs, {
     nav: setNav,
     grade: nav.g,
@@ -1400,7 +1804,7 @@ function App() {
     muted: muted,
     onToggleMute: toggleMute
   }), nav.s === 'game' && /*#__PURE__*/React.createElement(SpellGame, {
-    key: nav.g + '-' + nav.p,
+    key: nav.g + '-' + nav.p + '-' + (nav.r || 0),
     nav: setNav,
     grade: nav.g,
     packIdx: nav.p,

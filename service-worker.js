@@ -304,7 +304,11 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        "carry adding answer only mode -> approved, put on main, publish"), the Race to 100
 //        playable fixes, and the two-sticker world menu (owner, same day). Worker/cache bump
 //        only; the controller prepares the release and nothing is published from this task.
-const CACHE_NAME = "magic-math-v58";
+// v59 2026-10-08: owner-approved release of the Hundred Board modes (Move, Find, Missing,
+//        Patterns, Race, already inlined in space-math.html and unicorn-math.html) and the
+//        Enchanted Spelling Workshop (#1287). Worker/cache bump only; the controller
+//        prepares the release and nothing is published from this task.
+const CACHE_NAME = "magic-math-v59";
 
 const SHELL = [
   "./",
@@ -315,6 +319,21 @@ const SHELL = [
   "./space-math.html",
   "./unicorn-math.html",
   "./magic-spelling.html",
+  "./assets-runtime/spelling/workshop/grade-room-landscape.webp",
+  "./assets-runtime/spelling/workshop/grade-room-portrait.webp",
+  "./assets-runtime/spelling/workshop/pack-shelf-landscape.webp",
+  "./assets-runtime/spelling/workshop/pack-shelf-portrait.webp",
+  "./assets-runtime/spelling/workshop/desk-landscape.webp",
+  "./assets-runtime/spelling/workshop/desk-portrait.webp",
+  "./assets-runtime/spelling/workshop/complete-landscape.webp",
+  "./assets-runtime/spelling/workshop/complete-portrait.webp",
+  "./assets-runtime/spelling/mascot/teaching.webp",
+  "./assets-runtime/spelling/mascot/presenting-letter.webp",
+  "./assets-runtime/spelling/mascot/thinking.webp",
+  "./assets-runtime/spelling/mascot/listening.webp",
+  "./assets-runtime/spelling/mascot/happy-success.webp",
+  "./assets-runtime/spelling/mascot/cheering.webp",
+  "./assets-runtime/spelling/mascot/giving-hint.webp",
   "./classical-music.html",
   "./october-homework.html",
   "./october-homework.css",
