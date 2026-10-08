@@ -300,7 +300,11 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        generic world cards with measured polygon doors over one 80 KB static WebP.
 //        The owner's 1672x941 PNG remains private; only assets-runtime/hub/scene.webp
 //        enters SHELL. Space Math and Unicorn Math routes are unchanged.
-const CACHE_NAME = "magic-math-v57";
+// v58 2026-10-08: Carry & Borrow gains the Little Boxes | Answer Only mode (owner:
+//        "carry adding answer only mode -> approved, put on main, publish"), the Race to 100
+//        playable fixes, and the two-sticker world menu (owner, same day). Worker/cache bump
+//        only; the controller prepares the release and nothing is published from this task.
+const CACHE_NAME = "magic-math-v58";
 
 const SHELL = [
   "./",

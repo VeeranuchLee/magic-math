@@ -59,6 +59,14 @@
        hide that; opting out of stretch exposed it. Reserving the line costs the
        one-line cards a few pixels nobody sees and keeps the badges level. */
     .mode-row.has-badge .mode-card-label{min-height:2.4em;display:flex;align-items:center}
+    /* Owner's sticker art on the game cards (2026-10-07): a small decorative sticker
+       peeking over each card's top-right corner where one genuinely matches the game.
+       The sticker never takes a tap (pointer-events:none, aria-hidden) and only IT bobs;
+       the card stays still. Reduced motion = still. */
+    .mode-card{position:relative}
+    .card-sticker{position:absolute;top:-14px;right:-8px;width:46px;height:auto;pointer-events:none;z-index:3;filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));animation:cardStickerBob var(--sd,5s) ease-in-out var(--sl,0s) infinite;-webkit-user-drag:none;user-select:none}
+    @keyframes cardStickerBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+    @media (prefers-reduced-motion:reduce){.card-sticker{animation:none}}
     .mode-card{flex:1;min-width:130px;max-width:185px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s}
     .mode-card:active{transform:translateY(5px) scale(.96)}
     .mode-card-label{font-size:.78rem;font-weight:900;color:rgba(255,255,255,.92);text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
@@ -979,8 +987,15 @@
        question stack stay above the fold (the What Number? lesson). The build rung
        also shows answer chips, so it drops to the compact size for room. */
     .hb-board{--hb-cell:clamp(32px,4vw,42px);display:grid;grid-template-columns:repeat(10,var(--hb-cell));gap:3px;background:rgba(255,255,255,.66);border:3px solid #c4d7fd;border-radius:18px;padding:8px;box-shadow:0 5px 18px rgba(90,46,214,.1);position:relative;z-index:1}
+    /* Phase 1 boards spend the iPad viewport on the lesson. In portrait the modes
+       with a ribbon/question can afford 61px seats; Race has less chrome and gets
+       64px. Landscape puts the board beside its controls, where 56px (57px for
+       Race) is the largest common Space/Unicorn size that clears the taller garden
+       header. Move deliberately keeps the legacy rule below: its direction key
+       shares the row and must not steal width from the unchanged board. */
+    .hb-board.hb-large{--hb-cell:clamp(44px,7.95vw,61px)}
     .hb-board.hb-compact{--hb-cell:clamp(26px,3.3vw,34px)}
-    .hb-cell{width:var(--hb-cell);height:var(--hb-cell);border-radius:9px;border:2px solid transparent;background:rgba(255,255,255,.55);color:#2f4a8f;font-family:inherit;font-size:clamp(.66rem,1.8vw,.98rem);font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-sizing:border-box;transition:transform .12s,box-shadow .12s}
+    .hb-cell{position:relative;width:var(--hb-cell);height:var(--hb-cell);border-radius:9px;border:2px solid transparent;background:rgba(255,255,255,.55);color:#2f4a8f;font-family:inherit;font-size:clamp(.66rem,1.8vw,.98rem);font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-sizing:border-box;transition:transform .12s,box-shadow .12s}
     .hb-cell:active{transform:scale(.9)}
     /* A seat the child counted through. Quieter than every other state on purpose:
        it is the child's working, not the answer, and it must never be mistaken for
@@ -997,6 +1012,17 @@
     /* The answer, gold and unmistakable once the move is made. */
     .hb-cell.hb-target{background:linear-gradient(135deg,#ffd54f,#f9a825);border-color:#e65100;color:#7a3c00;transform:scale(1.12);box-shadow:0 3px 10px rgba(230,81,0,.4);animation:tfPop .45s ease both}
     .hb-cell.hb-wrong{animation:wrongShake .35s ease;border-color:#f44336;background:#ffebee}
+    .hb-cell.hb-hidden{color:transparent;background:rgba(255,255,255,.3);border-color:rgba(47,109,246,.3);border-style:dashed}
+    .hb-cell.hb-hidden.hb-hint{color:#2f4a8f;background:#fff7c4}
+    .hb-cell.hb-selected{background:#b9f6ca;border-color:#1b9a59;color:#174f31;box-shadow:inset 0 0 0 2px rgba(255,255,255,.75)}
+    .hb-cell.hb-hint{animation:hintGlow 1.1s ease-in-out infinite;border-color:#ffd54f}
+    .hb-cell.hb-player{box-shadow:inset 0 0 0 4px #2f6df6;background:#dceaff;color:#173b89}
+    .hb-cell.hb-cpu{box-shadow:inset 0 0 0 4px #e65100;background:#fff0d8;color:#7a3c00}
+    .hb-cell.hb-player.hb-cpu{background:linear-gradient(135deg,#dceaff 50%,#fff0d8 50%)}
+    .hb-race-token{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.35);pointer-events:none;box-sizing:border-box;overflow:hidden}
+    .hb-race-token img{width:100%;height:100%;object-fit:contain}
+    .hb-race-token-you{left:-2px;bottom:-2px;background:#2f6df6}.hb-race-token-cpu{right:-2px;top:-2px;background:#ffb24c}
+    .hb-cell.hb-player.hb-cpu .hb-race-token-you{left:-4px;bottom:-4px}.hb-cell.hb-player.hb-cpu .hb-race-token-cpu{right:-4px;top:-4px}
     @keyframes hbGlow{0%{transform:scale(.8);opacity:.3}100%{transform:scale(1);opacity:1}}
     .hb-question{display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(1.7rem,6vw,2.5rem);font-weight:900;color:#fff;text-shadow:0 3px 0 rgba(47,109,246,.55),0 5px 12px rgba(4,8,30,.5);position:relative;z-index:1}
     .hb-qnum{min-width:1.4em;text-align:center}
@@ -1008,6 +1034,105 @@
        they accompany the lit path, they never replace the question. */
     .hb-movewords{display:flex;align-items:center;justify-content:center;font-size:clamp(.95rem,3.2vw,1.35rem);font-weight:700;color:#ffd54f;text-shadow:0 2px 0 rgba(4,8,30,.45);margin:2px 0;position:relative;z-index:1}
     .hb-choices .hb-chip{width:auto;min-width:clamp(84px,20vw,120px);height:clamp(56px,13.5vw,76px);font-size:clamp(1.5rem,4.6vw,2rem)}
+    /* ── The Hundred Board picker (owner, 2026-10-07) ──
+       Board first: a large static 1–100 board is the anchor on the left with the title
+       written into it; Move is the featured card on the right and the other four sit
+       in a 2×2 grid. Every card DRAWS its mechanic from the same cell styles the real
+       board uses (start ring, gold landing, dashed hidden seat, blue and orange race
+       rings), so a preview cannot drift from what the game then shows.
+       Sizes are measured at 1024×768 (board ~500px, cards ≥150px) and the portrait
+       iPad stacks board over cards without scrolling. No animation: the previews are
+       still pictures and the card answers a tap with a press-down only. */
+    .hp-wrap{--hp-cell:clamp(28px,calc((100vh - 300px)/10.4),47px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;justify-content:center;width:min(100%,980px);flex:1;min-height:0;position:relative;z-index:2;padding:14px 18px;border-radius:30px;background:rgba(255,255,255,.34);box-sizing:border-box}
+    .hp-left{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .hp-head{text-align:center;line-height:1.05;padding:8px 26px 9px;border:2px solid #c4d7fd;border-radius:18px;background:rgba(255,255,255,.86);box-shadow:0 4px 14px rgba(90,46,214,.12)}
+    .hp-title{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#5a2ed6}
+    .hp-sub{margin-top:4px;font-size:clamp(1.05rem,2.3vw,1.35rem);font-weight:900;color:#2f6df6}
+    .hp-board{display:grid;grid-template-columns:repeat(10,var(--hp-cell));gap:3px;padding:8px;border:3px solid #c4d7fd;border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 6px 20px rgba(90,46,214,.18);pointer-events:none}
+    .hp-board .hb-cell,.hp-mini .hb-cell{cursor:default;transition:none;animation:none;transform:none;width:var(--hp-cell);height:var(--hp-cell)}
+    .hp-board .hb-cell{font-size:calc(var(--hp-cell)*.4)}
+    .hp-board .hb-cell:nth-child(10n){background:#e8f0ff}
+    .hp-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:center;min-width:0}
+    .hp-card{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;min-height:186px;padding:12px 10px 12px;border:3px solid #93b7fb;border-radius:24px;background:linear-gradient(160deg,#fff,#e8f0ff);box-shadow:0 6px 0 #5d8fe9;color:#243f83;font-family:inherit;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0}
+    .hp-card:active{transform:translateY(4px);box-shadow:0 2px 0 #5d8fe9;background:linear-gradient(160deg,#e2ecff,#cfe0ff)}
+    .hp-card:focus-visible{outline:4px solid #ffd54f;outline-offset:2px}
+    .hp-feature{grid-column:1/-1;flex-direction:row;justify-content:flex-start;gap:16px;min-height:168px;padding:14px 18px;text-align:left;border-color:#6f9bf5;box-shadow:0 7px 0 #4a7fe0}
+    .hp-feature:active{box-shadow:0 3px 0 #4a7fe0}
+    .hp-text{min-width:0}
+    .hp-name{display:block;font-size:clamp(1.05rem,2.2vw,1.3rem);font-weight:900;line-height:1.1;color:#243f83}
+    .hp-feature .hp-name{font-size:clamp(1.3rem,2.8vw,1.65rem)}
+    .hp-desc{display:block;margin-top:4px;font-size:clamp(.9rem,1.8vw,1.02rem);font-weight:800;line-height:1.2;color:#4b64a3}
+    .hp-mini{--hp-cell:30px;display:grid;gap:3px;pointer-events:none;position:relative;flex:none}
+    .hp-mini .hb-cell{font-size:.82rem;flex:none}
+    .hp-mini.hp-big{--hp-cell:46px}
+    .hp-mini.hp-big .hb-cell{font-size:1.05rem}
+    .hp-mini .hb-cell.hb-target{box-shadow:0 2px 6px rgba(230,81,0,.4)}
+    .hp-plus{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;font-weight:900;color:#e65100;font-size:1.25rem;line-height:1}
+    .hp-plus b{font-size:1.5rem}
+    .hp-raceline{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .hp-die{position:relative;display:block;width:34px;height:34px;border-radius:9px;background:#fff;border:2.5px solid #5d8fe9;box-sizing:border-box}
+    .hp-die i{position:absolute;width:6px;height:6px;border-radius:50%;background:#243f83}
+    .hp-die i:nth-child(1){left:4px;top:4px}.hp-die i:nth-child(2){left:50%;top:50%;margin:-3px 0 0 -3px}.hp-die i:nth-child(3){right:4px;bottom:4px}
+    @media (orientation:portrait){
+      .hp-wrap{--hp-cell:clamp(24px,calc((100vh - 745px)/10.4),34px);grid-template-columns:minmax(0,1fr);gap:14px;align-content:start;padding:12px;width:min(100%,720px)}
+      .hp-board{gap:2px;padding:6px}
+      .hp-card{min-height:136px}
+      .hp-feature{min-height:132px}
+    }
+    @media (max-width:620px){
+      .hp-left .hp-board{display:none}
+      .hp-wrap{--hp-cell:30px}
+      .hp-cards{grid-template-columns:1fr}
+      .hp-card,.hp-feature{min-height:96px}
+    }
+    @media (prefers-reduced-motion:reduce){.hp-card:active{transform:none}}
+    /* The picker is the only screen here with a board beside its buttons, and the corner
+       mascot sits exactly where the board ends, so it steps aside; the decorations quieten
+       so the board and cards are the only things competing for the eye. */
+    .screen:has(.hp-wrap) .bg-deco{opacity:.35}
+    /* No Hundred Board screen shows the corner mascot: it is a fixed 116px sprite at the bottom-left, which is exactly where the board's last row (91, 92 …) sits at both iPad sizes, and it hid those numbers. Numbers outrank company. */
+    .screen.hb-screen>.mascot-corner{display:none}
+    .hb-status{min-height:44px;display:flex;align-items:center;justify-content:center;gap:14px;color:#fff;font-size:clamp(1rem,3vw,1.35rem);font-weight:900;text-shadow:0 2px 0 rgba(4,8,30,.45);position:relative;z-index:2}
+    .hb-player-label{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.hb-player-icon{width:38px;height:38px;border:3px solid #fff;border-radius:50%;object-fit:contain;box-sizing:border-box;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}.hb-player-icon-you{background:#2f6df6}.hb-player-icon-cpu{background:#ffb24c}
+    .hb-race-controls{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-width:230px;position:relative;z-index:3}
+    .hb-race-turn{font-size:clamp(1.25rem,3vw,1.8rem);font-weight:900;color:#fff;text-align:center;text-shadow:0 3px 0 rgba(4,8,30,.45)}
+    .hb-race-hint{min-height:28px;max-width:280px;text-align:center;color:#fff7c4;font-weight:900;font-size:1rem}
+    .hb-help-btn{width:64px;height:64px;border:3px solid #fff;border-radius:50%;background:#5a2ed6;color:#fff;font:900 1.7rem inherit;box-shadow:0 4px 0 #34158f;cursor:pointer}
+    .hb-how{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,12,42,.72)}
+    .hb-how-card{width:min(92vw,620px);border:4px solid #ffd54f;border-radius:30px;padding:20px;background:#fff;color:#243f83;box-shadow:0 12px 35px rgba(0,0,0,.35);text-align:center}
+    .hb-how-card h2{margin:0 0 16px;font-size:clamp(1.7rem,5vw,2.4rem)}
+    .hb-how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .hb-how-step{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 8px;border-radius:18px;background:#e8f0ff;font-weight:900;font-size:clamp(.95rem,2.5vw,1.2rem)}
+    .hb-how-picture{font-size:clamp(2.2rem,7vw,3.2rem);line-height:1}.hb-how-players{display:flex;align-items:center;justify-content:center;gap:8px}.hb-how-players .hb-player-icon{width:54px;height:54px}
+    .hb-how-go{min-width:180px;min-height:64px;border:0;border-radius:40px;background:#ffd54f;color:#633500;font:900 1.3rem inherit;box-shadow:0 5px 0 #e6a500;cursor:pointer}
+    .hb-play-race .hb-board.hb-large{--hb-cell:64px}
+    .hb-screen>.ar-strip .fm-btn,.hb-play>.ar-strip .fm-btn{height:64px;min-height:64px;min-width:64px}
+    .hb-roll{min-width:190px;min-height:72px;border:0;border-radius:50px;background:#ffd54f;color:#633500;font:900 1.35rem inherit;box-shadow:0 5px 0 #e6a500;cursor:pointer}
+    .hb-roll.hb-next-action{animation:hbNextAction 1.5s ease-in-out infinite}
+    .hb-roll:disabled{animation:none;opacity:.62;cursor:default}
+    @keyframes hbNextAction{50%{transform:scale(1.055);box-shadow:0 7px 0 #e6a500,0 0 0 8px rgba(255,213,79,.24)}}
+    .hb-play{display:contents}
+    @media (orientation:landscape) and (max-height:820px) and (min-width:700px){
+      .hb-play{display:grid;grid-template-columns:auto minmax(190px,1fr);grid-auto-rows:auto;align-items:center;justify-content:center;gap:8px 18px;width:min(100%,980px);min-height:0;flex:1}
+      .hb-play>.oe-stage{grid-column:1;grid-row:1/span 5}
+      .hb-play>.count-title,.hb-play>.ar-strip,.hb-play>.hb-question,.hb-play>.hb-status,.hb-play>.next-btn,.hb-play>.hb-roll{grid-column:2;margin-left:auto;margin-right:auto}
+      .hb-play-race>.count-title{grid-row:1}
+      .hb-play-race>.hb-race-controls{grid-column:2;grid-row:2/span 4}
+      .hb-play .hb-board.hb-large{--hb-cell:56px}
+      .hb-play-race .hb-board.hb-large{--hb-cell:57px}
+    }
+    @media (orientation:portrait){.hb-race-controls{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;gap:5px 14px;min-width:0}.hb-race-controls>.hb-status,.hb-race-controls>.hb-race-turn,.hb-race-controls>.hb-race-hint{grid-column:1/-1;justify-self:center}.hb-status{min-height:30px}.hb-race-turn{font-size:1.2rem}.hb-race-hint{min-height:22px}.hb-roll{min-height:64px}.hb-play-race .hb-board.hb-large{--hb-cell:56px}.hb-how-steps{grid-template-columns:1fr}}
+    @media (prefers-reduced-motion:reduce){.hb-roll.hb-next-action{animation:none;outline:6px solid rgba(255,213,79,.35)}.hb-cell,.hb-cell.hb-wrong{animation:none}}
+    /* Fit rule (2026-10-07): every Hundred Board play screen — Move (both rungs), Find, Missing, Patterns, Race — must fit the 9.7" iPad in both orientations with no page scroll. The board cells are the target, so the chrome pays: a slimmer bottom pad, tighter row gap and a shorter title card. The picker (.hp-wrap) is deliberately left as it was. */
+    .screen.hb-screen:not(:has(.hp-wrap)){padding-bottom:8px;row-gap:7px}
+    .screen.hb-screen:not(:has(.hp-wrap)) .count-title{padding:4px 14px}
+    @media (orientation:landscape) and (max-height:820px) and (min-width:700px){
+      /* Move's "Which move?" rung stacks ribbon, question, compact board and answer chips: on the taller Unicorn garden header it needs these few extra pixels. Chips stay 64px+ and the board cells are untouched. */
+      .screen.hb-screen:not(:has(.hp-wrap)){row-gap:5px}
+      .hb-screen .hb-question{font-size:2rem}
+      .hb-choices .hb-chip{height:64px}
+      .hb-screen>.ar-strip{padding-top:3px;padding-bottom:3px;margin-bottom:0}
+    }
     /* ── The hundred block (n3, Make 100) ──
        A 10 × 10 whole, and every rule here is there to keep it reading as 10 × 10
        rather than as a hundred squares. A row is a ten and fills as one; the two
@@ -1627,6 +1752,18 @@
     .cm-grid.cm-4{grid-template-columns:clamp(22px,8vw,34px) repeat(4,clamp(38px,12vw,54px));gap:clamp(4px,1.3vw,7px)}
     .cm-grid.cm-4 .column-answer-box{min-width:0}
     .cm-grid.cm-4 .cm-mark{width:clamp(22px,7vw,30px);height:clamp(22px,7vw,30px);font-size:clamp(.85rem,3.4vw,1.1rem)}
+
+    /* Carry & Borrow can now leave the written scaffold behind. The choice sits beside
+       the sum rather than adding another ribbon row: its two 64px targets fit next to
+       the 360px card on both 9.7-inch iPad orientations without pushing the keypad down. */
+    .cm-work-row{display:flex;align-items:flex-start;justify-content:center;gap:10px;max-width:100%;position:relative;z-index:1}
+    .cm-work-row .column-card{z-index:auto}
+    .cm-style-strip{margin:0;align-self:flex-start}
+    .cm-style-strip .fm-btn.fm-word{height:64px;min-width:104px;padding:0 10px;font-size:.88rem;line-height:1.05;white-space:normal;text-align:center}
+    @media (max-width:620px){
+      .cm-work-row{flex-direction:column;align-items:center}
+      .cm-style-strip{align-self:center}
+    }
 
     /* Height budget, same idiom as .cb-ladder's clamp: spend the viewport, do not guess.
        Measured at 375x667 (iPhone SE/8, the smallest device in the house): c1's page is
@@ -3277,7 +3414,7 @@ const Clips = (() => {
       One accepted edge: tapping a card speaks its name in the rendered voice on the home
      screen and then drops into a game that may be all-robot. That is a screen change,
      not a flip inside a sentence, and the card name belongs to the home screen. */
-  const VOICED = new Set([null, 'm1', 'm2', 's1']);
+  const VOICED = new Set([null, 'm1', 'm2', 's1', 'h1']);
   /* ══ WHAT THE MODE GATE ACTUALLY GUARDS — REVISED 2026-08-21 ══
      The gate above used to apply to every line. It no longer does, and the distinction
      it now draws is the entire safety argument for the two-voice split:
@@ -3369,6 +3506,14 @@ const Clips = (() => {
     }
   };
 })();
+
+/* A newly declared line stays silent until its paid clip exists. It remains in the
+   narration manifest, but never falls through to a device voice. */
+const clipLine = text => Clips.url(text, COMPANION) ? text : null;
+const clipNum = n => {
+  const text = `${n}!`;
+  return Clips.url(text, ROBOT) ? num(text) : null;
+};
 
 /* ══ MENU MUSIC ══
    Owner's call, 2026-08-20, made after hearing the track: music plays on the MENU and
@@ -6238,6 +6383,134 @@ function makeHundredProblem(rng, preset, avoid) {
     choices: preset.kind === 'build' ? hundredBuildChoices(rng, delta) : undefined
   };
 }
+/* Phase-one Hundred Board platform helpers. Pure and seeded so the same rules drive
+   both worlds and the invariant suite can replay every draw. */
+const HUNDRED_FIND_KINDS = ['number', 'place', 'more', 'parity'];
+function makeHundredFindProblem(rng, kind = 'number') {
+  if (kind === 'place') {
+    const target = randR(rng, 10, 99);
+    return {
+      kind,
+      target,
+      answers: [target],
+      tens: Math.floor(target / 10),
+      ones: target % 10,
+      prompt: `Find the number with ${Math.floor(target / 10)} tens and ${target % 10} ones`
+    };
+  }
+  if (kind === 'more') {
+    const delta = rng() < .5 ? 10 : -10;
+    const base = delta > 0 ? randR(rng, 1, 90) : randR(rng, 11, 100),
+      target = base + delta;
+    return {
+      kind,
+      target,
+      answers: [target],
+      base,
+      delta,
+      prompt: `Find ${delta > 0 ? '10 more' : '10 less'} than ${base}`
+    };
+  }
+  if (kind === 'parity') {
+    const even = rng() < .5,
+      start = randR(rng, 0, 8) * 10 + 1,
+      end = start + 9;
+    const choices = Array.from({
+      length: 10
+    }, (_, i) => start + i).filter(n => n % 2 === 0 === even);
+    const target = pickR(rng, choices);
+    return {
+      kind,
+      target,
+      answers: choices,
+      even,
+      start,
+      end,
+      prompt: `Find an ${even ? 'even' : 'odd'} number from ${start} to ${end}`
+    };
+  }
+  const target = randR(rng, 1, 100);
+  return {
+    kind: 'number',
+    target,
+    answers: [target],
+    prompt: `Find ${target}`
+  };
+}
+function makeHundredMissingLayout(rng, kind = 'few') {
+  let hidden = [];
+  if (kind === 'gap') {
+    const row = randR(rng, 0, 9),
+      col = randR(rng, 0, 5);
+    hidden = Array.from({
+      length: 5
+    }, (_, i) => row * 10 + col + i + 1);
+  } else if (kind === 'chunk') {
+    const row = randR(rng, 0, 8),
+      col = randR(rng, 0, 7);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) hidden.push((row + r) * 10 + col + c + 1);
+  } else if (kind === 'neighbours') {
+    const row = randR(rng, 1, 8),
+      col = randR(rng, 1, 8),
+      center = row * 10 + col + 1;
+    hidden = [center - 10, center - 1, center + 1, center + 10];
+  } else {
+    while (hidden.length < 3) {
+      const n = randR(rng, 1, 100);
+      if (!hidden.includes(n)) hidden.push(n);
+    }
+  }
+  return {
+    kind,
+    hidden,
+    target: hidden[0]
+  };
+}
+function hundredPatternMembers(kind, value) {
+  const out = [];
+  for (let n = 1; n <= 100; n++) {
+    const yes = kind === 'odd' ? n % 2 === 1 : kind === 'even' ? n % 2 === 0 : n % value === 0;
+    if (yes) out.push(n);
+  }
+  return out;
+}
+function makeHundredPattern(rng, kind = 'count') {
+  if (kind === 'parity') {
+    const odd = rng() < .5;
+    return {
+      kind: odd ? 'odd' : 'even',
+      value: 2,
+      label: odd ? 'Odd numbers' : 'Even numbers',
+      members: hundredPatternMembers(odd ? 'odd' : 'even', 2)
+    };
+  }
+  const values = kind === 'multiple' ? [3, 4, 6, 7, 8, 9] : [2, 3, 4, 5, 10],
+    value = pickR(rng, values);
+  return {
+    kind,
+    value,
+    label: kind === 'multiple' ? `Multiples of ${value}` : `Count by ${value}`,
+    members: hundredPatternMembers(kind, value)
+  };
+}
+function hundredRacePath(position, roll) {
+  const end = Math.min(100, position + roll);
+  return Array.from({
+    length: end - position
+  }, (_, i) => position + i + 1);
+}
+function hundredFreshMode(mode) {
+  return {
+    mode,
+    misses: 0,
+    won: false,
+    wrongCell: null,
+    selected: [],
+    player: 1,
+    cpu: 1,
+    turn: 'player'
+  };
+}
 const pickR = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 /* Build-the-operation choices: the correct chip, the sign flip, and the classic
    magnitude confusion (+20 against +2) when the two are distinguishable. */
@@ -9048,6 +9321,52 @@ function GamePreview({
   }, "20")));
   return null;
 }
+/* Decorative sticker on a game card -- the owner's own art (assets/stickers/space/).
+   Mapped only where the subject really is the game; a card with no entry gets none.
+   Idle bob lasts 4-7s and is staggered by id, so the grid never moves in step. */
+const CARD_STICKERS = {
+  np1: "sum-cloud",
+  x1: "times",
+  b1: "tally",
+  b3: "equals",
+  o1: "bar-chart",
+  s1: "number-line",
+  r1: "abacus",
+  h1: "dice",
+  t1: "clock",
+  y1: "target",
+  m1: "times",
+  d1: "divide",
+  f1: "fraction-moon",
+  q1: "fraction-moon",
+  u1: "tape-measure",
+  l2: "plus",
+  c1: "minus",
+  c2: "calculator",
+  c5: "times",
+  p1: "equals",
+  n1: "counting-hands",
+  sq1: "rocket-123"
+};
+function CardSticker({
+  id
+}) {
+  const f = CARD_STICKERS[id];
+  if (!f) return null;
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 97;
+  return /*#__PURE__*/React.createElement("img", {
+    className: "card-sticker",
+    src: `assets/stickers/space/${f}.webp`,
+    alt: "",
+    "aria-hidden": "true",
+    draggable: "false",
+    style: {
+      '--sd': (4 + h % 7 * .45).toFixed(2) + 's',
+      '--sl': '-' + (h % 5 * .9).toFixed(1) + 's'
+    }
+  });
+}
 function Stars({
   count
 }) {
@@ -11793,6 +12112,13 @@ const COLUMN_PAIRS = {
     rungs: COLUMN_TIMES_RUNGS
   }
 };
+const COLUMN_SOLVING_STYLES = [{
+  id: 'boxes',
+  label: 'Little Boxes'
+}, {
+  id: 'answer',
+  label: 'Answer Only'
+}];
 
 /* The rung modal both column cards shared is gone (2026-09-12). The rungs are the same
    four sizes whichever operation the ribbon is set to, so they are now a second ribbon
@@ -11819,6 +12145,10 @@ function ColumnMath({
   const [tab, setTab] = useState('mix');
   const lead = pair.times || pair.plus; // the config that sets the opening rung
   const [rungIdx, setRungIdx] = useState(() => COLUMN_MODES[lead].startIdx);
+  /* Carry & Borrow alone offers a second way to write the same generated problems.
+     This follows the operation choice's component lifetime: Little Boxes is the default
+     whenever the child enters the game, and the choice survives fresh questions. */
+  const [solvingStyle, setSolvingStyle] = useState('boxes');
   /* One question, dealt: the tab picks the operation, then that operation's own preset
      for the chosen rung picks the numbers. `avoid` only bites within the same operation,
      because the "never the same problem twice running" rule is about repeating a SUM,
@@ -11836,6 +12166,8 @@ function ColumnMath({
   /* Whether THIS question has little boxes. The mode says so for c1-c4; c5's first rung
      turns them off per problem, which is why it rides on the problem and not on cfg. */
   const hard = cfg.hard && !problem.noMarks;
+  const answerOnly = cardId === 'c2' && solvingStyle === 'answer';
+  const showMarks = hard && !answerOnly;
   /* A × little box holds a digit, not a yes or a no: no keys dim, and it gets the three
      tries an answer box gets. */
   const times = cfg.op === '×';
@@ -11862,9 +12194,9 @@ function ColumnMath({
     clearTimeout(nudgeT.current);
   }, []);
   const solution = useMemo(() => solveColumns(cfg.op, problem.a, problem.b, colCount), [cfg.op, problem, colCount]);
-  const slots = useMemo(() => buildSlots(cfg.op, hard, colCount, ansCols), [cfg.op, hard, colCount, ansCols]);
+  const slots = useMemo(() => buildSlots(cfg.op, showMarks, colCount, ansCols), [cfg.op, showMarks, colCount, ansCols]);
   const slot = cursor < slots.length ? slots[cursor] : null; // null once every box is filled
-  const struck = useMemo(() => topStruck(cfg.op, hard, problem.a, colCount, marks), [cfg.op, hard, problem.a, colCount, marks]);
+  const struck = useMemo(() => topStruck(cfg.op, showMarks, problem.a, colCount, marks), [cfg.op, showMarks, problem.a, colCount, marks]);
   const aDigits = toColumnDigits(problem.a, colCount);
   const bDigits = toColumnDigits(problem.b, colCount);
   const markLive = !!slot && slot.kind === 'mark' && !won && !times;
@@ -11902,6 +12234,10 @@ function ColumnMath({
     setTab(t);
     resetForProblem(deal(t, rungIdx, null));
   }, [deal, rungIdx, resetForProblem]);
+  const applySolvingStyle = useCallback(style => {
+    setSolvingStyle(style);
+    resetForProblem(deal(tab, rungIdx, problem));
+  }, [deal, tab, rungIdx, problem, resetForProblem]);
 
   /* The one place the child is TOLD what a box is for. The glow alone is enough for an
      answer box — every other game in this app works that way — but the little box is a
@@ -12076,18 +12412,27 @@ function ColumnMath({
     muted: muted,
     label: "Choose how big the numbers are"
   })), /*#__PURE__*/React.createElement("div", {
+    className: "cm-work-row"
+  }, cardId === 'c2' && /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: COLUMN_SOLVING_STYLES,
+    value: solvingStyle,
+    onPick: applySolvingStyle,
+    muted: muted,
+    label: "Choose how to solve",
+    className: "cm-style-strip"
+  }), /*#__PURE__*/React.createElement("div", {
     className: "column-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: `column-grid cm-grid ${colCount >= 4 ? 'cm-4' : ''}`,
     style: {
       '--col-count': colCount
     }
-  }, hard && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, showMarks && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "cm-mark-gap"
   }), Array.from({
     length: colCount
   }, (_, j) => {
-    if (!hasMark(cfg.op, hard, colCount, ansCols, j)) return /*#__PURE__*/React.createElement("div", {
+    if (!hasMark(cfg.op, showMarks, colCount, ansCols, j)) return /*#__PURE__*/React.createElement("div", {
       key: `m${j}`,
       className: "cm-mark-gap"
     });
@@ -12144,7 +12489,7 @@ function ColumnMath({
     }, solution.ans[j]) : '_');
   }), /*#__PURE__*/React.createElement("div", {
     className: "column-final-line"
-  }))), won && /*#__PURE__*/React.createElement("div", {
+  })))), won && /*#__PURE__*/React.createElement("div", {
     className: "column-celebrate"
   }, problem.a, " ", cfg.op === '-' ? '−' : cfg.op, " ", problem.b, " = ", problem.answer, "!"), !won && /*#__PURE__*/React.createElement("div", {
     className: "keypad"
@@ -13563,6 +13908,8 @@ const MODEL_SUB = {
 const FL_START = 'assets-runtime/space/icons/earth.webp';
 const FL_END = 'assets-runtime/space/icons/moon.webp';
 const FL_TRAVELLER = 'assets-runtime/space/icons/rocket.webp';
+const HB_RACE_PLAYER = 'assets-runtime/space/icons/rocket.webp',
+  HB_RACE_CPU = 'assets-runtime/space/icons/robot-reader.webp';
 const FG_OBJECT = 'assets-runtime/space/icons/star.webp';
 
 /* ══ THE PIE VIEW ══
@@ -15936,9 +16283,15 @@ function HundredBoard({
   won = false,
   wrongCell = null,
   counted = null,
+  hidden = null,
+  selected = null,
+  hint = null,
+  player = null,
+  cpu = null,
   onCell,
   disabled = false,
-  compact = false
+  compact = false,
+  large = false
 }) {
   const pathIdx = new Map(path.map((n, i) => [n, i]));
   /* THE WALK IS CAPPED, AND THE ANSWER NEVER WAITS FOR IT. Both of these were
@@ -15954,7 +16307,7 @@ function HundredBoard({
        they landed, the board is explaining why. */
   const step = path.length > 1 ? Math.min(.5, 1.6 / (path.length - 1)) : .5;
   return /*#__PURE__*/React.createElement("div", {
-    className: `hb-board ${compact ? 'hb-compact' : ''}`,
+    className: `hb-board ${compact ? 'hb-compact' : ''} ${large ? 'hb-large' : ''}`,
     role: "grid",
     "aria-label": "Hundred board, numbers one to one hundred"
   }, Array.from({
@@ -15964,7 +16317,7 @@ function HundredBoard({
     const onPath = pathIdx.has(n);
     const landed = won && n === target;
     const walking = onPath && !landed;
-    const cls = ['hb-cell', counted && counted.has(n) ? 'hb-count' : '', n === start ? 'hb-start' : '', walking ? 'hb-path' : '', walking && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', landed ? 'hb-target' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
+    const cls = ['hb-cell', counted && counted.has(n) ? 'hb-count' : '', n === start ? 'hb-start' : '', walking ? 'hb-path' : '', walking && pathIdx.get(n) === path.length - 1 ? 'hb-path-last' : '', landed ? 'hb-target' : '', hidden && hidden.has(n) ? 'hb-hidden' : '', selected && selected.has(n) ? 'hb-selected' : '', hint === n || hint && hint.has && hint.has(n) ? 'hb-hint' : '', player === n ? 'hb-player' : '', cpu === n ? 'hb-cpu' : '', wrongCell === n ? 'hb-wrong' : ''].filter(Boolean).join(' ');
     return /*#__PURE__*/React.createElement("button", {
       key: n,
       className: cls,
@@ -15974,8 +16327,20 @@ function HundredBoard({
         animationDelay: `${pathIdx.get(n) * step}s`
       } : undefined,
       onClick: () => onCell && onCell(n),
-      "aria-label": String(n)
-    }, n);
+      "aria-label": hidden && hidden.has(n) ? `Hidden number at row ${Math.floor(i / 10) + 1}, column ${i % 10 + 1}` : `${n}${player === n ? ', You, player token' : ''}${cpu === n ? ', CPU, robot token' : ''}`
+    }, n, player === n && /*#__PURE__*/React.createElement("span", {
+      className: "hb-race-token hb-race-token-you",
+      "aria-hidden": "true"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: HB_RACE_PLAYER,
+      alt: ""
+    })), cpu === n && /*#__PURE__*/React.createElement("span", {
+      className: "hb-race-token hb-race-token-cpu",
+      "aria-hidden": "true"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: HB_RACE_CPU,
+      alt: ""
+    })));
   }));
 }
 
@@ -17144,7 +17509,7 @@ const HUNDRED_OP_WORDS = {
   '-9': 'Take away nine',
   '-11': 'Take away eleven'
 };
-function HundredGame({
+function HundredMoveGame({
   onBack,
   journey,
   addProgress,
@@ -17349,6 +17714,659 @@ function HundredGame({
     onClick: next,
     "aria-label": "Next"
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
+}
+const HUNDRED_FIND_PRESETS = [{
+  id: 'number',
+  tag: 'Number'
+}, {
+  id: 'place',
+  tag: 'Tens & Ones'
+}, {
+  id: 'more',
+  tag: 'More / Less'
+}, {
+  id: 'parity',
+  tag: 'Odd / Even'
+}];
+const HUNDRED_MISSING_PRESETS = [{
+  id: 'few',
+  tag: 'A Few'
+}, {
+  id: 'gap',
+  tag: 'A Gap'
+}, {
+  id: 'chunk',
+  tag: 'A Chunk'
+}, {
+  id: 'neighbours',
+  tag: 'Neighbours'
+}];
+const HUNDRED_PATTERN_PRESETS = [{
+  id: 'count',
+  tag: 'Count By'
+}, {
+  id: 'parity',
+  tag: 'Odd / Even'
+}, {
+  id: 'multiple',
+  tag: 'Multiples'
+}];
+function HundredFindPlay({
+  muted,
+  reward
+}) {
+  const [kind, setKind] = useState('number'),
+    [problem, setProblem] = useState(() => makeHundredFindProblem(Math.random, 'number'));
+  const [misses, setMisses] = useState(0),
+    [wrong, setWrong] = useState(null),
+    [won, setWon] = useState(false),
+    [found, setFound] = useState(null);
+  const mascot = useMascot(),
+    wrongT = useRef(null);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const deal = useCallback(k => {
+    setKind(k);
+    setProblem(makeHundredFindProblem(Math.random, k));
+    setMisses(0);
+    setWrong(null);
+    setWon(false);
+    setFound(null);
+  }, []);
+  useEffect(() => {
+    if (problem.kind === 'number') Voice.lines([clipLine('Find.'), clipNum(problem.target)]);else if (problem.kind === 'place') Voice.lines([clipLine('Find the number with.'), clipNum(problem.tens), clipLine('Tens and.'), problem.ones === 0 ? clipLine('Zero.') : clipNum(problem.ones), clipLine('Ones.')]);else if (problem.kind === 'more') Voice.lines([clipLine(problem.delta > 0 ? 'Find ten more than.' : 'Find ten less than.'), clipNum(problem.base)]);else Voice.lines([clipLine(problem.even ? 'Find an even number from.' : 'Find an odd number from.'), clipNum(problem.start), clipLine('To.'), clipNum(problem.end)]);
+  }, [problem]);
+  useEffect(() => {
+    if (misses === 2) Voice.lines([clipLine(problem.kind === 'place' ? 'Tens tell the row. Ones tell the seat.' : problem.kind === 'more' ? 'Ten more is one row down. Ten less is one row up.' : problem.kind === 'parity' ? 'Even numbers make pairs. Odd numbers have one left over.' : 'Use the rows and seats to find its place.')]);
+  }, [misses, problem]);
+  const tap = n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if ((problem.answers || [problem.target]).includes(n)) {
+      setWon(true);
+      setFound(n);
+      Sound.ding();
+      mascot.happy();
+      reward();
+      Voice.lines([praise(), clipNum(n)]);
+    } else {
+      setWrong(n);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrong(null), 450);
+    }
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(HUNDRED_FIND_PRESETS),
+    value: kind,
+    onPick: deal,
+    muted: muted,
+    label: "Choose a Find game"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "hb-question"
+  }, problem.prompt), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBoard, {
+    large: true,
+    target: found || problem.target,
+    won: won,
+    wrongCell: wrong,
+    hint: misses >= 3 ? problem.target : null,
+    onCell: tap,
+    disabled: won
+  })), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: () => deal(kind)
+  }, "Next"));
+}
+function HundredMissingPlay({
+  muted,
+  reward
+}) {
+  const [kind, setKind] = useState('few'),
+    [layout, setLayout] = useState(() => makeHundredMissingLayout(Math.random, 'few'));
+  const [restored, setRestored] = useState(() => new Set()),
+    [misses, setMisses] = useState(0),
+    [wrong, setWrong] = useState(null),
+    [won, setWon] = useState(false);
+  const mascot = useMascot(),
+    wrongT = useRef(null),
+    target = layout.hidden.find(n => !restored.has(n));
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const deal = useCallback(k => {
+    setKind(k);
+    setLayout(makeHundredMissingLayout(Math.random, k));
+    setRestored(new Set());
+    setMisses(0);
+    setWrong(null);
+    setWon(false);
+  }, []);
+  useEffect(() => {
+    if (target) Voice.lines([clipLine('Restore the hidden number.'), clipNum(target)]);
+  }, [target]);
+  useEffect(() => {
+    if (misses === 2) Voice.lines([clipLine(kind === 'neighbours' ? 'Left is one less. Right is one more. Up is ten less. Down is ten more.' : 'Read the numbers beside the gap, then count on.')]);
+  }, [misses, kind]);
+  const tap = n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won) return;
+    if (n === target) {
+      const next = new Set(restored).add(n);
+      setRestored(next);
+      setMisses(0);
+      Sound.ding();
+      mascot.happy();
+      if (next.size === layout.hidden.length) {
+        setWon(true);
+        reward();
+        Voice.lines([clipLine('Every number is back!')]);
+      }
+    } else {
+      setWrong(n);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrong(null), 450);
+    }
+  };
+  const hidden = new Set(layout.hidden.filter(n => !restored.has(n)));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(HUNDRED_MISSING_PRESETS),
+    value: kind,
+    onPick: deal,
+    muted: muted,
+    label: "Choose a Missing Numbers game"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "hb-question"
+  }, won ? 'All restored!' : `Restore ${target}`), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBoard, {
+    large: true,
+    hidden: hidden,
+    selected: restored,
+    wrongCell: wrong,
+    hint: misses >= 3 ? target : null,
+    onCell: tap,
+    disabled: won
+  })), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: () => deal(kind)
+  }, "Next"));
+}
+function HundredPatternPlay({
+  muted,
+  reward
+}) {
+  const [kind, setKind] = useState('count'),
+    [problem, setProblem] = useState(() => makeHundredPattern(Math.random, 'count'));
+  const [selected, setSelected] = useState(() => new Set()),
+    [misses, setMisses] = useState(0),
+    [wrong, setWrong] = useState(null),
+    [won, setWon] = useState(false);
+  const mascot = useMascot(),
+    wrongT = useRef(null),
+    answers = useMemo(() => new Set(problem.members), [problem]);
+  useEffect(() => () => clearTimeout(wrongT.current), []);
+  const deal = useCallback(k => {
+    setKind(k);
+    setProblem(makeHundredPattern(Math.random, k));
+    setSelected(new Set());
+    setMisses(0);
+    setWrong(null);
+    setWon(false);
+  }, []);
+  useEffect(() => {
+    if (problem.kind === 'count') Voice.lines([clipLine(`Count by ${problem.value}!`)]);else if (problem.kind === 'odd') Voice.lines([clipLine('Find every odd number.')]);else if (problem.kind === 'even') Voice.lines([clipLine('Find every even number.')]);else Voice.lines([clipLine('Find every multiple of.'), clipNum(problem.value)]);
+  }, [problem]);
+  useEffect(() => {
+    if (misses === 2) Voice.lines([clipLine(problem.kind === 'odd' || problem.kind === 'even' ? 'Move across the row by two.' : 'Start at the rule number, then keep adding it.')]);
+  }, [misses, problem]);
+  const tap = n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won || selected.has(n)) return;
+    if (answers.has(n)) {
+      const next = new Set(selected).add(n);
+      setSelected(next);
+      Sound.ding();
+      mascot.happy();
+      if (next.size === answers.size) {
+        setWon(true);
+        reward();
+        Voice.lines([clipLine('You found the whole pattern!')]);
+      }
+    } else {
+      setWrong(n);
+      setMisses(m => m + 1);
+      Sound.wrong();
+      mascot.oops();
+      clearTimeout(wrongT.current);
+      wrongT.current = setTimeout(() => setWrong(null), 450);
+    }
+  };
+  const remaining = new Set(problem.members.filter(n => !selected.has(n)));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ActivityRibbon, {
+    chips: chipsOf(HUNDRED_PATTERN_PRESETS),
+    value: kind,
+    onPick: deal,
+    muted: muted,
+    label: "Choose a Pattern game"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "hb-question"
+  }, problem.label), /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBoard, {
+    large: true,
+    selected: selected,
+    wrongCell: wrong,
+    hint: misses >= 3 ? remaining : null,
+    onCell: tap,
+    disabled: won
+  })), won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: () => deal(kind)
+  }, "Next"));
+}
+function HundredRacePlay({
+  muted,
+  reward,
+  playerWon = false,
+  onPlayerWin = () => {},
+  onReset = () => {}
+}) {
+  const [player, setPlayer] = useState(() => playerWon ? 100 : 1),
+    [cpu, setCpu] = useState(1),
+    [turn, setTurn] = useState('player'),
+    [die, setDie] = useState(null),
+    [result, setResult] = useState(null);
+  const [showHelp, setShowHelp] = useState(true),
+    [wrongCell, setWrongCell] = useState(null),
+    [hint, setHint] = useState('');
+  const timers = useRef([]),
+    wrongT = useRef(null);
+  useEffect(() => () => {
+    timers.current.forEach(clearTimeout);
+    clearTimeout(wrongT.current);
+  }, []);
+  const walk = (setter, path, done) => {
+    path.forEach((n, i) => timers.current.push(setTimeout(() => {
+      setter(n);
+      if (i === path.length - 1) done(n);
+    }, (i + 1) * 180)));
+  };
+  const cpuTurn = () => {
+    const roll = randR(Math.random, 1, 6);
+    setDie(roll);
+    setHint(`CPU rolled ${roll}. Watch orange move!`);
+    walk(setCpu, hundredRacePath(cpu, roll), end => {
+      if (end === 100) setResult('CPU reached 100. Race again!');else {
+        setTurn('player');
+        setDie(null);
+        setHint('Your turn — tap Roll!');
+        Voice.lines([clipLine('Your turn. Roll the die!')]);
+      }
+    });
+  };
+  const finished = playerWon ? 'You reached one hundred!' : result;
+  const roll = () => {
+    if (turn !== 'player' || finished) return;
+    Sound.setMuted(muted);
+    Sound.tap();
+    const value = randR(Math.random, 1, 6);
+    setDie(value);
+    setTurn('moving');
+    setHint(`You rolled ${value}. Watch blue move!`);
+    walk(setPlayer, hundredRacePath(player, value), end => {
+      if (end === 100) {
+        setResult('You reached one hundred!');
+        setHint('You made it to 100!');
+        onPlayerWin();
+        Sound.ding();
+        reward();
+        Voice.lines([clipLine('You reached one hundred!')]);
+      } else {
+        setTurn('cpu');
+        setHint('CPU turn — watch orange!');
+        timers.current.push(setTimeout(cpuTurn, 450));
+      }
+    });
+  };
+  const boardTap = n => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    setWrongCell(n);
+    setHint(turn === 'player' ? 'Tap the big Roll button!' : 'Wait — watch the tokens move!');
+    clearTimeout(wrongT.current);
+    wrongT.current = setTimeout(() => setWrongCell(null), 450);
+  };
+  const reset = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setPlayer(1);
+    setCpu(1);
+    setTurn('player');
+    setDie(null);
+    setResult(null);
+    setHint('Your turn — tap Roll!');
+    setWrongCell(null);
+    onReset();
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "oe-stage"
+  }, /*#__PURE__*/React.createElement(HundredBoard, {
+    large: true,
+    player: player,
+    cpu: cpu,
+    wrongCell: wrongCell,
+    onCell: boardTap
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "hb-race-controls"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hb-status"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-player-label"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "hb-player-icon hb-player-icon-you",
+    src: HB_RACE_PLAYER,
+    alt: ""
+  }), "You: ", player), /*#__PURE__*/React.createElement("span", {
+    className: "hb-player-label"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "hb-player-icon hb-player-icon-cpu",
+    src: HB_RACE_CPU,
+    alt: ""
+  }), "CPU: ", cpu)), /*#__PURE__*/React.createElement("div", {
+    className: "hb-race-turn",
+    "aria-live": "polite"
+  }, finished || (turn === 'player' ? 'Your turn' : turn === 'cpu' ? 'CPU turn' : 'Moving…'), " ", die && /*#__PURE__*/React.createElement(React.Fragment, null, "Roll: ", die)), /*#__PURE__*/React.createElement("div", {
+    className: "hb-race-hint",
+    "aria-live": "polite"
+  }, hint || 'Tap Roll. First to 100 wins!'), finished ? /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: reset
+  }, "Race again") : /*#__PURE__*/React.createElement("button", {
+    className: `hb-roll ${turn === 'player' ? 'hb-next-action' : ''}`,
+    disabled: turn !== 'player',
+    onClick: roll
+  }, "\uD83C\uDFB2 Roll"), /*#__PURE__*/React.createElement("button", {
+    className: "hb-help-btn",
+    onClick: () => setShowHelp(true),
+    "aria-label": "How to play Race to 100"
+  }, "?")), showHelp && /*#__PURE__*/React.createElement("div", {
+    className: "hb-how",
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-labelledby": "hb-how-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hb-how-card"
+  }, /*#__PURE__*/React.createElement("h2", {
+    id: "hb-how-title"
+  }, "How to race"), /*#__PURE__*/React.createElement("div", {
+    className: "hb-how-steps"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hb-how-step"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-how-picture"
+  }, "\uD83C\uDFB2"), /*#__PURE__*/React.createElement("span", null, "1. Tap Roll")), /*#__PURE__*/React.createElement("div", {
+    className: "hb-how-step"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-how-picture hb-how-players"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "hb-player-icon hb-player-icon-you",
+    src: HB_RACE_PLAYER,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("img", {
+    className: "hb-player-icon hb-player-icon-cpu",
+    src: HB_RACE_CPU,
+    alt: ""
+  })), /*#__PURE__*/React.createElement("span", null, "2. You race the CPU")), /*#__PURE__*/React.createElement("div", {
+    className: "hb-how-step"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hb-how-picture"
+  }, "\uD83C\uDFC1100"), /*#__PURE__*/React.createElement("span", null, "3. First to 100 wins!"))), /*#__PURE__*/React.createElement("button", {
+    className: "hb-how-go",
+    onClick: () => {
+      Sound.setMuted(muted);
+      Sound.tap();
+      setShowHelp(false);
+      setHint('Your turn — tap Roll!');
+    }
+  }, "Let\u2019s race!"))));
+}
+/* The picker. Every card draws its mechanic from the real cell styles (hb-start, hb-target,
+   hb-hidden, hb-selected, hb-player, hb-cpu), and the numbers are real board numbers:
+   33 34 35 over 43 44 45 is the board's own neighbourhood, so +10 really is one row down. */
+const HP_CELLS = (nums, cls = {}) => nums.map(n => /*#__PURE__*/React.createElement("span", {
+  key: n,
+  className: `hb-cell ${cls[n] || ''}`
+}, cls[n] === 'hb-hidden' ? '' : n));
+function HundredPicker({
+  muted,
+  onPick
+}) {
+  const pick = id => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    onPick(id);
+  };
+  const cols = n => ({
+    gridTemplateColumns: `repeat(${n},var(--hp-cell))`
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "hp-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hp-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hp-head"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hp-title"
+  }, "Hundred Board"), /*#__PURE__*/React.createElement("div", {
+    className: "hp-sub"
+  }, "Choose a game")), /*#__PURE__*/React.createElement("div", {
+    className: "hp-board",
+    "aria-hidden": "true"
+  }, Array.from({
+    length: 100
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "hb-cell"
+  }, i + 1)))), /*#__PURE__*/React.createElement("div", {
+    className: "hp-cards"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "hp-card hp-feature",
+    "data-mode": "move",
+    onClick: () => pick('move'),
+    "aria-label": "Move on the Board. Add or take away. Where do you land?"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-mini hp-big",
+    style: {
+      ...cols(3),
+      marginLeft: 62
+    },
+    "aria-hidden": "true"
+  }, HP_CELLS([33, 34, 35, 43, 44, 45], {
+    34: 'hb-start',
+    44: 'hb-target'
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "hp-plus"
+  }, /*#__PURE__*/React.createElement("b", null, "+10"), /*#__PURE__*/React.createElement("span", null, "\u2193"))), /*#__PURE__*/React.createElement("span", {
+    className: "hp-text"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-name"
+  }, "Move on the Board"), /*#__PURE__*/React.createElement("span", {
+    className: "hp-desc"
+  }, "Add or take away. Where do you land?"))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "hp-card",
+    "data-mode": "find",
+    onClick: () => pick('find'),
+    "aria-label": "Find the Number. Tap the number you are asked for."
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-mini",
+    style: cols(5),
+    "aria-hidden": "true"
+  }, HP_CELLS([46, 47, 48, 49, 50, 56, 57, 58, 59, 60], {
+    47: 'hb-target'
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hp-text"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-name"
+  }, "Find the Number"), /*#__PURE__*/React.createElement("span", {
+    className: "hp-desc"
+  }, "Tap the number you are asked for."))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "hp-card",
+    "data-mode": "missing",
+    onClick: () => pick('missing'),
+    "aria-label": "Missing Numbers. Fill in the empty squares."
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-mini",
+    style: cols(4),
+    "aria-hidden": "true"
+  }, HP_CELLS([31, 32, 33, 34, 41, 42, 43, 44], {
+    33: 'hb-hidden'
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hp-text"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-name"
+  }, "Missing Numbers"), /*#__PURE__*/React.createElement("span", {
+    className: "hp-desc"
+  }, "Fill in the empty squares."))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "hp-card",
+    "data-mode": "patterns",
+    onClick: () => pick('patterns'),
+    "aria-label": "Find the Pattern. Tap every number in the pattern."
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-mini",
+    style: cols(6),
+    "aria-hidden": "true"
+  }, HP_CELLS([1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16], {
+    3: 'hb-selected',
+    6: 'hb-selected',
+    12: 'hb-selected',
+    15: 'hb-selected'
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hp-text"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-name"
+  }, "Find the Pattern"), /*#__PURE__*/React.createElement("span", {
+    className: "hp-desc"
+  }, "Tap every number in the pattern."))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "hp-card",
+    "data-mode": "race",
+    onClick: () => pick('race'),
+    "aria-label": "Race to 100. Roll the die. Be first to 100."
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-raceline",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-mini",
+    style: cols(6)
+  }, HP_CELLS([95, 96, 97, 98, 99, 100], {
+    95: 'hb-cpu',
+    97: 'hb-player',
+    100: 'hb-target'
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hp-die",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null), /*#__PURE__*/React.createElement("i", null))), /*#__PURE__*/React.createElement("span", {
+    className: "hp-text"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hp-name"
+  }, "Race to 100"), /*#__PURE__*/React.createElement("span", {
+    className: "hp-desc"
+  }, "Roll the die. Be first to 100.")))));
+}
+function HundredGame({
+  onBack,
+  journey,
+  addProgress,
+  trophies,
+  journeyBg,
+  score,
+  setScore,
+  muted,
+  onToggleMute
+}) {
+  const [boardMode, setBoardMode] = useState(null),
+    [raceWon, setRaceWon] = useState(false);
+  const reward = useCallback(() => {
+    setScore(s => s + 1);
+    addProgress();
+  }, [setScore, addProgress]);
+  if (boardMode === 'move') return /*#__PURE__*/React.createElement(HundredMoveGame, {
+    onBack: () => setBoardMode(null),
+    journey: journey,
+    addProgress: addProgress,
+    trophies: trophies,
+    journeyBg: journeyBg,
+    score: score,
+    setScore: setScore,
+    muted: muted,
+    onToggleMute: onToggleMute
+  });
+  const names = {
+    find: 'Find the Number',
+    missing: 'Missing Numbers',
+    patterns: 'Find the Pattern',
+    race: 'Race to 100'
+  };
+  const leaveMode = () => {
+    setRaceWon(false);
+    setBoardMode(null);
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen hb-screen",
+    style: {
+      '--game-bg': `url('${journeyBg}')`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: boardMode ? leaveMode : onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    score: score,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement(Mascot, {
+    kind: "rocket"
+  }), !boardMode ? /*#__PURE__*/React.createElement(HundredPicker, {
+    muted: muted,
+    onPick: setBoardMode
+  }) : /*#__PURE__*/React.createElement("div", {
+    className: `hb-play hb-play-${boardMode}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Hundred Board"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, names[boardMode])), /*#__PURE__*/React.createElement(React.Fragment, {
+    key: boardMode
+  }, boardMode === 'find' ? /*#__PURE__*/React.createElement(HundredFindPlay, {
+    muted: muted,
+    reward: reward
+  }) : boardMode === 'missing' ? /*#__PURE__*/React.createElement(HundredMissingPlay, {
+    muted: muted,
+    reward: reward
+  }) : boardMode === 'patterns' ? /*#__PURE__*/React.createElement(HundredPatternPlay, {
+    muted: muted,
+    reward: reward
+  }) : /*#__PURE__*/React.createElement(HundredRacePlay, {
+    muted: muted,
+    reward: reward,
+    playerWon: raceWon,
+    onPlayerWin: () => setRaceWon(true),
+    onReset: () => setRaceWon(false)
+  }))));
 }
 
 /* ══ MODE d1: SHARING IS DIVISION ══
@@ -21583,6 +22601,8 @@ function Home({
     "aria-label": "Number Toys. Build your own number sentence"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "np1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "np1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Number Toys")), /*#__PURE__*/React.createElement("button", {
@@ -21590,6 +22610,8 @@ function Home({
     onClick: () => pick('x1'),
     "aria-label": "Nine Magic. Tricks with nine"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "x1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "x1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21600,6 +22622,8 @@ function Home({
     onClick: () => pick('k1'),
     "aria-label": "Memory Match. Turn two cards over and find the pairs"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "k1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "k1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21627,6 +22651,8 @@ function Home({
     "aria-label": "What Number? Count the blocks"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "b1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "b1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "What Number?"), /*#__PURE__*/React.createElement(Stars, {
@@ -21636,6 +22662,8 @@ function Home({
     onClick: () => pick('b2'),
     "aria-label": "Fill the Right Block. Build the number"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "b2"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "b2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21647,6 +22675,8 @@ function Home({
     "aria-label": "Which is Bigger? Greater than, less than or the same"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "g1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "g1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Which is Bigger?"), /*#__PURE__*/React.createElement(Stars, {
@@ -21657,6 +22687,8 @@ function Home({
     "aria-label": "What's Missing? Make both sides the same"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "b3"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "b3"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "What's Missing?"), /*#__PURE__*/React.createElement(Stars, {
@@ -21666,6 +22698,8 @@ function Home({
     onClick: () => pick('o1'),
     "aria-label": "Order the Numbers. Put the cards from least to greatest"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "o1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "o1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21679,6 +22713,8 @@ function Home({
     },
     "aria-label": "Star Sums. Make number lines that total five, ten, fifteen, or twenty"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "fs1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "fs1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21706,6 +22742,8 @@ function Home({
     "aria-label": "Sequence. Complete the number pattern"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "sq1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "sq1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Sequence"), /*#__PURE__*/React.createElement(Stars, {
@@ -21715,6 +22753,8 @@ function Home({
     onClick: () => pick('r1'),
     "aria-label": "Read Big Numbers. Build a big one"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "r1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "r1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21726,6 +22766,8 @@ function Home({
     "aria-label": "Odd or Even? Pair them up"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "oe1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "oe1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Odd or Even?"), /*#__PURE__*/React.createElement(Stars, {
@@ -21735,6 +22777,8 @@ function Home({
     onClick: () => pick('h1'),
     "aria-label": "Hundred Board. Where do you land?"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "h1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "h1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21747,6 +22791,8 @@ function Home({
     onClick: () => pick('t1'),
     "aria-label": "Tap or Wait. Tap the matching numbers and wait for the rest"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "t1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "t1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21774,6 +22820,8 @@ function Home({
     "aria-label": "Make 10. Fill it up, or watch them fly"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "n1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "n1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Make 10"), /*#__PURE__*/React.createElement(Stars, {
@@ -21784,6 +22832,8 @@ function Home({
     "aria-label": "Make 100. How many more make a hundred?"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "n3"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "n3"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Make 100"), /*#__PURE__*/React.createElement(Stars, {
@@ -21793,6 +22843,8 @@ function Home({
     onClick: () => pick('y1'),
     "aria-label": "Make It. Tap two numbers that make the target"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "y1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "y1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21820,6 +22872,8 @@ function Home({
     "aria-label": "Times Tables"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "m1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "m1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Times Tables"), /*#__PURE__*/React.createElement(Stars, {
@@ -21829,6 +22883,8 @@ function Home({
     onClick: () => pick('s1'),
     "aria-label": "Count By. Count in jumps"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "s1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "s1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21840,6 +22896,8 @@ function Home({
     "aria-label": "Times Table chart. Tap a square"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "m2"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "m2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Table Chart"), /*#__PURE__*/React.createElement(Stars, {
@@ -21849,6 +22907,8 @@ function Home({
     onClick: () => pick('d1'),
     "aria-label": "Share It Out. Deal them fairly"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "d1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "d1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21876,6 +22936,8 @@ function Home({
     "aria-label": "Read Fractions. Tap the pieces"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "f1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "f1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Fractions"), /*#__PURE__*/React.createElement(Stars, {
@@ -21885,6 +22947,8 @@ function Home({
     onClick: () => pick('q1'),
     "aria-label": "What's the Fraction? Count the lit parts"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "q1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "q1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21896,6 +22960,8 @@ function Home({
     "aria-label": "Which Unit? Tap a picture"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "u1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "u1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Which Unit?"), /*#__PURE__*/React.createElement(Stars, {
@@ -21905,6 +22971,8 @@ function Home({
     onClick: () => pick('a1'),
     "aria-label": "Cover It. How many squares"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "a1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "a1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21932,6 +23000,8 @@ function Home({
     "aria-label": "Add and Subtract"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "l2"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "l2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Add & Subtract"), /*#__PURE__*/React.createElement(Stars, {
@@ -21942,6 +23012,8 @@ function Home({
     "aria-label": "Add and Take Away. Column style"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "c1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "c1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Add & Take Away"), /*#__PURE__*/React.createElement(Stars, {
@@ -21951,6 +23023,8 @@ function Home({
     onClick: () => pick('c2'),
     "aria-label": "Carry and Borrow. For big kids"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "c2"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "c2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
@@ -21964,6 +23038,8 @@ function Home({
     "aria-label": "Multiply. Column style. For big kids"
   }, /*#__PURE__*/React.createElement(GamePreview, {
     id: "c5"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: "c5"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
   }, "Multiply"), /*#__PURE__*/React.createElement(Stars, {
@@ -21973,6 +23049,8 @@ function Home({
     onClick: () => pick('p1'),
     "aria-label": "Number Crossword. Make every line true"
   }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "p1"
+  }), /*#__PURE__*/React.createElement(CardSticker, {
     id: "p1"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
