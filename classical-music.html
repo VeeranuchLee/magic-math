@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="audio-wake.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Little Maestro 🎵</title>
@@ -435,6 +436,7 @@ function getCtx() {
   }
   return audioCtx;
 }
+if (typeof AudioWake !== "undefined") AudioWake.attach(() => audioCtx, () => { audioCtx = null; });
 
 const NOTE_FREQS = {
   C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,

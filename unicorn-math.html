@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="audio-wake.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <!-- Plain name, deliberately. This read "Magic Math v7" from 7343cc3 until
@@ -2513,6 +2514,10 @@ const Sound = (() => {
     if (_ctx.state === 'suspended') _ctx.resume();
     return _ctx;
   };
+  if (typeof AudioWake !== "undefined") AudioWake.attach(() => _ctx, () => {
+    _ctx = null;
+    _bus = null;
+  });
   /* ── THE BUS ──
      Every cue used to connect its oscillator straight to c.destination, which is most
      of why the set read as a test-tone generator: pure sines, no room, and nothing
@@ -10533,6 +10538,7 @@ function MissingGame({
     mascot.happy();
     setScore(s => s + 1);
     addFlower();
+    Voice.lines([praise()]);
     setTimeout(() => setConf(false), 1800);
   }, [muted, mascot, setScore, addFlower]);
   useEffect(() => {

@@ -29,6 +29,7 @@ function sfx(kind){
   g.gain.setValueAtTime(.12,now); g.gain.exponentialRampToValueAtTime(.001,now+.3);
   o.connect(g).connect(a.destination); o.start(); o.stop(now+.31);
 }
+if (typeof AudioWake !== "undefined") AudioWake.attach(()=>sfx.a,()=>{sfx.a=null});
 
 function targetText(){const m=FIVE_SUMS_MODES[state.mode];return m.targets?'make '+m.targets.join(', '):'make a multiple of 5';}
 

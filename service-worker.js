@@ -308,11 +308,12 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        Patterns, Race, already inlined in space-math.html and unicorn-math.html) and the
 //        Enchanted Spelling Workshop (#1287). Worker/cache bump only; the controller
 //        prepares the release and nothing is published from this task.
-const CACHE_NAME = "magic-math-v59";
+const CACHE_NAME = "magic-math-v60";
 
 const SHELL = [
   "./",
   "./index.html",
+  "./audio-wake.js",
   "./css/math-hub.css",
   "./js/math-hub.js",
   "./assets-runtime/hub/scene.webp",

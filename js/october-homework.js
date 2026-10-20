@@ -121,6 +121,7 @@
       });
     } catch (e) { /* silent is fine */ }
   }
+  if (typeof AudioWake !== "undefined") AudioWake.attach(function () { return audioCtx; }, function () { audioCtx = null; });
 
   function solve(q, answer) {
     progress.done[q.id] = { a: answer };
