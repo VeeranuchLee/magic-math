@@ -308,7 +308,9 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        Patterns, Race, already inlined in space-math.html and unicorn-math.html) and the
 //        Enchanted Spelling Workshop (#1287). Worker/cache bump only; the controller
 //        prepares the release and nothing is published from this task.
-const CACHE_NAME = "magic-math-v60";
+//   v60 -> v61, 2026-10-20: menu music ON by default; audio-wake no longer switches the iPad audio session (owner: "Why math app music not play?");
+//        it stays off only for a child who turned it off. Worker bump arms the release.
+const CACHE_NAME = "magic-math-v61";
 
 const SHELL = [
   "./",
@@ -405,6 +407,7 @@ self.addEventListener("fetch", (event) => {
   // fail normally rather than be served a stale cached copy.
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
 
   event.respondWith(
     caches.match(request).then((cached) => {

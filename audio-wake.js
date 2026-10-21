@@ -5,7 +5,6 @@
     if (typeof getContext !== "function") return function () {};
     var watched = null;
     var rebuilding = false;
-    var audioSessionSet = false;
 
     function rebuild() {
       if (rebuilding || typeof onClosed !== "function") return;
@@ -41,10 +40,10 @@
     }
 
     function gesture() {
-      if (!audioSessionSet) {
-        audioSessionSet = true;
-        try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (_) {}
-      }
+      /* No navigator.audioSession.type change (owner 2026-10-20: crackly/hissy sound in
+         every app, voice broken even in a private window). Switching the iPad session
+         category after audio has started can change the hardware sample rate under a
+         running AudioContext/media element; leave Safari's default session alone. */
       wake();
       try { Promise.resolve().then(wake); } catch (_) {}
     }

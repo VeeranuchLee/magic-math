@@ -182,7 +182,7 @@ var Music=(function(){
   var RAMP_MS=420, STEP_MS=40;
   var el=null, ramp=0, armed=false;
   var seekTo=0, posTaken=true;
-  var pref=(function(){try{return localStorage.getItem(KEY)==='1';}catch(e){return false;}})();
+  var pref=(function(){try{return localStorage.getItem(KEY)!=='0';}catch(e){return true;}})();
 
   function fadeTo(v,thenPause){
     if(!el)return;
