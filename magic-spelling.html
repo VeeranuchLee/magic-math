@@ -221,7 +221,7 @@
     .shelf-head{position:absolute;top:66px;left:50%;z-index:4;transform:translateX(-50%);font-family:'Fredoka One';color:var(--cream);text-shadow:0 2px 8px var(--ink);font-size:clamp(1.15rem,3vw,1.75rem);white-space:nowrap;background:rgba(43,22,38,.94);border:2px solid var(--gold);border-radius:999px;padding:5px 20px;box-shadow:0 4px 0 #1c0d19}
     .shelf-wrap{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:min(88vw,900px);height:57%;display:flex;align-items:center;gap:6px}.pack-grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;max-width:none;min-height:0;height:100%;flex:1}
     .pack-card{position:relative;justify-self:center;align-self:center;width:72%;height:66%;min-height:76px;border:3px solid #d5a72d;border-radius:12px 20px 20px 12px;padding:5px 4px;background:linear-gradient(90deg,#35162f 0 9%,#6d28a9 10% 86%,#3b1663);box-shadow:inset 0 0 0 3px rgba(255,213,79,.15),0 5px 0 #24101f;color:#fff}
-    .pack-card.current{transform:translateY(-5px);filter:drop-shadow(0 0 10px var(--gold))}.pack-card.current::after{content:'';position:absolute;top:-3px;right:12px;width:16px;height:31px;background:#7c3aed;clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%)}.pack-card.complete::before{content:'✓';position:absolute;top:5px;left:8px;color:var(--gold);font-weight:900}
+    .pack-card.current{transform:translateY(-5px);filter:drop-shadow(0 0 10px var(--gold))}.pack-card.current::after{content:'';position:absolute;top:-3px;right:12px;width:16px;height:31px;background:#7c3aed;clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%)}
     .pack-num{font-size:clamp(1.35rem,4vw,2rem)}.pack-word{color:#f9eec8}.pack-fraction{font-size:.7rem;font-weight:900}.pack-status{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.pack-stars{font-size:1rem}
     .page-btn{flex:0 0 54px;width:54px;height:66px;border-radius:18px;border:2px solid var(--gold);background:rgba(43,22,38,.94);color:var(--gold);font-size:2rem;font-weight:900}.page-btn:disabled{opacity:.35}.page-row{position:absolute;bottom:12px;left:14px;display:flex;gap:2px;align-items:center;justify-content:center}.page-dot{width:44px;height:44px;border:0;background:transparent;position:relative}.page-dot::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;border:2px solid var(--gold);background:rgba(43,22,38,.8);inset:13px}.page-dot.active::after{background:var(--gold)}
     .shelf-screen>.continue-btn{position:absolute;right:18px;bottom:14px;z-index:4}
@@ -240,7 +240,7 @@
     .slot.filled,.slot-row.long .slot.filled{background:linear-gradient(145deg,#fff9e5,#e8c87b);border-color:#b27a23;box-shadow:inset 0 2px 4px rgba(116,71,22,.18),0 2px 3px rgba(77,39,14,.18)}
     .tile-tray{box-sizing:border-box;position:absolute;left:var(--tray-left);top:var(--tray-top);display:flex;align-items:center;justify-content:center;width:var(--tray-width);min-height:0;padding:clamp(9px,1.5vh,18px) clamp(8px,1.8vw,24px);border:4px solid #9a6429;border-radius:18px 18px 28px 28px;background:linear-gradient(180deg,rgba(176,118,52,.98) 0,rgba(128,78,34,.98) 14%,rgba(112,66,28,.98) 86%,rgba(150,98,44,.98));box-shadow:inset 0 0 0 3px #e3b85d,inset 0 7px 10px rgba(35,13,31,.55),0 9px 0 #4f2b18,0 13px 18px rgba(32,14,11,.38)}
     .tile-row{max-width:100%}.tile,.tile-row.dense .tile{min-width:44px;min-height:48px;background:linear-gradient(145deg,#fffdf0 0%,#eee0bd 58%,#caa75d 100%)!important;color:#32231c!important;border:2px solid #b47b24;border-radius:10px;box-shadow:inset 2px 2px 2px rgba(255,255,255,.95),inset -3px -3px 4px rgba(115,73,22,.24),0 5px 0 #76501e,0 8px 8px rgba(28,12,9,.42)!important;text-shadow:0 1px 0 #fff;font-family:'Fredoka One','Nunito',sans-serif}.tile:active{transform:translateY(4px) scale(.97);box-shadow:inset 2px 2px 3px rgba(118,78,28,.2),0 1px 0 #76501e!important}.tile.used{opacity:.24;transform:scale(.9)}
-    .praise-banner{position:absolute;left:var(--paper-left);top:var(--praise-top);width:var(--paper-width);color:#4a2340;text-shadow:0 1px 0 #fff2c8;min-height:1.45em;font-size:clamp(.85rem,2.6vw,1.3rem)}.score-row{background:rgba(43,22,38,.94);border-top:2px solid rgba(255,213,79,.6)}.score-badge,.flower-garden{background:#fff5d6;border-color:#b6842b;color:var(--plum)}.flower-slot{font-size:0}.flower-slot::before{content:'✿';font-size:18px;color:#7c3aed}.flower-slot.empty::before{color:#8b806f}.mascot-corner{display:none}
+    .praise-banner{position:absolute;left:var(--paper-left);top:var(--praise-top);width:var(--paper-width);color:#4a2340;text-shadow:0 1px 0 #fff2c8;min-height:1.45em;font-size:clamp(.85rem,2.6vw,1.3rem)}.score-row{background:rgba(43,22,38,.94);border-top:2px solid rgba(255,213,79,.6)}.score-badge,.flower-garden{background:#fff5d6;border-color:#b6842b;color:var(--plum)}.flower-slot{font-size:0}.flower-slot .icon-svg{width:18px;height:18px;color:#7c3aed}.mascot-corner{display:none}
     .complete-panel{width:min(88vw,760px);margin:auto;padding:18px;background:rgba(43,22,38,.9);border:3px solid var(--gold);border-radius:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}.complete-panel .book-mascot{width:clamp(100px,16vw,150px);height:clamp(92px,14vw,132px)}.complete-title{color:var(--gold)}.complete-sub{color:var(--cream)}.complete-overlay{position:static;background:none;backdrop-filter:none;padding:0}.complete-stars{font-size:clamp(48px,12vw,78px)}.big-btn{min-height:52px;background:linear-gradient(#8b5cf6,#5b21b6);box-shadow:0 5px 0 #35106d;border:2px solid var(--gold)}.big-btn.alt{background:rgba(58,30,51,.95);box-shadow:0 5px 0 #1c0d19}
     @media (orientation:portrait){.workshop-screen{background-image:linear-gradient(rgba(43,22,38,.12),rgba(43,22,38,.2)),url('assets-runtime/spelling/workshop/grade-room-portrait.webp')}.shelf-screen{background-image:linear-gradient(rgba(43,22,38,.12),rgba(43,22,38,.18)),url('assets-runtime/spelling/workshop/pack-shelf-portrait.webp')}.desk-screen{background-image:url('assets-runtime/spelling/workshop/desk-portrait.webp')}.complete-screen{background-image:url('assets-runtime/spelling/workshop/complete-portrait.webp')}.station-grid{grid-template-columns:repeat(3,minmax(0,1fr));width:min(94vw,720px);gap:8px;margin:auto 0 8px}.station-card{min-height:116px;padding:10px 7px;align-items:center}.station-name{font-size:clamp(.9rem,2.5vw,1.15rem)}.station-progress{font-size:clamp(.65rem,1.8vw,.78rem)}.workshop-title{margin-top:58px}.shelf-wrap{top:14%;width:min(82vw,680px);height:59%}.pack-card{width:68%;height:68%}.shelf-screen .top-bar .bar-label,.shelf-head{top:70px}.shelf-screen>.continue-btn{right:50%;transform:translateX(50%);bottom:18px}.page-row{left:50%;transform:translateX(-50%);bottom:76px}.complete-panel{margin-top:16vh}}
     @media (max-height:520px) and (orientation:landscape){
@@ -1024,9 +1024,9 @@ function nextWord(s, rng) {
 function BgDeco() {
   const target = useRef(null);
   useBgDecoEffect(() => initBgDeco(target.current, {
-    icons: ['✨', '🌸', '💖', '✨', '👑', '✨', '🌸', '🦋', '✨', '💜', '🌷', '✨', '🦄', '🌸', '✨', '💖', '🌺', '✨', '🎀', '✨'],
+    icons: [],
     glow: 'rgba(255,190,220,.6)',
-    count: 20,
+    count: 0,
     type: 'text',
     topMax: 88,
     sizeMax: 32
@@ -1096,7 +1096,7 @@ function FlowerGarden({
   }, (_, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
     className: `flower-slot ${i < flowers ? 'filled' : 'empty'}`
-  }, i < flowers ? ['🌸', '🌼', '🌷', '🌺', '💖'][i % 5] : '·')));
+  }, i < flowers ? /*#__PURE__*/React.createElement(FlowerIcon, null) : null)));
 }
 function ScoreRow({
   score,
@@ -1192,6 +1192,38 @@ function SpeakerOffIcon() {
     y2: "15"
   }));
 }
+function FlowerIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "1.8",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "6.5",
+    r: "3.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "7.5",
+    cy: "11",
+    r: "3.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "16.5",
+    cy: "11",
+    r: "3.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "15.5",
+    r: "3.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "11",
+    r: "2",
+    fill: "currentColor",
+    stroke: "none"
+  }));
+}
 
 /* The owner-selected purple book belongs to this workshop only. Other Magic Math games
    retain their robots. Each state uses a cut from the supplied pose sheet, never a CSS
@@ -1281,10 +1313,11 @@ function TopBar({
   }, /*#__PURE__*/React.createElement("span", {
     "aria-hidden": "true",
     style: {
-      fontSize: 26,
+      width: 26,
+      height: 26,
       lineHeight: 1
     }
-  }, "\uD83C\uDF38"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(FlowerIcon, null)), /*#__PURE__*/React.createElement("button", {
     className: "round-btn",
     "aria-label": "Back",
     onClick: () => {

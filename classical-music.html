@@ -4,7 +4,7 @@
 <script src="audio-wake.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Little Maestro 🎵</title>
+<title>Little Maestro</title>
   <link rel="manifest" href="./manifest.webmanifest"/>
   <link rel="stylesheet" href="./fonts.css"/>
   <meta name="theme-color" content="#0a0e2d"/>
@@ -35,6 +35,8 @@
     color: var(--dark);
     padding: 16px;
   }
+  .ui-icon { width: 1.2em; height: 1.2em; vertical-align: -0.2em; flex: 0 0 auto; }
+  .results-emoji .ui-icon { width: 4rem; height: 4rem; }
 
   h1.logo {
     font-family: 'Fredoka One', cursive;
@@ -399,12 +401,12 @@
      work live and 404 in every local preview. -->
 <a class="hub-btn" href="https://veeranuchlee.github.io/children-apps/" aria-label="Back to Children Games">&larr;</a>
 
-<h1 class="logo">🎵 Little Maestro</h1>
+<h1 class="logo">Little Maestro</h1>
 <p class="tagline">Discover classical music — listen, learn & play!</p>
 
 <div class="mode-bar">
-  <button class="mode-btn teach active" onclick="setMode('teach')">📖 Teach Me</button>
-  <button class="mode-btn quiz"  onclick="setMode('quiz')">🎮 Quiz Time</button>
+  <button class="mode-btn teach active" onclick="setMode('teach')">Teach Me</button>
+  <button class="mode-btn quiz"  onclick="setMode('quiz')">Quiz Time</button>
 </div>
 
 <!-- TEACH MODE -->
@@ -474,15 +476,14 @@ const SONGS = [
     name: 'Ode to Joy',
     composer: 'Ludwig van Beethoven',
     year: '1824',
-    emoji: '🎊',
-    mood: '😄 Happy & Triumphant',
+    mood: 'Happy & Triumphant',
     moodKey: 'happy',
-    tempo: '🚂 Moderate (not too fast, not too slow)',
+    tempo: 'Moderate (not too fast, not too slow)',
     tempoKey: 'moderate',
-    pitch: '↔️ Mix of middle & high notes',
+    pitch: 'Mix of middle & high notes',
     pitchKey: 'middle-high',
     color: '#7b68ee',
-    history: "Beethoven wrote this piece when he was almost completely deaf — he couldn't hear a single note! It was first played in Vienna in 1824, and when it finished, the audience clapped so loudly that someone had to turn Beethoven around so he could see their cheers. Today it is the anthem of Europe! 🌍",
+    history: "Beethoven wrote this piece when he was almost completely deaf — he couldn't hear a single note! It was first played in Vienna in 1824, and when it finished, the audience clapped so loudly that someone had to turn Beethoven around so he could see their cheers. Today it is the anthem of Europe!",
     funFact: "Beethoven couldn't hear his own masterpiece!",
     notes: [
       {n:'E4',d:0.4},{n:'E4',d:0.4},{n:'F4',d:0.4},{n:'G4',d:0.4},
@@ -497,15 +498,14 @@ const SONGS = [
     name: 'Für Elise',
     composer: 'Ludwig van Beethoven',
     year: '1810',
-    emoji: '🌸',
-    mood: '💭 Gentle & Dreamy',
+    mood: 'Gentle & Dreamy',
     moodKey: 'gentle',
-    tempo: '🌊 Flowing (gentle and smooth)',
+    tempo: 'Flowing (gentle and smooth)',
     tempoKey: 'slow',
-    pitch: '🎠 High & delicate notes',
+    pitch: 'High & delicate notes',
     pitchKey: 'high',
     color: '#ff6b9d',
-    history: "Nobody knows exactly who 'Elise' was! Some people think Beethoven wrote this piece for a woman he loved, but her name might have been 'Therese' — and the handwriting was just hard to read. This piece was found in a drawer after Beethoven died and wasn't published until 40 years later! 🗝️",
+    history: "Nobody knows exactly who 'Elise' was! Some people think Beethoven wrote this piece for a woman he loved, but her name might have been 'Therese' — and the handwriting was just hard to read. This piece was found in a drawer after Beethoven died and wasn't published until 40 years later!",
     funFact: "We still don't know who Elise really was!",
     notes: [
       {n:'E5',d:0.3},{n:'D5',d:0.3},{n:'E5',d:0.3},{n:'D5',d:0.3},{n:'E5',d:0.3},
@@ -520,15 +520,14 @@ const SONGS = [
     name: 'Twinkle Twinkle Little Star',
     composer: 'Traditional',
     year: '1761',
-    emoji: '⭐',
-    mood: '🌟 Bright & Playful',
+    mood: 'Bright & Playful',
     moodKey: 'playful',
-    tempo: '🐢 Slow & easy to follow',
+    tempo: 'Slow & easy to follow',
     tempoKey: 'slow',
-    pitch: '⬆️ Mostly middle notes',
+    pitch: 'Mostly middle notes',
     pitchKey: 'middle',
     color: '#FFD93D',
-    history: "The tune was originally a French song called 'Ah! vous dirai-je, maman' (which means 'Ah! Shall I tell you, Mama?'). Mozart was only 25 when he wrote 12 brilliant variations on this melody — that means he turned this simple tune into 12 different musical adventures! 🎭",
+    history: "The tune was originally a French song called 'Ah! vous dirai-je, maman' (which means 'Ah! Shall I tell you, Mama?'). Mozart was only 25 when he wrote 12 brilliant variations on this melody — that means he turned this simple tune into 12 different musical adventures!",
     funFact: "Mozart wrote 12 different versions of this tune!",
     notes: [
       {n:'C4',d:0.4},{n:'C4',d:0.4},{n:'G4',d:0.4},{n:'G4',d:0.4},
@@ -543,15 +542,14 @@ const SONGS = [
     name: 'Swan Lake (Theme)',
     composer: 'Pyotr Ilyich Tchaikovsky',
     year: '1876',
-    emoji: '🦢',
-    mood: '😢 Mysterious & Bittersweet',
+    mood: 'Mysterious & Bittersweet',
     moodKey: 'sad',
-    tempo: '🌙 Slow & graceful',
+    tempo: 'Slow & graceful',
     tempoKey: 'slow',
-    pitch: '🌊 Low flowing to high',
+    pitch: 'Low flowing to high',
     pitchKey: 'low-high',
     color: '#6EC6F0',
-    history: "Swan Lake is a ballet — a dance story — about a princess turned into a swan by a wicked spell. When it was first performed in Moscow, people didn't like it very much! But after Tchaikovsky died, a famous choreographer revived it, and it became one of the most beloved ballets in the whole world. 🏰",
+    history: "Swan Lake is a ballet — a dance story — about a princess turned into a swan by a wicked spell. When it was first performed in Moscow, people didn't like it very much! But after Tchaikovsky died, a famous choreographer revived it, and it became one of the most beloved ballets in the whole world.",
     funFact: "The audience didn't like Swan Lake at first!",
     notes: [
       {n:'B3',d:0.6},{n:'A3',d:0.3},{n:'B3',d:0.3},
@@ -572,32 +570,32 @@ function buildQuizQuestions() {
     qs.push({
       songId: s.id,
       type: 'mood',
-      question: `🎵 Listen to this snippet — how does it make you feel?`,
+      question: `Listen to this snippet — how does it make you feel?`,
       answer: s.mood,
       choices: shuffle([s.mood,
         ...SONGS.filter(x=>x.id!==s.id).map(x=>x.mood).slice(0,3)
       ]).slice(0,4),
-      explanation: `✅ ${s.name} by ${s.composer} is ${s.mood.toLowerCase()}!`
+      explanation: `${s.name} by ${s.composer} is ${s.mood.toLowerCase()}!`
     });
     qs.push({
       songId: s.id,
       type: 'name',
-      question: `🎵 Can you guess the name of this piece?`,
+      question: `Can you guess the name of this piece?`,
       answer: s.name,
       choices: shuffle([s.name,
         ...SONGS.filter(x=>x.id!==s.id).map(x=>x.name)
       ]).slice(0,4),
-      explanation: `✅ That's "${s.name}" by ${s.composer}!`
+      explanation: `That's "${s.name}" by ${s.composer}!`
     });
     qs.push({
       songId: s.id,
       type: 'tempo',
-      question: `🎵 How fast or slow is this music?`,
+      question: `How fast or slow is this music?`,
       answer: s.tempo,
       choices: shuffle([s.tempo,
         ...SONGS.filter(x=>x.id!==s.id).map(x=>x.tempo).slice(0,3)
       ]).slice(0,4),
-      explanation: `✅ Correct! ${s.name} has a ${s.tempo.toLowerCase()} rhythm.`
+      explanation: `Correct! ${s.name} has a ${s.tempo.toLowerCase()} rhythm.`
     });
   });
   return shuffle(qs);
@@ -623,6 +621,19 @@ let quizIdx = 0;
 let quizScore = 0;
 let quizAnswered = false;
 
+function uiIcon(kind) {
+  const paths = {
+    music:'<path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="3" fill="currentColor" stroke="none"/>',
+    book:'<path d="M4 5.5c3.5-.8 6.2.2 8 2v11c-1.8-1.8-4.5-2.8-8-2zM20 5.5c-3.5-.8-6.2.2-8 2v11c1.8-1.8 4.5-2.8 8-2z"/>',
+    piano:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 6v7M12 6v7M16 6v7"/><path d="M6.5 6v4M10.5 6v4M14.5 6v4M18.5 6v4" stroke-width="2.8"/>',
+    mask:'<path d="M4 7c4-2 12-2 16 0v5c0 5-4 8-8 8s-8-3-8-8z"/><path d="M7 11h3M14 11h3M9 15c2 1 4 1 6 0"/>',
+    notes:'<path d="M7 17V7l10-2v10"/><circle cx="5" cy="17" r="2.5" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="2.5" fill="currentColor" stroke="none"/>',
+    check:'<path d="m5 12.5 4.2 4.2L19 7"/>',
+    cross:'<path d="m6 6 12 12M18 6 6 18"/>'
+  };
+  return `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[kind]||paths.music}</svg>`;
+}
+
 // ─────────────────────────────────────────────
 // MODE SWITCH
 // ─────────────────────────────────────────────
@@ -641,7 +652,7 @@ function setMode(mode) {
 function renderSongPicker() {
   const el = document.getElementById('song-picker');
   el.innerHTML = SONGS.map((s,i) =>
-    `<button class="song-chip ${i===currentSongIdx?'active':''}" onclick="selectSong(${i})">${s.emoji} ${s.name}</button>`
+    `<button class="song-chip ${i===currentSongIdx?'active':''}" onclick="selectSong(${i})">${s.name}</button>`
   ).join('');
 }
 
@@ -666,7 +677,7 @@ function renderTeachCard() {
 
   document.getElementById('teach-card').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-      <span style="font-size:2.5rem">${s.emoji}</span>
+
       <div>
         <div class="song-title">${s.name}</div>
         <div class="composer-line">by ${s.composer} · ${s.year}</div>
@@ -674,9 +685,9 @@ function renderTeachCard() {
     </div>
 
     <div class="tags">
-      <span class="tag mood">🎭 ${s.mood}</span>
+      <span class="tag mood">${uiIcon('mask')} ${s.mood}</span>
       <span class="tag tempo">⏱️ ${s.tempo}</span>
-      <span class="tag pitch">🎼 ${s.pitch}</span>
+      <span class="tag pitch">${uiIcon('notes')} ${s.pitch}</span>
     </div>
 
     <button class="play-btn" id="play-melody-btn" onclick="playMelody()">
@@ -686,12 +697,12 @@ function renderTeachCard() {
     <div class="visualizer" id="visualizer">${vizBars}</div>
 
     <div class="piano-section">
-      <div class="piano-label">🎹 Try the notes yourself!</div>
+      <div class="piano-label">${uiIcon('piano')} Try the notes yourself!</div>
       <div class="notes-row">${noteButtons}</div>
     </div>
 
     <div class="history-box">
-      <div class="hist-title">📖 Did you know?</div>
+      <div class="hist-title">${uiIcon('book')} Did you know?</div>
       ${s.history}
       <br><br>
       <strong>⭐ Fun fact:</strong> ${s.funFact}
@@ -777,11 +788,11 @@ function renderQuiz() {
       <span class="stars">${stars || '—'}</span>
     </div>
 
-    <div class="quiz-header">🎵 Listen & Guess!</div>
+    <div class="quiz-header">${uiIcon('music')} Listen & Guess!</div>
     <div class="quiz-sub">Tap the music, then pick your answer.</div>
 
     <button class="snippet-btn" id="snippet-play" onclick="playSnippet('${q.songId}')">
-      🔊 Play Snippet
+      ${uiIcon('music')} Play Snippet
     </button>
 
     <div class="quiz-q">${q.question}</div>
@@ -803,7 +814,7 @@ function playSnippet(songId) {
   if (!s || isPlaying) return;
   isPlaying = true;
   const btn = document.getElementById('snippet-play');
-  if (btn) { btn.disabled = true; btn.innerHTML = '🎵 Playing...'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = uiIcon('music') + ' Playing...'; }
 
   const snippet = s.notes.slice(0, 8);
   const dur = snippet.reduce((sum,n) => sum + n.d, 0);
@@ -815,7 +826,7 @@ function playSnippet(songId) {
 
   setTimeout(() => {
     isPlaying = false;
-    if (btn) { btn.disabled = false; btn.innerHTML = '🔊 Play Again'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = uiIcon('music') + ' Play Again'; }
   }, dur * 1000 + 300);
 }
 
@@ -836,11 +847,11 @@ function answerQuiz(btn, chosen, correct) {
     quizScore++;
     btn.classList.add('correct');
     fb.className = 'feedback-box show correct';
-    fb.innerHTML = '🌟 ' + q.explanation;
+    fb.innerHTML = uiIcon('check') + ' ' + q.explanation;
   } else {
     btn.classList.add('wrong');
     fb.className = 'feedback-box show wrong';
-    fb.innerHTML = `❌ Not quite! ${q.explanation}`;
+    fb.innerHTML = `${uiIcon('cross')} Not quite! ${q.explanation}`;
   }
 
   const nb = document.getElementById('next-btn');
@@ -855,17 +866,17 @@ function nextQuiz() {
 function renderResults() {
   const total = quizQuestions.length;
   const pct = Math.round((quizScore / total) * 100);
-  let emoji = '🌟', msg = 'Amazing job!';
-  if (pct < 50) { emoji = '🎵'; msg = 'Good try! Keep listening!'; }
-  else if (pct < 75) { emoji = '🎶'; msg = 'Great job, little maestro!'; }
+  let resultIcon = 'check', msg = 'Amazing job!';
+  if (pct < 50) { resultIcon = 'music'; msg = 'Good try! Keep listening!'; }
+  else if (pct < 75) { resultIcon = 'notes'; msg = 'Great job, little maestro!'; }
 
   document.getElementById('quiz-card').innerHTML = `
     <div class="results-card">
-      <div class="results-emoji">${emoji}</div>
+      <div class="results-emoji">${uiIcon(resultIcon)}</div>
       <div class="results-title">${msg}</div>
       <div class="results-score">You got <strong>${quizScore} out of ${total}</strong> correct! (${pct}%)</div>
       <div style="font-size:2rem;margin-bottom:20px">${'⭐'.repeat(Math.min(quizScore,10))}</div>
-      <button class="restart-btn" onclick="startQuiz()">🎵 Play Again</button>
+      <button class="restart-btn" onclick="startQuiz()">${uiIcon('music')} Play Again</button>
     </div>
   `;
 }

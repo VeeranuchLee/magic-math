@@ -310,7 +310,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        prepares the release and nothing is published from this task.
 //   v60 -> v61, 2026-10-20: menu music ON by default; audio-wake no longer switches the iPad audio session (owner: "Why math app music not play?");
 //        it stays off only for a child who turned it off. Worker bump arms the release.
-const CACHE_NAME = "magic-math-v61";
+const CACHE_NAME = "magic-math-v62";
 
 const SHELL = [
   "./",
@@ -320,6 +320,7 @@ const SHELL = [
   "./js/math-hub.js",
   "./assets-runtime/hub/scene.webp",
   "./space-math.html",
+  "./ask-answer-logic.js",
   "./unicorn-math.html",
   "./magic-spelling.html",
   "./assets-runtime/spelling/workshop/grade-room-landscape.webp",

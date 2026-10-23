@@ -151,12 +151,12 @@ function render(){
   const corner=CORNER_ART[state.theme];
   const modeRow=Object.values(FIVE_SUMS_MODES).map(m=>`<button data-mode="${m.id}" aria-pressed="${m.id===state.mode}">${m.label}</button>`).join('');
   const helpRow=Object.keys(HELP_LABELS).map(x=>`<button data-help="${x}" aria-pressed="${x===state.help}">${HELP_LABELS[x]}</button>`).join('');
-  const firstMoveHint=boardEmpty&&state.help==='learn'?`<div class="first-move-hint" aria-hidden="true">👆 Tap the glowing square first</div>`:'';
+  const firstMoveHint=boardEmpty&&state.help==='learn'?`<div class="first-move-hint">Tap the glowing square first</div>`:'';
   document.querySelector('#app').innerHTML=`<section class="game ${state.theme}">
     <header class="top">
       <a class="round" href="${state.theme==='space'?'space-math.html':'unicorn-math.html'}" aria-label="Back">←</a>
       <h1 class="title">${FIVE_SUMS_TITLE}</h1>
-      <button class="round speaker" id="speaker" aria-label="Hear the instruction">🔊</button>
+      <button class="round speaker" id="speaker" aria-label="Hear the instruction"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg></button>
     </header>
     <div class="controls-group">
       <div class="controls-row"><span class="row-caption">Game</span><nav class="controls" aria-label="Choose a game">${modeRow}</nav></div>
