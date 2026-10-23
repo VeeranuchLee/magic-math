@@ -90,7 +90,8 @@
     .sub{font-weight:800;font-size:clamp(1rem,3.4vw,1.3rem);opacity:.9;margin-top:-14px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.5)}
   </style>
   <link rel="stylesheet" href="./css/math-hub.css"/>
-</head>
+  <link rel="stylesheet" href="./cg-back.css" />
+  </head>
 <body>
 <div class="bg"></div>
 
@@ -99,12 +100,7 @@
      published, the hub is a sibling of this app (/magic-math/ -> /children-apps/), but
      in the repo it lives under site/, so a relative link would work live and 404 in
      every local preview. -->
-<a class="hub-btn" href="https://veeranuchlee.github.io/children-apps/" aria-label="Back to Children Games">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-    <path d="M15 5 8 12l7 7"/>
-  </svg>
-  <span>Children Games</span>
-</a>
+<a class="cg-back" href="https://veeranuchlee.github.io/children-apps/" aria-label="Back to Children Games"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
 <!-- The two note glyphs are both in the button and CSS shows one, so turning music on
      and off never reaches for the DOM: it is one class on one element. Same drawings

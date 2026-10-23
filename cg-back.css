@@ -1,0 +1,37 @@
+/* cg-back.css — the ONE way-out button for every Children Games app (owner, 2026-10-23:
+   "Round icon, 56px"). Canonical copy: shared/back-button/cg-back.css. Each app carries a
+   BYTE-IDENTICAL copy (scripts/check-back-button.py compares them), like tap-zoom-guard.js.
+   Rules: INTERACTION-DIRECTION.md "The way out". Do not restyle per app; set only
+   --cg-back-ink (arrow colour) and --cg-back-fill if the app's palette needs it. */
+.cg-back {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  background: var(--cg-back-fill, #fffaf2);
+  color: var(--cg-back-ink, #5a3b2e);
+  box-shadow: 0 3px 10px rgba(60, 40, 30, 0.22);
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+/* An app hides one of two back controls with the hidden attribute; without this the
+   display:grid above would override it and both would show. */
+.cg-back[hidden] { display: none; }
+.cg-back svg { width: 28px; height: 28px; display: block; pointer-events: none; }
+.cg-back:active { transform: scale(0.94); }
+.cg-back:focus-visible { outline: 3px solid #f2b705; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .cg-back:active { transform: none; } }
+/* Where the back control used to sit inside a header row, leave this placeholder so the
+   row keeps its layout now that .cg-back is pinned to the corner. */
+.cg-back-slot { display: inline-block; flex: none; width: 56px; height: 56px; }
