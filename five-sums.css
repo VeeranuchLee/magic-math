@@ -9,6 +9,7 @@
 .top{display:flex;align-items:center;gap:8px;max-width:1000px;margin:0 auto;width:100%;flex:0 0 auto}
 .round{width:52px;height:52px;min-width:52px;border:3px solid #fff;border-radius:16px;background:#5f50c8;color:#fff;font-size:24px;font-weight:900;box-shadow:0 3px 0 #292060;display:flex;align-items:center;justify-content:center;text-decoration:none;line-height:1}
 .garden .round{background:#d74f8c;box-shadow:0 3px 0 #8a2657}
+.round svg{width:1em;height:1em;display:block}
 .title{flex:1;color:#fff;font:900 clamp(22px,4vw,36px) Fredoka One,Nunito,sans-serif;text-align:center;text-shadow:0 3px #27316c;margin:0}
 .garden .title{color:#71365f;text-shadow:0 2px #fff}
 .speaker{background:#ffd85b;color:#37235e}

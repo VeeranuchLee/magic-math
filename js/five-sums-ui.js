@@ -19,6 +19,7 @@ const state={
  * id stays 'challenge' so engine/help-level logic is unchanged. */
 const HELP_LABELS={learn:'Learn',normal:'Normal',challenge:'Expert'};
 const VOICE={start:'Place number tiles in one line. Make the target sum.',hint:'Add the numbers in your line. What number do you still need?',reveal:'Try the glowing square and tile.',win:'Great sum!'};
+const REPLAY_ICON='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.3-5.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function sfx(kind){
   const A=window.AudioContext||window.webkitAudioContext; if(!A)return;
@@ -154,9 +155,9 @@ function render(){
   const firstMoveHint=boardEmpty&&state.help==='learn'?`<div class="first-move-hint">Tap the glowing square first</div>`:'';
   document.querySelector('#app').innerHTML=`<section class="game ${state.theme}">
     <header class="top">
-      <a class="round" href="${state.theme==='space'?'space-math.html':'unicorn-math.html'}" aria-label="Back">←</a>
+      <a class="round" href="${state.theme==='space'?'space-math.html':'unicorn-math.html'}" aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       <h1 class="title">${FIVE_SUMS_TITLE}</h1>
-      <button class="round speaker" id="speaker" aria-label="Hear the instruction"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg></button>
+      <button class="round speaker" id="speaker" aria-label="Hear the instruction"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </header>
     <div class="controls-group">
       <div class="controls-row"><span class="row-caption">Game</span><nav class="controls" aria-label="Choose a game">${modeRow}</nav></div>
@@ -177,7 +178,7 @@ function render(){
         <div class="target">${mode.label}<br>Score ${state.score}</div>
         <div class="rack">${tiles}</div>
         <div class="actions">
-          <button class="clear" id="clear" aria-label="Undo this placement">↺ Undo</button>
+          <button class="clear" id="clear" aria-label="Undo this placement">${REPLAY_ICON} Undo</button>
           <button class="submit" id="submit">Play line</button>
         </div>
       </aside>

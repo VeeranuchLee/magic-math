@@ -1111,14 +1111,14 @@ function ScoreRow({
     "aria-label": `${score} stars`
   }, /*#__PURE__*/React.createElement("span", {
     "aria-hidden": "true"
-  }, "\u2605"), /*#__PURE__*/React.createElement("span", null, score)), /*#__PURE__*/React.createElement(FlowerGarden, {
+  }, /*#__PURE__*/React.createElement(StarIcon, null)), /*#__PURE__*/React.createElement("span", null, score)), /*#__PURE__*/React.createElement(FlowerGarden, {
     flowers: flowers
   }), /*#__PURE__*/React.createElement("div", {
     className: "score-badge",
     "aria-label": `${bouquets} bouquets collected`
   }, /*#__PURE__*/React.createElement("span", {
     "aria-hidden": "true"
-  }, "\u273F"), /*#__PURE__*/React.createElement("span", null, bouquets)), gardenFull && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(SparkleIcon, null)), /*#__PURE__*/React.createElement("span", null, bouquets)), gardenFull && /*#__PURE__*/React.createElement("div", {
     className: "garden-full-badge"
   }, "Drawer full! +1 bouquet"));
 }
@@ -1150,46 +1150,77 @@ function SpeakerOnIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5L6 9H3v6h3l5 4z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.2",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M11 5 6 9H3v6h3l5 4V5z",
-    fill: "currentColor",
-    stroke: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M15.5 8.5a5 5 0 0 1 0 7"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M18.5 6a9 9 0 0 1 0 12"
+    strokeLinejoin: "round"
   }));
 }
 function SpeakerOffIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5L6 9H3v6h3l5 4z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M16 9l5 6M21 9l-5 6",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.2",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
+    strokeLinejoin: "round"
+  }));
+}
+function BackIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
   }, /*#__PURE__*/React.createElement("path", {
-    d: "M11 5 6 9H3v6h3l5 4V5z",
-    fill: "currentColor",
-    stroke: "none"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "16",
-    y1: "9",
-    x2: "22",
-    y2: "15"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "22",
-    y1: "9",
-    x2: "16",
-    y2: "15"
+    d: "M15 5l-7 7 7 7",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }));
+}
+function StarIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.7l1-6.1L3.2 9.3l6.1-.9z",
+    fill: "currentColor"
+  }));
+}
+function StarEmptyIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "icon-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.7l1-6.1L3.2 9.3l6.1-.9z",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
   }));
 }
 function FlowerIcon() {
@@ -1324,7 +1355,7 @@ function TopBar({
       Sound.tap();
       onBack();
     }
-  }, "\u2190")), label && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(BackIcon, null))), label && /*#__PURE__*/React.createElement("div", {
     className: "bar-label"
   }, label), /*#__PURE__*/React.createElement("button", {
     className: "round-btn",
@@ -1346,7 +1377,7 @@ function Stars({
     key: i,
     className: i < n ? 'star-on' : 'star-off',
     "aria-hidden": "true"
-  }, i < n ? '★' : '☆')));
+  }, i < n ? /*#__PURE__*/React.createElement(StarIcon, null) : /*#__PURE__*/React.createElement(StarEmptyIcon, null))));
 }
 
 /* ══ HOME ══ */
@@ -1679,7 +1710,7 @@ function SpellGame({
       style: {
         animationDelay: `${i * 0.18}s`
       }
-    }, i <= displayStars ? '★' : '☆'))), /*#__PURE__*/React.createElement("div", {
+    }, i <= displayStars ? /*#__PURE__*/React.createElement(StarIcon, null) : /*#__PURE__*/React.createElement(StarEmptyIcon, null)))), /*#__PURE__*/React.createElement("div", {
       className: "complete-title"
     }, "Pack ", packIdx + 1, " complete!"), /*#__PURE__*/React.createElement("div", {
       className: "complete-sub"

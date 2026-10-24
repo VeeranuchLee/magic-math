@@ -392,6 +392,7 @@
     .choices { grid-template-columns: 1fr; }
     .note-btn { width: 38px; height: 44px; font-size: 0.85rem; }
   }
+  .play-btn svg,.next-btn svg,.hist-title svg,.stars svg{width:1em;height:1em;display:inline-block;vertical-align:-.14em}
 </style>
 </head>
 <body>
@@ -622,6 +623,13 @@ let quizScore = 0;
 let quizAnswered = false;
 
 function uiIcon(kind) {
+  const shared = {
+    play:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>',
+    forward:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    star:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.7l1-6.1L3.2 9.3l6.1-.9z" fill="currentColor"/></svg>',
+    clock:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  if (shared[kind]) return shared[kind];
   const paths = {
     music:'<path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="3" fill="currentColor" stroke="none"/>',
     book:'<path d="M4 5.5c3.5-.8 6.2.2 8 2v11c-1.8-1.8-4.5-2.8-8-2zM20 5.5c-3.5-.8-6.2.2-8 2v11c1.8-1.8 4.5-2.8 8-2z"/>',
@@ -686,12 +694,12 @@ function renderTeachCard() {
 
     <div class="tags">
       <span class="tag mood">${uiIcon('mask')} ${s.mood}</span>
-      <span class="tag tempo">⏱️ ${s.tempo}</span>
+      <span class="tag tempo">${uiIcon('clock')} ${s.tempo}</span>
       <span class="tag pitch">${uiIcon('notes')} ${s.pitch}</span>
     </div>
 
     <button class="play-btn" id="play-melody-btn" onclick="playMelody()">
-      ▶ Play the Melody
+      ${uiIcon('play')} Play the Melody
     </button>
 
     <div class="visualizer" id="visualizer">${vizBars}</div>
@@ -705,7 +713,7 @@ function renderTeachCard() {
       <div class="hist-title">${uiIcon('book')} Did you know?</div>
       ${s.history}
       <br><br>
-      <strong>⭐ Fun fact:</strong> ${s.funFact}
+      <strong>${uiIcon('star')} Fun fact:</strong> ${s.funFact}
     </div>
   `;
 }
@@ -754,7 +762,7 @@ async function playMelody() {
 
   setTimeout(() => {
     isPlaying = false;
-    if (btn) { btn.disabled = false; btn.innerHTML = '▶ Play Again'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = uiIcon('play') + ' Play Again'; }
   }, totalDuration * 1000 + 300);
 }
 
@@ -776,7 +784,7 @@ function renderQuiz() {
   quizAnswered = false;
   const q = quizQuestions[quizIdx];
   const total = quizQuestions.length;
-  const stars = '⭐'.repeat(quizScore);
+  const stars = uiIcon('star').repeat(quizScore);
 
   const choiceButtons = q.choices.map(c =>
     `<button class="choice-btn" onclick="answerQuiz(this,'${escQ(c)}','${escQ(q.answer)}')">${c}</button>`
@@ -802,7 +810,7 @@ function renderQuiz() {
     <div class="feedback-box" id="feedback"></div>
 
     <button class="next-btn" id="next-btn" onclick="nextQuiz()">
-      Next →
+      Next ${uiIcon('forward')}
     </button>
   `;
 }
@@ -875,7 +883,7 @@ function renderResults() {
       <div class="results-emoji">${uiIcon(resultIcon)}</div>
       <div class="results-title">${msg}</div>
       <div class="results-score">You got <strong>${quizScore} out of ${total}</strong> correct! (${pct}%)</div>
-      <div style="font-size:2rem;margin-bottom:20px">${'⭐'.repeat(Math.min(quizScore,10))}</div>
+      <div class="stars" style="font-size:2rem;margin-bottom:20px">${Array.from({length:Math.min(quizScore,10)},()=>uiIcon('star')).join('')}</div>
       <button class="restart-btn" onclick="startQuiz()">${uiIcon('music')} Play Again</button>
     </div>
   `;

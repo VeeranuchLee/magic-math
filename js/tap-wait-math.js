@@ -5,6 +5,14 @@
   var React = root.React, Engine = root.TapWaitEngine;
   var h = React && React.createElement;
   if (!React || !h || !Engine) return;
+  var CG = {
+    back:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    star:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.7l1-6.1L3.2 9.3l6.1-.9z" fill="currentColor"/></svg>',
+    sparkle:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2c.7 6.2 3.8 9.3 10 10-6.2.7-9.3 3.8-10 10-.7-6.2-3.8-9.3-10-10 6.2-.7 9.3-3.8 10-10z" fill="currentColor"/></svg>',
+    speaker:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    speakerOff:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  function icon(key) { return h("span", { "aria-hidden":"true", dangerouslySetInnerHTML:{__html:CG[key]} }); }
 
   var SCREEN_TITLE = "Number Catch";
   /* Measured by colour-region detection from the nine pad/soil interiors in the
@@ -129,21 +137,21 @@
 
     var body = [
       h("div", { key: "marquee", className: "tw-marquee" }, [
-        h("button", { key: "back", type: "button", className: "back-btn", "aria-label": "Back to Math", onClick: function () { sound("tap"); if (props.onBack) props.onBack(); } }, "←"),
+        h("button", { key: "back", type: "button", className: "back-btn", "aria-label": "Back to Math", onClick: function () { sound("tap"); if (props.onBack) props.onBack(); } }, icon("back")),
         h("div", { key: "score", className: "tw-score-box" }, [h("small", { key: "l" }, "SCORE"), h("b", { key: "v" }, String(state.score || 0))]),
         h("div", { key: "title", className: "tw-title" }, SCREEN_TITLE),
-        h("div", { key: "streak", className: "tw-streak-box " + theme, "aria-label": "Collection streak " + (state.streak || 0) }, [h("small", { key: "l" }, theme === "space" ? "STAR JAR" : "BOUQUET"), h("span", { key: "meter", className: "tw-collection-meter" }, Array.from({length:5}, function (_, i) { return h("i", { key:i, className:i < Math.min(state.streak || 0,5) ? "filled" : "" }, theme === "space" ? "★" : "✿"); }))]),
-        h("button", { key: "sound", type: "button", className: "sound-btn", "aria-label": props.muted ? "Turn sound on" : "Turn sound off", onClick: function () { sound("tap"); if (props.onToggleMute) props.onToggleMute(); } }, props.muted ? "🔇" : "🔊")
+        h("div", { key: "streak", className: "tw-streak-box " + theme, "aria-label": "Collection streak " + (state.streak || 0) }, [h("small", { key: "l" }, theme === "space" ? "STAR JAR" : "BOUQUET"), h("span", { key: "meter", className: "tw-collection-meter" }, Array.from({length:5}, function (_, i) { return h("i", { key:i, className:i < Math.min(state.streak || 0,5) ? "filled" : "" }, icon(theme === "space" ? "star" : "sparkle")); }))]),
+        h("button", { key: "sound", type: "button", className: "sound-btn", "aria-label": props.muted ? "Turn sound on" : "Turn sound off", onClick: function () { sound("tap"); if (props.onToggleMute) props.onToggleMute(); } }, icon(props.muted ? "speakerOff" : "speaker"))
       ]),
       h("div", { key: "rule", className: "tw-rule" + (reveal ? " reteach" : "") }, [h("span", { key: "word", className: "tw-rule-word" }, preset.label), h("strong", { key: "glyph", className: "tw-glyph" }, preset.glyph), h("span", { key: "line", className: "tw-rule-line" }, reteach ? preset.hint : preset.ruleText)]),
       h("div", { key: "stage", className: "tw-stage " + flash, "aria-label": theme === "space" ? "Nine-spot star collecting board" : "Nine-bed flower collecting board" }, spots),
       h("div", { key: "footer", className: "tw-footer" }, [
         h("div", { key: "rules", className: "tw-ribbon", "aria-label": "Choose a collecting rule" }, PRESETS.map(function (p, i) { return h("button", { key: p.id, type: "button", className: "tw-chip" + (i === activeIndex ? " on" : ""), "aria-pressed": i === activeIndex, onClick: function () { choose(i); } }, p.label); })),
-        h("div", { key: "message", className: "tw-message", "aria-live": "polite" }, flash === "wrong" ? (theme === "space" ? "Let that star twinkle away." : "Let that flower close.") : flash === "waited" ? "Good waiting! ★" : flash === "missed" ? "Look for the matching numbers." : (theme === "space" ? "Collect matching stars. Let the others fade." : "Pick matching flowers. Let the others close.")),
+        h("div", { key: "message", className: "tw-message", "aria-live": "polite" }, flash === "wrong" ? (theme === "space" ? "Let that star twinkle away." : "Let that flower close.") : flash === "waited" ? h("span", {}, ["Good waiting! ", icon("star")]) : flash === "missed" ? "Look for the matching numbers." : (theme === "space" ? "Collect matching stars. Let the others fade." : "Pick matching flowers. Let the others close.")),
         h("span", { key: "progress", className: "tw-progress" }, Math.min((state.eventIndex || 0) + 1, state.roundLength || 12) + " / " + (state.roundLength || 12))
       ])
     ];
-    if (state.phase === "ended") body.push(h("div", { key: "finish", className: "tw-finish" }, [h("div", { key: "ticket", className: "tw-ticket" }, [h("span", { key: "t" }, theme === "space" ? "STAR COLLECTION" : "FLOWER BOUQUET"), h("b", { key: "s" }, (theme === "space" ? "★ " : "✿ ") + (state.score || 0))]), h("div", { key: "copy", className: "tw-finish-copy" }, "Great collecting and waiting!"), h("div", { key: "buttons", className: "tw-finish-buttons" }, [h("button", { key: "again", type: "button", className: "tw-finish-button", onClick: again }, "Play again"), h("button", { key: "harder", type: "button", className: "tw-finish-button", disabled: activeIndex >= PRESETS.length - 1, onClick: harder }, "Next rule ›")]) ]));
+    if (state.phase === "ended") body.push(h("div", { key: "finish", className: "tw-finish" }, [h("div", { key: "ticket", className: "tw-ticket" }, [h("span", { key: "t" }, theme === "space" ? "STAR COLLECTION" : "FLOWER BOUQUET"), h("b", { key: "s" }, [icon(theme === "space" ? "star" : "sparkle"), " " + (state.score || 0)])]), h("div", { key: "copy", className: "tw-finish-copy" }, "Great collecting and waiting!"), h("div", { key: "buttons", className: "tw-finish-buttons" }, [h("button", { key: "again", type: "button", className: "tw-finish-button", onClick: again }, "Play again"), h("button", { key: "harder", type: "button", className: "tw-finish-button", disabled: activeIndex >= PRESETS.length - 1, onClick: harder }, "Next rule ›")]) ]));
     return h("div", { className: "screen tap-wait-math-screen " + theme, style: props.journeyBg ? { "--game-bg": "url('" + props.journeyBg + "')" } : undefined }, body);
   }
   root.TapWaitMath = { Game: Game, presets: PRESETS, makeConfig: makeConfig, SCREEN_TITLE: SCREEN_TITLE };

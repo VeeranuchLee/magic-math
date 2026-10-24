@@ -1105,11 +1105,11 @@
     .hb-how-card h2{margin:0 0 16px;font-size:clamp(1.7rem,5vw,2.4rem)}
     .hb-how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
     .hb-how-step{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 8px;border-radius:18px;background:#e8f0ff;font-weight:900;font-size:clamp(.95rem,2.5vw,1.2rem)}
-    .hb-how-picture{font-size:clamp(2.2rem,7vw,3.2rem);line-height:1}.hb-how-players{display:flex;align-items:center;justify-content:center;gap:8px}.hb-how-players .hb-player-icon{width:54px;height:54px}
+    .hb-how-picture{font-size:clamp(2.2rem,7vw,3.2rem);line-height:1}.hb-how-picture>svg{width:1em;height:1em;vertical-align:middle}.hb-how-players{display:flex;align-items:center;justify-content:center;gap:8px}.hb-how-players .hb-player-icon{width:54px;height:54px}
     .hb-how-go{min-width:180px;min-height:64px;border:0;border-radius:40px;background:#ffd54f;color:#633500;font:900 1.3rem inherit;box-shadow:0 5px 0 #e6a500;cursor:pointer}
     .hb-play-race .hb-board.hb-large{--hb-cell:64px}
     .hb-screen>.ar-strip .fm-btn,.hb-play>.ar-strip .fm-btn{height:64px;min-height:64px;min-width:64px}
-    .hb-roll{min-width:190px;min-height:72px;border:0;border-radius:50px;background:#ffd54f;color:#633500;font:900 1.35rem inherit;box-shadow:0 5px 0 #e6a500;cursor:pointer}
+    .hb-roll{min-width:190px;min-height:72px;border:0;border-radius:50px;background:#ffd54f;color:#633500;font:900 1.35rem inherit;box-shadow:0 5px 0 #e6a500;cursor:pointer}.hb-roll svg{width:1.25em;height:1.25em;vertical-align:-.25em;margin-right:.25em}
     .hb-roll.hb-next-action{animation:hbNextAction 1.5s ease-in-out infinite}
     .hb-roll:disabled{animation:none;opacity:.62;cursor:default}
     @keyframes hbNextAction{50%{transform:scale(1.055);box-shadow:0 7px 0 #e6a500,0 0 0 8px rgba(255,213,79,.24)}}
@@ -7913,26 +7913,25 @@ function MusicOnIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 18V5l11-2v13",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.2",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M9 18V6l10-2v12"
+    strokeLinejoin: "round"
   }), /*#__PURE__*/React.createElement("circle", {
-    cx: "6.5",
+    cx: "6",
     cy: "18",
-    r: "2.6",
-    fill: "currentColor",
-    stroke: "none"
+    r: "3",
+    fill: "currentColor"
   }), /*#__PURE__*/React.createElement("circle", {
-    cx: "16.5",
+    cx: "17",
     cy: "16",
-    r: "2.6",
-    fill: "currentColor",
-    stroke: "none"
+    r: "3",
+    fill: "currentColor"
   }));
 }
 function MusicOffIcon() {
@@ -7970,78 +7969,66 @@ function SpeakerOnIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5L6 9H3v6h3l5 4z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.2",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M11 5 6 9H3v6h3l5 4V5z",
-    fill: "currentColor",
-    stroke: "none"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M15.5 8.5a5 5 0 0 1 0 7"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M18.5 6a9 9 0 0 1 0 12"
+    strokeLinejoin: "round"
   }));
 }
 function SpeakerOffIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11 5L6 9H3v6h3l5 4z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M16 9l5 6M21 9l-5 6",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.2",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M11 5 6 9H3v6h3l5 4V5z",
-    fill: "currentColor",
-    stroke: "none"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "16",
-    y1: "9",
-    x2: "22",
-    y2: "15"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "22",
-    y1: "9",
-    x2: "16",
-    y2: "15"
+    strokeLinejoin: "round"
   }));
 }
 function BackIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "icon-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M15 5l-7 7 7 7",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "3",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M19 12H5"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "m11 18-6-6 6-6"
+    strokeLinejoin: "round"
   }));
 }
 function NextIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "btn-svg",
     viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 5l7 7-7 7",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "3",
+    strokeWidth: "2.4",
     strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M5 12h14"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "m13 6 6 6-6 6"
+    strokeLinejoin: "round"
   }));
 }
 function PieIcon() {
@@ -16279,7 +16266,18 @@ function TenFrame({
     }, s === 'gone' ? /*#__PURE__*/React.createElement("span", {
       className: "tf-x",
       "aria-hidden": "true"
-    }, "\u2715") : null);
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "icon-svg",
+      viewBox: "0 0 24 24",
+      focusable: "false"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M7 7l10 10M17 7L7 17",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2.4",
+      strokeLinecap: "round",
+      strokeLinejoin: "round"
+    }))) : null);
   }))));
 }
 
@@ -18026,6 +18024,67 @@ function HundredPatternPlay({
     onClick: () => deal(kind)
   }, "Next"));
 }
+function DiceIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3.5",
+    y: "3.5",
+    width: "17",
+    height: "17",
+    rx: "3",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "8",
+    r: "1.4",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "16",
+    cy: "8",
+    r: "1.4",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "12",
+    cy: "12",
+    r: "1.4",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "16",
+    r: "1.4",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "16",
+    cy: "16",
+    r: "1.4",
+    fill: "currentColor"
+  }));
+}
+function FlagIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M5 21V3",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6 4h12l-2.5 4L18 12H6z",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }));
+}
 function HundredRacePlay({
   muted,
   reward,
@@ -18147,7 +18206,7 @@ function HundredRacePlay({
     className: `hb-roll ${turn === 'player' ? 'hb-next-action' : ''}`,
     disabled: turn !== 'player',
     onClick: roll
-  }, "\uD83C\uDFB2 Roll"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(DiceIcon, null), "Roll"), /*#__PURE__*/React.createElement("button", {
     className: "hb-help-btn",
     onClick: () => setShowHelp(true),
     "aria-label": "How to play Race to 100"
@@ -18166,7 +18225,7 @@ function HundredRacePlay({
     className: "hb-how-step"
   }, /*#__PURE__*/React.createElement("span", {
     className: "hb-how-picture"
-  }, "\uD83C\uDFB2"), /*#__PURE__*/React.createElement("span", null, "1. Tap Roll")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(DiceIcon, null)), /*#__PURE__*/React.createElement("span", null, "1. Tap Roll")), /*#__PURE__*/React.createElement("div", {
     className: "hb-how-step"
   }, /*#__PURE__*/React.createElement("span", {
     className: "hb-how-picture hb-how-players"
@@ -18182,7 +18241,7 @@ function HundredRacePlay({
     className: "hb-how-step"
   }, /*#__PURE__*/React.createElement("span", {
     className: "hb-how-picture"
-  }, "\uD83C\uDFC1100"), /*#__PURE__*/React.createElement("span", null, "3. First to 100 wins!"))), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(FlagIcon, null), "100"), /*#__PURE__*/React.createElement("span", null, "3. First to 100 wins!"))), /*#__PURE__*/React.createElement("button", {
     className: "hb-how-go",
     onClick: () => {
       Sound.setMuted(muted);
@@ -19823,7 +19882,26 @@ function NumberPlayGame({
     onClick: undo,
     disabled: !undoStack.length,
     "aria-label": "Undo"
-  }, "\u21B6 Undo"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "btn-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 7L4 12l5 5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M4.5 12H14a5.5 5.5 0 0 1 0 11h-2",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  })), " Undo"), /*#__PURE__*/React.createElement("button", {
     className: "np-btn",
     onClick: clear,
     "aria-label": "Clear"

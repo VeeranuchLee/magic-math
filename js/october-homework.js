@@ -14,6 +14,11 @@
   var params = new URLSearchParams(location.search);
   var THEME = params.get("theme") === "unicorn" ? "unicorn" : "space";
   var STORE_KEY = "cg.octoberHomework.v1"; // one key for both themes
+  var CG = {
+    back:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    undo:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 7L4 12l5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 12H14a5.5 5.5 0 0 1 0 11h-2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    backspace:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
 
   var ART = {
     space: {
@@ -241,7 +246,7 @@
     }).join("");
     var all = totalDone();
     return '<header class="bar">' +
-      '<a class="round" href="' + ART.back + '" aria-label="กลับ">←</a>' +
+      '<a class="round" href="' + ART.back + '" aria-label="กลับ">' + CG.back + '</a>' +
       '<h1 class="title">การบ้านปิดเทอม ป.2 <small>ตุลาคม</small></h1>' +
       '<span class="count"><img src="' + ART.star + '" alt="">' + all + " / 200</span>" +
       '<a class="round swap" href="?theme=' + ART.other + '" aria-label="เปลี่ยนธีม"><img src="' + ART.otherIcon + '" alt=""></a>' +
@@ -287,7 +292,7 @@
   function arithPad() {
     var keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "del", "0", "ok"];
     return '<div class="keypad">' + keys.map(function (k) {
-      var label = k === "del" ? "⌫" : k === "ok" ? "ตกลง" : k;
+      var label = k === "del" ? CG.backspace : k === "ok" ? "ตกลง" : k;
       var aria = k === "del" ? ' aria-label="ลบ"' : "";
       return '<button class="key k-' + k + '" data-act="key" data-k="' + k + '"' + aria + (state.solved ? " disabled" : "") + ">" + label + "</button>";
     }).join("") + "</div>";
@@ -319,7 +324,7 @@
       ["h", "t", "o"].map(function (p) {
         return '<button class="piece p-' + p + '" data-act="piece" data-piece="' + p + '"' + dis + '><i class="blk ' + p + '"></i>+ ' + PLACE_NAME[p] + "</button>";
       }).join("") +
-      '<button class="piece undo" data-act="undo"' + dis + ">↶ ย้อน</button></div>";
+      '<button class="piece undo" data-act="undo"' + dis + ">" + CG.undo + " ย้อน</button></div>";
   }
 
   function thaiCard(q) {
@@ -355,7 +360,7 @@
     pad += '<button class="clear-q" data-act="clearq">ล้างข้อนี้</button>';
     var next = state.solved ? '<button class="next" data-act="next">ข้อต่อไป →</button>' : "";
     var html = '<header class="bar">' +
-      '<button class="round" data-act="map" aria-label="แผนที่">←</button>' +
+      '<button class="round" data-act="map" aria-label="แผนที่">' + CG.back + '</button>' +
       '<h1 class="title">งาน ' + m.id + " <small>" + esc(m.title) + "</small></h1>" +
       '<span class="count">' + doneCount(m) + " / 10</span></header>" +
       '<nav class="qnav">' + nav + "</nav>" +
