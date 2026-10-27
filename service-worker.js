@@ -310,7 +310,18 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        prepares the release and nothing is published from this task.
 //   v60 -> v61, 2026-10-20: menu music ON by default; audio-wake no longer switches the iPad audio session (owner: "Why math app music not play?");
 //        it stays off only for a child who turned it off. Worker bump arms the release.
-const CACHE_NAME = "magic-math-v65";
+// v66 2026-10-25: Big and Small Units (u2) replaces Which Unit? in both themes.
+// v67 2026-10-26: the Magic Math hub's Mermaid destination is rebuilt around Mermaid
+//        Princess Land's coral-and-pearl castle instead of an anime mascot. The matched
+//        landscape/portrait paintings, painted destination labels, subtle staggered hub
+//        cues and My Math Helper notebook entry are one installed-device update.
+// v68 2026-10-26: My Math Helper moves off the hub and into one themed card in each
+//        world's Solve & Calculate shelf, with world-aware return navigation.
+// v69 2026-10-27: My Math Helper gains world polish, finite narrator wiring, standard
+//        multiplication layout and a full-screen pad; Ask & Answer gains the same large pad.
+// v69 covers the Math Helper polish and the Mermaid Princess Land game plates on
+// this branch; keep one release bump for the combined candidate.
+const CACHE_NAME = "magic-math-v69";
 
 const SHELL = [
   "./",
@@ -320,10 +331,14 @@ const SHELL = [
   "./cg-back.css",
   "./cg-update.js",
   "./js/math-hub.js",
-  "./assets-runtime/hub/scene.webp",
+  "./assets-runtime/hub/scene-3worlds.webp",
+  "./assets-runtime/hub/scene-3worlds-portrait.webp",
   "./space-math.html",
   "./ask-answer-logic.js",
   "./unicorn-math.html",
+  "./mermaid-math.html",
+  "./math-helper.html",
+  "./js/math-helper-engine.js",
   "./magic-spelling.html",
   "./assets-runtime/spelling/workshop/grade-room-landscape.webp",
   "./assets-runtime/spelling/workshop/grade-room-portrait.webp",
@@ -359,6 +374,7 @@ const SHELL = [
   "./js/tap-zoom-guard.js",
   "./js/tap-wait-engine.js",
   "./js/tap-wait-math.js",
+  "./js/big-small-units.js",
   "./css/tap-wait-math.css",
 
   "./assets/icons/icon-192.png",

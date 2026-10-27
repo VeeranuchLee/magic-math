@@ -91,7 +91,8 @@
   </style>
   <link rel="stylesheet" href="./css/math-hub.css"/>
   <link rel="stylesheet" href="./cg-back.css" />
-    <script src="./cg-update.js" defer></script>
+  <script src="./js/tap-zoom-guard.js" defer></script>
+  <script src="./cg-update.js" defer></script>
 </head>
 <body>
 <div class="bg"></div>
@@ -116,11 +117,16 @@
     <img class="heading-sticker heading-sticker-left" src="assets/stickers/space/rocket-123.webp" alt="" width="346" height="254" draggable="false" aria-hidden="true"/>
     <h1>Magic <span>Math</span></h1>
     <p class="sub">Pick your world and play</p>
-    <img class="heading-sticker heading-sticker-right" src="assets/stickers/unicorn/number-blocks.webp" alt="" width="273" height="212" draggable="false" aria-hidden="true"/>
+    <img class="heading-sticker heading-sticker-right" src="assets-runtime/mermaid/icons/shell-scallop.webp" alt="" width="320" height="320" draggable="false" aria-hidden="true"/>
   </header>
   <div class="scene-stage">
     <div class="scene-canvas">
-      <img id="hubScene" alt="" width="1672" height="941"/>
+      <picture class="hub-scene-picture">
+        <source id="hubScenePortrait" media="(orientation: portrait)"/>
+        <img id="hubScene" alt="" width="1672" height="941"/>
+      </picture>
+      <!-- The fold-out front door contains only the three worlds; the notebook helper
+           lives as one game card inside each world's Solve & Calculate shelf. -->
       <nav id="worldHotspots" class="world-hotspots" aria-label="Choose a Magic Math world"></nav>
     </div>
   </div>
@@ -150,7 +156,7 @@
 
    The worlds solve this by arming the next pointerdown, because in a world the next
    pointerdown is a mode card and the child stays to hear the result. Here almost every
-   control LEAVES — two world cards and a back arrow — so arming is copied MINUS the
+   control LEAVES — the destination links and a back arrow — so arming is copied MINUS the
    taps that land on a link. Starting a 420 ms fade-in on the tap that unloads the
    document buys a swell cut off mid-breath, then a silent page load, then the same
    fade-in again on the other side. That is worse than silence, so a tap on a link is

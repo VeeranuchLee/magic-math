@@ -21,6 +21,7 @@
   <script src="./vendor/react-dom-18.3.1.production.min.js"></script>
   <script src="./js/tap-wait-engine.js"></script>
   <script src="./js/tap-wait-math.js"></script>
+  <script src="./js/big-small-units.js"></script>
   <script src="./shared/bg-deco/bg-deco.js"></script>
   <script src="./ask-answer-logic.js"></script>
   <style>
@@ -72,6 +73,69 @@
     .mode-card{flex:1;min-width:130px;max-width:185px;border-radius:26px;padding:18px 12px 14px;cursor:pointer;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s}
     .mode-card:active{transform:translateY(5px) scale(.96)}
     .mode-card-label{font-size:.78rem;font-weight:900;color:rgba(255,255,255,.92);text-shadow:0 2px 4px rgba(0,0,0,.3);text-align:center}
+    /* ── MENU DOORS CSS (shared) ──
+       The eight-door first screen and the one-shelf screen behind each door (owner,
+       2026-10-25). Both screens fit the iPad without scrolling, 768x1024 and 1024x768.
+       Colours that differ per world arrive as custom properties from MENU_THEME. */
+    .home.home-menu{height:100vh;height:100dvh;min-height:0;justify-content:flex-start;gap:10px;padding:12px 16px 4px}
+    .home-menu .menu-top{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;width:100%;padding:0 70px}
+    .home-menu .menu-title-row{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px}
+    .home-menu .home-title{font-size:clamp(2rem,5.4vw,2.8rem);line-height:1.05}
+    .menu-title-icon{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));animation:bounce 1.7s ease-in-out infinite alternate}
+    .menu-title-icon.b{animation-duration:1.5s;animation-delay:.15s}
+    .menu-status{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:460px}
+    .menu-status .home-sub{display:flex;align-items:center;gap:6px;font-size:.85rem;padding:5px 14px;flex:0 0 auto}
+    .menu-status .home-sub img{width:22px;height:22px;object-fit:contain}
+    .menu-doors{flex:1 1 auto;min-height:0;width:100%;max-width:1000px;display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}
+    .menu-door{-webkit-appearance:none;appearance:none;font:inherit;color:#fff;box-sizing:border-box;position:relative;min-width:0;min-height:0;border:3px solid rgba(255,255,255,.6);border-radius:26px;padding:8px 10px 10px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;background:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.28),rgba(255,255,255,0) 60%),linear-gradient(160deg,var(--d1),var(--d2));box-shadow:0 6px 0 rgba(0,0,0,.18),0 10px 22px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.35);cursor:pointer;transition:transform .12s,opacity .3s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    .menu-door:active{transform:translateY(4px) scale(.98)}
+    .menu-door.dimmed{opacity:.45}
+    .menu-door.launching{animation:mdLaunch 1s ease-in forwards}
+    @keyframes mdLaunch{0%{transform:scale(1)}30%{transform:scale(1.06)}100%{transform:scale(1.02)}}
+    .md-head{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;flex:0 0 auto;min-height:36px}
+    .md-badge{width:36px;height:36px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+    .md-name{font-size:1.08rem;font-weight:900;line-height:1.1;text-shadow:0 2px 0 rgba(0,0,0,.22);text-align:center}
+    .md-big{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+    .md-big .gp{zoom:1.05}
+    .md-minis{flex:0 0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:100%}
+    .md-mini .gp{zoom:.52}
+    .md-again{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(255,255,255,.82));border-color:#fff;color:var(--menu-ink)}
+    .md-again-card{position:relative;display:flex}
+    .md-again .md-big .gp{zoom:1.3}
+    .md-again .card-sticker{top:-16px;right:-20px;width:48px}
+    .md-again-label{display:flex;align-items:center;justify-content:center;gap:8px;font-size:1.25rem;font-weight:900;line-height:1;flex:0 0 auto;padding:4px 0 2px}
+    .md-play-svg{width:34px;height:34px;padding:7px;box-sizing:border-box;border-radius:50%;background:var(--menu-ink);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+    @media (orientation:landscape){
+      .menu-doors{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
+      .md-big .gp{zoom:1.3}
+      .md-again .md-big .gp{zoom:1.5}
+      .md-mini .gp{zoom:.48}
+    }
+    .menu-shelf{flex:1 1 auto;min-height:0;width:100%;max-width:1000px;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .menu-shelf-head{display:flex;align-items:center;justify-content:center;gap:10px;flex:0 0 auto}
+    .menu-shelf-badge{width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+    .menu-shelf-head .mode-section-label{font-size:1.15rem;padding:7px 22px}
+    .menu-shelf .mode-section{--cols:3;--cw:230px;--z:1.85;flex:1 1 auto;min-height:0;max-width:none;display:grid;gap:24px 20px;align-content:center;justify-content:center;grid-template-columns:repeat(var(--cols),minmax(0,var(--cw)))}
+    .menu-shelf.shelf-n4 .mode-section{--cols:2;--cw:300px;--z:2.1}
+    .menu-shelf.shelf-n5 .mode-section,.menu-shelf.shelf-n6 .mode-section{--z:1.65}
+    .menu-shelf.shelf-n7 .mode-section{--z:1.38;gap:14px 18px}
+    .menu-shelf .mode-section>.mode-row{display:contents}
+    .menu-shelf .mode-card{max-width:none;min-width:0;width:100%;padding:22px 12px 16px;gap:10px;justify-content:center}
+    .menu-shelf .mode-card .gp{zoom:var(--z)}
+    .home-menu .menu-shelf .mode-card .mode-card-label{font-size:1.12rem;line-height:1.15}
+    .home-menu .menu-shelf .mode-card .mode-card-sub{font-size:.82rem}
+    .menu-shelf .mode-card-stars img{width:24px;height:24px}
+    .menu-shelf .mode-row.has-badge .mode-card-label{min-height:0}
+    @media (orientation:landscape){
+      .menu-shelf .mode-section{--cw:280px;--z:2}
+      .menu-shelf.shelf-n4 .mode-section{--cols:4;--cw:225px;--z:1.75}
+      .menu-shelf.shelf-n5 .mode-section{--cw:270px;--z:1.4}
+      .menu-shelf.shelf-n6 .mode-section{--cw:270px;--z:1.2}
+      .menu-shelf.shelf-n7 .mode-section{--cols:4;--cw:220px;--z:1.08;gap:12px 16px}
+      .menu-shelf.shelf-n5 .mode-card,.menu-shelf.shelf-n6 .mode-card,.menu-shelf.shelf-n7 .mode-card{padding:16px 12px 12px;gap:6px}
+    }
+    .home-menu .ai-note{margin:0 auto 2px;flex:0 0 auto;font-size:.68rem;line-height:1.35}
+    /* ── END MENU DOORS CSS ── */
     /* ── GAME PREVIEW ──
        A miniature of the screen the child is about to see, not a mascot. Six games is
        too many to tell apart by a decorative planet, and a pre-reader cannot use the
@@ -1337,6 +1401,124 @@
        still the drawing under every picture on the chart, which overrides the
        size and the frame — see .uc-thing .um-glyph. */
     .um-glyph{width:clamp(84px,15vw,130px);height:clamp(84px,15vw,130px);color:#2f4a8f;background:rgba(255,255,255,.72);border-radius:26px;padding:18px;box-shadow:0 5px 18px rgba(90,46,214,.12)}
+    /* Big and Small Units keeps its drawing, rule, and answers visible together
+       on either orientation of the target iPad. */
+    /* u2 lays out as one column that fills the screen: the picture takes whatever
+       height the tabs, the question and the answers leave, so nothing scrolls and no
+       gap opens between the title and the tabs on a tall iPad. */
+    .u2-screen{height:100vh;height:100dvh;min-height:0;overflow:hidden;gap:7px;padding-bottom:14px}
+    .u2-stage{width:min(94vw,880px);flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;z-index:1}
+    .u2-stage.playing{justify-content:flex-start}
+    .u2-worlds,.u2-answers,.u2-summary-facts{display:flex;justify-content:center;gap:clamp(9px,2vw,18px);width:100%}
+    .u2-world{width:clamp(150px,27vw,240px);height:clamp(150px,26vh,220px);font-size:clamp(1rem,2.4vw,1.3rem);padding:10px}
+    .u2-world svg{display:block;width:100%;height:100px}
+    .u2-art{flex:1 1 0;min-height:150px;max-height:470px;width:100%;max-width:820px}
+    .u2-answers{flex:0 0 auto}
+    .u2-answer{width:clamp(140px,24vw,230px);height:clamp(96px,14vh,150px);font-size:clamp(1rem,2.8vw,1.45rem);padding:6px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+    .u2-answer:disabled{opacity:.55;cursor:default}
+    .u2-answer svg{display:block;width:100%;max-width:150px;height:auto;max-height:68%;fill:none;stroke:currentColor;stroke-width:4}
+    .u2-choice-number{display:block;font-size:clamp(1.8rem,5vw,3rem)}
+    .u2-choice-label{display:block;font-size:clamp(.95rem,2.2vw,1.2rem);line-height:1.1}
+    .u2-answer.wrong{animation:wrongShake .35s}
+    .u2-answer.reveal{animation:hintGlow 1s ease-in-out infinite;border-color:#ffd54f}
+    .u2-label{fill:currentColor;stroke:none;font:800 18px Nunito,sans-serif}
+    .u2-art.teach .u2-piece{fill:#ffd54f;animation:u2Fill 1.4s both}
+    .u2-teach{flex:0 0 auto;min-height:24px;font-weight:900;font-size:clamp(1.05rem,2.6vw,1.35rem);text-align:center}
+    .u2-count{flex:0 0 auto;display:flex;max-width:min(90vw,820px);gap:4px;justify-content:center;flex-wrap:wrap;min-height:24px}
+    .u2-count span{padding:2px 7px;border-radius:8px;font-size:1.05rem;font-weight:900;opacity:.2;animation:u2Count 1.4s both}
+    .u2-summary{width:min(94vw,900px);padding:16px;border-radius:26px;text-align:center}
+    .u2-summary-fact{flex:1;padding:10px;font-size:clamp(1rem,2.4vw,1.35rem)}
+    .u2-summary-fact svg{width:100%;height:84px}
+    .u2-kheed{font-size:.86rem;margin-top:10px;font-weight:800}
+    .u2-summary-btn{min-height:64px;padding:10px 20px;border-radius:18px;font:900 1rem inherit}
+    .u2-next{flex:0 0 auto;display:flex;gap:10px;justify-content:center}.u2-next button{min-height:64px}
+    .u2-rungs{flex:0 0 auto;width:min(94vw,760px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .u2-rungs .fm-btn{width:100%;min-width:0;min-height:64px;height:64px;padding:5px;font-size:clamp(.9rem,2.2vw,1.1rem);font-weight:900;white-space:normal;line-height:1.05}
+    /* The objects keep their own colours in both themes: an apple is red on a pink
+       page and on a night sky. */
+    /* Painted, not outlined (owner, 2026-10-25: "my kids like nice color, nice art").
+       The gradients are UnitPaint's defs, drawn once per game into a zero-size SVG. */
+    .u2-paint-box{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+    .u2-art .u2-obj{filter:url(#u2f-soft)}
+    .u2-wood{fill:url(#u2g-wood)}.u2-wood-dark{fill:url(#u2g-wood-dark)}
+    .u2-knot{fill:#8d6e63}.u2-bow{fill:#ff80ab}
+    .u2-pencil{fill:url(#u2g-pencil)}.u2-eraser{fill:#f48fb1}.u2-lead{fill:#455a64}
+    .u2-handle{fill:url(#u2g-handle)}.u2-metal{fill:url(#u2g-metal)}.u2-paint{fill:#4fc3f7}
+    .u2-balloon{fill:url(#u2g-balloon)}.u2-shine{stroke:#fff;stroke-width:5;opacity:.85}
+    .u2-apple{fill:url(#u2g-apple)}.u2-leaf{fill:url(#u2g-leaf)}
+    .u2-block{fill:url(#u2g-block)}.u2-block-top{fill:#d8eeff}.u2-block-side{fill:#4a9fe3}
+    .u2-pillow{fill:url(#u2g-pillow)}.u2-rock{fill:url(#u2g-rock)}.u2-book{fill:url(#u2g-book)}
+    .u2-bucket{fill:url(#u2g-bucket)}.u2-cup{fill:url(#u2g-cup)}
+    .u2-pan{fill:url(#u2g-gold)}.u2-pivot{fill:url(#u2g-gold)}
+    .u2-sack{fill:url(#u2g-sack)}.u2-flour{fill:url(#u2g-flour)}.u2-sack-empty{fill:#fffaf2}.u2-weight{fill:url(#u2g-metal)}
+    .u2-mint{fill:url(#u2g-mint)}.u2-lilac{fill:url(#u2g-lilac)}.u2-tape{fill:url(#u2g-tape)}.u2-tape-case{fill:url(#u2g-pink)}
+    .u2-ribbon-fill{fill:url(#u2g-ribbon)}.u2-glass-fill{fill:url(#u2g-glass);fill-opacity:.8}.u2-juice{fill:url(#u2g-juice)}
+    .u2-water-top{stroke:#effcff;stroke-width:3;opacity:.9}
+    .u2-beam-edge{stroke-width:13}.u2-beam{stroke:#ffc94a;stroke-width:7}
+    .u2-scale{fill:url(#u2g-scale)}.u2-face{fill:#fffdfd}
+    .u2-cell{fill:#fff3c4;stroke:#e9bf4f}
+    /* Ticks and pointer pins drawn ON a painted object stay dark in both themes. */
+    .u2-art .u2-ink{stroke:#24305e}
+    .u2-bead{fill:url(#u2g-bead)}.u2-bead-band{stroke:#ffd1ec;stroke-width:7}
+    .u2-ladybug{fill:url(#u2g-ladybug)}.u2-head{fill:#3b2a3f}.u2-spot{fill:#2b1d2e;stroke:none}.u2-eye{fill:#fff;stroke:none}
+    .u2-grass{fill:url(#u2g-grass)}.u2-tree{fill:#7fcf7a}.u2-trunk{fill:#b7865b}
+    .u2-road{fill:url(#u2g-road)}.u2-stretch{fill:#fff;fill-opacity:.22;stroke:#fff;stroke-opacity:.55}
+    .u2-road-line{stroke:#fff;stroke-width:4;stroke-dasharray:14 12}
+    .u2-art.teach .u2-stretch.u2-piece{fill-opacity:.95}
+    .u2-sun{fill:#ffd95a;stroke:#f5b93a}.u2-cloud{fill:#fff;stroke:#d9c7ef}
+    .u2-glass-shine{stroke:#fff;stroke-width:9;opacity:.7}
+    .u2-house{fill:#fff3e0}.u2-roof{fill:#ff8fb8}.u2-door{fill:#b39ddb}
+    .u2-signpost{stroke:#a1785a;stroke-width:6}.u2-sign{fill:url(#u2g-mint)}.u2-flag{fill:#ff5d9b}
+    .u2-end-line{stroke:#ff4081;stroke-width:3;stroke-dasharray:6 6}
+    .u2-end-dot{fill:#fff;stroke:#ff4081;stroke-width:4}
+    .u2-label.u2-total{font-size:16px}
+    .u2-lay{animation:u2Lay .5s both}
+    @keyframes u2Lay{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+    .u2-choice-text{display:block;font-size:clamp(1rem,2.4vw,1.25rem);line-height:1.15;overflow-wrap:anywhere}
+    .u2-all-tag{flex:0 0 auto;padding:8px 18px;border-radius:999px;font-weight:900;font-size:1.05rem}
+    .u2-world{width:clamp(140px,21.5vw,220px)}
+    .u2-rungs.u2-rungs-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .u2-rungs.u2-rungs-8{grid-template-columns:repeat(8,minmax(0,1fr));width:min(96vw,900px);gap:6px}
+    .u2-rungs .fm-btn.u2-mix-tab:not(.on){background:linear-gradient(100deg,#ffe0ef,#eadfff 50%,#d9f1ff)}
+    .u2-label.u2-on-object{fill:#4a148c}.u2-label.u2-small{font-size:13px}
+    .u2-water-stream{stroke:#4fc3f7;stroke-width:8;opacity:0}
+    /* The pour: first glasses lift and tip, new glasses appear and fill. Once. */
+    .u2-pour-first{transform-box:view-box}
+    .u2-pour-juice{transform-box:fill-box;transform-origin:50% 100%}
+    .u2-pour-first.left{animation:u2PourLeft var(--pour-time) ease-in-out var(--pour-delay) both}
+    .u2-pour-first.right{animation:u2PourRight var(--pour-time) ease-in-out var(--pour-delay) both}
+    /* Tipped, the juice runs to the mouth: it drains towards its own surface. */
+    .u2-pour-first .u2-pour-juice{transform-origin:50% 0;animation:u2Drain var(--pour-time) linear var(--pour-delay) both}
+    .u2-pour-new{animation:u2Appear var(--pour-time) ease-out var(--pour-delay) both}
+    .u2-pour-new .u2-pour-juice{animation:u2Pour var(--pour-time) linear var(--pour-delay) both}
+    .u2-pour-stream{animation:u2Stream var(--pour-time) linear var(--pour-delay) both}
+    @keyframes u2PourLeft{0%{transform:none;opacity:1}35%{transform:translate(-70px,-62px)}75%{transform:translate(-70px,-62px) rotate(100deg);opacity:1}100%{transform:translate(-70px,-62px) rotate(100deg);opacity:0}}
+    @keyframes u2PourRight{0%{transform:none;opacity:1}35%{transform:translate(108px,-16px)}75%{transform:translate(108px,-16px) rotate(-100deg);opacity:1}100%{transform:translate(108px,-16px) rotate(-100deg);opacity:0}}
+    @keyframes u2Drain{0%,50%{transform:scaleY(1)}88%,100%{transform:scaleY(0)}}
+    @keyframes u2Pour{0%,50%{transform:scaleY(0)}88%,100%{transform:scaleY(1)}}
+    @keyframes u2Appear{0%{opacity:0}30%,100%{opacity:1}}
+    @keyframes u2Stream{0%,48%{opacity:0}55%,85%{opacity:1}95%,100%{opacity:0}}
+    @keyframes u2Fill{0%{opacity:.2}60%,100%{opacity:1}}
+    .u2-world,.u2-answer,.u2-summary-fact{min-width:0;min-height:64px;border:3px solid #456db4;border-radius:22px;background:linear-gradient(160deg,#172e62,#0b1739);color:#eaf4ff;font-family:inherit;font-weight:900;box-shadow:0 5px 0 #284b8c}
+    .u2-art{border:3px solid rgba(69,109,180,.9);border-radius:24px;background:rgba(4,12,36,.7);color:#d8eaff}
+    .u2-water,.u2-fill,.u2-half{fill:url(#u2g-water);fill-opacity:.9}
+    .u2-all-tag{background:#0b1739;border:3px solid #456db4;color:#eaf4ff}
+    .u2-soft{fill:#ab97f5;fill-opacity:.58}
+    .u2-ribbon,.u2-pointer{stroke:#ffd54f;stroke-width:13}
+    .u2-target{filter:drop-shadow(0 0 5px #ffd54f)}
+    /* Objects are outlined in a mid blue: the theme's pale line vanishes on a white
+       pillow, and a navy line would vanish on the night sky. */
+    .u2-obj{stroke:#6f7fb8}
+    .u2-post{fill:#284b8c}.u2-start-line{stroke:#ffd54f;stroke-width:3;stroke-dasharray:8 8}
+    .u2-teach{color:#eaf4ff}
+    .u2-count span{background:#172e62;color:#eaf4ff}
+    .u2-summary{border:3px solid #456db4;background:rgba(9,22,58,.92)}
+    .u2-summary-btn{border:3px solid #456db4;background:#0b1739;color:#eaf4ff}
+    /* Inactive tabs: the ribbon's pale blue word is too faint on white to read
+       (2.0:1); this indigo is 10.4:1 on the tab's white and 9.1:1 on its blue tint. */
+    .u2-rungs .fm-btn:not(.on){color:#283593}
+    @keyframes u2Count{0%{opacity:.2}60%,100%{opacity:1;background:#ffd54f;color:#172e62}}
+    @media(max-height:700px){.u2-art{min-height:120px}.u2-world{height:135px}.u2-world svg{height:78px}.u2-answer{height:88px}.u2-screen .count-title-sub{display:none}}
     /* ── Cover It (area) ── */
     .ag-grid{display:grid;gap:0;background:#2f4a8f;border:3px solid #2f4a8f;border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(90,46,214,.18)}
     .ag-cell{width:var(--ag-cell,clamp(40px,7vw,58px));height:var(--ag-cell,clamp(40px,7vw,58px));box-sizing:border-box;background:rgba(255,255,255,.35);cursor:pointer;transition:background .15s}
@@ -1441,9 +1623,98 @@
     .aa-stage{display:grid;grid-template-columns:minmax(290px,430px) minmax(280px,520px);gap:12px;align-items:start;justify-content:center;width:min(97vw,980px);position:relative;z-index:1}.aa-work{display:flex;flex-direction:column;align-items:center;gap:9px}.aa-card{width:100%;min-height:218px;background:linear-gradient(145deg,#fff,#e8f0ff);border:3px solid #93b7fb;border-radius:24px;padding:14px 18px;color:#1a237e;box-shadow:0 5px 0 #6d9bf5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px}.aa-prompt{font-size:clamp(1rem,2.7vw,1.25rem);font-weight:900;text-align:center;color:#5a2ed6}.aa-build{min-height:70px;max-width:100%;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:6px}.aa-build-num{font-size:clamp(1.5rem,5vw,2.2rem);font-weight:900;color:#c62828;border:3px solid #ff8a80;border-radius:12px;padding:5px 9px;min-width:48px;text-align:center}.aa-build-op{font-size:clamp(1.5rem,5vw,2.2rem);font-weight:900;color:#2f6df6}.aa-empty{color:#9aa6c6;border-style:dashed}.aa-card.wrong{animation:wrongShake .35s ease;border-color:#f44336}
     .aa-column{display:grid;grid-template-columns:34px auto;align-items:center;justify-content:center;gap:2px 8px;font-size:clamp(1.8rem,6vw,2.7rem);font-weight:900;font-variant-numeric:tabular-nums;min-width:170px}.aa-col-op{color:#2f6df6;text-align:center}.aa-col-num{text-align:right;letter-spacing:.08em}.aa-rule{grid-column:1/-1;height:4px;border-radius:3px;background:#2f6df6;margin:2px 0;width:100%}.aa-answer{grid-column:2;text-align:right;min-height:1.2em;letter-spacing:.08em;color:#2e7d32}.aa-answer.empty{color:#9aa6c6}.aa-feedback{min-height:28px;font-weight:900;text-align:center;color:#5a2ed6}.aa-feedback.good{color:#2e7d32}.aa-feedback.try{color:#ef6c00}
     .aa-keypad{display:grid;grid-template-columns:repeat(5,minmax(48px,62px));gap:7px;justify-content:center}.aa-key{height:50px;border:2.5px solid #93b7fb;border-radius:14px;background:linear-gradient(160deg,#fff,#e8f0ff);color:#5a2ed6;font:900 1.35rem Nunito,sans-serif;box-shadow:0 4px 0 #93b7fb;cursor:pointer}.aa-key.op{color:#2f6df6;background:linear-gradient(160deg,#f0f5ff,#d9e7ff)}.aa-key:active{transform:translateY(3px);box-shadow:0 1px 0 #93b7fb}.aa-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.aa-action{min-height:48px;border:3px solid #81c784;border-radius:999px;background:linear-gradient(160deg,#fff,#e2f6e3);color:#2e7d32;font:900 .95rem Nunito,sans-serif;padding:8px 18px;box-shadow:0 4px 0 #81c784;cursor:pointer}.aa-action.secondary{border-color:#93b7fb;color:#2f6df6;background:linear-gradient(160deg,#fff,#e8f0ff);box-shadow:0 4px 0 #93b7fb}.aa-action:active{transform:translateY(3px);box-shadow:none}
-    .aa-scratch{background:#f6f0df;border:3px solid #c99b55;border-radius:22px;padding:9px;box-shadow:0 5px 0 #80552d;min-height:390px;display:flex;flex-direction:column;gap:8px}.aa-scratch.collapsed{min-height:0;width:100%;padding:0;background:none;border:none;box-shadow:none}.aa-scratch.collapsed .aa-tools,.aa-scratch.collapsed .aa-canvas,.aa-scratch.collapsed .aa-scratch-title{display:none}.aa-scratch-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.aa-scratch.collapsed .aa-scratch-head{justify-content:flex-end}.aa-scratch-title{font-weight:900;color:#5b3b20}.aa-scratch-toggle{min-height:44px;border:2px solid #c99b55;border-radius:13px;background:#fff8e8;color:#5b3b20;font:900 .86rem Nunito,sans-serif;padding:6px 12px;cursor:pointer}.aa-tools{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.aa-colour{width:44px;height:44px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px #9b7544;cursor:pointer}.aa-colour.on{box-shadow:0 0 0 4px #2f6df6}.aa-tool{min-height:44px;border:2px solid #c99b55;border-radius:12px;background:#fff8e8;color:#5b3b20;font:900 .8rem Nunito,sans-serif;padding:5px 10px;cursor:pointer}.aa-tool.on{background:#dceaff;border-color:#2f6df6;color:#1a237e}.aa-canvas{width:100%;height:285px;background:#fff;border:2px solid #d8c9ad;border-radius:12px;touch-action:pinch-zoom;cursor:crosshair}
-    @media (orientation:portrait),(max-width:760px){.aa-screen{height:100vh;height:100dvh;min-height:0;padding-left:8px;padding-right:8px}.aa-stage{display:flex;flex:1 1 auto;min-height:0;max-width:620px;gap:8px;flex-direction:column;overflow:hidden}.aa-work{flex:0 0 auto}.aa-card{min-height:118px;padding:8px 14px}.aa-build{min-height:48px;padding:2px}.aa-key{height:44px}.aa-scratch{flex:1 1 auto;min-height:0;overflow:hidden}.aa-canvas{height:200px;min-height:150px;flex:0 0 auto}.aa-players{gap:5px 4px}}
+    .aa-scratch{background:#f6f0df;border:3px solid #c99b55;border-radius:22px;padding:9px;box-shadow:0 5px 0 #80552d;min-height:390px;display:flex;flex-direction:column;gap:8px}.aa-scratch.collapsed{min-height:0;width:100%;padding:0;background:none;border:none;box-shadow:none}.aa-scratch.collapsed .aa-tools,.aa-scratch.collapsed .aa-canvas,.aa-scratch.collapsed .aa-scratch-title{display:none}.aa-scratch-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.aa-scratch.collapsed .aa-scratch-head{justify-content:flex-end}.aa-scratch-title{font-weight:900;color:#5b3b20}.aa-scratch-toggle{min-height:44px;border:2px solid #c99b55;border-radius:13px;background:#fff8e8;color:#5b3b20;font:900 .86rem Nunito,sans-serif;padding:6px 12px;cursor:pointer}.aa-tools{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.aa-colour{width:64px;height:64px;flex:0 0 64px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px #9b7544;cursor:pointer}.aa-colour.on{box-shadow:0 0 0 4px #2f6df6}.aa-tool,.aa-size{width:64px;height:64px;flex:0 0 64px;border:3px solid #c99b55;border-radius:18px;background:linear-gradient(160deg,#fffdf6,#fff1d6);color:#5b3b20;padding:9px;cursor:pointer;box-shadow:0 4px 0 #c99b55}.aa-tool:active,.aa-size:active{transform:translateY(3px);box-shadow:0 1px 0 #c99b55}.aa-tool.on{background:#dceaff;border-color:#2f6df6;color:#1a237e}.aa-tool svg,.aa-size svg{display:block;width:100%;height:100%}.aa-canvas{width:100%;height:285px;background:#fff;border:2px solid #d8c9ad;border-radius:12px;touch-action:pinch-zoom;cursor:crosshair}
+    .aa-scratch-toggle{width:64px;height:64px;min-height:64px;flex:0 0 64px;border-radius:18px;padding:9px;box-shadow:0 4px 0 #c99b55}
+    .aa-scratch-toggle svg{display:block;width:100%;height:100%}
+    .aa-scratch.scratch-size-medium{min-width:min(58vw,600px)}.aa-scratch.scratch-size-large{min-width:min(65vw,650px)}
+    .aa-stage:has(.scratch-size-medium){grid-template-columns:minmax(320px,360px) minmax(0,600px)}.aa-stage:has(.scratch-size-large){grid-template-columns:320px minmax(0,648px)}
+    @media (orientation:portrait),(max-width:760px){.aa-screen{height:100vh;height:100dvh;min-height:0;padding-left:8px;padding-right:8px}.aa-stage{display:flex;flex:1 1 auto;min-height:0;max-width:620px;gap:8px;flex-direction:column;overflow:hidden}.aa-work{flex:0 0 auto}.aa-card{min-height:118px;padding:8px 14px}.aa-build{min-height:48px;padding:2px}.aa-key{height:44px}.aa-scratch{flex:1 1 auto;min-width:0;min-height:0;overflow:hidden}.aa-screen:has(.scratch-size-medium) .aa-players{max-height:86px;overflow:hidden}.aa-screen:has(.scratch-size-medium) .aa-player{height:82px}.aa-screen:has(.scratch-size-medium) .aa-player-pick{height:30px}.aa-screen:has(.scratch-size-large) .aa-players{max-height:58px;overflow:hidden}.aa-screen:has(.scratch-size-large) .aa-player{height:54px}.aa-screen:has(.scratch-size-large) .aa-player-pick{display:none}.aa-canvas{height:200px;min-height:150px;flex:0 0 auto}.aa-players{gap:5px 4px}}
+    @media (orientation:portrait),(max-width:760px){.aa-screen:has(.scratch-size-medium) .count-title-sub{display:none}.aa-screen:has(.scratch-size-medium) .aa-players{max-height:54px}.aa-screen:has(.scratch-size-medium) .aa-player{height:54px}.aa-screen:has(.scratch-size-medium) .aa-player-pick{display:none}.aa-screen:has(.scratch-size-large)>.mascot-corner,.aa-screen:has(.scratch-size-large)>.count-title,.aa-screen:has(.scratch-size-large)>.aa-players{display:none}.aa-screen:has(.scratch-size-large) .aa-card{min-height:104px;gap:4px}.aa-screen:has(.scratch-size-large) .aa-build{min-height:42px}}
     @media (max-height:820px) and (orientation:landscape){.aa-card{min-height:150px;padding:8px 14px;gap:5px}.aa-build{min-height:48px;padding:2px}.aa-scratch{min-height:340px}.aa-canvas{height:205px}.aa-key{height:44px}}
+    /* ── Number Toys scratchpad: Ask & Answer's ScratchPad, shared (owner 2026-10-26) ──
+       Hidden, it is only its show button, centred under "My true sentences". Open on a
+       portrait iPad it sits under the history: the page is pinned to the window and the
+       pad takes what is left, never less than its min-height (which the history-fit
+       effect reads, so the history gives up rows before the page scrolls). Open on a
+       landscape iPad there is no room under the trays, so the toys keep their size as
+       a left column and the pad becomes the right one. */
+    .np-desk,.np-bench{display:contents}
+    .np-scratch{position:relative;z-index:1;width:min(96vw,720px);flex:0 0 auto}
+    .np-scratch.collapsed{width:auto}
+    .np-scratch.collapsed .aa-tools{display:flex}
+    .np-scratch.collapsed .aa-tools>:not(.np-scratch-toggle){display:none}
+    .np-scratch-toggle{width:64px;height:64px;flex:0 0 64px;display:inline-flex;align-items:center;justify-content:center;border:3px solid #c99b55;border-radius:18px;background:linear-gradient(160deg,#fffdf6,#fff1d6);color:#5b3b20;padding:9px;cursor:pointer;box-shadow:0 4px 0 #c99b55}
+    .np-scratch-toggle:active{transform:translateY(3px);box-shadow:0 1px 0 #c99b55}
+    .np-scratch-icon{display:block;width:100%;height:100%}
+    .np-screen.np-scratch-on{height:100vh;height:100dvh;min-height:0}
+    .np-scratch-on .np-scratch{flex:1 1 auto;min-height:250px;padding:8px}
+    .np-scratch-on .np-scratch.scratch-size-medium{min-height:400px}
+    .np-scratch-on .np-scratch.scratch-size-large{min-height:590px}
+    .np-scratch-on .aa-canvas{flex:0 0 auto}
+    .np-screen:has(.np-scratch.scratch-size-medium) .np-history-row~.np-history-row,
+    .np-screen:has(.np-scratch.scratch-size-large) .np-history-row~.np-history-row{display:none}
+    .np-screen:has(.np-scratch.scratch-size-large)>.mascot-corner,
+    .np-screen:has(.np-scratch.scratch-size-large)>.count-title{display:none}
+    .np-screen:has(.np-scratch.scratch-size-large){gap:3px}
+    .np-screen:has(.np-scratch.scratch-size-large) .np-tray-group{padding-top:3px;padding-bottom:5px}
+    .np-screen:has(.np-scratch.scratch-size-large) .np-tray-label{margin-bottom:2px}
+    /* the open pad reaches the bottom-left corner on a portrait iPad: it goes over the mascot, never under it */
+    .screen.np-scratch-on>.mascot-corner{z-index:0}
+    @media (orientation:landscape) and (min-width:900px){
+      .np-scratch-on .np-desk{display:flex;flex:1 1 auto;min-height:0;width:100%;gap:inherit;align-items:stretch}
+      .np-scratch-on .np-bench{display:flex;flex-direction:column;align-items:center;gap:inherit;flex:0 0 min(62%,640px);min-width:0}
+      .np-scratch-on .np-desk:has(.scratch-size-medium) .np-bench{flex-basis:min(45%,450px)}
+      .np-scratch-on .np-desk:has(.scratch-size-large) .np-bench{flex-basis:min(36%,360px)}
+      .np-scratch-on .np-bench>*{max-width:100%}
+      .np-scratch-on .np-scratch{flex:1 1 0;min-width:0;min-height:0;width:auto}
+      /* Hidden, its button waits in the bottom-right corner -- the side the pad opens on --
+         rather than taking a 64px row under the history that 768px of height cannot spare. */
+      .np-scratch.collapsed{position:fixed;right:22px;bottom:22px;z-index:6}
+    }
+    /* Ten 64px picture tools would take two rows. Keep the main eight in one flow row
+       and float Eraser/Clear inside the canvas bottom edge; Ask & Answer floats its
+       collapse control in the opposite corner.
+       Each landscape size also gets a genuinely different width. */
+    .aa-stage .aa-scratch{position:relative;width:100%;min-width:0;padding:7px}
+    .aa-scratch .aa-tools>.aa-tool:nth-last-child(2),
+    .aa-scratch .aa-tools>.aa-tool:last-child{position:absolute;bottom:8px;z-index:3}
+    .aa-scratch .aa-tools>.aa-tool:nth-last-child(2){right:80px}
+    .aa-scratch .aa-tools>.aa-tool:last-child{right:8px}
+    .aa-stage .aa-scratch-head{position:absolute;left:8px;bottom:8px;z-index:3}
+    .aa-stage .aa-scratch.collapsed .aa-scratch-head{position:static}
+    .aa-stage:has(.scratch-size-small){grid-template-columns:minmax(290px,430px) 320px}
+    .aa-stage:has(.scratch-size-medium){grid-template-columns:minmax(290px,430px) 500px}
+    .aa-stage:has(.scratch-size-large){grid-template-columns:320px minmax(0,648px)}
+    .aa-stage .aa-scratch.scratch-size-large{position:fixed;inset:4vh 4vw;width:92vw;height:92vh;min-width:0;min-height:0;z-index:50;padding:12px}.aa-screen:has(.aa-stage .scratch-size-large) .aa-work{position:fixed;right:6vw;top:calc(4vh + 112px);width:min(31vw,300px);z-index:52}.aa-screen:has(.aa-stage .scratch-size-large) .aa-work .aa-keypad,.aa-screen:has(.aa-stage .scratch-size-large) .aa-work .aa-actions{display:none}.aa-screen:has(.aa-stage .scratch-size-large) .aa-work .aa-card{min-height:92px;padding:6px 10px}.aa-stage .scratch-size-large .aa-scratch-head{position:absolute;left:12px;bottom:12px;z-index:53}.aa-stage .scratch-size-large .aa-scratch-toggle{width:auto;min-width:210px;padding:8px 14px;display:inline-flex;align-items:center;gap:8px}.aa-stage .scratch-size-large .aa-scratch-toggle::after{content:" Back to the question";font-weight:900}.aa-stage .scratch-size-large .aa-canvas{flex:1;max-height:none}
+    @media (orientation:portrait),(max-width:760px){
+      .aa-screen{padding-bottom:0}
+      .aa-screen .count-title-sub{display:none}
+      .aa-screen:has(.scratch-size-small) .aa-player{height:72px}
+      .aa-screen:has(.scratch-size-small) .aa-player-pick{height:30px;overflow:hidden}
+      .aa-screen:has(.scratch-size-small) .aa-card{min-height:104px}
+      .aa-screen:has(.scratch-size-small) .aa-canvas{max-height:150px}
+      .aa-screen:has(.scratch-size-medium) .aa-canvas{max-height:240px}
+    }
+    /* Number Toys keeps every work control, but the open-pad version uses the compact
+       44px toy tier and removes ornamental air. This returns 100+ vertical pixels to
+       the pad without scrolling either orientation. */
+    .np-screen.np-scratch-on{overflow:hidden;--np-tile:54px;--np-tray-tile:44px}
+    .np-screen:has(.np-scratch.scratch-size-medium)>.count-title{display:none}
+    .np-scratch-on .np-controls{gap:10px}
+    .np-scratch-on .np-btn{min-height:48px;padding:6px 14px}
+    .np-scratch-on .np-rail-wrap{padding:4px}
+    .np-scratch-on .np-rail{min-height:70px}
+    .np-scratch-on .np-num{min-height:64px}
+    .np-scratch-on .np-tray-group{padding:3px 8px 6px}
+    .np-scratch-on .np-tray-label{margin-bottom:2px;line-height:1}
+    .np-scratch-on .np-history{gap:2px}
+    .np-scratch-on .np-history-label{line-height:1}
+    .np-scratch-on .np-scratch.scratch-size-large{min-height:540px}
+    @media (orientation:landscape) and (min-width:900px){
+      .np-scratch-on .np-bench{gap:4px;justify-content:space-between}
+      .np-scratch-on .np-scratch.scratch-size-medium,
+      .np-scratch-on .np-scratch.scratch-size-large{min-height:0}
+    }
     /* ── Number Crossword (p1) ──
        A 5 x 5 board of equations across and down, then the tray. SQUARES HOLD NUMBERS
        and CIRCLES HOLD SIGNS: the two kinds of box and the two kinds of tile differ in
@@ -4302,7 +4573,7 @@ const CARD_VOICE = {
   h1: 'Hundred Board! Where do you land?',
   d1: 'Share It Out! Deal them fairly!',
   q1: "What's the Fraction? Count the lit parts!",
-  u1: 'Which Unit? Tap a picture!',
+  u2: 'Big and Small Units. Tap to answer!',
   a1: 'Cover It! How many squares?',
   np1: 'Number Toys! Build your own number sentence!',
   /* One card, five decks, so the card cannot name the maths — it names the move, which
@@ -8540,6 +8811,18 @@ function CharImg({
 function GamePreview({
   id
 }) {
+  if (id === 'mh1') return /*#__PURE__*/React.createElement("div", {
+    className: "gp",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "assets-runtime/space/icons/math-helper.webp",
+    alt: "",
+    style: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }
+  }));
   const box = /*#__PURE__*/React.createElement("span", {
     className: "gp-box"
   });
@@ -9096,7 +9379,7 @@ function GamePreview({
   }, "/"), /*#__PURE__*/React.createElement("span", {
     className: "gp-num"
   }, "4")));
-  if (id === 'u1') return /*#__PURE__*/ /* Which Unit — the chart's row of units, smallest first */React.createElement("div", {
+  if (id === 'u2') return /*#__PURE__*/ /* Big and Small Units — a metre made of small blocks */React.createElement("div", {
     className: "gp gp-tight",
     "aria-hidden": "true"
   }, /*#__PURE__*/React.createElement("div", {
@@ -9380,7 +9663,7 @@ const CARD_STICKERS = {
   d1: "divide",
   f1: "fraction-moon",
   q1: "fraction-moon",
-  u1: "tape-measure",
+  u2: "tape-measure",
   l2: "plus",
   c1: "minus",
   c2: "calculator",
@@ -18982,6 +19265,2134 @@ function FractionGame({
   }, /*#__PURE__*/React.createElement(NextIcon, null)));
 }
 
+/* ══ MODE u2: BIG AND SMALL UNITS ══ */
+const UNIT_VOICE = ['Choose a measurement world.', 'Which is longer?', 'How many centimetres make 1 metre?', 'This ribbon is 2 metres. How many centimetres?', 'Half a metre is how many centimetres?', 'One and a half metres is how many centimetres?', 'Two and a half metres is how many centimetres?', 'How long is the ribbon?', 'Which is heavier?', 'How many grams make 1 kilogram?', 'Half a kilogram is how many grams?', 'One quarter of a kilogram is how many grams?', 'Three quarters of a kilogram is how many grams?', 'What does the scale show?', 'Which has more juice?', 'Which holds more?', 'How many millilitres make 1 litre?', 'Half a litre is how many millilitres?', 'One quarter of a litre is how many millilitres?', 'Three quarters of a litre is how many millilitres?', 'How much water is in the jug?', 'One metre is one hundred centimetres.', 'One kilogram is one thousand grams.', 'One litre is one thousand millilitres.', 'In a Thai market, ten kheed make one kilogram.', 'Look: one big unit is made of many small units.', 'Here is the answer.',
+/* Round 2 (owner, 2026-10-25): millimetres, kilometres and the Hard rung. Units are
+   spelled out in what is SPOKEN, so the narrator never has to guess at "cm". */
+'How many millimetres make 1 centimetre?', 'This bead is 3 centimetres. How many millimetres?', 'How long is the ladybug in millimetres?', 'How many metres make 1 kilometre?', 'Half a kilometre is how many metres?', 'Two kilometres is how many metres?', 'Which is longer: half a metre, or two 30 centimetre rulers?', 'Which is longer: 1 metre, or three 30 centimetre rulers?', 'Which is longer: half a metre, or three 15 centimetre rulers?', 'Which is longer: the measuring tape, or five 30 centimetre rulers?', 'Which is longer: the measuring tape, or a metre stick and a 30 centimetre ruler?', 'How many 30 centimetre rulers make the 150 centimetre tape?', 'How many 15 centimetre rulers make the 150 centimetre tape?', 'Which ruler fits along the tape exactly five times?', 'Lay them end to end and add them up.'];
+
+/* ── The paint box ──
+   Owner, 2026-10-25: "visual is the most important thing here, my kids like nice
+   color, nice art." Every u2 picture is filled from these soft gradients rather than
+   drawn as outlines: one set of defs, rendered once by the game into a zero-size SVG,
+   and named from the stylesheet (.u2-wood{fill:url(#u2g-wood)}), so the answer cards
+   and the big picture paint the same object the same way. Not display:none -- WebKit
+   will not paint a gradient whose defs are in an undisplayed SVG. */
+const UNIT_GRADIENTS = [['wood', '#fff4de', '#ffcf8a'], ['wood-dark', '#ffd9a3', '#f4a54a'], ['ribbon', '#ffb3d4', '#f2588f'], ['water', '#c9f3ff', '#4aa8ec'], ['gold', '#fff5bf', '#ffc23d'], ['metal', '#ffffff', '#a3b1c2'], ['flour', '#ffe7b8', '#f4ad4b'], ['sack', '#fffdf6', '#f0dcc0'], ['tape', '#fffbc4', '#ffd23f'], ['road', '#e6ddf7', '#b9a9de'], ['grass', '#e2f9cf', '#93d57e'], ['pink', '#ffe4f1', '#ffadd2'], ['mint', '#dcfbe9', '#7fd9a8'], ['lilac', '#f0e6ff', '#b89bf3'], ['book', '#d2f4d3', '#78c77f'], ['bucket', '#ffe6c2', '#ffad5c'], ['cup', '#fffbd0', '#ffdc5c'], ['block', '#cbe8ff', '#68b2f0'], ['pillow', '#ffffff', '#fde3ef'], ['pencil', '#fff0a8', '#ffc72e'], ['handle', '#ffaaa6', '#e2575a'], ['leaf', '#c4efad', '#5fb35f'], ['glass', '#ffffff', '#d9f2ff'], ['scale', '#ffd9ee', '#f396c4'], ['bead', '#d9c9ff', '#8a63e6'], ['juice', '#ffe08a', '#ffa63d']];
+const UNIT_RADIALS = [['apple', '#ff9a8f', '#e0302f'], ['balloon', '#ffd0e3', '#ff5d9b'], ['rock', '#eef2f6', '#8c9bab'], ['ladybug', '#ff8a7a', '#d62b2b']];
+function UnitPaint() {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "u2-paint-box",
+    width: "0",
+    height: "0",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("defs", null, UNIT_GRADIENTS.map(([id, a, b]) => /*#__PURE__*/React.createElement("linearGradient", {
+    key: id,
+    id: `u2g-${id}`,
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0",
+    stopColor: a
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    stopColor: b
+  }))), UNIT_RADIALS.map(([id, a, b]) => /*#__PURE__*/React.createElement("radialGradient", {
+    key: id,
+    id: `u2g-${id}`,
+    cx: ".36",
+    cy: ".32",
+    r: ".75"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0",
+    stopColor: a
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    stopColor: b
+  }))), /*#__PURE__*/React.createElement("filter", {
+    id: "u2f-soft",
+    x: "-10%",
+    y: "-10%",
+    width: "120%",
+    height: "135%"
+  }, /*#__PURE__*/React.createElement("feDropShadow", {
+    dx: "0",
+    dy: "3",
+    stdDeviation: "2.2",
+    floodColor: "#5b2a6e",
+    floodOpacity: ".22"
+  }))));
+}
+
+/* One beat of the 2-miss count. The pieces in the picture and the numbers under it
+   share it, so the block that lights and the number that appears arrive together. */
+const UNIT_STEP = .35;
+
+/* The juice question is the classic conservation trick, and a still picture cannot
+   ask it: the child has to SEE the two equal glasses poured. The pour waits
+   UNIT_POUR_DELAY so the equal glasses register first, plays once, and the answers
+   wake only after it has finished (UNIT_POUR_LOCK). */
+const UNIT_POUR_DELAY = 1.2;
+const UNIT_POUR_TIME = 2.2;
+const UNIT_POUR_LOCK = (UNIT_POUR_DELAY + UNIT_POUR_TIME) * 1000 + 150;
+
+/* The world cards are small paintings of each world: a ruler with a ribbon, a golden
+   balance with an apple, a jug of water -- and for All worlds, one of each. */
+function UnitWorldPicture({
+  world
+}) {
+  if (world === 'length') return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-wood",
+    x: "10",
+    y: "40",
+    width: "100",
+    height: "24",
+    rx: "5"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "2.5",
+    d: "M20 40v9M30 40v6M40 40v9M50 40v6M60 40v12M70 40v6M80 40v9M90 40v6M100 40v9"
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-ribbon-fill",
+    x: "14",
+    y: "24",
+    width: "86",
+    height: "9",
+    rx: "4.5",
+    strokeWidth: "2.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-bow",
+    strokeWidth: "2.5",
+    d: "M14 28q-10 -12 -3 -14q7 0 3 14zM14 28q-10 12 -3 14q7 0 3 -14z"
+  }));
+  if (world === 'mass') return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+    className: "u2-post",
+    strokeWidth: "3",
+    d: "M56 22h8v46h-8zM40 70h40l-4 -6h-32z"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-beam",
+    d: "M18 26H102"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "2",
+    d: "M24 26l-10 26M24 26l10 26M96 26l-10 26M96 26l10 26"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-pan",
+    strokeWidth: "3",
+    d: "M10 52q14 12 28 0zM82 52q14 12 28 0z"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-pivot",
+    cx: "60",
+    cy: "24",
+    r: "6",
+    strokeWidth: "3"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-apple",
+    strokeWidth: "2.5",
+    d: "M96 50c-4 -4 -11 -1 -10 -7c1 -6 6 -6 10 -4c4 -2 9 -2 10 4c1 6 -6 3 -10 7z"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-leaf",
+    strokeWidth: "2",
+    d: "M97 39q5 -5 9 -2q-5 4 -9 2z"
+  }));
+  if (world === 'capacity') return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+    className: "u2-glass-fill",
+    strokeWidth: "0",
+    d: "M34 14h44v58H34z"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-water",
+    strokeWidth: "0",
+    d: "M36 36h40v34H36z"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "4",
+    d: "M34 14v58h44V14M78 26q20 0 20 16q0 16 -20 16"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "2.5",
+    d: "M34 30h8M34 44h8M34 58h8"
+  }));
+  return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("g", {
+    transform: "translate(-2 -6) scale(.56)"
+  }, /*#__PURE__*/React.createElement(UnitWorldPicture, {
+    world: "length"
+  })), /*#__PURE__*/React.createElement("g", {
+    transform: "translate(56 -6) scale(.56)"
+  }, /*#__PURE__*/React.createElement(UnitWorldPicture, {
+    world: "mass"
+  })), /*#__PURE__*/React.createElement("g", {
+    transform: "translate(30 32) scale(.56)"
+  }, /*#__PURE__*/React.createElement(UnitWorldPicture, {
+    world: "capacity"
+  })));
+}
+function UnitWorldIcon({
+  world
+}) {
+  return /*#__PURE__*/React.createElement("svg", {
+    className: "u2-world-art",
+    viewBox: "0 0 120 80",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement(UnitWorldPicture, {
+    world: world
+  })));
+}
+function UnitLabel({
+  x,
+  y,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("text", {
+    className: "u2-label",
+    x: x,
+    y: y,
+    textAnchor: "middle"
+  }, children);
+}
+
+/* ── The objects ──
+   Every object a child compares is drawn once, here, and the same drawing is used in
+   the big picture and on its answer card -- so the card a child taps looks like the
+   thing they were looking at. Long things are drawn along a line from (0,0) to
+   (len,0); everything else stands on its own bottom-centre at (0,0). */
+
+/* Which object a choice names, and the name its card prints. Lengths drop their
+   measurement ("10 cm ruler" -> "ruler"): the picture asks the child to compare,
+   and a number on the card would let them read the answer instead. */
+const UNIT_THINGS = [{
+  test: /stick/,
+  kind: 'metre-stick',
+  name: 'metre stick',
+  long: true
+}, {
+  test: /ruler/,
+  kind: 'small-ruler',
+  name: 'ruler',
+  long: true
+}, {
+  test: /string/,
+  kind: 'string',
+  name: 'string',
+  long: true
+}, {
+  test: /ribbon/,
+  kind: 'ribbon',
+  name: 'ribbon',
+  long: true
+}, {
+  test: /pencil/,
+  kind: 'pencil',
+  name: 'pencil',
+  long: true
+}, {
+  test: /brush/,
+  kind: 'brush',
+  name: 'paintbrush',
+  long: true
+}, {
+  test: /balloon/,
+  kind: 'balloon',
+  w: 74,
+  h: 114
+}, {
+  test: /apple/,
+  kind: 'apple',
+  w: 50,
+  h: 58
+}, {
+  test: /block/,
+  kind: 'block',
+  w: 50,
+  h: 50
+}, {
+  test: /pillow/,
+  kind: 'pillow',
+  w: 150,
+  h: 64
+}, {
+  test: /rock/,
+  kind: 'rock',
+  w: 50,
+  h: 34
+}, {
+  test: /book/,
+  kind: 'book',
+  w: 68,
+  h: 46
+}, {
+  test: /tall glass/,
+  kind: 'tall-glass',
+  w: 32,
+  h: 104
+}, {
+  test: /wide glass/,
+  kind: 'wide-glass',
+  w: 88,
+  h: 40
+}, {
+  test: /^the same$/,
+  kind: 'same',
+  w: 80,
+  h: 64
+}, {
+  test: /bucket/,
+  kind: 'bucket',
+  w: 124,
+  h: 124
+}, {
+  test: /cup/,
+  kind: 'cup',
+  w: 60,
+  h: 48
+}, {
+  test: /bowl/,
+  kind: 'bowl',
+  w: 86,
+  h: 36
+}];
+function unitThing(value) {
+  const thing = UNIT_THINGS.find(t => t.test.test(value));
+  return thing ? {
+    ...thing,
+    name: thing.name || value
+  } : null;
+}
+
+/* A metre stick is ten 10 cm segments. `pieceFrom` numbers the segments for the 2-miss
+   count so several sticks in a row light up as one continuous count. */
+function UnitMetreStick({
+  len,
+  pieces = 10,
+  pieceFrom = null,
+  thick = 22
+}) {
+  const seg = len / pieces;
+  return /*#__PURE__*/React.createElement("g", null, Array.from({
+    length: pieces
+  }, (_, i) => {
+    const counted = pieceFrom != null;
+    return /*#__PURE__*/React.createElement("rect", {
+      key: i,
+      className: `${i % 2 ? 'u2-wood-dark' : 'u2-wood'}${counted ? ' u2-piece' : ''}`,
+      x: i * seg,
+      y: -thick / 2,
+      width: seg,
+      height: thick,
+      style: counted ? {
+        animationDelay: `${(pieceFrom + i) * UNIT_STEP}s`
+      } : undefined
+    });
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "0",
+    y: -thick / 2,
+    width: len,
+    height: thick,
+    rx: "3"
+  }));
+}
+function UnitLongThing({
+  kind,
+  len
+}) {
+  switch (kind) {
+    case 'metre-stick':
+      return /*#__PURE__*/React.createElement(UnitMetreStick, {
+        len: len
+      });
+    case 'small-ruler':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+        className: "u2-mint",
+        x: "0",
+        y: "-12",
+        width: len,
+        height: "24",
+        rx: "3"
+      }), /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "2",
+        d: Array.from({
+          length: 9
+        }, (_, i) => `M${(i + 1) * len / 10} -12v${i === 4 ? 12 : 7}`).join('')
+      }));
+    case 'string':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "3",
+        d: `M0 0q${len / 8} -9 ${len / 4} 0t${len / 4} 0t${len / 4} 0t${len / 4} 0`
+      }), /*#__PURE__*/React.createElement("circle", {
+        className: "u2-knot",
+        cx: "0",
+        cy: "0",
+        r: "4"
+      }), /*#__PURE__*/React.createElement("circle", {
+        className: "u2-knot",
+        cx: len,
+        cy: "0",
+        r: "4"
+      }));
+    case 'ribbon':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-ribbon",
+        d: `M8 0q${(len - 8) / 8} -10 ${(len - 8) / 4} 0t${(len - 8) / 4} 0t${(len - 8) / 4} 0t${(len - 8) / 4} 0`
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-bow",
+        strokeWidth: "3",
+        d: "M8 0q-12 -18 -4 -20q8 0 4 20zM8 0q-12 18 -4 20q8 0 4 -20z"
+      }));
+    case 'pencil':
+      {
+        const tip = Math.min(20, len * .25);
+        return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+          className: "u2-pencil",
+          x: "10",
+          y: "-8",
+          width: len - 10 - tip,
+          height: "16"
+        }), /*#__PURE__*/React.createElement("rect", {
+          className: "u2-eraser",
+          x: "0",
+          y: "-8",
+          width: "10",
+          height: "16",
+          rx: "3"
+        }), /*#__PURE__*/React.createElement("path", {
+          className: "u2-wood",
+          d: `M${len - tip} -8L${len} 0L${len - tip} 8Z`
+        }), /*#__PURE__*/React.createElement("path", {
+          className: "u2-lead",
+          strokeWidth: "2",
+          d: `M${len - tip * .35} -2.8L${len} 0L${len - tip * .35} 2.8Z`
+        }));
+      }
+    case 'brush':
+      {
+        const handle = len * .6,
+          ferrule = len * .13;
+        return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+          className: "u2-handle",
+          d: `M0 -4L${handle} -7V7L0 4Z`
+        }), /*#__PURE__*/React.createElement("rect", {
+          className: "u2-metal",
+          x: handle,
+          y: "-8",
+          width: ferrule,
+          height: "16",
+          rx: "2"
+        }), /*#__PURE__*/React.createElement("path", {
+          className: "u2-paint",
+          d: `M${handle + ferrule} -8Q${len - 8} -11 ${len} 0Q${len - 8} 11 ${handle + ferrule} 8Z`
+        }));
+      }
+    default:
+      return null;
+  }
+}
+function UnitStandingThing({
+  kind
+}) {
+  switch (kind) {
+    case 'balloon':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "3",
+        d: "M0 -24q-12 8 -3 14q9 6 3 10"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-balloon",
+        d: "M-7 -24h14l-7 -9z"
+      }), /*#__PURE__*/React.createElement("ellipse", {
+        className: "u2-balloon",
+        cx: "0",
+        cy: "-74",
+        rx: "36",
+        ry: "41"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-shine",
+        d: "M-20 -88q5 -14 18 -17"
+      }));
+    case 'apple':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-apple",
+        d: "M0 -40C-13 -50 -27 -41 -25 -24C-23 -7 -11 2 0 -4C11 2 23 -7 25 -24C27 -41 13 -50 0 -40Z"
+      }), /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "4",
+        d: "M0 -40q1 -10 6 -15"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-leaf",
+        strokeWidth: "3",
+        d: "M5 -50q12 -11 21 -3q-11 9 -21 3z"
+      }));
+    case 'block':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-block",
+        d: "M-22 0v-36h36v36z"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-block-top",
+        d: "M-22 -36l10 -10h36l-10 10z"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-block-side",
+        d: "M14 0l10 -10v-36l-10 10z"
+      }), /*#__PURE__*/React.createElement("circle", {
+        cx: "-4",
+        cy: "-18",
+        r: "8"
+      }));
+    case 'pillow':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-pillow",
+        d: "M-64 -6Q-72 -32 -64 -56Q0 -66 64 -56Q72 -32 64 -6Q0 2 -64 -6Z"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-64 -56l-8 -6M64 -56l8 -6M-64 -6l-8 3M64 -6l8 3"
+      }), /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "2",
+        strokeDasharray: "5 6",
+        d: "M-48 -16Q0 -10 48 -16M-48 -46Q0 -54 48 -46"
+      }));
+    case 'rock':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-rock",
+        d: "M-23 0Q-27 -17 -14 -27Q-2 -35 11 -29Q25 -22 24 -8Q23 0 -23 0Z"
+      }), /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "2.5",
+        d: "M-6 -22l6 6l-2 8"
+      }));
+    case 'book':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+        className: "u2-book",
+        x: "-32",
+        y: "-44",
+        width: "64",
+        height: "44",
+        rx: "4"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-22 -44v44"
+      }), /*#__PURE__*/React.createElement("path", {
+        strokeWidth: "3",
+        d: "M-12 -30h34M-12 -20h26"
+      }));
+    case 'tall-glass':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+        className: "u2-glass-fill",
+        strokeWidth: "0",
+        x: "-14",
+        y: "-102",
+        width: "28",
+        height: "102"
+      }), /*#__PURE__*/React.createElement("rect", {
+        className: "u2-juice",
+        strokeWidth: "0",
+        x: "-13",
+        y: "-80",
+        width: "26",
+        height: "80"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-14 -102V0H14V-102"
+      }));
+    case 'wide-glass':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+        className: "u2-glass-fill",
+        strokeWidth: "0",
+        x: "-42",
+        y: "-38",
+        width: "84",
+        height: "38"
+      }), /*#__PURE__*/React.createElement("rect", {
+        className: "u2-juice",
+        strokeWidth: "0",
+        x: "-41",
+        y: "-24",
+        width: "82",
+        height: "24"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-42 -38V0H42V-38"
+      }));
+    case 'same':
+      return /*#__PURE__*/React.createElement("g", null, [-22, 22].map(x => /*#__PURE__*/React.createElement("g", {
+        key: x,
+        transform: `translate(${x} 0)`
+      }, /*#__PURE__*/React.createElement("rect", {
+        className: "u2-glass-fill",
+        strokeWidth: "0",
+        x: "-14",
+        y: "-62",
+        width: "28",
+        height: "62"
+      }), /*#__PURE__*/React.createElement("rect", {
+        className: "u2-juice",
+        strokeWidth: "0",
+        x: "-13",
+        y: "-40",
+        width: "26",
+        height: "40"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-14 -62V0H14V-62"
+      }))));
+    case 'bucket':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        d: "M-56 -92Q0 -150 56 -92"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-bucket",
+        d: "M-58 -92L-46 0H46L58 -92Z"
+      }), /*#__PURE__*/React.createElement("path", {
+        d: "M-62 -92h124M-52 -60h104"
+      }));
+    case 'cup':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        d: "M20 -36q16 0 16 14q0 14 -16 14"
+      }), /*#__PURE__*/React.createElement("path", {
+        className: "u2-cup",
+        d: "M-22 -46V-5Q-22 0 -17 0H15Q20 0 20 -5V-46Z"
+      }));
+    case 'bowl':
+      return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+        className: "u2-cup",
+        d: "M-42 -34H42Q38 0 0 0Q-38 0 -42 -34Z"
+      }));
+    default:
+      return null;
+  }
+}
+
+/* Place a standing object with its feet at (x,y). Strokes are divided by the scale
+   so a big pillow and a small rock are outlined with the same pen. */
+function UnitThing({
+  value,
+  x,
+  y,
+  scale = 1
+}) {
+  const thing = unitThing(value);
+  if (!thing || thing.long) return null;
+  return /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${x} ${y}) scale(${scale})`,
+    strokeWidth: 5 / scale
+  }, /*#__PURE__*/React.createElement(UnitStandingThing, {
+    kind: thing.kind
+  }));
+}
+
+/* The same drawings, shrunk to fit an answer card. */
+function UnitObjectGlyph({
+  value
+}) {
+  const thing = unitThing(value);
+  if (!thing) return null;
+  if (thing.long) return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 124 48",
+    "aria-hidden": "true",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: "translate(14 24)"
+  }, /*#__PURE__*/React.createElement(UnitLongThing, {
+    kind: thing.kind,
+    len: 96
+  })));
+  const scale = Math.min(60 / thing.h, 110 / thing.w);
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 124 68",
+    "aria-hidden": "true",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement(UnitThing, {
+    value: value,
+    x: 62,
+    y: 64,
+    scale: scale
+  }));
+}
+
+/* ── The pictures, one per q.art ── */
+
+/* The Ruler rung: a wooden ruler numbered every 10 cm, a ribbon lying along it from
+   0, and a glowing bead where the ribbon ends -- at levelGeometry('ruler'). */
+function UnitRuler({
+  level = 100
+}) {
+  const end = BigSmallUnits.levelGeometry('ruler', level).x;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-wood",
+    x: "56",
+    y: "126",
+    width: "488",
+    height: "66",
+    rx: "10"
+  }), /*#__PURE__*/React.createElement("g", {
+    className: "u2-ink"
+  }, Array.from({
+    length: 101
+  }, (_, cm) => /*#__PURE__*/React.createElement("path", {
+    key: cm,
+    strokeWidth: cm % 10 === 0 ? 4 : cm % 5 === 0 ? 2.5 : 1.4,
+    d: `M${70 + cm * 4.6} 126v${cm % 10 === 0 ? 28 : cm % 5 === 0 ? 18 : 10}`
+  }))), Array.from({
+    length: 11
+  }, (_, i) => /*#__PURE__*/React.createElement("text", {
+    key: i,
+    className: "u2-label u2-on-object",
+    x: 70 + i * 46,
+    y: "178",
+    textAnchor: "middle"
+  }, i * 10))), /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-ribbon-fill",
+    x: "70",
+    y: "97",
+    width: end - 70,
+    height: "16",
+    rx: "4"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-bow",
+    strokeWidth: "3",
+    d: "M70 105q-14 -20 -5 -23q9 0 5 23zM70 105q-14 20 -5 23q9 0 5 -23z"
+  })), /*#__PURE__*/React.createElement("path", {
+    className: "u2-end-line",
+    d: `M${end} 88V140`
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-target u2-end-dot",
+    cx: end,
+    cy: "105",
+    r: "8"
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "300",
+    y: "220"
+  }, "centimetres"));
+}
+
+/* All three things start at the same line, at their true relative lengths, with
+   only their names under them -- the child compares lengths, not printed numbers. */
+function UnitLengthCompare({
+  q,
+  teach
+}) {
+  const names = Object.keys(q.values);
+  const max = Math.max(...Object.values(q.values));
+  const left = 70,
+    span = 460;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, teach && /*#__PURE__*/React.createElement("path", {
+    className: "u2-start-line",
+    d: `M${left} 12V228`
+  }), names.map((name, i) => {
+    const len = span * q.values[name] / max;
+    const y = 42 + i * 74;
+    return /*#__PURE__*/React.createElement("g", {
+      key: name
+    }, /*#__PURE__*/React.createElement("g", {
+      className: "u2-obj",
+      transform: `translate(${left} ${y})`
+    }, /*#__PURE__*/React.createElement(UnitLongThing, {
+      kind: unitThing(name).kind,
+      len: len
+    })), /*#__PURE__*/React.createElement(UnitLabel, {
+      x: left + len / 2,
+      y: y + 36
+    }, unitThing(name).name));
+  }));
+}
+
+/* A centimetre ruler under metre sticks: a small tick every 10 cm, and a number only
+   every `every` cm -- on a 2 m ruler, numbers every 10 cm run into one another. */
+function UnitMetreRuler({
+  left,
+  perMetre,
+  metres,
+  y,
+  every
+}) {
+  const cm = perMetre / 100;
+  const tens = metres * 10;
+  return /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-tape u2-obj",
+    x: left - 8,
+    y: y - 2,
+    width: metres * perMetre + 16,
+    height: "22",
+    rx: "5"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-ink",
+    d: `M${left} ${y}H${left + metres * perMetre}`
+  }), Array.from({
+    length: tens + 1
+  }, (_, i) => {
+    const n = i * 10,
+      x = left + n * cm,
+      numbered = n % every === 0;
+    return /*#__PURE__*/React.createElement("g", {
+      key: n
+    }, /*#__PURE__*/React.createElement("path", {
+      className: "u2-ink",
+      strokeWidth: numbered ? 4 : 2,
+      d: `M${x} ${y}v${numbered ? 16 : 9}`
+    }), numbered && /*#__PURE__*/React.createElement(UnitLabel, {
+      x: x,
+      y: y + 36
+    }, n));
+  }));
+}
+
+/* 1 m: one metre stick of ten 10 cm segments over a 0-100 ruler. 2 m: a ribbon lying
+   along TWO metre sticks end to end, each labelled 1 m, over a 0-200 ruler. At 2
+   misses the segments light in order as the count runs 10, 20 ... to the answer. */
+function UnitLengthBlocks({
+  q
+}) {
+  const sticks = q.count || 1;
+  const left = 50,
+    width = 500,
+    perMetre = width / sticks;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, sticks > 1 && /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${left} 40)`
+  }, /*#__PURE__*/React.createElement(UnitLongThing, {
+    kind: "ribbon",
+    len: width
+  })), Array.from({
+    length: sticks
+  }, (_, i) => /*#__PURE__*/React.createElement("g", {
+    key: i
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${left + i * perMetre} 98)`
+  }, /*#__PURE__*/React.createElement(UnitMetreStick, {
+    len: perMetre,
+    pieceFrom: i * 10,
+    thick: 40
+  })), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: left + (i + .5) * perMetre,
+    y: "142"
+  }, "1 m"))), Array.from({
+    length: sticks - 1
+  }, (_, i) => /*#__PURE__*/React.createElement("path", {
+    key: i,
+    strokeWidth: "6",
+    d: `M${left + (i + 1) * perMetre} 70v56`
+  })), /*#__PURE__*/React.createElement(UnitMetreRuler, {
+    left: left,
+    perMetre: perMetre,
+    metres: sticks,
+    y: 166,
+    every: sticks > 1 ? 50 : 10
+  }));
+}
+
+/* Whole metre sticks and a half stick drawn as exactly five of a stick's ten
+   segments, so "half" is something the child can count. The sticks lie end to end
+   over a ruler numbered every 50 cm. */
+function UnitHalfStick({
+  q
+}) {
+  const wholes = Math.floor(q.fill);
+  const half = q.fill % 1 !== 0;
+  /* The ruler runs to the end of the sticks (0 ... 250 for 2.5 m); half a metre
+     alone gets a whole metre of ruler, so the half visibly stops at 50. */
+  const metres = Math.max(q.fill, 1);
+  const left = 40,
+    perMetre = 520 / metres;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, Array.from({
+    length: wholes
+  }, (_, i) => /*#__PURE__*/React.createElement("g", {
+    key: i
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${left + i * perMetre} 92)`
+  }, /*#__PURE__*/React.createElement(UnitMetreStick, {
+    len: perMetre,
+    pieceFrom: i * 10,
+    thick: 44
+  })), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: left + (i + .5) * perMetre,
+    y: "140"
+  }, "1 m"))), Array.from({
+    length: Math.max(0, Math.ceil(q.fill) - 1)
+  }, (_, i) => /*#__PURE__*/React.createElement("path", {
+    key: i,
+    strokeWidth: "6",
+    d: `M${left + (i + 1) * perMetre} 62v60`
+  })), half && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${left + wholes * perMetre} 92)`
+  }, /*#__PURE__*/React.createElement(UnitMetreStick, {
+    len: perMetre / 2,
+    pieces: 5,
+    pieceFrom: wholes * 10,
+    thick: 44
+  })), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: left + (wholes + .25) * perMetre,
+    y: "140"
+  }, "half")), /*#__PURE__*/React.createElement(UnitMetreRuler, {
+    left: left,
+    perMetre: perMetre,
+    metres: metres,
+    y: 164,
+    every: 50
+  }));
+}
+
+/* A real pan balance: a post, a beam pivoting on top, and two pans hanging from the
+   beam ends on strings. The pan with the heavier thing hangs LOWER -- the geometry
+   (and its test) lives in big-small-units.js. Each thing stands in its pan, drawn
+   over the strings, and the picture is tall enough that the high side's big object
+   is never clipped. */
+function UnitBalanceFrame({
+  g,
+  children
+}) {
+  const pan = side => {
+    const p = g[side];
+    const rim = g.panHalf;
+    return /*#__PURE__*/React.createElement("g", {
+      key: side
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeWidth: "3",
+      d: `M${p.beam.x} ${p.beam.y}L${p.beam.x - rim} ${p.panY}M${p.beam.x} ${p.beam.y}L${p.beam.x + rim} ${p.panY}`
+    }), /*#__PURE__*/React.createElement("path", {
+      className: "u2-pan u2-obj",
+      d: `M${p.beam.x - rim} ${p.panY}Q${p.beam.x} ${p.panY + 30} ${p.beam.x + rim} ${p.panY}Z`
+    }));
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "u2-post",
+    d: `M293 ${g.pivot.y}H307V262H293ZM240 270h120l-14 -10h-92z`
+  })), pan('left'), pan('right'), /*#__PURE__*/React.createElement("path", {
+    className: "u2-beam-edge",
+    d: `M${g.left.beam.x} ${g.left.beam.y}L${g.right.beam.x} ${g.right.beam.y}`
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-beam",
+    d: `M${g.left.beam.x} ${g.left.beam.y}L${g.right.beam.x} ${g.right.beam.y}`
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-pivot",
+    cx: g.pivot.x,
+    cy: g.pivot.y,
+    r: "10"
+  }), children);
+}
+function UnitBalance({
+  q
+}) {
+  const g = BigSmallUnits.balanceGeometry(q.heavy);
+  const pair = q.heavy === 'rock' ? {
+    light: 'big pillow',
+    heavy: 'small rock'
+  } : {
+    light: 'big balloon',
+    heavy: 'small apple'
+  };
+  const sideOf = role => role === 'heavy' === (g.heavySide === 'right') ? 'right' : 'left';
+  return /*#__PURE__*/React.createElement(UnitBalanceFrame, {
+    g: g
+  }, ['light', 'heavy'].map(role => {
+    const p = g[sideOf(role)];
+    return /*#__PURE__*/React.createElement("g", {
+      key: role
+    }, /*#__PURE__*/React.createElement(UnitThing, {
+      value: pair[role],
+      x: p.beam.x,
+      y: p.panY + 3
+    }), /*#__PURE__*/React.createElement(UnitLabel, {
+      x: p.beam.x,
+      y: p.panY + 44
+    }, pair[role]));
+  }));
+}
+
+/* 1 kg: a bag of flour balanced -- beam level -- by four 250 g weights. At 2 misses
+   the weights light one at a time as the count reads 250, 500, 750, 1,000. */
+function UnitMassWeights() {
+  const g = BigSmallUnits.balanceGeometry('level');
+  const bag = g.left,
+    weights = g.right;
+  return /*#__PURE__*/React.createElement(UnitBalanceFrame, {
+    g: g
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${bag.beam.x} ${bag.panY + 3})`
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "u2-sack",
+    d: "M-40 0Q-46 -40 -32 -70L-24 -78H24L32 -70Q46 -40 40 0Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "3",
+    d: "M-24 -78l-6 -10M0 -78v-12M24 -78l6 -10"
+  }), /*#__PURE__*/React.createElement("text", {
+    className: "u2-label u2-on-object",
+    x: "0",
+    y: "-30",
+    textAnchor: "middle"
+  }, "1 kg")), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: bag.beam.x,
+    y: bag.panY + 44
+  }, "flour"), [0, 1, 2, 3].map(i => {
+    const x = weights.beam.x - 51 + i * 34;
+    return /*#__PURE__*/React.createElement("g", {
+      key: i,
+      className: "u2-obj",
+      transform: `translate(${x} ${weights.panY + 3})`
+    }, /*#__PURE__*/React.createElement("path", {
+      className: "u2-weight u2-piece",
+      style: {
+        animationDelay: `${i * UNIT_STEP}s`
+      },
+      d: "M-15 0L-12 -34H12L15 0Z"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "0",
+      cy: "-40",
+      r: "6"
+    }), /*#__PURE__*/React.createElement("text", {
+      className: "u2-label u2-on-object u2-small",
+      x: "0",
+      y: "-11",
+      textAnchor: "middle"
+    }, "250"));
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: weights.beam.x,
+    y: weights.panY + 44
+  }, "grams"));
+}
+
+/* The 1 l bottle and the 1 kg flour sack, each drawn standing on its own bottom
+   centre at (0,0). `fillTop` is where the 1,000 mark sits: the part below it has
+   near-straight sides, so four equal-height bands are four honest quarters. */
+const UNIT_CONTAINERS = {
+  'litre-part': {
+    path: 'M-55 -167h110v24q25 18 25 143H-80q0-125 25-143z',
+    fillTop: -112,
+    half: 80,
+    unit: 'ml',
+    name: '1 l',
+    cls: 'u2-water'
+  },
+  'mass-part': {
+    path: 'M-40 0Q-46 -40 -32 -70L-24 -78H24L32 -70Q46 -40 40 0Z',
+    fillTop: -62,
+    half: 44,
+    unit: 'g',
+    name: '1 kg',
+    cls: 'u2-flour'
+  }
+};
+
+/* Parts of a litre or a kilogram: the bottle (or sack) filled from the bottom to
+   q.fill, with quarter marks up its side. The marks are numbered only in the 2-miss
+   hint -- before that, a "500 ml" beside the water line would be the answer. */
+function UnitQuarterFill({
+  q,
+  kind,
+  teach
+}) {
+  const c = UNIT_CONTAINERS[kind];
+  const filled = Math.round(q.fill * 4);
+  const scale = kind === 'litre-part' ? 1.2 : 2.2;
+  const band = -c.fillTop / 4;
+  const clip = `u2-clip-${kind}`;
+  const markX = c.half + 8 / scale;
+  return /*#__PURE__*/React.createElement("g", {
+    transform: `translate(300 222) scale(${scale})`,
+    strokeWidth: 5 / scale
+  }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("clipPath", {
+    id: clip
+  }, /*#__PURE__*/React.createElement("path", {
+    d: c.path
+  }))), /*#__PURE__*/React.createElement("path", {
+    className: kind === 'mass-part' ? 'u2-sack-empty' : 'u2-glass-fill',
+    d: c.path
+  }), /*#__PURE__*/React.createElement("g", {
+    clipPath: `url(#${clip})`
+  }, Array.from({
+    length: filled
+  }, (_, i) => /*#__PURE__*/React.createElement("rect", {
+    key: i,
+    className: `${c.cls} u2-piece`,
+    strokeWidth: 2 / scale,
+    x: -c.half - 30,
+    y: -(i + 1) * band,
+    width: 2 * c.half + 60,
+    height: band + .5,
+    style: {
+      animationDelay: `${i * UNIT_STEP}s`
+    }
+  }))), /*#__PURE__*/React.createElement("path", {
+    d: c.path
+  }), kind === 'mass-part' && /*#__PURE__*/React.createElement("path", {
+    strokeWidth: 3 / scale,
+    d: "M-24 -78l-6 -10M0 -78v-12M24 -78l6 -10"
+  }), [1, 2, 3, 4].map(k => /*#__PURE__*/React.createElement("g", {
+    key: k
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeWidth: 3 / scale,
+    d: `M${c.half - 14 / scale} ${-k * band}H${markX}`
+  }), teach && /*#__PURE__*/React.createElement("text", {
+    className: "u2-label",
+    x: markX + 6 / scale,
+    y: -k * band + 6 / scale,
+    style: {
+      fontSize: `${18 / scale}px`
+    }
+  }, (k * 250).toLocaleString('en-US'), " ", c.unit))), /*#__PURE__*/React.createElement("text", {
+    className: `u2-label${kind === 'mass-part' ? ' u2-on-object' : ''}`,
+    x: "0",
+    y: kind === 'litre-part' ? -140 : -68,
+    textAnchor: "middle",
+    style: {
+      fontSize: `${20 / scale}px`
+    }
+  }, c.name));
+}
+
+/* A pink kitchen scale: a coloured rim carries the numbers, the white face carries the
+   ticks and the pointer, and a little bowl sits on top. Every mark, label and the
+   pointer still come from levelGeometry/dialMarkGeometry. */
+function UnitDial({
+  q
+}) {
+  const point = BigSmallUnits.levelGeometry('dial', q.level);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-scale",
+    x: "148",
+    y: "-8",
+    width: "304",
+    height: "250",
+    rx: "60"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-face",
+    cx: "300",
+    cy: "132",
+    r: "106"
+  })), /*#__PURE__*/React.createElement("path", {
+    className: "u2-ink",
+    d: "M223.6 208.4A108 108 0 1 1 376.4 208.4"
+  }), Array.from({
+    length: 21
+  }, (_, i) => {
+    const n = i * 50,
+      m = BigSmallUnits.dialMarkGeometry(n);
+    return /*#__PURE__*/React.createElement("path", {
+      key: n,
+      className: "u2-ink",
+      d: `M${m.inner.x} ${m.inner.y}L${m.outer.x} ${m.outer.y}`,
+      strokeWidth: n % 250 === 0 ? 5 : 2
+    });
+  }), [0, 250, 500, 750, 1000].map(n => {
+    const m = BigSmallUnits.dialMarkGeometry(n);
+    return /*#__PURE__*/React.createElement("text", {
+      key: n,
+      className: "u2-label u2-on-object",
+      x: m.label.x,
+      y: m.label.y + 6,
+      textAnchor: "middle"
+    }, n === 1000 ? '1,000' : n);
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-pointer u2-target",
+    d: `M300 132L${point.x} ${point.y}`
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-pivot u2-ink",
+    cx: "300",
+    cy: "132",
+    r: "10"
+  }), /*#__PURE__*/React.createElement("text", {
+    className: "u2-label u2-on-object",
+    x: "300",
+    y: "196",
+    textAnchor: "middle"
+  }, "grams"));
+}
+
+/* THE POUR. Two identical glasses with the same juice stand where the new glasses
+   will be. After UNIT_POUR_DELAY each lifts and tips into a new glass -- one tall and
+   thin, one short and wide -- and fades away. The juice is drawn as rectangles in
+   straight-sided glasses so the amounts are honestly equal (sizes and their test
+   live in big-small-units.js). Plays once (keyed on the question), never loops. */
+function UnitGlasses() {
+  const G = BigSmallUnits.GLASSES,
+    f = G.floor;
+  const glass = (x, w, h, juice, cls) => /*#__PURE__*/React.createElement("g", {
+    className: cls
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-glass-fill",
+    strokeWidth: "0",
+    x: x - w / 2 - 3,
+    y: f - h,
+    width: w + 6,
+    height: h + 3
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-juice u2-pour-juice",
+    x: x - w / 2,
+    y: f - juice,
+    width: w,
+    height: juice
+  }), /*#__PURE__*/React.createElement("path", {
+    d: `M${x - w / 2 - 3} ${f - h}V${f + 3}H${x + w / 2 + 3}V${f - h}`
+  }));
+  return /*#__PURE__*/React.createElement("g", {
+    className: "u2-pour",
+    style: {
+      '--pour-delay': `${UNIT_POUR_DELAY}s`,
+      '--pour-time': `${UNIT_POUR_TIME}s`
+    }
+  }, glass(G.tall.x, G.tall.w, G.tall.h, G.tall.juice, 'u2-pour-new'), glass(G.wide.x, G.wide.w, G.wide.h, G.wide.juice, 'u2-pour-new'), /*#__PURE__*/React.createElement("path", {
+    className: "u2-water-stream u2-pour-stream",
+    d: "M152 92Q168 140 176 246"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-water-stream u2-pour-stream",
+    d: "M486 138Q470 190 462 246"
+  }), /*#__PURE__*/React.createElement("g", {
+    className: "u2-pour-first left",
+    style: {
+      transformOrigin: `${G.tall.x + G.first.w / 2 + 3}px ${f - G.first.h}px`
+    }
+  }, glass(G.tall.x, G.first.w, G.first.h, G.first.juice, '')), /*#__PURE__*/React.createElement("g", {
+    className: "u2-pour-first right",
+    style: {
+      transformOrigin: `${G.wide.x - G.first.w / 2 - 3}px ${f - G.first.h}px`
+    }
+  }, glass(G.wide.x, G.first.w, G.first.h, G.first.juice, '')), /*#__PURE__*/React.createElement("g", {
+    className: "u2-pour-new"
+  }, /*#__PURE__*/React.createElement(UnitLabel, {
+    x: G.tall.x,
+    y: f + 26
+  }, "tall glass"), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: G.wide.x,
+    y: f + 26
+  }, "wide glass")));
+}
+function UnitVessels() {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(UnitThing, {
+    value: "bucket",
+    x: 200,
+    y: 206,
+    scale: 1.35
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "200",
+    y: "232"
+  }, "bucket"), /*#__PURE__*/React.createElement(UnitThing, {
+    value: "cup",
+    x: 440,
+    y: 206,
+    scale: 1.1
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "440",
+    y: "232"
+  }, "cup"));
+}
+function UnitLitreCups() {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+    className: "u2-water u2-obj",
+    transform: "translate(123 202)",
+    d: UNIT_CONTAINERS['litre-part'].path
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "123",
+    y: "226"
+  }, "1 l"), [0, 1, 2, 3].map(i => /*#__PURE__*/React.createElement("g", {
+    key: i
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "u2-water u2-piece u2-obj",
+    style: {
+      animationDelay: `${i * UNIT_STEP}s`
+    },
+    d: `M${245 + i * 78} 112h62l-8 82h-46z`
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: 276 + i * 78,
+    y: "218"
+  }, "250 ml"))));
+}
+function UnitJug({
+  q
+}) {
+  const line = BigSmallUnits.levelGeometry('jug', q.level).y;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+    className: "u2-glass-fill",
+    strokeWidth: "0",
+    d: "M180 40h230v162H180z"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-water u2-target",
+    strokeWidth: "0",
+    d: `M185 ${line}H405V197H185z`
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-water-top",
+    d: `M185 ${line}H405`
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-glass-shine",
+    d: "M388 54V186"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M180 40h230v162H180zM410 72q90 0 90 65q0 65-90 65"
+  }), [0, 250, 500, 750, 1000].map(n => {
+    const y = BigSmallUnits.levelGeometry('jug', n).y;
+    return /*#__PURE__*/React.createElement("g", {
+      key: n
+    }, /*#__PURE__*/React.createElement("path", {
+      d: `M180 ${y}h30`
+    }), /*#__PURE__*/React.createElement(UnitLabel, {
+      x: "145",
+      y: y + 6
+    }, n === 1000 ? '1,000' : n));
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "295",
+    y: "226"
+  }, "millilitres"));
+}
+
+/* ── Round 2: millimetres, kilometres and the Hard rung (owner, 2026-10-25) ── */
+
+/* A ruler zoomed until a millimetre is a finger-wide gap: q.span centimetres across,
+   a tick every millimetre, a longer one every 5 mm, a numbered one every centimetre.
+   The thing being measured lies on it from 0 to q.level millimetres (mmGeometry), and
+   a row of cells above the ruler -- one per counted step -- lights at 2 misses. */
+function UnitMmRuler({
+  q,
+  teach
+}) {
+  const x = mm => BigSmallUnits.mmGeometry(mm, q.span).x;
+  const total = q.span * 10;
+  const steps = BigSmallUnits.teachingSteps(q);
+  const end = x(q.level);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-wood",
+    x: x(0) - 18,
+    y: "132",
+    width: x(total) - x(0) + 36,
+    height: "80",
+    rx: "12"
+  }), Array.from({
+    length: total + 1
+  }, (_, mm) => /*#__PURE__*/React.createElement("path", {
+    key: mm,
+    className: "u2-ink",
+    strokeWidth: mm % 10 === 0 ? 4 : mm % 5 === 0 ? 3 : 2,
+    d: `M${x(mm)} 132v${mm % 10 === 0 ? 34 : mm % 5 === 0 ? 24 : 15}`
+  })), Array.from({
+    length: q.span + 1
+  }, (_, c) => /*#__PURE__*/React.createElement("text", {
+    key: c,
+    className: "u2-label u2-on-object",
+    x: x(c * 10),
+    y: "192",
+    textAnchor: "middle"
+  }, c)), /*#__PURE__*/React.createElement("text", {
+    className: "u2-label u2-on-object u2-small",
+    x: x(total) + 2,
+    y: "206",
+    textAnchor: "end"
+  }, "cm")), teach && steps.map((v, i) => /*#__PURE__*/React.createElement("rect", {
+    key: v,
+    className: "u2-cell u2-piece",
+    strokeWidth: "1.5",
+    x: x(i ? steps[i - 1] : 0),
+    y: "118",
+    width: x(v) - x(i ? steps[i - 1] : 0),
+    height: "12",
+    rx: "2",
+    style: {
+      animationDelay: `${i * UNIT_STEP}s`
+    }
+  })), q.thing === 'cm' && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "4",
+    d: `M${x(0)} 98v-18H${x(10)}v18`
+  }), /*#__PURE__*/React.createElement(UnitLabel, {
+    x: (x(0) + x(10)) / 2,
+    y: "66"
+  }, "1 cm")), q.thing === 'bead' && /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${x(0)} 82)`
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-bead",
+    x: "0",
+    y: "-24",
+    width: end - x(0),
+    height: "48",
+    rx: "24"
+  }), [.25, .5, .75].map(f => /*#__PURE__*/React.createElement("path", {
+    key: f,
+    className: "u2-bead-band",
+    d: `M${(end - x(0)) * f} -23v46`
+  })), /*#__PURE__*/React.createElement("path", {
+    className: "u2-shine",
+    d: `M18 -12H${(end - x(0)) * .4}`
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "3",
+    d: `M-14 0H0M${end - x(0)} 0h14`
+  })), q.thing === 'ladybug' && /*#__PURE__*/React.createElement(UnitLadybug, {
+    x0: x(0),
+    x1: end,
+    y: 96
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-end-line",
+    d: `M${end} 52V140`
+  }));
+}
+
+/* A ladybug from x0 (her tail) to x1 (the front of her head), at the true length. */
+function UnitLadybug({
+  x0,
+  x1,
+  y
+}) {
+  const len = x1 - x0,
+    head = len * .24,
+    body = len - head,
+    r = Math.min(body / 2, 40);
+  const cx = x0 + body / 2;
+  return /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, [-.6, 0, .6].map(k => /*#__PURE__*/React.createElement("path", {
+    key: k,
+    strokeWidth: "2.5",
+    d: `M${cx + k * body * .32} ${y + r * .55}l${-4 + k * 6} ${r * .45}`
+  })), /*#__PURE__*/React.createElement("ellipse", {
+    className: "u2-head",
+    cx: x1 - head * .55,
+    cy: y,
+    rx: head * .55,
+    ry: r * .55
+  }), /*#__PURE__*/React.createElement("ellipse", {
+    className: "u2-ladybug",
+    cx: cx,
+    cy: y,
+    rx: body / 2,
+    ry: r * .85
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "2.5",
+    d: `M${x1 - body * .02} ${y}H${x0 + 2}`
+  }), [[-.25, -.35], [-.25, .35], [.15, -.45], [.15, .45], [.4, 0]].map(([a, b], i) => /*#__PURE__*/React.createElement("circle", {
+    key: i,
+    className: "u2-spot",
+    cx: cx - a * body,
+    cy: y + b * r * .8,
+    r: Math.max(2.5, r * .16)
+  })), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-eye",
+    cx: x1 - head * .35,
+    cy: y - r * .18,
+    r: Math.max(1.6, r * .08)
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-eye",
+    cx: x1 - head * .35,
+    cy: y + r * .18,
+    r: Math.max(1.6, r * .08)
+  }));
+}
+
+/* A sunny road: grass, trees, a road with a dashed middle line, a signpost at every
+   kilometre, and a flag where the walk stops (roadGeometry). The road is cut into the
+   counted stretches -- 100 m each up to a kilometre, whole kilometres beyond -- which
+   light in order at 2 misses. No metre number is printed: that is the answer. */
+function UnitKmRoad({
+  q
+}) {
+  const x = m => BigSmallUnits.roadGeometry(m, q.span).x;
+  const steps = BigSmallUnits.teachingSteps(q);
+  const roadEnd = x(q.span * 1000);
+  /* Every stretch of the road is drawn; the ones the count passes are the pieces. */
+  const stretch = q.step;
+  const all = Array.from({
+    length: q.span * 1000 / stretch
+  }, (_, i) => (i + 1) * stretch);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("circle", {
+    className: "u2-sun",
+    cx: "62",
+    cy: "40",
+    r: "22"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-cloud",
+    d: "M232 52a16 16 0 0 1 8 -28a22 22 0 0 1 40 -6a17 17 0 0 1 30 14a13 13 0 0 1 -2 20z"
+  })), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-grass u2-obj",
+    strokeWidth: "0",
+    x: "8",
+    y: "124",
+    width: "584",
+    height: "108",
+    rx: "20"
+  }), [90, 190, 290, 390, 490].map((tx, i) => /*#__PURE__*/React.createElement("g", {
+    key: tx,
+    className: "u2-obj",
+    transform: `translate(${tx + i % 2 * 30} ${i % 2 ? 120 : 116})`
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-trunk",
+    x: "-4",
+    y: "-6",
+    width: "8",
+    height: "18",
+    rx: "2",
+    strokeWidth: "2.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-tree",
+    cx: "0",
+    cy: "-20",
+    r: "17",
+    strokeWidth: "2.5"
+  }))), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-road u2-obj",
+    x: x(0) - 16,
+    y: "150",
+    width: roadEnd - x(0) + 32,
+    height: "48",
+    rx: "12"
+  }), all.map((v, i) => /*#__PURE__*/React.createElement("rect", {
+    key: v,
+    className: `u2-stretch${v <= q.level ? ' u2-piece' : ''}`,
+    strokeWidth: "1.5",
+    x: x(v - stretch) + 2,
+    y: "155",
+    width: x(v) - x(v - stretch) - 4,
+    height: "38",
+    rx: "6",
+    style: v <= q.level ? {
+      animationDelay: `${i * UNIT_STEP}s`
+    } : undefined
+  })), /*#__PURE__*/React.createElement("path", {
+    className: "u2-road-line",
+    d: `M${x(0)} 174H${roadEnd}`
+  }), /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${x(0)} 142)`
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "u2-house",
+    d: "M-20 0V-26H20V0Z"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-roof",
+    d: "M-27 -24L0 -46L27 -24Z"
+  }), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-door",
+    x: "-6",
+    y: "-14",
+    width: "12",
+    height: "14",
+    rx: "2",
+    strokeWidth: "2"
+  })), Array.from({
+    length: q.span
+  }, (_, k) => {
+    const sx = x((k + 1) * 1000);
+    return /*#__PURE__*/React.createElement("g", {
+      key: k,
+      className: "u2-obj"
+    }, /*#__PURE__*/React.createElement("path", {
+      className: "u2-signpost",
+      d: `M${sx} 150V82`
+    }), /*#__PURE__*/React.createElement("rect", {
+      className: "u2-sign",
+      x: sx - 38,
+      y: "52",
+      width: "76",
+      height: "34",
+      rx: "8"
+    }), /*#__PURE__*/React.createElement("text", {
+      className: "u2-label u2-on-object",
+      x: sx,
+      y: "76",
+      textAnchor: "middle"
+    }, k + 1, " km"));
+  }), q.level < q.span * 1000 && /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj",
+    transform: `translate(${x(q.level)} 150)`
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeWidth: "4",
+    d: "M0 0V-62"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-flag",
+    d: "M0 -62L34 -50L0 -38Z"
+  })));
+}
+
+/* One length part, drawn from (0,0) to (len,0) at the question's scale (`max` cm
+   fills the width): 150 cm is the measuring tape, 100 and 50 cm are metre sticks (a
+   whole one and a half one cut at its 50), anything shorter is a plastic ruler -- 30
+   cm in mint, 15 cm in lilac -- with its length printed on it, the way a real ruler
+   carries it. */
+function UnitLengthPart({
+  cm,
+  max,
+  count
+}) {
+  const len = BigSmallUnits.hardGeometry(cm, max).x - BigSmallUnits.HARD.left;
+  if (cm === 150) return /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "u2-tape",
+    x: "0",
+    y: "-18",
+    width: len,
+    height: "36",
+    rx: "5"
+  }), Array.from({
+    length: 16
+  }, (_, i) => /*#__PURE__*/React.createElement("path", {
+    key: i,
+    className: "u2-ink",
+    strokeWidth: i % 5 === 0 ? 3.5 : 2,
+    d: `M${i * len / 15} -18v${i % 5 === 0 ? 18 : 10}`
+  })), [50, 100, 150].map(n => /*#__PURE__*/React.createElement("text", {
+    key: n,
+    className: "u2-label u2-on-object",
+    x: n === 150 ? len - 6 : n * len / 150,
+    y: "13",
+    textAnchor: n === 150 ? 'end' : 'middle'
+  }, n)), /*#__PURE__*/React.createElement("rect", {
+    className: "u2-tape-case",
+    x: "-34",
+    y: "-28",
+    width: "34",
+    height: "56",
+    rx: "12"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "u2-pivot",
+    cx: "-17",
+    cy: "0",
+    r: "7",
+    strokeWidth: "3"
+  }));
+  if (cm >= 50) return /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement(UnitMetreStick, {
+    len: len,
+    pieces: cm / 10,
+    thick: 32
+  }), cm === 100 && /*#__PURE__*/React.createElement("text", {
+    className: "u2-label u2-on-object",
+    x: len / 2,
+    y: "7",
+    textAnchor: "middle"
+  }, "1 m"));
+  return /*#__PURE__*/React.createElement("g", {
+    className: "u2-obj"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: cm === 30 ? 'u2-mint' : 'u2-lilac',
+    x: "0",
+    y: "-16",
+    width: len,
+    height: "32",
+    rx: "5"
+  }), Array.from({
+    length: cm / 5 + 1
+  }, (_, i) => /*#__PURE__*/React.createElement("path", {
+    key: i,
+    className: "u2-ink",
+    strokeWidth: "2",
+    d: `M${i * len / (cm / 5)} -16v${i % 2 ? 7 : 12}`
+  })), /*#__PURE__*/React.createElement("text", {
+    className: "u2-label u2-on-object",
+    x: len / 2,
+    y: "11",
+    textAnchor: "middle",
+    style: len < 70 ? {
+      fontSize: '14px'
+    } : undefined
+  }, count != null ? count : `${cm} cm`));
+}
+
+/* Laid end to end from the start line, each part a step later than the last, with the
+   running total above each join -- the 2-miss help for the Hard rung. */
+function UnitLaidRow({
+  parts,
+  max,
+  y,
+  totals = true,
+  numbered = false
+}) {
+  let at = 0;
+  return /*#__PURE__*/React.createElement("g", null, parts.map((cm, i) => {
+    const from = at;
+    at += cm;
+    const x0 = BigSmallUnits.hardGeometry(from, max).x,
+      x1 = BigSmallUnits.hardGeometry(at, max).x;
+    return /*#__PURE__*/React.createElement("g", {
+      key: i,
+      className: "u2-lay",
+      style: {
+        animationDelay: `${i * UNIT_STEP}s`
+      }
+    }, /*#__PURE__*/React.createElement("g", {
+      transform: `translate(${x0} ${y})`
+    }, /*#__PURE__*/React.createElement(UnitLengthPart, {
+      cm: cm,
+      max: max,
+      count: numbered ? i + 1 : null
+    })), totals && /*#__PURE__*/React.createElement("text", {
+      className: "u2-label u2-total",
+      x: Math.min(x1, 566),
+      y: y - 28,
+      textAnchor: x1 > 540 ? 'end' : 'middle'
+    }, at, " cm"));
+  }));
+}
+
+/* Two rows on one centimetre scale. Before the help, a row of several parts lies in a
+   PILE at the start line, one above another, so the eye sees one ruler, not their sum
+   -- the child has to convert. At 2 misses both rows lie end to end from a dashed
+   start line with their running totals. */
+function UnitHardCompare({
+  q,
+  teach
+}) {
+  const left = BigSmallUnits.HARD.left,
+    max = BigSmallUnits.hardMax(q);
+  const gap = n => n > 1 ? Math.min(40, 108 / (n - 1)) : 0;
+  const centre = (r, n) => teach ? [82, 206][r] : r === 0 ? 78 : 140 + (n - 1) * gap(n) / 2;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, teach && /*#__PURE__*/React.createElement("path", {
+    className: "u2-start-line",
+    d: `M${left} 34V262`
+  }), q.rows.map((row, r) => {
+    const n = row.parts.length,
+      y = centre(r, n);
+    const mid = cm => left + (BigSmallUnits.hardGeometry(cm, max).x - left) / 2;
+    if (teach) return /*#__PURE__*/React.createElement("g", {
+      key: r
+    }, /*#__PURE__*/React.createElement(UnitLaidRow, {
+      parts: row.parts,
+      max: max,
+      y: y
+    }), /*#__PURE__*/React.createElement(UnitLabel, {
+      x: mid(BigSmallUnits.rowLength(row)),
+      y: y + 44
+    }, row.name));
+    return /*#__PURE__*/React.createElement("g", {
+      key: r
+    }, row.parts.map((cm, i) => ({
+      cm,
+      i
+    })).reverse().map(({
+      cm,
+      i
+    }) => /*#__PURE__*/React.createElement("g", {
+      key: i,
+      transform: `translate(${left} ${y - (n - 1) * gap(n) / 2 + i * gap(n)})`
+    }, /*#__PURE__*/React.createElement(UnitLengthPart, {
+      cm: cm,
+      max: max
+    }))), /*#__PURE__*/React.createElement(UnitLabel, {
+      x: mid(Math.max(...row.parts)),
+      y: y + (n - 1) * gap(n) / 2 + 42
+    }, row.name));
+  }));
+}
+
+/* The 150 cm measuring tape across the top and the rulers to try underneath it, each
+   from the start line. At 2 misses the ruler that is being counted is laid along the
+   tape again and again, numbered 1, 2, 3 ... so the answer is something to count. */
+function UnitTapeRulers({
+  q,
+  teach
+}) {
+  const left = BigSmallUnits.HARD.left,
+    max = BigSmallUnits.hardMax(q);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(UnitLabel, {
+    x: "300",
+    y: "34"
+  }, "measuring tape"), /*#__PURE__*/React.createElement("g", {
+    transform: `translate(${left} 74)`
+  }, /*#__PURE__*/React.createElement(UnitLengthPart, {
+    cm: q.tape,
+    max: max
+  })), teach ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+    className: "u2-start-line",
+    d: `M${left} 50V196`
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "u2-start-line",
+    d: `M${BigSmallUnits.hardGeometry(q.tape, max).x} 50V196`
+  }), /*#__PURE__*/React.createElement(UnitLaidRow, {
+    parts: Array.from({
+      length: q.tape / q.tile
+    }, () => q.tile),
+    max: max,
+    y: 156,
+    totals: false,
+    numbered: true
+  })) : q.show.map((cm, i) => {
+    const y = q.show.length === 1 ? 168 : 146 + i * 58;
+    return /*#__PURE__*/React.createElement("g", {
+      key: cm,
+      transform: `translate(${left} ${y})`
+    }, /*#__PURE__*/React.createElement(UnitLengthPart, {
+      cm: cm,
+      max: max
+    }));
+  }));
+}
+
+/* Taller pictures get a taller viewBox rather than being squeezed into 240. */
+const UNIT_ART_HEIGHT = {
+  balance: 280,
+  'mass-weights': 280,
+  'same-glasses': 280,
+  'hard-compare': 300,
+  'tape-rulers': 280
+};
+function UnitLessonDrawing({
+  q,
+  teach
+}) {
+  switch (q.art) {
+    case 'length-compare':
+      return /*#__PURE__*/React.createElement(UnitLengthCompare, {
+        q: q,
+        teach: teach
+      });
+    case 'length-blocks':
+      return /*#__PURE__*/React.createElement(UnitLengthBlocks, {
+        q: q
+      });
+    case 'half-stick':
+      return /*#__PURE__*/React.createElement(UnitHalfStick, {
+        q: q
+      });
+    case 'ruler':
+      return /*#__PURE__*/React.createElement(UnitRuler, {
+        level: q.level
+      });
+    case 'balance':
+      return /*#__PURE__*/React.createElement(UnitBalance, {
+        q: q
+      });
+    case 'mass-weights':
+      return /*#__PURE__*/React.createElement(UnitMassWeights, null);
+    case 'mass-part':
+      return /*#__PURE__*/React.createElement(UnitQuarterFill, {
+        q: q,
+        kind: q.art,
+        teach: teach
+      });
+    case 'dial':
+      return /*#__PURE__*/React.createElement(UnitDial, {
+        q: q
+      });
+    case 'same-glasses':
+      return /*#__PURE__*/React.createElement(UnitGlasses, null);
+    case 'vessels':
+      return /*#__PURE__*/React.createElement(UnitVessels, null);
+    case 'litre-cups':
+      return /*#__PURE__*/React.createElement(UnitLitreCups, null);
+    case 'litre-part':
+      return /*#__PURE__*/React.createElement(UnitQuarterFill, {
+        q: q,
+        kind: q.art,
+        teach: teach
+      });
+    case 'jug':
+      return /*#__PURE__*/React.createElement(UnitJug, {
+        q: q
+      });
+    case 'mm-ruler':
+      return /*#__PURE__*/React.createElement(UnitMmRuler, {
+        q: q,
+        teach: teach
+      });
+    case 'km-road':
+      return /*#__PURE__*/React.createElement(UnitKmRoad, {
+        q: q
+      });
+    case 'hard-compare':
+      return /*#__PURE__*/React.createElement(UnitHardCompare, {
+        q: q,
+        teach: teach
+      });
+    case 'tape-rulers':
+      return /*#__PURE__*/React.createElement(UnitTapeRulers, {
+        q: q,
+        teach: teach
+      });
+    default:
+      return null;
+  }
+}
+function UnitLessonArt({
+  q,
+  teach
+}) {
+  const height = UNIT_ART_HEIGHT[q.art] || 240;
+  return /*#__PURE__*/React.createElement("svg", {
+    className: `u2-art ${teach ? 'teach' : ''}`,
+    viewBox: `0 0 600 ${height}`,
+    role: "img",
+    "aria-label": q.prompt,
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement(UnitLessonDrawing, {
+    q: q,
+    teach: teach
+  }));
+}
+function UnitAnswerCard({
+  value,
+  q
+}) {
+  if (BigSmallUnits.TEXT_CARD_ARTS.has(q.art) && !/^[\d,]+$/.test(value)) return /*#__PURE__*/React.createElement("span", {
+    className: "u2-choice-text"
+  }, value);
+  const thing = unitThing(value);
+  if (!thing) return /*#__PURE__*/React.createElement("span", {
+    className: "u2-choice-number"
+  }, value);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(UnitObjectGlyph, {
+    value: value
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "u2-choice-label"
+  }, thing.name));
+}
+
+/* The 2-miss help. Counting questions count the small units up to the big one; the
+   compare questions have nothing to count, so they get the rule to look with
+   instead -- never the answer, which is the 3-miss reveal's job. */
+/* The Hard rung's help is to lay the parts end to end: spoken and printed. */
+const UNIT_LAY_HINT = 'Lay them end to end and add them up.';
+const UNIT_LAYS = new Set(['hard-compare', 'tape-rulers']);
+const UNIT_COMPARE_HINT = {
+  'length-compare': 'They all start at the same line. Which one reaches furthest?',
+  balance: 'The heavier side goes down.',
+  'same-glasses': 'Watch the juice pour again.',
+  vessels: 'Which one could you pour the other into?'
+};
+function unitCounts(q) {
+  return !UNIT_COMPARE_HINT[q.art];
+}
+function UnitTeachingCount({
+  q
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "u2-count",
+    "aria-label": `Count to ${q.answer}`
+  }, BigSmallUnits.teachingSteps(q).map((value, i) => /*#__PURE__*/React.createElement("span", {
+    key: value,
+    style: {
+      animationDelay: `${i * UNIT_STEP}s`
+    }
+  }, value.toLocaleString('en-US'))));
+}
+function UnitSummary({
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "u2-summary"
+  }, /*#__PURE__*/React.createElement("h2", null, "Big and small unit facts"), /*#__PURE__*/React.createElement("div", {
+    className: "u2-summary-facts"
+  }, Object.keys(BigSmallUnits.WORLDS).map(w => /*#__PURE__*/React.createElement("div", {
+    className: "u2-summary-fact",
+    key: w
+  }, /*#__PURE__*/React.createElement(UnitWorldIcon, {
+    world: w
+  }), BigSmallUnits.WORLDS[w].summary))), /*#__PURE__*/React.createElement("div", {
+    className: "u2-kheed"
+  }, "In a Thai market, 10 kheed make 1 kilogram."), /*#__PURE__*/React.createElement("button", {
+    className: "u2-summary-btn",
+    onClick: onClose
+  }, "Choose a world"));
+}
+function BigSmallUnitsGame({
+  onBack,
+  flowers,
+  gardenFull,
+  setFlowers,
+  setGardenFull,
+  score,
+  setScore,
+  bouquets,
+  addBouquet,
+  journey,
+  addProgress,
+  trophies,
+  muted,
+  onToggleMute,
+  theme
+}) {
+  const [world, setWorld] = useState(null);
+  const [rung, setRung] = useState(2);
+  const [q, setQ] = useState(null);
+  const [round, setRound] = useState(0);
+  const [misses, setMisses] = useState(0);
+  const [wrong, setWrong] = useState(null);
+  const [won, setWon] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [summary, setSummary] = useState(false);
+  const [cleared, setCleared] = useState({});
+  const [confetti, setConf] = useState(false);
+  const mascot = useMascot();
+  const flowerReward = theme === 'unicorn' ? useFlowerReward(flowers, setFlowers, setGardenFull, muted, addBouquet) : null;
+  const deal = useCallback((nextWorld, nextRung, avoid) => {
+    setQ(BigSmallUnits.question(Math.random, nextWorld, nextRung, avoid));
+    setRound(n => n + 1);
+    setMisses(0);
+    setWrong(null);
+    setWon(false);
+  }, []);
+  useEffect(() => {
+    Voice.say('Choose a measurement world.');
+  }, []);
+  useEffect(() => {
+    if (q) Voice.say(q.prompt);
+  }, [q]);
+
+  /* The juice question cannot be answered before the pour has been seen, so its
+     answers stay asleep until the pour ends (and again while it replays at 2 misses). */
+  const pourLock = () => {
+    setLocked(true);
+    const t = setTimeout(() => setLocked(false), UNIT_POUR_LOCK);
+    return () => clearTimeout(t);
+  };
+  useEffect(() => {
+    if (q && q.art === 'same-glasses') return pourLock();
+    setLocked(false);
+  }, [round]);
+
+  /* A world opens on its 1 m / 1 kg / 1 l rung; All worlds has only its mix. */
+  const chooseWorld = nextWorld => {
+    Sound.tap();
+    const first = nextWorld === BigSmallUnits.ALL ? 1 : 2;
+    setWorld(nextWorld);
+    setRung(first);
+    deal(nextWorld, first);
+  };
+  const chooseRung = nextRung => {
+    setRung(nextRung);
+    deal(world, nextRung, q);
+  };
+  const teach = misses >= 2;
+  const reveal = misses >= 3;
+  useEffect(() => {
+    if (misses === 2) {
+      if (q && UNIT_LAYS.has(q.art)) Voice.say(UNIT_LAY_HINT);else if (q && unitCounts(q)) Voice.say('Look: one big unit is made of many small units.');
+      if (q && q.art === 'same-glasses') return pourLock();
+    }
+    if (misses === 3) Voice.say('Here is the answer.');
+  }, [misses]);
+  const tap = value => {
+    Sound.setMuted(muted);
+    Sound.tap();
+    if (won || locked) return;
+    if (value === q.answer) {
+      setWon(true);
+      setConf(true);
+      Sound.ding();
+      setTimeout(() => Sound.celebrate(), 200);
+      mascot.happy();
+      Voice.lines([praise()]); /* the answer is on the card the child just tapped; a bare "1,000." or "small rock." has no clip and would fall to the OS voice */
+      setScore(s => s + 1);
+      if (theme === 'unicorn') flowerReward();else addProgress();
+      setCleared(current => ({
+        ...current,
+        [world]: {
+          ...(current[world] || {}),
+          [rung]: true
+        }
+      }));
+      setTimeout(() => setConf(false), 2200);
+    } else {
+      setWrong(value);
+      setMisses(count => count + 1);
+      Sound.wrong();
+      mascot.oops();
+      setTimeout(() => setWrong(null), 450);
+    }
+  };
+  const next = () => deal(world, rung, q);
+  const worldRungs = world && world !== BigSmallUnits.ALL ? BigSmallUnits.WORLDS[world].rungs : [];
+  const worldDone = worldRungs.length > 0 && worldRungs.every((_, i) => cleared[world] && cleared[world][i + 1]);
+  const worldKeys = [...Object.keys(BigSmallUnits.WORLDS), BigSmallUnits.ALL];
+  /* The line above the answers: the question, or at 2 misses the help for it. */
+  const line = !q ? '' : !teach ? q.prompt : UNIT_LAYS.has(q.art) ? UNIT_LAY_HINT : unitCounts(q) ? 'Count the small parts.' : UNIT_COMPARE_HINT[q.art];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "screen u2-screen"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "screen-bg"
+  }), /*#__PURE__*/React.createElement(UnitPaint, null), /*#__PURE__*/React.createElement(Confetti, {
+    active: confetti
+  }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onBack,
+    muted: muted,
+    onToggleMute: onToggleMute,
+    score: score,
+    flowers: flowers,
+    bouquets: bouquets,
+    journey: journey,
+    trophies: trophies
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "count-title"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "count-title-main"
+  }, "Big and Small Units"), /*#__PURE__*/React.createElement("div", {
+    className: "count-title-sub"
+  }, "Tap to answer!")), /*#__PURE__*/React.createElement("div", {
+    className: `u2-stage${world && !summary ? ' playing' : ''}`
+  }, summary ? /*#__PURE__*/React.createElement(UnitSummary, {
+    onClose: () => {
+      setSummary(false);
+      setWorld(null);
+    }
+  }) : !world ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "u2-worlds"
+  }, worldKeys.map(key => /*#__PURE__*/React.createElement("button", {
+    className: `u2-world u2-world-${key}`,
+    key: key,
+    onClick: () => chooseWorld(key)
+  }, /*#__PURE__*/React.createElement(UnitWorldIcon, {
+    world: key
+  }), key === BigSmallUnits.ALL ? 'All mixed' : BigSmallUnits.WORLDS[key].title))), /*#__PURE__*/React.createElement("button", {
+    className: "u2-summary-btn",
+    onClick: () => setSummary(true)
+  }, "Unit facts")) : /*#__PURE__*/React.createElement(React.Fragment, null, world === BigSmallUnits.ALL ? /*#__PURE__*/React.createElement("div", {
+    className: "u2-all-tag"
+  }, "All worlds mixed") : /*#__PURE__*/React.createElement(ActivityRibbon, {
+    className: `u2-rungs u2-rungs-${worldRungs.length}`,
+    chips: worldRungs.map((label, i) => ({
+      id: String(i + 1),
+      label,
+      cls: label === BigSmallUnits.MIX_LABEL ? 'u2-mix-tab' : ''
+    })),
+    value: String(rung),
+    onPick: id => chooseRung(Number(id)),
+    muted: muted,
+    label: "Choose a rung"
+  }), /*#__PURE__*/React.createElement(UnitLessonArt, {
+    key: `${round}-${teach ? 'teach' : 'ask'}`,
+    q: q,
+    teach: teach
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "u2-teach"
+  }, line), teach && unitCounts(q) && /*#__PURE__*/React.createElement(UnitTeachingCount, {
+    q: q
+  }), /*#__PURE__*/React.createElement("div", {
+    className: `u2-answers${locked ? ' waiting' : ''}`
+  }, q.choices.map(value => /*#__PURE__*/React.createElement("button", {
+    key: value,
+    disabled: locked,
+    className: `u2-answer ${wrong === value ? 'wrong' : ''} ${reveal && value === q.answer ? 'reveal' : ''}`,
+    onClick: () => tap(value)
+  }, /*#__PURE__*/React.createElement(UnitAnswerCard, {
+    value: value,
+    q: q
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "u2-next"
+  }, won && /*#__PURE__*/React.createElement("button", {
+    className: "next-btn",
+    onClick: next
+  }, "Next"), won && worldDone && /*#__PURE__*/React.createElement("button", {
+    className: "u2-summary-btn",
+    onClick: () => setSummary(true)
+  }, "Unit facts"), /*#__PURE__*/React.createElement("button", {
+    className: "u2-summary-btn",
+    onClick: () => setWorld(null)
+  }, "Choose a world")))), /*#__PURE__*/React.createElement(Mascot, {
+    kind: theme === 'space' ? 'rocket' : 'unicorn',
+    mood: mascot.mood,
+    stamp: mascot.stamp,
+    onPoke: mascot.poke
+  }));
+}
+
 /* ══ MODE u1: WHICH UNIT? ══
    Owner, 2026-08-29: *"i think we shouldn't use quiz style, but use the
    informational style (like the table chart)"*. It was a quiz — one thing, three
@@ -19298,6 +21709,9 @@ function AreaGame({
    and a tray press is already carrying a copy (the tray is infinite stampers,
    never a source that runs out). */
 const NP_HIST_KEY = 'sm_nphist';
+/* Whether the child left the scratchpad open (owner 2026-10-26). */
+const NP_SCRATCH_KEY = 'sm_npscratch';
+const NP_SCRATCH_SIZE_KEY = 'sm_npscratchsize';
 const NP_TRAY_OPS = ['+', '−', '×', '÷', '=', '>', '<'];
 const NP_OP_WORDS = {
   '+': 'plus',
@@ -19328,10 +21742,14 @@ const NP_FEEDBACK = {
 const NP_LIMIT_NUMBER = 'Oops! That number is too long for me to read. Try a shorter number!';
 const NP_LIMIT_BOARD = 'Oops! That sentence is too long for me to read. Try a shorter one!';
 const NP_LIMIT_RESULT = 'That answer is too big for me to work out!';
-/* Five kept, never fewer than three shown. The count that actually fits is measured
-   rather than guessed -- see the fit effect in the component. */
+/* Five kept, and as many shown as fit -- never fewer than the newest one. The count
+   that actually fits is measured rather than guessed -- see the fit effect in the
+   component. The floor used to be three, which a 1024x768 iPad cannot show under the
+   trays without the page scrolling (unicorn's column ends ~50px below the window at
+   three rows), so on a turned iPad the page scrolled. The toys never shrink for the
+   history; the history gives up rows instead, and they come back when there is room. */
 const NP_HIST_KEEP = 5,
-  NP_HIST_MIN = 3;
+  NP_HIST_MIN = 1;
 /* A board gesture that crosses the drag threshold inside this long is a FLICK and pans
    the rail; slower than this and it picks the digit up, exactly as before. The window is
    only consulted when the rail actually overflows, so a sentence that fits on screen
@@ -19383,6 +21801,30 @@ function NumberPlayGame({
     right: false
   });
   const [histShown, setHistShown] = useState(NP_HIST_KEEP);
+  /* The scratchpad under the history (owner 2026-10-26: "add scratchpad (same as 'make
+     question') on the bottom part (below the history line) make a button to show and
+     hide it too."). It is Ask & Answer's own ScratchPad component, not a copy. Closed
+     by default so the toy looks exactly as it did; the child's choice is remembered. */
+  const [scratchOpen, setScratchOpen] = useState(() => {
+    try {
+      return localStorage.getItem(NP_SCRATCH_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  });
+  const scratchTap = useCallback(() => {
+    Sound.setMuted(muted);
+    Sound.tap();
+  }, [muted]);
+  const toggleScratch = () => {
+    scratchTap();
+    const next = !scratchOpen;
+    setScratchOpen(next);
+    setHistShown(NP_HIST_KEEP);
+    try {
+      localStorage.setItem(NP_SCRATCH_KEY, next ? '1' : '0');
+    } catch (e) {}
+  };
   const screenRef = useRef(null);
   const [drag, setDragState] = useState(null);
   const dragRef = useRef(null);
@@ -19499,7 +21941,17 @@ function NumberPlayGame({
        grow WITH the column when it is taller. The bottom of the last thing in the column
        is the only honest measure, and the padding under it is part of what has to fit. */
     const pad = parseFloat(getComputedStyle(el).paddingBottom) || 0;
-    const over = hist.getBoundingClientRect().bottom + (window.scrollY || 0) + pad - window.innerHeight;
+    /* The scratchpad, when it sits BELOW the history, is part of the column that has
+       to fit: closed, it is just its show button; open, it is counted at its smallest
+       (its CSS min-height) and grows into whatever the history leaves. Beside the
+       history (iPad landscape) it does not compete for the column at all. */
+    let bottom = hist.getBoundingClientRect().bottom;
+    const sc = el.querySelector('.np-scratch');
+    if (sc && getComputedStyle(sc).position !== 'fixed') {
+      const s = sc.getBoundingClientRect();
+      if (s.top >= bottom - 1) bottom = scratchOpen ? s.top + (parseFloat(getComputedStyle(sc).minHeight) || 0) : s.bottom;
+    }
+    const over = bottom + (window.scrollY || 0) + pad - window.innerHeight;
     if (over > 2) {
       if (histShown > NP_HIST_MIN) setHistShown(histShown - 1);
       return;
@@ -19508,8 +21960,17 @@ function NumberPlayGame({
     const row = el.querySelector('.np-history-row');
     if (row && -over >= row.getBoundingClientRect().height + 8) setHistShown(histShown + 1);
   });
+  /* EVERY resize re-fits, including a turn of the iPad. Resetting to NP_HIST_KEEP alone
+     did nothing when the history already showed five (an unchanged value is no render,
+     so the fit effect never ran again): portrait 768x1024 shows all five, and turning
+     to 1024x768 left five rows under the trays and the page scrolling. The tick forces
+     the render the fit effect needs. */
+  const [, setFitTick] = useState(0);
   useEffect(() => {
-    const reset = () => setHistShown(NP_HIST_KEEP);
+    const reset = () => {
+      setHistShown(NP_HIST_KEEP);
+      setFitTick(t => t + 1);
+    };
     window.addEventListener('resize', reset);
     return () => window.removeEventListener('resize', reset);
   }, []);
@@ -19846,7 +22307,7 @@ function NumberPlayGame({
   const caretAt = (numId, i) => !!(overNum && overNum.numId === numId && overNum.index === i);
   const swapTarget = drag && drag.kind === 'op' && drag.over && drag.over.swap ? drag.over.swap : null;
   return /*#__PURE__*/React.createElement("div", {
-    className: "screen np-screen",
+    className: `screen np-screen${scratchOpen ? ' np-scratch-on' : ''}`,
     style: {
       '--game-bg': `url('${journeyBg}')`
     },
@@ -19877,6 +22338,10 @@ function NumberPlayGame({
   }, "Number Toys"), /*#__PURE__*/React.createElement("div", {
     className: "count-title-sub"
   }, "Build your own number sentence")), /*#__PURE__*/React.createElement("div", {
+    className: "np-desk"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "np-bench"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "np-controls"
   }, /*#__PURE__*/React.createElement("button", {
     className: "np-btn",
@@ -20007,7 +22472,22 @@ function NumberPlayGame({
     className: "np-history-text"
   }, h.text), /*#__PURE__*/React.createElement("span", {
     className: "np-history-tick"
-  }, /*#__PURE__*/React.createElement(CheckIcon, null)))))), drag && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(CheckIcon, null))))))), /*#__PURE__*/React.createElement(ScratchPad, {
+    open: scratchOpen,
+    tap: scratchTap,
+    className: "np-scratch",
+    sizeKey: NP_SCRATCH_SIZE_KEY,
+    lead: /*#__PURE__*/React.createElement("button", {
+      className: "np-scratch-toggle",
+      onClick: toggleScratch,
+      "aria-expanded": scratchOpen,
+      "aria-label": scratchOpen ? 'Hide scratchpad' : 'Show scratchpad',
+      title: scratchOpen ? 'Hide scratchpad' : 'Show scratchpad'
+    }, /*#__PURE__*/React.createElement(ScratchToggleIcon, {
+      open: scratchOpen,
+      numberToys: true
+    }))
+  })), drag && /*#__PURE__*/React.createElement("div", {
     className: `np-ghost ${drag.kind === 'op' ? 'np-ghost-op' : ''}`,
     style: {
       left: drag.x,
@@ -20027,6 +22507,408 @@ const AA_SPECIALS = ['comet.webp', 'earth.webp', 'rocket.webp', 'moon.webp', 'sa
 const AA_COLORS = ['#37474f', '#e53935', '#1e88e5', '#43a047'];
 /* one name per crayon, so a screen reader hears eight choices, not one eight times */
 const AA_COLOR_NAMES = ['dark grey', 'red', 'blue', 'green'];
+const AA_SCRATCH_SIZE_KEY = 'sm_aascratchsize';
+const SCRATCH_SIZES = ['small', 'medium', 'large'];
+function ScratchSizeIcon({
+  size
+}) {
+  const box = {
+    small: 9,
+    medium: 16,
+    large: 23
+  }[size];
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 40 40",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "4",
+    y: "4",
+    width: "32",
+    height: "32",
+    rx: "5",
+    fill: "#fff",
+    stroke: "currentColor",
+    strokeWidth: "2.5"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: (40 - box) / 2,
+    y: (40 - box) / 2,
+    width: box,
+    height: box,
+    rx: "2",
+    fill: "currentColor"
+  }));
+}
+function ScratchToggleIcon({
+  open,
+  numberToys = false
+}) {
+  if (numberToys) return open ? /*#__PURE__*/React.createElement("svg", {
+    className: "np-scratch-icon",
+    viewBox: "0 0 44 44",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M7 22s5.5-9 15-9 15 9 15 9-5.5 9-15 9S7 22 7 22z",
+    fill: "#fff",
+    stroke: "currentColor",
+    strokeWidth: "2.5"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "22",
+    cy: "22",
+    r: "5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8 8l28 28",
+    stroke: "#e05273",
+    strokeWidth: "4",
+    strokeLinecap: "round"
+  })) : /*#__PURE__*/React.createElement("svg", {
+    className: "np-scratch-icon",
+    viewBox: "0 0 44 44",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9 35l2.2-8.8L29.8 7.6a4 4 0 0 1 5.6 0l1 1a4 4 0 0 1 0 5.6L17.8 32.8z",
+    fill: "#ffe082",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M27 10l7 7M8 36h28",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round"
+  }));
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 44 44",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "8",
+    y: "8",
+    width: "28",
+    height: "28",
+    rx: "5",
+    fill: "#fff",
+    stroke: "currentColor",
+    strokeWidth: "2.5"
+  }), open ? /*#__PURE__*/React.createElement("path", {
+    d: "M9 22h9m-4-4 4 4-4 4m21-4h-9m4-4-4 4 4 4M22 9v9m-4-4 4 4 4-4m-4 21v-9m-4 4 4-4 4 4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }) : /*#__PURE__*/React.createElement("path", {
+    d: "M18 18l-7-7m0 6v-6h6m9 7 7-7m-6 0h6v6m-15 9-7 7m0-6v6h6m9-7 7 7m-6 0h6v-6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }));
+}
+function ScratchTools({
+  lead,
+  padSize,
+  cycleSize,
+  colour,
+  eraser,
+  penSize,
+  chooseColour,
+  choosePen,
+  chooseEraser,
+  clear
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "aa-tools"
+  }, lead, /*#__PURE__*/React.createElement("button", {
+    className: "aa-size",
+    onClick: cycleSize,
+    "aria-label": `Change scratchpad size, currently ${padSize}`,
+    title: `Scratchpad size: ${padSize}`
+  }, /*#__PURE__*/React.createElement(ScratchSizeIcon, {
+    size: padSize
+  })), AA_COLORS.map((crayon, index) => /*#__PURE__*/React.createElement("button", {
+    key: crayon,
+    className: `aa-colour ${!eraser && colour === crayon ? 'on' : ''}`,
+    style: {
+      background: crayon
+    },
+    "aria-label": `Choose the ${AA_COLOR_NAMES[index]} crayon`,
+    title: `${AA_COLOR_NAMES[index]} crayon`,
+    onClick: () => chooseColour(crayon)
+  })), [4, 7, 12].map((width, index) => {
+    const name = ['Thin pen', 'Medium pen', 'Thick pen'][index];
+    return /*#__PURE__*/React.createElement("button", {
+      key: width,
+      className: `aa-tool ${!eraser && penSize === width ? 'on' : ''}`,
+      onClick: () => choosePen(width),
+      "aria-label": name,
+      title: name
+    }, /*#__PURE__*/React.createElement("svg", {
+      viewBox: "0 0 44 44",
+      "aria-hidden": "true",
+      focusable: "false"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M8 22h28",
+      fill: "none",
+      stroke: colour,
+      strokeWidth: width,
+      strokeLinecap: "round"
+    })));
+  }), /*#__PURE__*/React.createElement("button", {
+    className: `aa-tool ${eraser ? 'on' : ''}`,
+    onClick: chooseEraser,
+    "aria-label": "Eraser",
+    title: "Eraser"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 44 44",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("g", {
+    transform: "rotate(-35 22 22)"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "9",
+    y: "13",
+    width: "26",
+    height: "18",
+    rx: "4",
+    fill: "#f48fb1",
+    stroke: "#6d4c41",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25 13h6a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4h-6z",
+    fill: "#fff"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25 13v18",
+    stroke: "#6d4c41",
+    strokeWidth: "2"
+  })))), /*#__PURE__*/React.createElement("button", {
+    className: "aa-tool",
+    onClick: clear,
+    "aria-label": "Clear the page",
+    title: "Clear the page"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 44 44",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M14 13h16l-1.5 24h-13z",
+    fill: "#b3e5fc",
+    stroke: "#455a64",
+    strokeWidth: "2.5",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M11 13h22M18 9h8M19 18v13M25 18v13",
+    fill: "none",
+    stroke: "#455a64",
+    strokeWidth: "2.5",
+    strokeLinecap: "round"
+  }))));
+}
+/* ══ SCRATCH PAD (shared: Ask & Answer and Number Toys) ══
+   One scratchpad, two homes. It was born inside Ask & Answer; the owner asked for
+   "scratchpad (same as 'make question')" under Number Toys' history on 2026-10-26,
+   so it lives here once and both games mount it rather than either keeping a copy.
+   Four crayons only (owner 2026-10-21). The host owns whether it is open and what
+   the toggle looks like: `head` holds Ask & Answer's picture-only collapse control;
+   `lead` is a control at the front of the tools row (Number Toys'
+   show/hide button, which also stays visible while collapsed). `clears` is a number
+   the host bumps to wipe the page, e.g. Ask & Answer's New question. */
+function ScratchPad({
+  open,
+  tap,
+  clears,
+  head,
+  lead,
+  className,
+  sizeKey
+}) {
+  const [colour, setColour] = useState(AA_COLORS[0]);
+  const [penSize, setPenSize] = useState(7);
+  const [eraser, setEraser] = useState(false);
+  const [padSize, setPadSize] = useState(() => {
+    try {
+      const saved = localStorage.getItem(sizeKey);
+      return SCRATCH_SIZES.includes(saved) ? saved : 'small';
+    } catch (e) {
+      return 'small';
+    }
+  });
+  /* The scratchpad keeps its strokes as POINTS in the canvas box's own pixels, never
+     as a bitmap: a resize or a turn of the iPad re-replays the same lines at the new
+     size instead of stretching a snapshot, and the drawing stays on screen (shrunk,
+     restacked, question changed, hidden and shown again) until the child leaves the
+     mode. */
+  const scratchRef = useRef(null),
+    canvasRef = useRef(null),
+    drawRef = useRef(null),
+    strokesRef = useRef([]),
+    clearsSeen = useRef(clears);
+  const paintStroke = useCallback((ctx, stroke) => {
+    const canvas = canvasRef.current,
+      box = canvas.getBoundingClientRect(),
+      pixelScale = canvas.width / box.width,
+      pts = stroke.points;
+    /* Uniform fit, not separate X/Y scales: a sum keeps its shape when the child
+       makes the pad wider, taller, smaller, or turns the iPad. Each stroke remembers
+       the canvas box it was drawn in; centring keeps it visible in the new box. */
+    const fit = Math.min(box.width / stroke.box.width, box.height / stroke.box.height),
+      offsetX = (box.width - stroke.box.width * fit) / 2,
+      offsetY = (box.height - stroke.box.height * fit) / 2;
+    const x = p => (offsetX + p.x * fit) * pixelScale,
+      y = p => (offsetY + p.y * fit) * pixelScale;
+    ctx.save();
+    ctx.strokeStyle = stroke.erase ? '#fff' : stroke.colour;
+    ctx.lineWidth = stroke.width * fit * pixelScale;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x(pts[0]), y(pts[0]));
+    /* a tap with no drag is still a dot: a round cap needs a hair of line to land */
+    if (pts.length === 1) ctx.lineTo(x(pts[0]) + .01, y(pts[0]) + .01);else for (let i = 1; i < pts.length; i += 1) ctx.lineTo(x(pts[i]), y(pts[i]));
+    ctx.stroke();
+    ctx.restore();
+  }, []);
+  const prepareCanvas = useCallback(() => {
+    const scratch = scratchRef.current,
+      canvas = canvasRef.current;
+    if (!scratch || !canvas) return;
+    const children = [...scratch.children],
+      canvasIndex = children.indexOf(canvas),
+      style = getComputedStyle(scratch),
+      gap = parseFloat(style.rowGap) || 0;
+    const occupied = children.slice(0, canvasIndex).reduce((sum, node) => sum + node.getBoundingClientRect().height, 0) + gap * Math.max(0, canvasIndex);
+    const available = Math.floor(scratch.clientHeight - (parseFloat(style.paddingTop) || 0) - (parseFloat(style.paddingBottom) || 0) - occupied);
+    canvas.style.height = `${Math.max(150, available)}px`;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width < 40 || rect.height < 40) return;
+    const scale = Math.min(window.devicePixelRatio || 1, 1.5);
+    canvas.width = Math.round(rect.width * scale);
+    canvas.height = Math.round(rect.height * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    strokesRef.current.forEach(stroke => {
+      if (stroke.points.length) paintStroke(ctx, stroke);
+    });
+  }, [paintStroke]);
+  useEffect(() => {
+    if (!open) return;
+    const resize = () => requestAnimationFrame(() => prepareCanvas());
+    resize();
+    window.addEventListener('resize', resize);
+    const observer = window.ResizeObserver ? new window.ResizeObserver(resize) : null;
+    if (observer) observer.observe(scratchRef.current);
+    return () => {
+      window.removeEventListener('resize', resize);
+      if (observer) observer.disconnect();
+    };
+  }, [open, prepareCanvas]);
+  const cycleSize = () => {
+    tap();
+    const next = SCRATCH_SIZES[(SCRATCH_SIZES.indexOf(padSize) + 1) % SCRATCH_SIZES.length];
+    setPadSize(next);
+    try {
+      localStorage.setItem(sizeKey, next);
+    } catch (e) {}
+  };
+  const clearScratch = useCallback((withSound = true) => {
+    strokesRef.current = [];
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (withSound) tap();
+  }, [tap]);
+  useEffect(() => {
+    if (clearsSeen.current === clears) return;
+    clearsSeen.current = clears;
+    clearScratch(false);
+  }, [clears, clearScratch]);
+  const point = e => {
+    const r = canvasRef.current.getBoundingClientRect();
+    return {
+      x: e.clientX - r.left,
+      y: e.clientY - r.top
+    };
+  };
+  const drawStart = e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (!e.isPrimary) return;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    const r = canvasRef.current.getBoundingClientRect(),
+      stroke = {
+        colour,
+        width: eraser ? 26 : penSize,
+        erase: eraser,
+        box: {
+          width: r.width,
+          height: r.height
+        },
+        points: [point(e)]
+      };
+    strokesRef.current.push(stroke);
+    drawRef.current = {
+      id: e.pointerId,
+      stroke
+    };
+    paintStroke(canvasRef.current.getContext('2d'), stroke);
+    tap();
+  };
+  const drawMove = e => {
+    const draw = drawRef.current;
+    if (!draw || draw.id !== e.pointerId) return;
+    draw.stroke.points.push(point(e));
+    paintStroke(canvasRef.current.getContext('2d'), draw.stroke);
+  };
+  const drawEnd = e => {
+    if (drawRef.current && drawRef.current.id === e.pointerId) drawRef.current = null;
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    ref: scratchRef,
+    className: `aa-scratch ${className ? className + ' ' : ''}scratch-size-${padSize}${open ? '' : ' collapsed'}`,
+    "data-scratch-size": padSize
+  }, head, /*#__PURE__*/React.createElement(ScratchTools, {
+    lead: lead,
+    padSize: padSize,
+    cycleSize: cycleSize,
+    colour: colour,
+    eraser: eraser,
+    penSize: penSize,
+    chooseColour: next => {
+      tap();
+      setColour(next);
+      setEraser(false);
+    },
+    choosePen: next => {
+      tap();
+      setPenSize(next);
+      setEraser(false);
+    },
+    chooseEraser: () => {
+      tap();
+      setEraser(true);
+    },
+    clear: () => clearScratch(true)
+  }), /*#__PURE__*/React.createElement("canvas", {
+    ref: canvasRef,
+    className: "aa-canvas",
+    "aria-label": "Drawing scratchpad",
+    onPointerDown: drawStart,
+    onPointerMove: drawMove,
+    onPointerUp: drawEnd,
+    onPointerCancel: drawEnd
+  }));
+}
 function AskAnswerGame({
   onBack,
   journey,
@@ -20055,18 +22937,9 @@ function AskAnswerGame({
     }
   });
   const [scratchOpen, setScratchOpen] = useState(true);
-  const [colour, setColour] = useState(AA_COLORS[0]);
-  const [penSize, setPenSize] = useState(7);
-  const [eraser, setEraser] = useState(false);
-  /* The scratchpad keeps its strokes as POINTS in the canvas box's own pixels, never
-     as a bitmap: a resize or a turn of the iPad re-replays the same lines at the new
-     size instead of stretching a snapshot, and the drawing stays on screen (shrunk,
-     restacked, question changed) until the child leaves the mode. */
-  const scratchRef = useRef(null),
-    canvasRef = useRef(null),
-    drawRef = useRef(null),
-    strokesRef = useRef([]),
-    mergeT = useRef(null),
+  /* Bumped by New question: the shared ScratchPad wipes its page for the next round. */
+  const [scratchClears, setScratchClears] = useState(0);
+  const mergeT = useRef(null),
     specialT = useRef(null);
   const tap = useCallback(() => {
     Sound.setMuted(muted);
@@ -20081,103 +22954,6 @@ function AskAnswerGame({
     clearTimeout(mergeT.current);
     clearTimeout(specialT.current);
   }, []);
-  const paintStroke = useCallback((ctx, stroke) => {
-    const canvas = canvasRef.current,
-      box = canvas.getBoundingClientRect(),
-      scale = canvas.width / box.width,
-      pts = stroke.points;
-    ctx.save();
-    ctx.strokeStyle = stroke.erase ? '#fff' : stroke.colour;
-    ctx.lineWidth = stroke.width * scale;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x * scale, pts[0].y * scale);
-    /* a tap with no drag is still a dot: a round cap needs a hair of line to land */
-    if (pts.length === 1) ctx.lineTo(pts[0].x * scale + .01, pts[0].y * scale + .01);else for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i].x * scale, pts[i].y * scale);
-    ctx.stroke();
-    ctx.restore();
-  }, []);
-  const prepareCanvas = useCallback(() => {
-    const scratch = scratchRef.current,
-      canvas = canvasRef.current;
-    if (!scratch || !canvas) return;
-    const children = [...scratch.children],
-      canvasIndex = children.indexOf(canvas),
-      style = getComputedStyle(scratch),
-      gap = parseFloat(style.rowGap) || 0;
-    const occupied = children.slice(0, canvasIndex).reduce((sum, node) => sum + node.getBoundingClientRect().height, 0) + gap * Math.max(0, canvasIndex);
-    const available = Math.floor(scratch.clientHeight - (parseFloat(style.paddingTop) || 0) - (parseFloat(style.paddingBottom) || 0) - occupied);
-    canvas.style.height = `${Math.max(150, available)}px`;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width < 40 || rect.height < 40) return;
-    const scale = Math.min(window.devicePixelRatio || 1, 1.5);
-    canvas.width = Math.round(rect.width * scale);
-    canvas.height = Math.round(rect.height * scale);
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    strokesRef.current.forEach(stroke => {
-      if (stroke.points.length) paintStroke(ctx, stroke);
-    });
-  }, [paintStroke]);
-  useEffect(() => {
-    if (!scratchOpen) return;
-    const resize = () => requestAnimationFrame(() => prepareCanvas());
-    resize();
-    window.addEventListener('resize', resize);
-    const observer = window.ResizeObserver ? new window.ResizeObserver(resize) : null;
-    if (observer) observer.observe(scratchRef.current);
-    return () => {
-      window.removeEventListener('resize', resize);
-      if (observer) observer.disconnect();
-    };
-  }, [scratchOpen, prepareCanvas]);
-  const clearScratch = useCallback((withSound = true) => {
-    strokesRef.current = [];
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (withSound) tap();
-  }, [tap]);
-  const point = e => {
-    const r = canvasRef.current.getBoundingClientRect();
-    return {
-      x: e.clientX - r.left,
-      y: e.clientY - r.top
-    };
-  };
-  const drawStart = e => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (!e.isPrimary) return;
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch (err) {}
-    const stroke = {
-      colour,
-      width: eraser ? 26 : penSize,
-      erase: eraser,
-      points: [point(e)]
-    };
-    strokesRef.current.push(stroke);
-    drawRef.current = {
-      id: e.pointerId,
-      stroke
-    };
-    paintStroke(canvasRef.current.getContext('2d'), stroke);
-    tap();
-  };
-  const drawMove = e => {
-    const draw = drawRef.current;
-    if (!draw || draw.id !== e.pointerId) return;
-    draw.stroke.points.push(point(e));
-    paintStroke(canvasRef.current.getContext('2d'), draw.stroke);
-  };
-  const drawEnd = e => {
-    if (drawRef.current && drawRef.current.id === e.pointerId) drawRef.current = null;
-  };
   const updatePlayers = next => setPlayers(AA.normalisePlayers(typeof next === 'function' ? next(players) : next));
   const selectPlayer = id => {
     tap();
@@ -20348,7 +23124,7 @@ function AskAnswerGame({
     setWrong(false);
     setCorrect(false);
     setShowAnswer(false);
-    clearScratch(false);
+    setScratchClears(n => n + 1);
   };
   const active = players.players.find(p => p.id === players.selectedId) || players.players[0];
   const rows = question ? question.tokens.filter((_, i) => i % 2 === 0) : [];
@@ -20559,59 +23335,25 @@ function AskAnswerGame({
   }, "Show answer"), /*#__PURE__*/React.createElement("button", {
     className: "aa-action secondary",
     onClick: newQuestion
-  }, "New question")))), /*#__PURE__*/React.createElement("div", {
-    ref: scratchRef,
-    className: `aa-scratch ${scratchOpen ? '' : 'collapsed'}`
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "aa-scratch-head"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "aa-scratch-title"
-  }, "Scratchpad"), /*#__PURE__*/React.createElement("button", {
-    className: "aa-scratch-toggle",
-    onClick: () => {
-      tap();
-      setScratchOpen(!scratchOpen);
-    }
-  }, scratchOpen ? 'Shrink' : 'Open scratchpad')), /*#__PURE__*/React.createElement("div", {
-    className: "aa-tools"
-  }, AA_COLORS.map((c, index) => /*#__PURE__*/React.createElement("button", {
-    key: c,
-    className: `aa-colour ${!eraser && colour === c ? 'on' : ''}`,
-    style: {
-      background: c
-    },
-    "aria-label": `Choose the ${AA_COLOR_NAMES[index]} crayon`,
-    onClick: () => {
-      tap();
-      setColour(c);
-      setEraser(false);
-    }
-  })), [4, 7, 12].map(size => /*#__PURE__*/React.createElement("button", {
-    key: size,
-    className: `aa-tool ${!eraser && penSize === size ? 'on' : ''}`,
-    onClick: () => {
-      tap();
-      setPenSize(size);
-      setEraser(false);
-    }
-  }, size === 4 ? 'Thin' : size === 7 ? 'Medium' : 'Thick')), /*#__PURE__*/React.createElement("button", {
-    className: `aa-tool ${eraser ? 'on' : ''}`,
-    onClick: () => {
-      tap();
-      setEraser(true);
-    }
-  }, "Eraser"), /*#__PURE__*/React.createElement("button", {
-    className: "aa-tool",
-    onClick: () => clearScratch(true)
-  }, "Clear page")), /*#__PURE__*/React.createElement("canvas", {
-    ref: canvasRef,
-    className: "aa-canvas",
-    "aria-label": "Drawing scratchpad",
-    onPointerDown: drawStart,
-    onPointerMove: drawMove,
-    onPointerUp: drawEnd,
-    onPointerCancel: drawEnd
-  }))));
+  }, "New question")))), /*#__PURE__*/React.createElement(ScratchPad, {
+    open: scratchOpen,
+    tap: tap,
+    clears: scratchClears,
+    sizeKey: AA_SCRATCH_SIZE_KEY,
+    head: /*#__PURE__*/React.createElement("div", {
+      className: "aa-scratch-head"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "aa-scratch-toggle",
+      onClick: () => {
+        tap();
+        setScratchOpen(!scratchOpen);
+      },
+      "aria-label": scratchOpen ? 'Shrink scratchpad' : 'Open scratchpad',
+      title: scratchOpen ? 'Shrink scratchpad' : 'Open scratchpad'
+    }, /*#__PURE__*/React.createElement(ScratchToggleIcon, {
+      open: scratchOpen
+    })))
+  })));
 }
 
 /* ══ MODE p1: NUMBER CROSSWORD ══
@@ -23187,13 +25929,231 @@ function OrderNumbersGame({
 }
 /* ══ END ORDER NUMBERS UI ══ */
 
+/* ══ MENU THEME (Space) ══
+   Everything the shared menu below needs that is this world's own: the door colours,
+   one planet badge per shelf, and the key that remembers the last game played. The
+   shelves and their games are the owner's seven of 2026-09-24, in the order the game
+   cards are written in Home; check-math-parity.js holds the two lists together. The
+   sample game on each door is the picture that best says what the shelf is for. */
+const MENU_THEME = {
+  lastKey: 'sm_last_game',
+  startGame: 'b1',
+  vars: {
+    '--menu-ink': '#3b2a9e'
+  },
+  shelves: [{
+    key: 'play',
+    name: 'Play & Explore',
+    badge: 'assets-runtime/space/icons/earth.webp',
+    tint: ['#8a7bff', '#3e2caa'],
+    sample: 'np1',
+    games: [['np1', 'Number Toys'], ['x1', 'Nine Magic'], ['k1', 'Memory Match']]
+  }, {
+    key: 'count',
+    name: 'Counting & Comparing',
+    badge: 'assets-runtime/space/icons/moon.webp',
+    tint: ['#5b9bff', '#1d4fc4'],
+    sample: 'g1',
+    games: [['b1', 'What Number?'], ['b2', 'Fill the Right Block'], ['g1', 'Which is Bigger?'], ['b3', "What's Missing?"], ['o1', 'Order the Numbers']]
+  }, {
+    key: 'patterns',
+    name: 'Number Patterns',
+    badge: 'assets-runtime/space/icons/mars.webp',
+    tint: ['#ec68a8', '#8a2a9e'],
+    sample: 'sq1',
+    games: [['sq1', 'Sequence'], ['r1', 'Big Numbers'], ['oe1', 'Odd or Even?'], ['h1', 'Hundred Board'], ['t1', 'Tap or Wait']]
+  }, {
+    key: 'make',
+    name: 'Make Numbers',
+    badge: 'assets-runtime/space/icons/venus.webp',
+    tint: ['#2cc2cf', '#1a5fa8'],
+    sample: 'n1',
+    games: [['n1', 'Make 10'], ['n3', 'Make 100'], ['y1', 'Make It!']]
+  }, {
+    key: 'times',
+    name: 'Times & Sharing',
+    badge: 'assets-runtime/space/icons/jupiter.webp',
+    tint: ['#ff9a5a', '#c23f6b'],
+    sample: 'm1',
+    games: [['m1', 'Times Tables'], ['s1', 'Count By'], ['m2', 'Table Chart'], ['d1', 'Share It Out']]
+  }, {
+    key: 'measure',
+    name: 'Fractions & Measure',
+    badge: 'assets-runtime/space/icons/saturn.webp',
+    tint: ['#35c792', '#17708a'],
+    sample: 'f1',
+    games: [['f1', 'Fractions'], ['q1', "What's the Fraction?"], ['u2', 'Big and Small Units'], ['a1', 'Cover It']]
+  }, {
+    key: 'solve',
+    name: 'Solve & Calculate',
+    badge: 'assets-runtime/space/icons/uranus.webp',
+    tint: ['#a46cf5', '#4b1fa0'],
+    sample: 'c1',
+    games: [['c1', 'Add & Take Away'], ['c2', 'Carry & Borrow'], ['c5', 'Multiply'], ['aa1', 'Ask & Answer'], ['l2', 'Add & Subtract'], ['p1', 'Number Crossword'], ['mh1', 'My Math Helper']]
+  }]
+};
+
+/* ══ MENU DOORS (shared) ══
+   Owner, 2026-10-25: "the math app menu is quite long, and hard to navigate". The home
+   screen was 30 cards on one page, three to four screens tall, and young children mostly
+   stay on the first screen. So the first screen is now eight doors that always fit: the
+   owner's seven shelves of 2026-09-24, unchanged, plus a Start here / Play again door.
+
+   A DOOR SHOWS WHAT IS BEHIND IT. Planet-only doors were rejected ("it looks cute, but
+   it's not really convey information about what are these") and a text list of game
+   names was rejected ("text harder to decode for pre-school"). The chosen direction is
+   "Example + icons": one big sample game picture and a row of small pictures of the
+   shelf's other games, every one of them the live GamePreview the game card itself
+   wears, so what the child taps here is what they find inside.
+
+   THIS BLOCK IS THE SAME IN EVERY WORLD (check-math-parity.js compares it). Everything
+   that differs -- shelf badges, door colours, the remembered-game key, the ink -- lives
+   in that world's MENU_THEME above, so a third world is a new MENU_THEME and nothing
+   here. The game cards themselves stay written out in each Home, because the menu and
+   router inventory checks read them there. */
+const MENU_SHELF_OF = {};
+MENU_THEME.shelves.forEach(s => s.games.forEach(g => {
+  MENU_SHELF_OF[g[0]] = s.key;
+}));
+function menuShelf(key) {
+  return MENU_THEME.shelves.find(s => s.key === key) || null;
+}
+function menuGameName(id) {
+  for (const s of MENU_THEME.shelves) for (const g of s.games) if (g[0] === id) return g[1];
+  return '';
+}
+/* Guarded both ways: a private window, or storage turned off, simply has no Play again. */
+function menuLastGame() {
+  try {
+    const v = localStorage.getItem(MENU_THEME.lastKey);
+    return v && MENU_SHELF_OF[v] ? v : null;
+  } catch (e) {
+    return null;
+  }
+}
+function menuRememberGame(id) {
+  if (!MENU_SHELF_OF[id]) return;
+  try {
+    localStorage.setItem(MENU_THEME.lastKey, id);
+  } catch (e) {}
+}
+function MenuPlayIcon({
+  again
+}) {
+  return again ? /*#__PURE__*/React.createElement("svg", {
+    className: "md-play-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M19.5 12a7.5 7.5 0 1 1-2.2-5.3",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.8",
+    strokeLinecap: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M18.6 3.2v4.6H14",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.8",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  })) : /*#__PURE__*/React.createElement("svg", {
+    className: "md-play-svg",
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z",
+    fill: "currentColor"
+  }));
+}
+function MenuDoors({
+  onOpen,
+  onPlay,
+  launching
+}) {
+  const last = useMemo(menuLastGame, []);
+  const startId = last || MENU_THEME.startGame;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "menu-doors"
+  }, MENU_THEME.shelves.map(s => {
+    const rest = s.games.filter(g => g[0] !== s.sample);
+    return /*#__PURE__*/React.createElement("button", {
+      key: s.key,
+      className: `menu-door${launching ? ' dimmed' : ''}`,
+      style: {
+        '--d1': s.tint[0],
+        '--d2': s.tint[1]
+      },
+      onClick: () => {
+        if (launching) return;
+        Sound.tap();
+        onOpen(s.key);
+      },
+      "aria-label": `${s.name}: ${s.games.map(g => g[1]).join(', ')}`
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "md-head"
+    }, /*#__PURE__*/React.createElement("img", {
+      className: "md-badge",
+      src: s.badge,
+      alt: ""
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "md-name"
+    }, s.name)), /*#__PURE__*/React.createElement("div", {
+      className: "md-big"
+    }, /*#__PURE__*/React.createElement(GamePreview, {
+      id: s.sample
+    })), /*#__PURE__*/React.createElement("div", {
+      className: `md-minis md-minis-${rest.length}`
+    }, rest.map(g => /*#__PURE__*/React.createElement("div", {
+      key: g[0],
+      className: "md-mini"
+    }, /*#__PURE__*/React.createElement(GamePreview, {
+      id: g[0]
+    })))));
+  }), /*#__PURE__*/React.createElement("button", {
+    className: `menu-door md-again${launching === startId ? ' launching' : launching ? ' dimmed' : ''}`,
+    onClick: () => onPlay(startId),
+    "aria-label": `${last ? 'Play again' : 'Start here'}: ${menuGameName(startId)}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "md-big"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "md-again-card"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: startId
+  }), /*#__PURE__*/React.createElement(CardSticker, {
+    id: startId
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "md-again-label"
+  }, /*#__PURE__*/React.createElement(MenuPlayIcon, {
+    again: !!last
+  }), /*#__PURE__*/React.createElement("span", null, last ? 'Play again' : 'Start here'))));
+}
+function MenuShelfHead({
+  shelf
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "menu-shelf-head"
+  }, /*#__PURE__*/React.createElement("img", {
+    className: "menu-shelf-badge",
+    src: shelf.badge,
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-section-label"
+  }, shelf.name));
+}
+/* ══ END MENU DOORS ══ */
+
 /* ══ HOME ══
    Built for pre-readers: each card is a big picture that SPEAKS its name
    when tapped, zooms for feedback, then flies into the game. */
 function Home({
   onSelect,
   trophies = 0,
-  journey = 0
+  journey = 0,
+  shelf = null,
+  setShelf = () => {}
 }) {
   const [music, setMusic] = useState(() => Music.enabled());
   const title = 'Space Math!'.split('');
@@ -23215,8 +26175,10 @@ function Home({
     launchT.current = setTimeout(() => onSelect(id), 1050);
   };
   const cardCls = (id, base) => `mode-card ${base} ${launching === id ? 'launching' : launching ? 'dimmed' : ''}`;
+  const open = menuShelf(shelf);
   return /*#__PURE__*/React.createElement("div", {
-    className: "home"
+    className: "home home-menu",
+    style: MENU_THEME.vars
   }, /*#__PURE__*/React.createElement("button", {
     className: `music-btn${music ? '' : ' music-off'}`,
     "aria-label": music ? 'Menu music on' : 'Menu music off',
@@ -23226,7 +26188,15 @@ function Home({
       Music.setEnabled(n);
       Sound.tap();
     }
-  }, music ? /*#__PURE__*/React.createElement(MusicOnIcon, null) : /*#__PURE__*/React.createElement(MusicOffIcon, null)), /*#__PURE__*/React.createElement("a", {
+  }, music ? /*#__PURE__*/React.createElement(MusicOnIcon, null) : /*#__PURE__*/React.createElement(MusicOffIcon, null)), open ? /*#__PURE__*/React.createElement("button", {
+    className: "back-btn hub-btn",
+    onClick: () => {
+      Voice.stop();
+      Sound.tap();
+      setShelf(null);
+    },
+    "aria-label": "Back to all the games"
+  }, /*#__PURE__*/React.createElement(BackIcon, null)) : /*#__PURE__*/React.createElement("a", {
     className: "back-btn hub-btn",
     href: "index.html",
     "aria-label": "Back to Magic Math"
@@ -23235,22 +26205,14 @@ function Home({
   }), /*#__PURE__*/React.createElement("div", {
     className: "home-tint"
   }), /*#__PURE__*/React.createElement(BgDeco, null), /*#__PURE__*/React.createElement("div", {
-    className: "home-rainbow home-cloud-row"
+    className: "menu-top"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "menu-title-row"
   }, /*#__PURE__*/React.createElement("img", {
-    className: "home-cloud",
+    className: "menu-title-icon",
     src: "assets-runtime/space/icons/saturn.webp",
-    alt: "",
-    style: {
-      animation: 'bounce 1.7s 0s ease-in-out infinite alternate'
-    }
-  }), /*#__PURE__*/React.createElement("img", {
-    className: "home-cloud",
-    src: "assets-runtime/space/icons/rocket.webp",
-    alt: "",
-    style: {
-      animation: 'bounce 1.6s .12s ease-in-out infinite alternate'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
+    alt: ""
+  }), /*#__PURE__*/React.createElement("div", {
     className: "home-title"
   }, title.map((c, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
@@ -23259,72 +26221,30 @@ function Home({
       animationDelay: `${i * .07}s`,
       textShadow: `0 3px 0 ${TITLE_COLORS[(i + 4) % TITLE_COLORS.length]}55`
     }
-  }, c))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "assets-runtime/space/icons/star.webp",
-    alt: "",
-    style: {
-      width: 30,
-      height: 30,
-      objectFit: 'contain',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.3))'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
+  }, c))), /*#__PURE__*/React.createElement("img", {
+    className: "menu-title-icon b",
+    src: "assets-runtime/space/icons/rocket.webp",
+    alt: ""
+  })), !open && /*#__PURE__*/React.createElement("div", {
+    className: "menu-status"
+  }, trophies > 0 && /*#__PURE__*/React.createElement("div", {
     className: "home-sub"
-  }, "Choose your mission!"), /*#__PURE__*/React.createElement("img", {
-    src: "assets-runtime/space/icons/star.webp",
-    alt: "",
-    style: {
-      width: 30,
-      height: 30,
-      objectFit: 'contain',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,.3))'
-    }
-  })), trophies > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "home-sub",
-    style: {
-      fontSize: '.85rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
   }, /*#__PURE__*/React.createElement("img", {
     src: "assets-runtime/space/icons/trophy.webp",
-    alt: "",
-    style: {
-      width: 22,
-      height: 22,
-      objectFit: 'contain'
-    }
-  }), "Journeys completed: ", trophies), /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '100%',
-      maxWidth: 420,
-      display: 'flex',
-      justifyContent: 'center'
-    }
-  }, /*#__PURE__*/React.createElement(JourneyTrack, {
+    alt: ""
+  }), "Journeys completed: ", trophies), /*#__PURE__*/React.createElement(JourneyTrack, {
     progress: journey
-  })), /*#__PURE__*/React.createElement("div", {
+  }))), !open && /*#__PURE__*/React.createElement(MenuDoors, {
+    onOpen: setShelf,
+    onPlay: pick,
+    launching: launching
+  }), open && /*#__PURE__*/React.createElement("div", {
+    className: `menu-shelf shelf-n${open.games.length}`
+  }, /*#__PURE__*/React.createElement(MenuShelfHead, {
+    shelf: open
+  }), shelf === 'play' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/fourstar-gold.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Play & Explore"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/sparkle-blue.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('np1', 'mc-rose'),
@@ -23360,21 +26280,9 @@ function Home({
     className: "mode-card-label"
   }, "Memory Match"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'count' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/rocket.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Counting & Comparing"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/moon.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('b1', 'mc-pink'),
@@ -23451,21 +26359,9 @@ function Home({
     className: "mode-card-label"
   }, "Star Sums"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'patterns' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/comet.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Number Patterns"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/star.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('sq1', 'mc-purple'),
@@ -23529,21 +26425,9 @@ function Home({
     className: "mode-card-label"
   }, "Tap or Wait"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'make' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/fourstar-gold.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Make Numbers"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/sparkle-blue.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('n1', 'mc-pink'),
@@ -23581,21 +26465,9 @@ function Home({
     className: "mode-card-label"
   }, "Make It!"), /*#__PURE__*/React.createElement(Stars, {
     count: 1
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'times' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/saturn.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Times & Sharing"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/starthin.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('m1', 'mc-purple'),
@@ -23645,21 +26517,9 @@ function Home({
     className: "mode-card-label"
   }, "Share It Out"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'measure' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/crystal-cyan.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Fractions & Measure"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/crystal-purple.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('f1', 'mc-magic'),
@@ -23686,17 +26546,17 @@ function Home({
   }, "What's the Fraction?"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
   })), /*#__PURE__*/React.createElement("button", {
-    className: cardCls('u1', 'mc-pink'),
-    onClick: () => pick('u1'),
-    "aria-label": "Which Unit? Tap a picture"
+    className: cardCls('u2', 'mc-pink'),
+    onClick: () => pick('u2'),
+    "aria-label": "Big and Small Units. Tap to answer"
   }, /*#__PURE__*/React.createElement(GamePreview, {
-    id: "u1"
+    id: "u2"
   }), /*#__PURE__*/React.createElement(CardSticker, {
-    id: "u1"
+    id: "u2"
   }), /*#__PURE__*/React.createElement("div", {
     className: "mode-card-label"
-  }, "Which Unit?"), /*#__PURE__*/React.createElement(Stars, {
-    count: 1
+  }, "Big and Small Units"), /*#__PURE__*/React.createElement(Stars, {
+    count: 2
   })), /*#__PURE__*/React.createElement("button", {
     className: cardCls('a1', 'mc-purple'),
     onClick: () => pick('a1'),
@@ -23709,21 +26569,9 @@ function Home({
     className: "mode-card-label"
   }, "Cover It"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
+  })))), shelf === 'solve' && /*#__PURE__*/React.createElement("div", {
     className: "mode-section"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "home-section-heading"
-  }, /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/satellite.webp",
-    alt: ""
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mode-section-label"
-  }, "Solve & Calculate"), /*#__PURE__*/React.createElement("img", {
-    className: "section-icon",
-    src: "assets-runtime/space/icons/chest.webp",
-    alt: ""
-  })), /*#__PURE__*/React.createElement("div", {
     className: "mode-row has-badge"
   }, /*#__PURE__*/React.createElement("button", {
     className: cardCls('c1', 'mc-rose'),
@@ -23797,23 +26645,18 @@ function Home({
     className: "mode-card-label"
   }, "Number Crossword"), /*#__PURE__*/React.createElement(Stars, {
     count: 2
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'center',
-      padding: '0 8px',
-      animation: 'bounce 2s ease-in-out infinite alternate'
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "assets-runtime/space/icons/starcloud-blue.webp",
-    alt: "",
-    style: {
-      width: 64,
-      height: 64,
-      objectFit: 'contain',
-      filter: 'drop-shadow(0 0 12px rgba(140,190,255,.6))'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "mode-card mc-magic math-helper-card",
+    "data-menu-id": "mh1",
+    onClick: () => {
+      window.location.href = 'math-helper.html?world=space';
+    },
+    "aria-label": "My Math Helper. Open your interactive maths notebook"
+  }, /*#__PURE__*/React.createElement(GamePreview, {
+    id: "mh1"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mode-card-label"
+  }, "My Math Helper"))))), /*#__PURE__*/React.createElement("div", {
     className: "ai-note"
   }, "The voices we made for this game are AI-generated \u2014 none is a recording of a real person. Some lines use your device\u2019s own built-in speech instead."));
 }
@@ -23876,6 +26719,7 @@ function App() {
     h1: 0,
     d1: 0,
     q1: 0,
+    u2: 0,
     a1: 0,
     k1: 0,
     x1: 0,
@@ -24017,11 +26861,19 @@ function App() {
   useEffect(() => {
     Music.setWanted(mode === null);
   }, [mode]);
+  /* A game's way back lands on ITS shelf, not on the doors (owner, 2026-10-25): the
+     child returns to the games beside the one they just played. A #play- deep link
+     has no shelf history either, and lands on the same place. */
+  const [shelf, setShelf] = useState(null);
+  useEffect(() => {
+    if (mode) menuRememberGame(mode);
+  }, [mode]);
   const goHome = useCallback(() => {
     Voice.stop();
     clearTimeout(arrivalT.current);
+    setShelf(MENU_SHELF_OF[mode] || null);
     setMode(null);
-  }, []);
+  }, [mode]);
   const shared = {
     onBack: goHome,
     journey,
@@ -24100,7 +26952,11 @@ function App() {
   }));else if (mode === 'q1') screen = /*#__PURE__*/React.createElement(FractionGame, _extends({}, shared, {
     score: scores.q1,
     setScore: setScore('q1')
-  }));else if (mode === 'u1') screen = /*#__PURE__*/React.createElement(UnitChart, shared);else if (mode === 'a1') screen = /*#__PURE__*/React.createElement(AreaGame, _extends({}, shared, {
+  }));else if (mode === 'u2') screen = /*#__PURE__*/React.createElement(BigSmallUnitsGame, _extends({}, shared, {
+    theme: "space",
+    score: scores.u2,
+    setScore: setScore('u2')
+  }));else if (mode === 'a1') screen = /*#__PURE__*/React.createElement(AreaGame, _extends({}, shared, {
     score: scores.a1,
     setScore: setScore('a1')
   }));else if (mode === 'np1') screen = /*#__PURE__*/React.createElement(NumberPlayGame, shared);else if (mode === 'k1') screen = /*#__PURE__*/React.createElement(MemoryGame, _extends({}, shared, {
@@ -24123,7 +26979,9 @@ function App() {
   }));else screen = /*#__PURE__*/React.createElement(Home, {
     onSelect: setMode,
     trophies: trophies,
-    journey: journey
+    journey: journey,
+    shelf: shelf,
+    setShelf: setShelf
   });
   return /*#__PURE__*/React.createElement(React.Fragment, null, screen, arrivalIdx != null && /*#__PURE__*/React.createElement(ArrivalOverlay, {
     stopIdx: arrivalIdx,

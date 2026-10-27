@@ -1,0 +1,32 @@
+{
+  "created": "2026-10-26",
+  "tool": "OpenAI built-in image generation",
+  "task": "TURN-2026-10-26-0930-codex-garden-buds",
+  "source": {
+    "attempt": 1,
+    "externalFile": "/private/tmp/TURN-2026-10-26-0930-codex-garden-buds/attempt-1-atlas.png",
+    "sha256": "cc15dc9af5406fa7fd87d2f638668a90b65b841537502eeb974df5e3de20db2c",
+    "dimensions": "1983x793",
+    "mode": "RGBA",
+    "prompt": "Create one internally consistent 5-column by 2-row sprite atlas for ten tiny collectible game icons. Columns: pink cherry blossom, white daisy with yellow centre, red-pink tulip, coral-red hibiscus, and a small mixed bouquet. Top row: the same flower closed or just opening. Bottom row: fully open. Each bud must unmistakably match the bloom below it in colour family and identity; the bouquet bud is a compact tied cluster of closed buds and its bloom is the matching tied bouquet. Use original glossy, bright, saturated emoji-like 3D rendering suitable beside modern iPad flower emoji, with soft dimensional shading, crisp highlights, clean simple silhouettes, and no vendor-art copying. Centre each isolated subject in an equal square cell with identical margin and perceived scale. Use a flat #ff00ff removable background, no background shadow, grid, text, watermark, border or outline strokes. Keep every subject legible at 20-24 px. Avoid thin line art, flat painted pastel style, green sprout-only icons, excess foliage, tiny detail, realism, glow, halo and fuzzy edges.",
+    "result": "PASS",
+    "notes": "The built-in generator returned native RGBA rather than the requested key colour. The ten cells were cut, disconnected alpha dust was removed, the main component was fitted within an 82px box on a 96px transparent canvas, and each runtime file was encoded as lossless WebP. No second or third generation attempt was needed."
+  },
+  "assets": [
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-cherry-bud.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-cherry-bloom.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-daisy-bud.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-daisy-bloom.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-tulip-bud.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-tulip-bloom.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-hibiscus-bud.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-hibiscus-bloom.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-bouquet-bud.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"},
+    {"runtime": "../../assets-runtime/unicorn/icons/garden-bouquet-bloom.webp", "fullSize": "PASS", "at22px": "PASS", "alphaHalo": "PASS"}
+  ],
+  "qa": {
+    "fullSizeContactSheet": "../../qa/2026-10-26-garden-buds/all-ten-full-size.webp",
+    "placedSizeComparison": "../../qa/2026-10-26-garden-buds/garden-grid-22px-vs-current-emoji.webp",
+    "note": "QA WebPs are intentionally git-ignored under repository size policy and must be filed in the sidecar at the same repo-relative paths."
+  }
+}

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "abacus",
+    "file": "abacus.webp",
+    "w": 289,
+    "h": 227,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "bar-chart",
+    "file": "bar-chart.webp",
+    "w": 288,
+    "h": 216,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-abacus",
+    "file": "big-abacus.webp",
+    "w": 640,
+    "h": 594,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-blocks",
+    "file": "big-blocks.webp",
+    "w": 640,
+    "h": 589,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-operations",
+    "file": "big-operations.webp",
+    "w": 640,
+    "h": 531,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-shapes",
+    "file": "big-shapes.webp",
+    "w": 640,
+    "h": 510,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-sum-cloud",
+    "file": "big-sum-cloud.webp",
+    "w": 640,
+    "h": 330,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "big-unicorn-fraction",
+    "file": "big-unicorn-fraction.webp",
+    "w": 640,
+    "h": 630,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "calculator",
+    "file": "calculator.webp",
+    "w": 269,
+    "h": 224,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "clock",
+    "file": "clock.webp",
+    "w": 298,
+    "h": 233,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "coins",
+    "file": "coins.webp",
+    "w": 290,
+    "h": 219,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "counting-hand",
+    "file": "counting-hand.webp",
+    "w": 250,
+    "h": 234,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "dice",
+    "file": "dice.webp",
+    "w": 349,
+    "h": 225,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "divide",
+    "file": "divide.webp",
+    "w": 248,
+    "h": 219,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "equals",
+    "file": "equals.webp",
+    "w": 263,
+    "h": 210,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "fraction-pie",
+    "file": "fraction-pie.webp",
+    "w": 277,
+    "h": 217,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "minus",
+    "file": "minus.webp",
+    "w": 262,
+    "h": 200,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "number-blocks",
+    "file": "number-blocks.webp",
+    "w": 273,
+    "h": 212,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "number-line",
+    "file": "number-line.webp",
+    "w": 346,
+    "h": 185,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "plus",
+    "file": "plus.webp",
+    "w": 263,
+    "h": 209,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "protractor",
+    "file": "protractor.webp",
+    "w": 283,
+    "h": 206,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "ruler",
+    "file": "ruler.webp",
+    "w": 289,
+    "h": 205,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "shapes-3d",
+    "file": "shapes-3d.webp",
+    "w": 288,
+    "h": 223,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "shapes-flat",
+    "file": "shapes-flat.webp",
+    "w": 334,
+    "h": 220,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "star-seven",
+    "file": "star-seven.webp",
+    "w": 257,
+    "h": 208,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "sum-cloud",
+    "file": "sum-cloud.webp",
+    "w": 337,
+    "h": 198,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "tally",
+    "file": "tally.webp",
+    "w": 283,
+    "h": 198,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "tape-measure",
+    "file": "tape-measure.webp",
+    "w": 285,
+    "h": 191,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "target",
+    "file": "target.webp",
+    "w": 363,
+    "h": 227,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  },
+  {
+    "id": "times",
+    "file": "times.webp",
+    "w": 254,
+    "h": 210,
+    "source": "math-app/qa/2026-10-26-mermaid-theme/source-stickers-set*.png",
+    "review": "PASS"
+  }
+]

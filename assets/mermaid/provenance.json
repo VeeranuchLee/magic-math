@@ -1,0 +1,1338 @@
+{
+  "created": "2026-10-26",
+  "tool": "OpenAI built-in image generation",
+  "task": "TURN-2026-10-26-0100-codex-mermaid-art",
+  "style": "soft bright pastel under-the-sea children\u2019s picture-book gouache; turquoise, coral pink, pearl and lavender",
+  "attempts": [
+    {
+      "group": "home background",
+      "attempt": 1,
+      "result": "PASS",
+      "source": "source-home-attempt1.png",
+      "prompt_summary": "Calm luminous underwater home scene, coral/seaweed edge framing, large open UI-safe centre, no text or character."
+    },
+    {
+      "group": "mascot poses",
+      "attempt": 1,
+      "result": "REJECT",
+      "source": "source-mascot-attempt1-rejected.png",
+      "reason": "background contained dark gradients and glows, preventing clean alpha extraction."
+    },
+    {
+      "group": "mascot poses",
+      "attempt": 2,
+      "result": "PASS",
+      "source": "source-mascot-attempt2.png",
+      "prompt_summary": "Same young mermaid child in six complete clean poses on uniform magenta key; anatomy, identity and full crop constrained."
+    },
+    {
+      "group": "collectibles/menu",
+      "attempt": 1,
+      "result": "PASS",
+      "source": "source-collectibles-attempt1.png",
+      "prompt_summary": "Six distinct dimensional shells, starfish, bubbles, sandy empty slot, shell treasure chest, pearl and reef emblem."
+    },
+    {
+      "group": "card stickers set 1",
+      "attempt": 1,
+      "result": "PASS",
+      "source": "source-stickers-set1-attempt1.png",
+      "prompt_summary": "Operations, number blocks, abacus, fraction, ruler and protractor as legible undersea maths stickers."
+    },
+    {
+      "group": "card stickers set 2",
+      "attempt": 1,
+      "result": "PASS",
+      "source": "source-stickers-set2-attempt1.png",
+      "prompt_summary": "Shapes, calculator, number line, five-finger hand, coins, bar chart, seven starfish, sum, tally and tape measure."
+    },
+    {
+      "group": "card stickers set 3",
+      "attempt": 1,
+      "result": "PASS with one cell rejected",
+      "source": "source-stickers-set3-attempt1.png",
+      "prompt_summary": "Clock, shapes, dice, target and six large card stickers. Big fraction cell character rejected for identity mismatch and replaced by approved mascot plus approved fraction art."
+    },
+    {
+      "group": "journey backgrounds",
+      "attempt": 1,
+      "result": "PASS",
+      "source": "source-backgrounds-attempt1.png",
+      "prompt_summary": "Four calm portrait underwater game backgrounds with distinct edge motifs and clear UI-safe centres."
+    }
+  ],
+  "revisions": [
+    {
+      "date": "2026-10-27",
+      "task": "TURN-2026-10-27-1823-codex-mermaid-bg",
+      "group": "all Mermaid game-screen backgrounds",
+      "tool": "OpenAI built-in image generation",
+      "result": "PASS (2/2); no rejected outputs",
+      "prompt_summary": "Landscape and portrait underwater-kingdom plates matching the approved Mermaid Princess Land hub: turquoise-to-violet water, soft rays, distant pink shell-and-pearl castle, coral, sea glass, pearls and bubbles around the edges, with a deliberately calm low-contrast central and lower play field and no text or characters.",
+      "style_reference": "math-app/assets-runtime/hub/scene-3worlds.webp (approved fold-out hub; Mermaid panel used as style/world reference only)",
+      "source_masters": [
+        "math-app/art-source/mermaid-game-backgrounds/underwater-kingdom-landscape.png",
+        "math-app/art-source/mermaid-game-backgrounds/underwater-kingdom-portrait.png"
+      ],
+      "post_processing": "RGB source PNGs encoded to quality-88 WebP with Pillow 11.3.0; exact byte copies installed in assets-runtime/mermaid.",
+      "qa": "Full-size visual review: PASS for style continuity, no text/characters, quiet UI-safe centre, complete edges, castle placement and both orientation-specific compositions."
+    },
+    {
+      "date": "2026-10-26",
+      "task": "TURN-2026-10-26-1330-codex-mermaid-mascot-2",
+      "group": "all seven mascot runtime poses — clean coral top and dip-dye redraw",
+      "tool": "OpenAI built-in image generation/editing",
+      "result": "PASS",
+      "prompt_summary": "Redraw the approved age-20 Japanese-anime mermaid identity in all seven poses with soft-pink roots/top half fading continuously to lavender-purple ends, no red hair, a warm coral-pink modest shell top, a contrasting white flower with coral centre, pearls and the turquoise-to-lavender tail.",
+      "attempts": "card 1; leap 1; rear 1; shell 1; sit 1; stand 1; mermaid.webp reuses the accepted card identity. One parallel output request was refused by safety moderation and produced no asset; the missing poses were generated individually.",
+      "post_processing": "Accepted transparent PNG paintings were only proportionally contained and centred on the exact legacy canvases, then encoded as lossless RGBA WebP; no scripted recolour, hue transfer, pixel paint, or background repair; byte-identical runtime copies.",
+      "qa": "math-app/qa/2026-10-26-mermaid-mascot-2/old-vs-new.webp"
+    },
+    {
+      "date": "2026-10-26",
+      "task": "TURN-2026-10-26-1330-codex-mermaid-mascot-2",
+      "group": "all seven mascot runtime poses",
+      "tool": "OpenAI built-in image generation",
+      "result": "PASS",
+      "prompt_summary": "Fresh generation of one consistent age-20 Japanese-anime mermaid with a soft youthful adult face, fair warm-beige skin and pink cheeks, coral-red hair, purple flower, pearls, modest opaque lavender shell bodice and turquoise-to-lavender tail; complete pose silhouettes on removable backgrounds.",
+      "attempts": "stand 2; card 1; leap 2; rear 2; shell 2; sit 1; mermaid.webp reuses the accepted card identity on its legacy roomy canvas",
+      "post_processing": "Exact chroma removal for flat-green sources; temporary local U2Net foreground matting for dark-source poses; contain-resize to legacy dimensions and subject envelopes; 12-degree canvas rotation for leap and shell framing; lossless RGBA WebP; byte-identical runtime copies.",
+      "qa": "math-app/qa/2026-10-26-mermaid-mascot-2/old-vs-new.webp"
+    }
+  ],
+  "post_processing": "Grid crop; remove only small edge-touching neighbour components; contain-resize to exact Unicorn counterpart dimensions; preserve or create alpha; lossless WebP for cutouts. Big fraction is a composite of approved mascot attempt 2 and approved fraction art. The 2026-10-26 mascot-2 revision replaces all original child mascot poses with fresh young-adult generations as detailed in revisions.",
+  "qa": [
+    "contact-all-full-size.webp",
+    "contact-shells-48px.webp",
+    "review.json",
+    "math-app/qa/2026-10-26-mermaid-mascot-2/old-vs-new.webp"
+  ],
+  "assets": [
+    {
+      "file": "math-app/assets/mermaid/bg-add-subtract.webp",
+      "size": [
+        1086,
+        1448
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/bg-fill-right-block.webp",
+      "size": [
+        1086,
+        1448
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/bg-home.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/bg-home.webp",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/bg-hop-to-number.webp",
+      "size": [
+        1086,
+        1448
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/bg-what-number.webp",
+      "size": [
+        1086,
+        1448
+      ],
+      "mode": "RGB",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/bouquet.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/bubbles.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/cloud-blue.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/cloud-pink.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/crown.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/flower-blue.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/flower-coral.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/flower-pink.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/flower-purple.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/flower-yellow.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/heart-gem.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/heart-pink.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/heart-purple.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/heart-yellow.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/heart.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-card.webp",
+      "size": [
+        414,
+        490
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-leap.webp",
+      "size": [
+        380,
+        332
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-rear.webp",
+      "size": [
+        369,
+        380
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-shell.webp",
+      "size": [
+        305,
+        380
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-sit.webp",
+      "size": [
+        340,
+        380
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/mermaid-stand.webp",
+      "size": [
+        320,
+        380
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/pearl.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/petal-pink.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/petal-purple.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/petal-yellow.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/rainbow.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/reef-emblem.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-clam-pearl.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-conch.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-cowrie.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-empty-slot.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-nautilus.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-sand-dollar.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-scallop.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/shell-treasure-chest.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/sparkle.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/star-purple.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/star.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/starfish.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/icons/unicorn-flower.webp",
+      "size": [
+        256,
+        256
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/mermaid/mermaid.webp",
+      "size": [
+        830,
+        1000
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/abacus.webp",
+      "size": [
+        289,
+        227
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/bar-chart.webp",
+      "size": [
+        288,
+        216
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-abacus.webp",
+      "size": [
+        640,
+        594
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-blocks.webp",
+      "size": [
+        640,
+        589
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-operations.webp",
+      "size": [
+        640,
+        531
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-shapes.webp",
+      "size": [
+        640,
+        510
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-sum-cloud.webp",
+      "size": [
+        640,
+        330
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/big-unicorn-fraction.webp",
+      "size": [
+        640,
+        630
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/calculator.webp",
+      "size": [
+        269,
+        224
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/clock.webp",
+      "size": [
+        298,
+        233
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/coins.webp",
+      "size": [
+        290,
+        219
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/counting-hand.webp",
+      "size": [
+        250,
+        234
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/dice.webp",
+      "size": [
+        349,
+        225
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/divide.webp",
+      "size": [
+        248,
+        219
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/equals.webp",
+      "size": [
+        263,
+        210
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/fraction-pie.webp",
+      "size": [
+        277,
+        217
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/minus.webp",
+      "size": [
+        262,
+        200
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/number-blocks.webp",
+      "size": [
+        273,
+        212
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/number-line.webp",
+      "size": [
+        346,
+        185
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/plus.webp",
+      "size": [
+        263,
+        209
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/protractor.webp",
+      "size": [
+        283,
+        206
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/ruler.webp",
+      "size": [
+        289,
+        205
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/shapes-3d.webp",
+      "size": [
+        288,
+        223
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/shapes-flat.webp",
+      "size": [
+        334,
+        220
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/star-seven.webp",
+      "size": [
+        257,
+        208
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/sum-cloud.webp",
+      "size": [
+        337,
+        198
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/tally.webp",
+      "size": [
+        283,
+        198
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/tape-measure.webp",
+      "size": [
+        285,
+        191
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/target.webp",
+      "size": [
+        363,
+        227
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    },
+    {
+      "file": "math-app/assets/stickers/mermaid/times.webp",
+      "size": [
+        254,
+        210
+      ],
+      "mode": "RGBA",
+      "review": "PASS",
+      "checks": [
+        "full-size visual",
+        "meaning/composition",
+        "no text or emoji",
+        "clean crop and edges",
+        "alpha corners and coverage"
+      ]
+    }
+  ]
+}

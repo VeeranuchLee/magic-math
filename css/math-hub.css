@@ -1,7 +1,5 @@
-/* Owner-painted Magic Math front door. Landscape: the scene is scaled by height so the open book
-   stays large and only the room sides crop. Portrait (2026-10-06): the book spans almost the whole
-   picture width, so height-scaling cut off the rocket and the castle -- portrait scales by WIDTH,
-   centres the whole book, and fills above/below with a soft blurred copy of the same painting. */
+/* Three-world Magic Math front door. Each orientation has its own generated composition so Space,
+   Unicorn and Mermaid stay equally large at both target iPad sizes without cropping or scrolling. */
 html{touch-action:manipulation;-webkit-text-size-adjust:100%}
 body{min-height:100svh;overflow:hidden;background:#d7b9cc;touch-action:manipulation}
 .bg{display:none}
@@ -13,29 +11,38 @@ body{min-height:100svh;overflow:hidden;background:#d7b9cc;touch-action:manipulat
 .heading-sticker{position:absolute;top:50%;width:clamp(58px,7.2vw,78px);height:auto;transform:translateY(-50%);pointer-events:none;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 6px rgba(61,37,79,.28))}
 .heading-sticker-left{right:calc(100% + 10px)}
 .heading-sticker-right{left:calc(100% + 10px)}
-/* Portrait: the Children Games button sits flush against the banner's left edge and hid the left sticker, so both stickers drop just under the banner's two corners, in the empty wall above the book. */
-@media (orientation: portrait){.heading-sticker{top:calc(100% + 8px);transform:none}.heading-sticker-left{right:auto;left:6px}.heading-sticker-right{left:auto;right:6px}}
-.scene-stage{position:absolute;inset:0;overflow:hidden;background:#d7b9cc}
-.scene-canvas{position:absolute;top:0;left:50%;height:100svh;width:auto;aspect-ratio:1672/941;transform:translateX(-50%)}
-.scene-canvas>img{display:block;width:100%;height:100%;object-fit:fill}
+@media (orientation:portrait){.heading-sticker{top:calc(100% + 8px);transform:none}.heading-sticker-left{right:auto;left:6px}.heading-sticker-right{left:auto;right:6px}}
+.scene-stage,.scene-canvas{position:absolute;inset:0;overflow:hidden;background:#d7b9cc}
+.scene-canvas{width:100vw;height:100svh}
+.hub-scene-picture,.hub-scene-picture>img{display:block;width:100%;height:100%}
+.hub-scene-picture>img{object-fit:cover;object-position:center}
 .world-hotspots{position:absolute;inset:0}
-.world-hotspot{position:absolute;inset:0;display:block;background:transparent;-webkit-tap-highlight-color:transparent}
+.world-hotspot{position:absolute;inset:0;display:block;background:transparent;-webkit-tap-highlight-color:transparent;clip-path:var(--landscape-shape);-webkit-clip-path:var(--landscape-shape)}
 .world-hotspot:hover,.world-hotspot:focus-visible{background:rgba(255,245,159,.2);filter:drop-shadow(0 0 10px #fff2a6);outline:0}
-.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.world-label{position:absolute;z-index:2;left:50%;top:72%;transform:translate(-50%,-50%);min-width:150px;min-height:64px;padding:15px 22px 13px;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,248,218,.96);border-radius:24px 12px 24px 12px;background:linear-gradient(150deg,rgba(111,77,151,.96),rgba(61,45,112,.96));box-shadow:0 5px 0 rgba(62,38,88,.7),0 9px 20px rgba(42,25,69,.3),inset 0 1px 0 rgba(255,255,255,.4);color:#fff9dc;font-size:clamp(.95rem,1.8vw,1.3rem);font-weight:900;line-height:1;text-align:center;text-shadow:0 2px 3px rgba(31,18,55,.6);white-space:nowrap;pointer-events:none}
+.world-hotspot[data-id="space"] .world-label{left:18%}
+.world-hotspot[data-id="unicorn"] .world-label{left:52%}
+.world-hotspot[data-id="mermaid"] .world-label{left:84%}
+.hub-glint{position:absolute;z-index:3;left:50%;top:68%;width:13px;height:13px;border-radius:50%;background:#fffbe2;box-shadow:0 0 0 3px rgba(255,242,156,.28),0 0 15px 5px rgba(255,244,173,.72);opacity:0;pointer-events:none;animation:hub-glint 8s ease-in-out infinite}
+.world-hotspot[data-id="space"] .hub-glint{left:27%;top:56%;animation-delay:0s}
+.world-hotspot[data-id="unicorn"] .hub-glint{left:59%;top:60%;animation-delay:2.1s}
+.world-hotspot[data-id="mermaid"] .hub-glint{left:90%;top:57%;animation-delay:4.2s}
+@keyframes hub-glint{0%,7%,100%{opacity:0;transform:scale(.35)}3%{opacity:.9;transform:scale(1)}5%{opacity:.25;transform:scale(.65)}}
 .hub-btn,.music-btn{z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-@media(max-width:700px){
-  .hub-btn{padding:0;width:60px;justify-content:center;gap:0}
-  .hub-btn span{display:none}
-  .hub-heading{width:min(58vw,360px);padding-inline:10px}
-}
+@media(max-width:700px){.hub-btn{padding:0;width:60px;justify-content:center;gap:0}.hub-btn span{display:none}.hub-heading{width:min(58vw,360px);padding-inline:10px}}
 @media(max-width:430px){.hub-heading{width:54vw}.hub-heading .sub{font-size:.7rem}}
-@media(prefers-reduced-motion:reduce){.world-hotspot{transition:none}}
-
-@media (orientation: portrait){
-  .scene-stage::before{content:"";position:absolute;inset:-40px;background:url(../assets-runtime/hub/scene.webp) center/cover no-repeat;filter:blur(22px) saturate(1.05);opacity:.9}
-  .scene-canvas{top:54%;left:0;width:100vw;height:auto;transform:translateY(-50%)}
+@media(orientation:portrait){
+  .heading-sticker{display:none}
+  .world-hotspot{clip-path:var(--portrait-shape);-webkit-clip-path:var(--portrait-shape)}
+  .world-label{top:50%;min-width:136px;padding-inline:16px}
+  .world-hotspot[data-id="space"] .world-label{left:22%}
+  .world-hotspot[data-id="unicorn"] .world-label{left:73%}
+  .world-hotspot[data-id="mermaid"] .world-label{left:50%;top:84%}
+  .world-hotspot[data-id="space"] .hub-glint{left:31%;top:50%}
+  .world-hotspot[data-id="unicorn"] .hub-glint{left:76%;top:48%}
+  .world-hotspot[data-id="mermaid"] .hub-glint{left:76%;top:82%}
 }
+@media(prefers-reduced-motion:reduce){.world-hotspot{transition:none}.hub-glint{animation:none;display:none}}
 
-/* Owner, 2026-10-08: keep the painted hub calm with exactly two static decorative stickers,
-   one on each side of the unchanged banner. They belong to the heading rather than the scene,
-   so they cannot drift onto the book or either world hotspot as the painting crops. */
+/* Owner, 2026-10-08: the banner remains calm with two static decorative stickers. The
+   right sticker is now a shell so the title itself welcomes all three worlds. */
