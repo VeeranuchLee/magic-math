@@ -321,7 +321,9 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 //        multiplication layout and a full-screen pad; Ask & Answer gains the same large pad.
 // v69 covers the Math Helper polish and the Mermaid Princess Land game plates on
 // this branch; keep one release bump for the combined candidate.
-const CACHE_NAME = "magic-math-v69";
+// v70 2026-10-28: portrait world-menu cards stay inside their grid tracks, and
+//        Mermaid Tap or Wait uses the Mermaid underwater board and shell theme.
+const CACHE_NAME = "magic-math-v70";
 
 const SHELL = [
   "./",

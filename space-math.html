@@ -111,6 +111,14 @@
       .md-again .md-big .gp{zoom:1.5}
       .md-mini .gp{zoom:.48}
     }
+    @media (orientation:portrait){
+      /* Six mini-previews make the seven-game Solve door the densest door. Keep
+         its pictures inside its grid track without shrinking or clipping its name. */
+      .menu-door-many{padding-block:6px 8px;gap:2px}
+      .menu-door-many .md-big .gp{zoom:.86}
+      .menu-door-many .md-minis{gap:2px 3px}
+      .menu-door-many .md-mini .gp{zoom:.4}
+    }
     .menu-shelf{flex:1 1 auto;min-height:0;width:100%;max-width:1000px;display:flex;flex-direction:column;align-items:center;gap:8px}
     .menu-shelf-head{display:flex;align-items:center;justify-content:center;gap:10px;flex:0 0 auto}
     .menu-shelf-badge{width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
@@ -26081,7 +26089,7 @@ function MenuDoors({
     const rest = s.games.filter(g => g[0] !== s.sample);
     return /*#__PURE__*/React.createElement("button", {
       key: s.key,
-      className: `menu-door${launching ? ' dimmed' : ''}`,
+      className: `menu-door${s.games.length >= 7 ? ' menu-door-many' : ''}${launching ? ' dimmed' : ''}`,
       style: {
         '--d1': s.tint[0],
         '--d2': s.tint[1]

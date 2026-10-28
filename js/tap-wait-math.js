@@ -1,4 +1,4 @@
-/* Number Catch — shared Space/Unicorn collecting shell. Rules and scoring stay
+/* Number Catch — shared Space/Unicorn/Mermaid collecting shell. Rules and scoring stay
  * in TapWaitEngine; this adapter owns the painted board, feedback and controls. */
 (function (root) {
   "use strict";
@@ -12,7 +12,7 @@
     speaker:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     speakerOff:'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
-  function icon(key) { return h("span", { "aria-hidden":"true", dangerouslySetInnerHTML:{__html:CG[key]} }); }
+  function icon(key) { return h("span", { className:"tw-icon", "aria-hidden":"true", dangerouslySetInnerHTML:{__html:CG[key]} }); }
 
   var SCREEN_TITLE = "Number Catch";
   /* Measured by colour-region detection from the nine pad/soil interiors in the
@@ -28,6 +28,11 @@
       [0.1348,0.3021,0.1787,0.1003],[0.4189,0.3034,0.1631,0.1003],[0.6875,0.3034,0.1777,0.0996],
       [0.0957,0.4479,0.2061,0.1133],[0.4121,0.4518,0.1768,0.1113],[0.7012,0.4479,0.2021,0.1133],
       [0.0576,0.6458,0.2393,0.1211],[0.3701,0.6484,0.2490,0.1211],[0.7070,0.6458,0.2568,0.1211]
+    ],
+    mermaid: [
+      [0.1100,0.2500,0.1800,0.1050],[0.4100,0.2500,0.1800,0.1050],[0.7100,0.2500,0.1800,0.1050],
+      [0.1100,0.4550,0.1800,0.1050],[0.4100,0.4550,0.1800,0.1050],[0.7100,0.4550,0.1800,0.1050],
+      [0.1100,0.6600,0.1800,0.1050],[0.4100,0.6600,0.1800,0.1050],[0.7100,0.6600,0.1800,0.1050]
     ]
   };
   var PRESETS = [
@@ -112,7 +117,7 @@
     var state = view || { phase: "loading", score: 0, streak: 0, wrong: 0, eventIndex: 0, roundLength: 12, current: null };
     var activeIndex = gameRef.current ? gameRef.current.getDifficulty() : level;
     var preset = PRESETS[activeIndex] || PRESETS[0];
-    var theme = props.theme === "unicorn" ? "unicorn" : "space";
+    var theme = props.theme === "mermaid" ? "mermaid" : props.theme === "unicorn" ? "unicorn" : "space";
     var items = state.current && state.current.items || [];
     var bySlot = {}; items.forEach(function (item) { bySlot[item.slot] = item; });
     var reteach = state.wrong >= 2, reveal = state.wrong >= 3;
@@ -125,7 +130,7 @@
     var spots = Array.from({ length: 9 }, function (_, slot) {
       var item = bySlot[slot], rect = spotRects[slot];
       var spotStyle = { left:(rect[0]*100)+"%", top:(rect[1]*100)+"%", width:(rect[2]*100)+"%", height:(rect[3]*100)+"%" };
-      return h("div", { key: slot, className: "tw-spot" + (item ? " occupied" : ""), style:spotStyle, "data-slot": String(slot), "aria-label": item ? undefined : (theme === "space" ? "Empty star cradle" : "Empty flower bed") }, item ?
+      return h("div", { key: slot, className: "tw-spot" + (item ? " occupied" : ""), style:spotStyle, "data-slot": String(slot), "aria-label": item ? undefined : (theme === "space" ? "Empty star cradle" : theme === "mermaid" ? "Empty shell bed" : "Empty flower bed") }, item ?
         h("button", { type: "button", className: "tw-collectible up" + (item.target ? " target" : "") + (item.tapped ? " collected" : "") + (reveal && item.target ? " hint-match" : ""), "data-slot": String(slot), "data-target": item.target ? "true" : "false", "aria-label": String(item.item), onClick: function () { if (gameRef.current) gameRef.current.tap(item); } }, [
           h("span", { key: "visual", className: "tw-collectible-visual" }, [
             h("span", { key: "sprite", className: "tw-collectible-art", "aria-hidden": "true" }),
@@ -140,18 +145,18 @@
         h("button", { key: "back", type: "button", className: "back-btn", "aria-label": "Back to Math", onClick: function () { sound("tap"); if (props.onBack) props.onBack(); } }, icon("back")),
         h("div", { key: "score", className: "tw-score-box" }, [h("small", { key: "l" }, "SCORE"), h("b", { key: "v" }, String(state.score || 0))]),
         h("div", { key: "title", className: "tw-title" }, SCREEN_TITLE),
-        h("div", { key: "streak", className: "tw-streak-box " + theme, "aria-label": "Collection streak " + (state.streak || 0) }, [h("small", { key: "l" }, theme === "space" ? "STAR JAR" : "BOUQUET"), h("span", { key: "meter", className: "tw-collection-meter" }, Array.from({length:5}, function (_, i) { return h("i", { key:i, className:i < Math.min(state.streak || 0,5) ? "filled" : "" }, icon(theme === "space" ? "star" : "sparkle")); }))]),
+        h("div", { key: "streak", className: "tw-streak-box " + theme, "aria-label": "Collection streak " + (state.streak || 0) }, [h("small", { key: "l" }, theme === "space" ? "STAR JAR" : theme === "mermaid" ? "SHELL COVE" : "BOUQUET"), h("span", { key: "meter", className: "tw-collection-meter" }, Array.from({length:5}, function (_, i) { return h("i", { key:i, className:i < Math.min(state.streak || 0,5) ? "filled" : "" }, icon(theme === "space" ? "star" : "sparkle")); }))]),
         h("button", { key: "sound", type: "button", className: "sound-btn", "aria-label": props.muted ? "Turn sound on" : "Turn sound off", onClick: function () { sound("tap"); if (props.onToggleMute) props.onToggleMute(); } }, icon(props.muted ? "speakerOff" : "speaker"))
       ]),
       h("div", { key: "rule", className: "tw-rule" + (reveal ? " reteach" : "") }, [h("span", { key: "word", className: "tw-rule-word" }, preset.label), h("strong", { key: "glyph", className: "tw-glyph" }, preset.glyph), h("span", { key: "line", className: "tw-rule-line" }, reteach ? preset.hint : preset.ruleText)]),
-      h("div", { key: "stage", className: "tw-stage " + flash, "aria-label": theme === "space" ? "Nine-spot star collecting board" : "Nine-bed flower collecting board" }, spots),
+      h("div", { key: "stage", className: "tw-stage " + flash, "aria-label": theme === "space" ? "Nine-spot star collecting board" : theme === "mermaid" ? "Nine-shell underwater collecting board" : "Nine-bed flower collecting board" }, spots),
       h("div", { key: "footer", className: "tw-footer" }, [
         h("div", { key: "rules", className: "tw-ribbon", "aria-label": "Choose a collecting rule" }, PRESETS.map(function (p, i) { return h("button", { key: p.id, type: "button", className: "tw-chip" + (i === activeIndex ? " on" : ""), "aria-pressed": i === activeIndex, onClick: function () { choose(i); } }, p.label); })),
-        h("div", { key: "message", className: "tw-message", "aria-live": "polite" }, flash === "wrong" ? (theme === "space" ? "Let that star twinkle away." : "Let that flower close.") : flash === "waited" ? h("span", {}, ["Good waiting! ", icon("star")]) : flash === "missed" ? "Look for the matching numbers." : (theme === "space" ? "Collect matching stars. Let the others fade." : "Pick matching flowers. Let the others close.")),
+        h("div", { key: "message", className: "tw-message", "aria-live": "polite" }, flash === "wrong" ? (theme === "space" ? "Let that star twinkle away." : theme === "mermaid" ? "Let that shell drift away." : "Let that flower close.") : flash === "waited" ? h("span", {}, ["Good waiting! ", icon("star")]) : flash === "missed" ? "Look for the matching numbers." : (theme === "space" ? "Collect matching stars. Let the others fade." : theme === "mermaid" ? "Collect matching shells. Let the others drift." : "Pick matching flowers. Let the others close.")),
         h("span", { key: "progress", className: "tw-progress" }, Math.min((state.eventIndex || 0) + 1, state.roundLength || 12) + " / " + (state.roundLength || 12))
       ])
     ];
-    if (state.phase === "ended") body.push(h("div", { key: "finish", className: "tw-finish" }, [h("div", { key: "ticket", className: "tw-ticket" }, [h("span", { key: "t" }, theme === "space" ? "STAR COLLECTION" : "FLOWER BOUQUET"), h("b", { key: "s" }, [icon(theme === "space" ? "star" : "sparkle"), " " + (state.score || 0)])]), h("div", { key: "copy", className: "tw-finish-copy" }, "Great collecting and waiting!"), h("div", { key: "buttons", className: "tw-finish-buttons" }, [h("button", { key: "again", type: "button", className: "tw-finish-button", onClick: again }, "Play again"), h("button", { key: "harder", type: "button", className: "tw-finish-button", disabled: activeIndex >= PRESETS.length - 1, onClick: harder }, "Next rule ›")]) ]));
+    if (state.phase === "ended") body.push(h("div", { key: "finish", className: "tw-finish" }, [h("div", { key: "ticket", className: "tw-ticket" }, [h("span", { key: "t" }, theme === "space" ? "STAR COLLECTION" : theme === "mermaid" ? "SHELL COLLECTION" : "FLOWER BOUQUET"), h("b", { key: "s" }, [icon(theme === "space" ? "star" : "sparkle"), " " + (state.score || 0)])]), h("div", { key: "copy", className: "tw-finish-copy" }, "Great collecting and waiting!"), h("div", { key: "buttons", className: "tw-finish-buttons" }, [h("button", { key: "again", type: "button", className: "tw-finish-button", onClick: again }, "Play again"), h("button", { key: "harder", type: "button", className: "tw-finish-button", disabled: activeIndex >= PRESETS.length - 1, onClick: harder }, "Next rule ›")]) ]));
     return h("div", { className: "screen tap-wait-math-screen " + theme, style: props.journeyBg ? { "--game-bg": "url('" + props.journeyBg + "')" } : undefined }, body);
   }
   root.TapWaitMath = { Game: Game, presets: PRESETS, makeConfig: makeConfig, SCREEN_TITLE: SCREEN_TITLE };
