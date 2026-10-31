@@ -323,7 +323,7 @@ importScripts("./cache-list.js"); // defines self.__WARM_IMAGES
 // this branch; keep one release bump for the combined candidate.
 // v70 2026-10-28: portrait world-menu cards stay inside their grid tracks, and
 //        Mermaid Tap or Wait uses the Mermaid underwater board and shell theme.
-const CACHE_NAME = "magic-math-v70";
+const CACHE_NAME = "magic-math-v71";
 
 const SHELL = [
   "./",
